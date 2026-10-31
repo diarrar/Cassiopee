@@ -52,7 +52,7 @@ PyObject* K_OCC::splitEdge(PyObject* self, PyObject* args)
   GETMAPSURFACES;
 
   TopoDS_Edge edge = TopoDS::Edge(edges(no)); // existing edge
-  E_Float f, l;
+  Standard_Real f, l;
   Handle(Geom_Curve) curve = BRep_Tool::Curve(edge, f, l);
 
   // Find parameter of the split point

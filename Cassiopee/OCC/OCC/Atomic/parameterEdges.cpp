@@ -30,7 +30,7 @@
 
 // Return properties of face
 void getShapeProperties(TopoDS_Face& F,
-    E_Float& U0, E_Float& U1, E_Float& V0, E_Float& V1,
+    Standard_Real& U0, Standard_Real& U1, Standard_Real& V0, Standard_Real& V1,
     E_Int& isUClosed, E_Int& isVClosed, 
     E_Int& isUPeriodic, E_Int& isVPeriodic,
     E_Float& uPeriod, E_Float& vPeriod)
@@ -62,7 +62,7 @@ E_Int parameters2(const E_Float* pt, TopoDS_Face& F,
     E_Int index, E_Float& up, E_Float& vp, E_Float& upp, E_Float& vpp)
 {
   Handle(Geom_Surface) face = BRep_Tool::Surface(F);
-  E_Float U0, U1, V0, V1, uPeriod, vPeriod;
+  Standard_Real U0, U1, V0, V1; E_Float uPeriod, vPeriod;
   E_Int isUClosed, isVClosed, isUPeriodic, isVPeriodic;
   getShapeProperties(F, U0, U1, V0, V1, isUClosed, isVClosed, 
         isUPeriodic, isVPeriodic, uPeriod, vPeriod);

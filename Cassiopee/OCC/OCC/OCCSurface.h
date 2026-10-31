@@ -91,7 +91,7 @@ public:
   bool in_bounds(E_Float u, E_Float v) const ;
   
 private:
-  void __get_params_and_type(const TopoDS_Face& F, E_Float& U0, E_Float& U1, E_Float& V0, E_Float& V1, bool& isUClosed, bool& isVClosed);
+  void __get_params_and_type(const TopoDS_Face& F, Standard_Real& U0, Standard_Real& U1, Standard_Real& V0, Standard_Real& V1, bool& isUClosed, bool& isVClosed);
   
   E_Int __sample_contour(E_Int Nsample, K_FLD::FloatArray& pos3D, K_FLD::FloatArray& pos2D);
   
@@ -108,7 +108,7 @@ public:
   E_Int _parent; //solid
   std::vector<E_Int> _edges;
   
-  E_Float _U0, _U1, _V0, _V1;
+  Standard_Real _U0, _U1, _V0, _V1;
   bool _isUClosed, _isVClosed, _isRevol;
   bool _isUPeriodic, _isVPeriodic;
   E_Float _uPeriod, _vPeriod;

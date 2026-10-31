@@ -458,7 +458,7 @@ E_Int K_OCC::CADviaOCC::build_loops
   
   // merge tol
   _merge_tol = ::sqrt(tol2); 
-  _merge_tol = std::max(_merge_tol, 1.e-4*_Lmean);
+  _merge_tol = std::max(_merge_tol, (E_Float)(1.e-4*_Lmean));
   if (merge_tol > 0.) _merge_tol = merge_tol;
   printf("merge tol = %g\n", _merge_tol);
   
@@ -781,7 +781,7 @@ E_Int K_OCC::CADviaOCC::mesh_faces
       }
       else
       {
-        mode.growth_ratio = std::max(_gr, 1.); //fixme : values in [1.; 1.25] might cause errors. Anyway do not allow bellow 1. since not useful
+        mode.growth_ratio = std::max(_gr, (E_Float)1.); //fixme : values in [1.; 1.25] might cause errors. Anyway do not allow bellow 1. since not useful
         E_Int MIN_NB = 50;
         if (_gr >= 1. && (connectB.cols() > (MIN_NB * 4))) // check if growth ratio is applicable to this patch, i.e. it is symmetrizable
         {
@@ -1152,13 +1152,13 @@ E_Int K_OCC::CADviaOCC::__check_for_spikes(const std::vector<K_FLD::IntArray>& c
       int Ni = sorted_nodes[(n + 1) % nnodes];
       int Nip1 = sorted_nodes[(n + 2) % nnodes];
 
-      double Pim1Pi[] = { UVcontour(0, Ni) - UVcontour(0, Nim1) , UVcontour(1, Ni) - UVcontour(1, Nim1) };
+      E_Float Pim1Pi[] = { UVcontour(0, Ni) - UVcontour(0, Nim1) , UVcontour(1, Ni) - UVcontour(1, Nim1) };
       NUGA::normalize<2>(Pim1Pi);
-      double Norm1[] = { -Pim1Pi[1], Pim1Pi[0] , 0.};  // {-b, a}
+      E_Float Norm1[] = { -Pim1Pi[1], Pim1Pi[0] , 0.};  // {-b, a}
 
-      double PiPip1[] = { UVcontour(0, Nip1) - UVcontour(0, Ni) , UVcontour(1, Nip1) - UVcontour(1, Ni) };
+      E_Float PiPip1[] = { UVcontour(0, Nip1) - UVcontour(0, Ni) , UVcontour(1, Nip1) - UVcontour(1, Ni) };
       NUGA::normalize<2>(PiPip1);
-      double Norm2[] = { -PiPip1[1], PiPip1[0], 0. };  // {-b, a}
+      E_Float Norm2[] = { -PiPip1[1], PiPip1[0], 0. };  // {-b, a}
 
       double spiky = ::fabs(NUGA::normals_angle(Norm1, Norm2) - NUGA::PI);
 

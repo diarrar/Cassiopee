@@ -39,12 +39,12 @@ PyObject* K_OCC::getBoundingBox(PyObject* self, PyObject* args)
   GETSHAPE;
   GETMAPSURFACES;
 
-  E_Float xmin = E_MAXFLOAT;
-  E_Float ymin = E_MAXFLOAT;
-  E_Float zmin = E_MAXFLOAT;
-  E_Float xmax = -E_MAXFLOAT;
-  E_Float ymax = -E_MAXFLOAT;
-  E_Float zmax = -E_MAXFLOAT;
+  Standard_Real xmin = E_MAXFLOAT;
+  Standard_Real ymin = E_MAXFLOAT;
+  Standard_Real zmin = E_MAXFLOAT;
+  Standard_Real xmax = -E_MAXFLOAT;
+  Standard_Real ymax = -E_MAXFLOAT;
+  Standard_Real zmax = -E_MAXFLOAT;
 
   // By face
   if (listFaces == Py_None) // all faces of topshape

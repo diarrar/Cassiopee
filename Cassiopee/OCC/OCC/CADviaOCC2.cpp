@@ -271,7 +271,7 @@ E_Int K_OCC::CADviaOCC::mesh_faces2
       }
       else
       {
-        mode.growth_ratio = std::max(_gr, 1.); //fixme : values in [1.; 1.25] might cause errors. Anyway do not allow bellow 1. since not useful
+        mode.growth_ratio = std::max(_gr, (E_Float)1.); //fixme : values in [1.; 1.25] might cause errors. Anyway do not allow bellow 1. since not useful
         E_Int MIN_NB = 20;
         if (_gr > 1. && (connectB.cols() > (MIN_NB * 4))) // check if growth ratio is applicable to this patch, i.e. it is symmetrizable
         {

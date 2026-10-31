@@ -145,7 +145,9 @@ K_OCC::OCCSurface::parameters(const E_Float* pt, E_Float& u, E_Float& v, E_Int i
   gp_Pnt Point;
   Point.SetCoord(pt[0], pt[1], pt[2]);
   
-  E_Int ok = GeomLib_Tool::Parameters(_surface, Point, 1.e+100/*dummytol*/, u, v);
+  Standard_Real ud = u, vd = v;
+  E_Int ok = GeomLib_Tool::Parameters(_surface, Point, 1.e+100/*dummytol*/, ud, vd);
+  u = ud; v = vd;
   if (!ok || u==-1 || v==-1) return 1;
   
   // normalize in [0,1]
@@ -469,10 +471,10 @@ void K_OCC::OCCSurface::__denormalize(E_Float& u, E_Float& v) const
   u = u*(_U1-_U0) + _U0; // put in [U0,U1]
   v = v*(_V1-_V0) + _V0; // put in [V0,V1]
   
-  u = std::max(_U0, u);
-  u = std::min(_U1, u);
-  v = std::max(_V0, v);
-  v = std::min(_V1, v);  
+  u = std::max((E_Float)_U0, u);
+  u = std::min((E_Float)_U1, u);
+  v = std::max((E_Float)_V0, v);
+  v = std::min((E_Float)_V1, v);  
 }
 
 
@@ -506,7 +508,7 @@ void K_OCC::OCCSurface::__traverse_face_edges(const TopoDS_Face& F, TopExp_Explo
 }
 
 void K_OCC::OCCSurface::__get_params_and_type
-(const TopoDS_Face& F, E_Float& U0, E_Float& U1, E_Float& V0, E_Float& V1, bool& isUClosed, bool& isVClosed)
+(const TopoDS_Face& F, Standard_Real& U0, Standard_Real& U1, Standard_Real& V0, Standard_Real& V1, bool& isUClosed, bool& isVClosed)
 {
   E_Float paramtol = 1.e-6;
   
