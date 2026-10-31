@@ -54,6 +54,17 @@ using namespace K_FLD;
 #endif
 
 //=============================================================================
+// Error when a numpy of reals is not of E_Float type (only in single precision)
+// The pointer is still returned (and the reference counted) so that callers
+// not checking the return value do not crash: the python exception is raised.
+//=============================================================================
+static void setFloatTypeError()
+{
+  PyErr_SetString(PyExc_TypeError,
+                  "getFromNumpyArray: numpy must be of E_Float type (float32 in single precision).");
+}
+
+//=============================================================================
 // Retourne un FldArrayI a partir d'un numpy d'entiers
 // Il faut utiliser RELEASESHAREDN pour le desallouer.
 // Le FldArrayI map les dimensions si elles sont egales a 2 (npts, nfld).
@@ -107,9 +118,9 @@ E_Int K_NUMPY::getFromNumpyArray(PyObject* o, FldArrayF*& f)
   E_Int dim = PyArray_NDIM(a);
   E_Int size = 0; E_Int nfld = 1;
   GETDIMS;
-  if (!E_ISFLOATNUMPY(a)) return 0;
   Py_INCREF(o);
   f = new FldArrayF(size, nfld, (E_Float*)PyArray_DATA(a), true);
+  if (!E_ISFLOATNUMPY(a)) { setFloatTypeError(); return 0; }
   return 1;
 }
 
@@ -132,9 +143,9 @@ E_Int K_NUMPY::getFromNumpyArray(PyObject* o, E_Float*& f, E_Int& size, E_Int& n
   E_Int dim = PyArray_NDIM(a);
   size = 0; nfld = 1;
   GETDIMS;
-  if (!E_ISFLOATNUMPY(a)) return 0;
   Py_INCREF(o);
   f = (E_Float*)PyArray_DATA(a);
+  if (!E_ISFLOATNUMPY(a)) { setFloatTypeError(); return 0; }
   return 1;
 }
 
@@ -146,9 +157,9 @@ E_Int K_NUMPY::getFromNumpyArray(PyObject* o, E_Float*& f, E_Int& size)
   if (PyArray_Check(o) == 0) return 0;
   PyArrayObject* a = (PyArrayObject*)o;
   size = PyArray_SIZE(a);
-  if (!E_ISFLOATNUMPY(a)) return 0;
   Py_INCREF(o);
   f = (E_Float*)PyArray_DATA(a);
+  if (!E_ISFLOATNUMPY(a)) { setFloatTypeError(); return 0; }
   return 1;
 }
 
