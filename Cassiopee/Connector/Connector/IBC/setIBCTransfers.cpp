@@ -1391,7 +1391,7 @@ E_Int K_CONNECTOR::setIBCTransfersCommonVar2(
     wt = w-wn;
     // uext: norme de la composante tangentielle de la vitesse externe
     uext = sqrt(ut*ut+vt*vt+wt*wt);
-    uext_vec[noind] = std::max(uext, 1.e-12);
+    uext_vec[noind] = std::max(uext, (E_Float)1.e-12);
 
     E_Float nu = mu_vec[noind]/roOut[indR];
 
@@ -2206,7 +2206,7 @@ E_Int K_CONNECTOR::setIBCTransfersCommonVar2(
 
           // uext: norme de la composante tangentielle de la vitesse externe
           uext = sqrt(ut_vec[noind]*ut_vec[noind]+vt_vec[noind]*vt_vec[noind]+wt_vec[noind]*wt_vec[noind]);
-          uext = std::max(uext, 1.e-12);
+          uext = std::max(uext, (E_Float)1.e-12);
 
           // For Post (tOut temperature du point image en entree, pt corrige en sortie)
           twall = tOut[indR] + 0.5*pow(Pr,one_third)/(cv*gamma)*(uext_vec[noind]*uext_vec[noind]); // Crocco-Busemann

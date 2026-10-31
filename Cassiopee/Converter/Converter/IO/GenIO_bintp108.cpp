@@ -822,7 +822,7 @@ E_Int K_IO::GenIO::readData108(E_Int version, FILE* ptrFile,
     double* buf = new double[nfield];
     for (n = 0; n < npts; n++)
     {
-      fread(buf, sizeof(E_Float), nfield, ptrFile);
+      fread(buf, sizeof(double), nfield, ptrFile);
       for (i = 0; i < nfield; i++) fp(n, i+1) = buf[i];
     }
     delete [] buf;
@@ -1070,7 +1070,7 @@ E_Int K_IO::GenIO::readData108(
     double* buf = new double[nfield];
     for (n = 0; n < npts; n++)
     {
-        fread(buf, sizeof(E_Float), nfield, ptrFile);
+        fread(buf, sizeof(double), nfield, ptrFile);
         for (i = 0; i < nfield; i++) fp(n, i+1) = buf[i];
     }
     delete [] buf;
@@ -1416,7 +1416,7 @@ E_Int K_IO::GenIO::readData108CE(E_Int version, FILE* ptrFile,
     FldArrayF& fp = *f;
     for (n = 0; n < npts; n++)
     {
-        fread(&buf[0], sizeof(E_Float), nfield, ptrFile);
+        fread(&buf[0], sizeof(double), nfield, ptrFile);
         for (i = 0; i < nfield; i++) fp(n, i+1) = DBE(buf[i]);
     }
   }
@@ -1658,7 +1658,7 @@ E_Int K_IO::GenIO::readData108CE(
     FldArrayF& fp = *f;
     for (n = 0; n < npts; n++)
     {
-        fread(&buf[0], sizeof(E_Float), nfield, ptrFile);
+        fread(&buf[0], sizeof(double), nfield, ptrFile);
         for (i = 0; i < nfield; i++) fp(n, i+1) = DBE(buf[i]);
     }
   }

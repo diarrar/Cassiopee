@@ -40,7 +40,7 @@ void make3DNoiseTexture()
   int f, i, j, k, inc;
   int startFrequency = 4;
   int numOctaves = 4;
-  double ni[3];
+  E_Float ni[3];
   double inci, incj, inck;
   int frequency = startFrequency;
   GLubyte* ptr;

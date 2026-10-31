@@ -10,9 +10,12 @@ except: import converter
 import KCore
 
 # INT size for numpys connectivities
-from KCore.Dist import EDOUBLEINT
+from KCore.Dist import EDOUBLEINT, ESINGLEREAL
 if EDOUBLEINT(): E_NpyInt = numpy.int64
 else: E_NpyInt = numpy.int32
+# REAL size for numpys fields
+if ESINGLEREAL(): E_NpyFloat = numpy.float32
+else: E_NpyFloat = numpy.float64
 
 __all__ = [
     'array', 'getApi', 'addVars', '_addVars', 'addVars2',
@@ -60,16 +63,16 @@ def arrayS(vars, ni, nj, nk, api=1):
         print("Warning: array: your var string is suspicious.")
     vl = vars.split(','); v = len(vl)
     if api == 1:
-        a = numpy.zeros((v, ni*nj*nk), numpy.float64)
+        a = numpy.zeros((v, ni*nj*nk), E_NpyFloat)
         for i in range(v):
             if vl[i] == 'cellN' or vl[i] == 'cellNF': a[i,:] = 1.
     else:
         a = []
         for i in range(v):
             if vl[i] == 'cellN' or vl[i] == 'cellNF':
-                a.append(numpy.ones((ni*nj*nk), numpy.float64))
+                a.append(numpy.ones((ni*nj*nk), E_NpyFloat))
             else:
-                a.append(numpy.zeros((ni*nj*nk), numpy.float64))
+                a.append(numpy.zeros((ni*nj*nk), E_NpyFloat))
     return [vars, a, ni, nj, nk]
 
 # -- Create an unstructured array --
@@ -95,28 +98,28 @@ def arrayNS(vars, npoints, nelts, eltType, api=1):
 
     if eltType[-1] == '*':
         if api == 1:
-            a = numpy.zeros((v, nelts), numpy.float64)
+            a = numpy.zeros((v, nelts), E_NpyFloat)
             for i in range(v):
                 if vl[i] == 'cellN' or vl[i] == 'cellNF': a[i,:] = 1.
         else:
             a = []
             for i in range(v):
                 if vl[i] == 'cellN' or vl[i] == 'cellNF':
-                    a.append(numpy.ones((nelts), numpy.float64))
+                    a.append(numpy.ones((nelts), E_NpyFloat))
                 else:
-                    a.append(numpy.zeros((nelts), numpy.float64))
+                    a.append(numpy.zeros((nelts), E_NpyFloat))
     else:
         if api == 1:
-            a = numpy.zeros((v, npoints), numpy.float64)
+            a = numpy.zeros((v, npoints), E_NpyFloat)
             for i in range(v):
                 if vl[i] == 'cellN' or vl[i] == 'cellNF': a[i,:] = 1.
         else:
             a = []
             for i in range(v):
                 if vl[i] == 'cellN' or vl[i] == 'cellNF':
-                    a.append(numpy.ones((npoints), numpy.float64))
+                    a.append(numpy.ones((npoints), E_NpyFloat))
                 else:
-                    a.append(numpy.zeros((npoints), numpy.float64))
+                    a.append(numpy.zeros((npoints), E_NpyFloat))
 
     if api == 1: c = numpy.ones((nt, nelts), E_NpyInt)
     else: c = [numpy.ones((nelts, nt), E_NpyInt)]
@@ -350,7 +353,7 @@ def _addVars__(a, varNames):
             if KCore.isNamePresent(a, v) == -1:
                 a[0] += ','+v
                 s = a[1][0].shape
-                a[1].append(numpy.zeros(s, dtype=numpy.float64, order='F'))
+                a[1].append(numpy.zeros(s, dtype=E_NpyFloat, order='F'))
     else: # array1
         lg = 0
         for v in varNames:
@@ -359,7 +362,7 @@ def _addVars__(a, varNames):
                 lg += 1
         s = a[1].shape[1]
         nfld = a[1].shape[0]
-        n = numpy.zeros((nfld+lg, s), dtype=numpy.float64)
+        n = numpy.zeros((nfld+lg, s), dtype=E_NpyFloat)
         for i in range(nfld): n[i,:] = a[1][i,:]
         a[1] = n
     return None
@@ -378,7 +381,7 @@ def _addVars2__(a):
         for i in rest: a0[0] += ','+i[0]
         nfld = a0[1].shape[0]
         for i in rest: nfld += i[1].shape[0]
-        n = numpy.empty((nfld, a0[1].shape[1]), dtype=numpy.float64)
+        n = numpy.empty((nfld, a0[1].shape[1]), dtype=E_NpyFloat)
         nfld = a0[1].shape[0]
         for j in range(nfld):
             n[j,:] = a0[1][j,:]
@@ -692,7 +695,7 @@ def _initVarByEq2__(a, eq):
 # Get index field
 def getIndexField__(a):
     npts = getNPts(a)
-    n = numpy.arange(0, npts, dtype=numpy.float64)
+    n = numpy.arange(0, npts, dtype=E_NpyFloat)
     # structure/non structure/array1/array2
     if len(a) == 5: # structure
         if isinstance(a[1], list): return ['index', [n], a[2], a[3], a[4]] # array2

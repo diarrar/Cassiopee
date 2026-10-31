@@ -20,6 +20,17 @@
 #ifndef _CPLOT_ZONE_H_
 #define _CPLOT_ZONE_H_
 #include "ZoneImpl.h"
+#include <string.h>
+
+// Copy of E_Float data in CPlot storage (double)
+inline void copyE2D(double* dst, const E_Float* src, E_Int n)
+{
+#ifdef E_DOUBLEREAL
+  memcpy(dst, src, n*sizeof(E_Float));
+#else
+  for (E_Int i = 0; i < n; i++) dst[i] = src[i];
+#endif
+}
 #include <vector>
 
 #ifndef MAXSTRINGLENGTH

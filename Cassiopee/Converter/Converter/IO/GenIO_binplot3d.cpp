@@ -501,7 +501,17 @@ E_Int K_IO::GenIO::xyzread(
     {
       f = new FldArrayF(ipjpkp, 4);
       if (_realLength == 8)
+      {
+#ifdef E_DOUBLEREAL
         fread(f->begin(), sizeof(E_Float), 3*ipjpkp, ptrFile);
+#else
+        double* buf = new double[3*ipjpkp];
+        fread(buf, sizeof(double), 3*ipjpkp, ptrFile);
+        E_Float* pf = f->begin();
+        for (E_Int ind = 0; ind < 3*ipjpkp; ind++) pf[ind] = buf[ind];
+        delete [] buf;
+#endif
+      }
       else
       {
         float* buf = new float[3*ipjpkp];

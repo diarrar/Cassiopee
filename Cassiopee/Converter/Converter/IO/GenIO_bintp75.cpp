@@ -266,10 +266,21 @@ E_Int K_IO::GenIO::readData75(FILE* ptrFile, E_Int ni, E_Int nj, E_Int nk,
   }
   else if (sizer == 8 && dataPacking == 0) // block
   {
+#ifdef E_DOUBLEREAL
     for (n = 0; n < nfield; n++)
     {
       fread(f.begin(n+1), sizeof(E_Float), npts, ptrFile);
     } 
+#else
+    double* buf = new double[npts];
+    for (n = 0; n < nfield; n++)
+    {
+      fread(buf, sizeof(double), npts, ptrFile);
+      E_Float* fn = f.begin(n+1);
+      for (i = 0; i < npts; i++) fn[i] = buf[i];
+    }
+    delete [] buf;
+#endif
   }
   else if (sizer == 4 && dataPacking == 1) // point
   {
@@ -286,7 +297,7 @@ E_Int K_IO::GenIO::readData75(FILE* ptrFile, E_Int ni, E_Int nj, E_Int nk,
     double* buf = new double[nfield];
     for (n = 0; n < npts; n++)
     {
-      fread(buf, sizeof(E_Float), nfield, ptrFile);
+      fread(buf, sizeof(double), nfield, ptrFile);
       for (i = 0; i < nfield; i++) f(n, i+1) = buf[i];
     }
     delete [] buf;
@@ -481,7 +492,7 @@ E_Int K_IO::GenIO::readData75CE(FILE* ptrFile, E_Int ni, E_Int nj, E_Int nk,
     double* buf = new double[npts];
     for (n = 0; n < nfield; n++)
     {
-      fread(buf, sizeof(E_Float), npts, ptrFile);
+      fread(buf, sizeof(double), npts, ptrFile);
       for (i = 0; i < npts; i++) f(i, n+1) = DBE(buf[i]);
     }
     delete [] buf;
@@ -501,7 +512,7 @@ E_Int K_IO::GenIO::readData75CE(FILE* ptrFile, E_Int ni, E_Int nj, E_Int nk,
     double* buf = new double[nfield];
     for (n = 0; n < npts; n++)
     {
-      fread(buf, sizeof(E_Float), nfield, ptrFile);
+      fread(buf, sizeof(double), nfield, ptrFile);
       for (i = 0; i < nfield; i++) f(n, i+1) = DBE(buf[i]);
     }
     delete [] buf;
@@ -581,7 +592,7 @@ E_Int K_IO::GenIO::readData75CE(FILE* ptrFile,
     double* buf = new double[npts];
     for (n = 0; n < nfield; n++)
     {
-      fread(buf, sizeof(E_Float), npts, ptrFile);
+      fread(buf, sizeof(double), npts, ptrFile);
       for (i = 0; i < npts; i++) f(i, n+1) = DBE(buf[i]);
     }
     delete [] buf;
@@ -629,7 +640,7 @@ E_Int K_IO::GenIO::readData75CE(FILE* ptrFile,
     double* buf = new double[nfield];
     for (n = 0; n < npts; n++)
     {
-      fread(buf, sizeof(E_Float), nfield, ptrFile);
+      fread(buf, sizeof(double), nfield, ptrFile);
       for (i = 0; i < nfield; i++) f(n, i+1) = DBE(buf[i]);
     }
     delete [] buf;

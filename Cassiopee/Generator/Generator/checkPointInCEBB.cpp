@@ -33,7 +33,7 @@ PyObject* K_GENERATOR::checkPointInCEBBOfMesh(PyObject* self,
                                               PyObject* args)
 {
   PyObject* array;
-  double x, y, z;
+  E_Float x, y, z;
   if (!PYPARSETUPLE_(args, O_ TRRR_, &array, &x, &y, &z)) return NULL;
   
   // Check array

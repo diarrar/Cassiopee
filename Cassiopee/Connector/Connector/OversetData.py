@@ -541,8 +541,8 @@ def _setIBCDataForZone__(z, zonesDnr, correctedPts, wallPts, interpPts, loc='nod
         PLD = numpy.array([], dtype=Internal.E_NpyInt)
         EXTRAP = numpy.array([], dtype=Internal.E_NpyInt)
         INTERPTYPE = numpy.array([], dtype=Internal.E_NpyInt)
-        CFS = numpy.array([],numpy.float64)
-        VOL = numpy.array([],numpy.float64)
+        CFS = numpy.array([],Internal.E_NpyFloat)
+        VOL = numpy.array([],Internal.E_NpyFloat)
         ORPHAN = resInterp[5]
         for noz in range(nzonesDnr):
             # ajout des donnees d'interpolation
@@ -711,8 +711,8 @@ def _setIBCDataForZone2__(z, zonesDnr, correctedPts, wallPts, interpPts, interpP
         PLD = numpy.array([], dtype=Internal.E_NpyInt)
         EXTRAP = numpy.array([], dtype=Internal.E_NpyInt)
         INTERPTYPE = numpy.array([], dtype=Internal.E_NpyInt)
-        CFS = numpy.array([],numpy.float64)
-        VOL = numpy.array([],numpy.float64)
+        CFS = numpy.array([],Internal.E_NpyFloat)
+        VOL = numpy.array([],Internal.E_NpyFloat)
         ORPHAN = resInterp[5]
         for noz in range(nzonesDnr):
             # ajout des donnees d'interpolation
@@ -828,8 +828,8 @@ def _setIBCDataForZone2__(z, zonesDnr, correctedPts, wallPts, interpPts, interpP
         PLD = numpy.array([], dtype=Internal.E_NpyInt)
         EXTRAP = numpy.array([], dtype=Internal.E_NpyInt)
         INTERPTYPE = numpy.array([], dtype=Internal.E_NpyInt)
-        CFS = numpy.array([],numpy.float64)
-        VOL = numpy.array([],numpy.float64)
+        CFS = numpy.array([],Internal.E_NpyFloat)
+        VOL = numpy.array([],Internal.E_NpyFloat)
         ORPHAN = resInterp2[5]
         for noz in range(nzonesDnr):
             # ajout des donnees d'interpolation
@@ -886,51 +886,51 @@ def _addIBCCoords__(z, zname, correctedPts, wallPts, interpolatedPts, bcType, bc
     # Creation des numpy d'extraction
     nIBC = coordsPC[1].shape[1]
     if ReferenceState is None:
-        densNP = numpy.zeros((nIBC),numpy.float64)
-        pressNP = numpy.zeros((nIBC),numpy.float64)
+        densNP = numpy.zeros((nIBC),Internal.E_NpyFloat)
+        pressNP = numpy.zeros((nIBC),Internal.E_NpyFloat)
     else:
         Pinf = Internal.getNodeFromName1(ReferenceState,'Pressure')
         if Pinf is not None:
             Pinf = Internal.getValue(Pinf)
-            pressNP = Pinf*numpy.ones((nIBC),numpy.float64)
+            pressNP = Pinf*numpy.ones((nIBC),Internal.E_NpyFloat)
         else:
-            pressNP = numpy.zeros((nIBC),numpy.float64)
+            pressNP = numpy.zeros((nIBC),Internal.E_NpyFloat)
 
         roinf = Internal.getNodeFromName1(ReferenceState,'Density')
         if roinf is not None:
             roinf = Internal.getValue(roinf)
-            densNP = roinf*numpy.ones((nIBC),numpy.float64)
+            densNP = roinf*numpy.ones((nIBC),Internal.E_NpyFloat)
         else:
-            densNP = numpy.zeros((nIBC),numpy.float64)
+            densNP = numpy.zeros((nIBC),Internal.E_NpyFloat)
 
     zsr[2].append(['Pressure', pressNP, [], 'DataArray_t'])
     zsr[2].append(['Density' , densNP , [], 'DataArray_t'])
 
-    vxNP = numpy.zeros((nIBC),numpy.float64)
-    vyNP = numpy.zeros((nIBC),numpy.float64)
-    vzNP = numpy.zeros((nIBC),numpy.float64)
+    vxNP = numpy.zeros((nIBC),Internal.E_NpyFloat)
+    vyNP = numpy.zeros((nIBC),Internal.E_NpyFloat)
+    vzNP = numpy.zeros((nIBC),Internal.E_NpyFloat)
     zsr[2].append(['VelocityX' , vxNP , [], 'DataArray_t'])
     zsr[2].append(['VelocityY' , vyNP , [], 'DataArray_t'])
     zsr[2].append(['VelocityZ' , vzNP , [], 'DataArray_t'])
 
     if bcType in [2, 3, 6, 7, 8, 9, 10, 11, 33]:
-        utauNP  = numpy.zeros((nIBC),numpy.float64)
-        yplusNP = numpy.zeros((nIBC),numpy.float64)
+        utauNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+        yplusNP = numpy.zeros((nIBC),Internal.E_NpyFloat)
         zsr[2].append(['utau' , utauNP , [], 'DataArray_t'])
         zsr[2].append(['yplus', yplusNP, [], 'DataArray_t'])
 
     if bcType == 12:
-        Temperature_local = numpy.zeros((nIBC),numpy.float64)
+        Temperature_local = numpy.zeros((nIBC),Internal.E_NpyFloat)
         Internal._createChild(zsr, 'Temperature'    , 'DataArray_t', value=Temperature_local)
         Internal._createChild(zsr, 'TemperatureWall', 'DataArray_t', value=Temperature_local)
 
     if bcType == 13:
-        Temperature_local = numpy.zeros((nIBC),numpy.float64)
+        Temperature_local = numpy.zeros((nIBC),Internal.E_NpyFloat)
         Internal._createChild(zsr, 'Temperature' , 'DataArray_t', value=Temperature_local)
         Internal._createChild(zsr, 'WallHeatFlux', 'DataArray_t', value=Temperature_local)
 
     if bcType == 140:
-        val_local = numpy.zeros((nIBC),numpy.float64)
+        val_local = numpy.zeros((nIBC),Internal.E_NpyFloat)
         Internal._createChild(zsr, 'Density_WM'           , 'DataArray_t', value=val_local)
         Internal._createChild(zsr, 'VelocityX_WM'         , 'DataArray_t', value=val_local)
         Internal._createChild(zsr, 'VelocityY_WM'         , 'DataArray_t', value=val_local)
@@ -939,7 +939,7 @@ def _addIBCCoords__(z, zname, correctedPts, wallPts, interpolatedPts, bcType, bc
         Internal._createChild(zsr, 'TurbulentSANuTilde_WM', 'DataArray_t', value=val_local)
 
     if bcType == 33 and model=='NSLaminar':
-        val_local = numpy.zeros((nIBC),numpy.float64)
+        val_local = numpy.zeros((nIBC),Internal.E_NpyFloat)
         Internal._createChild(zsr, 't11_model', 'DataArray_t', value=val_local)
         Internal._createChild(zsr, 't12_model', 'DataArray_t', value=val_local)
         Internal._createChild(zsr, 't22_model', 'DataArray_t', value=val_local)
@@ -948,49 +948,49 @@ def _addIBCCoords__(z, zname, correctedPts, wallPts, interpolatedPts, bcType, bc
         Internal._createChild(zsr, 't33_model', 'DataArray_t', value=val_local)
 
     if bcType == 5:
-        stagnationEnthalpy = numpy.zeros((nIBC),numpy.float64)
+        stagnationEnthalpy = numpy.zeros((nIBC),Internal.E_NpyFloat)
         Internal._createChild(zsr, 'StagnationEnthalpy', 'DataArray_t', value=stagnationEnthalpy)
-        stagnationPressure = numpy.zeros((nIBC),numpy.float64)
+        stagnationPressure = numpy.zeros((nIBC),Internal.E_NpyFloat)
         Internal._createChild(zsr, 'StagnationPressure', 'DataArray_t', value=stagnationPressure)
-        dirx = numpy.zeros((nIBC),numpy.float64)
+        dirx = numpy.zeros((nIBC),Internal.E_NpyFloat)
         Internal._createChild(zsr, 'dirx', 'DataArray_t', value=dirx)
-        diry = numpy.zeros((nIBC),numpy.float64)
+        diry = numpy.zeros((nIBC),Internal.E_NpyFloat)
         Internal._createChild(zsr, 'diry', 'DataArray_t', value=diry)
-        dirz = numpy.zeros((nIBC),numpy.float64)
+        dirz = numpy.zeros((nIBC),Internal.E_NpyFloat)
         Internal._createChild(zsr, 'dirz', 'DataArray_t', value=dirz)
 
     if bcType == 100:
-        KCurvNP = numpy.zeros((nIBC),numpy.float64)
+        KCurvNP = numpy.zeros((nIBC),Internal.E_NpyFloat)
         zsr[2].append([__KCURV__ , KCurvNP , [], 'DataArray_t'])
 
     if bcType == 10 or bcType == 11:
-        gradxPressureNP  = numpy.zeros((nIBC),numpy.float64)
+        gradxPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
         zsr[2].append(['gradxPressure' , gradxPressureNP , [], 'DataArray_t'])
-        gradyPressureNP  = numpy.zeros((nIBC),numpy.float64)
+        gradyPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
         zsr[2].append(['gradyPressure' , gradyPressureNP , [], 'DataArray_t'])
-        gradzPressureNP  = numpy.zeros((nIBC),numpy.float64)
+        gradzPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
         zsr[2].append(['gradzPressure' , gradzPressureNP , [], 'DataArray_t'])
 
     if bcType == 11:
-        gradxVelocityXNP  = numpy.zeros((nIBC),numpy.float64)
+        gradxVelocityXNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
         zsr[2].append(['gradxVelocityX' , gradxVelocityXNP , [], 'DataArray_t'])
-        gradyVelocityXNP  = numpy.zeros((nIBC),numpy.float64)
+        gradyVelocityXNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
         zsr[2].append(['gradyVelocityX' , gradyVelocityXNP , [], 'DataArray_t'])
-        gradzVelocityXNP  = numpy.zeros((nIBC),numpy.float64)
+        gradzVelocityXNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
         zsr[2].append(['gradzVelocityX' , gradzVelocityXNP , [], 'DataArray_t'])
 
-        gradxVelocityYNP  = numpy.zeros((nIBC),numpy.float64)
+        gradxVelocityYNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
         zsr[2].append(['gradxVelocityY' , gradxVelocityYNP , [], 'DataArray_t'])
-        gradyVelocityYNP  = numpy.zeros((nIBC),numpy.float64)
+        gradyVelocityYNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
         zsr[2].append(['gradyVelocityY' , gradyVelocityYNP , [], 'DataArray_t'])
-        gradzVelocityYNP  = numpy.zeros((nIBC),numpy.float64)
+        gradzVelocityYNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
         zsr[2].append(['gradzVelocityY' , gradzVelocityYNP , [], 'DataArray_t'])
 
-        gradxVelocityZNP  = numpy.zeros((nIBC),numpy.float64)
+        gradxVelocityZNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
         zsr[2].append(['gradxVelocityZ' , gradxVelocityZNP , [], 'DataArray_t'])
-        gradyVelocityZNP  = numpy.zeros((nIBC),numpy.float64)
+        gradyVelocityZNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
         zsr[2].append(['gradyVelocityZ' , gradyVelocityZNP , [], 'DataArray_t'])
-        gradzVelocityZNP  = numpy.zeros((nIBC),numpy.float64)
+        gradzVelocityZNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
         zsr[2].append(['gradzVelocityZ' , gradzVelocityZNP , [], 'DataArray_t'])
 
     ##Moving IBM
@@ -1006,7 +1006,7 @@ def _addIBCCoords__(z, zname, correctedPts, wallPts, interpolatedPts, bcType, bc
         zsr[2].append(['CoordinateY_PW#Init',coordsPW[1][1,:], [], 'DataArray_t'])
         zsr[2].append(['CoordinateZ_PW#Init',coordsPW[1][2,:], [], 'DataArray_t'])
 
-        motionTypeLocal = numpy.ones((nIBC),numpy.float64)
+        motionTypeLocal = numpy.ones((nIBC),Internal.E_NpyFloat)
         zsr[2].append(['MotionType'   ,  Internal.getNodeFromName(timeMotion,'MotionType')[1][0]*motionTypeLocal, [], 'DataArray_t'])
 
         zsr[2].append(['transl_speedX',  Internal.getNodeFromName(timeMotion,'transl_speed')[1][0]*motionTypeLocal, [], 'DataArray_t'])
@@ -1048,29 +1048,29 @@ def _addIBCCoords2__(z, zname, correctedPts, wallPts, interpolatedPts, bcType, b
     # Creation des numpy d'extraction
     nIBC = coordsPC[1].shape[1]
     if ReferenceState is None:
-        pressNP = numpy.zeros((nIBC),numpy.float64)
-        densNP  = numpy.zeros((nIBC),numpy.float64)
+        pressNP = numpy.zeros((nIBC),Internal.E_NpyFloat)
+        densNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
     else:
         Pinf = Internal.getNodeFromName1(ReferenceState,'Pressure')
         if Pinf is not None:
             Pinf = Internal.getValue(Pinf)
-            pressNP = Pinf*numpy.ones((nIBC),numpy.float64)
+            pressNP = Pinf*numpy.ones((nIBC),Internal.E_NpyFloat)
         else:
-            pressNP = numpy.zeros((nIBC),numpy.float64)
+            pressNP = numpy.zeros((nIBC),Internal.E_NpyFloat)
         roinf = Internal.getNodeFromName1(ReferenceState,'Density')
         if roinf is not None:
             roinf = Internal.getValue(roinf)
-            densNP = roinf*numpy.ones((nIBC),numpy.float64)
+            densNP = roinf*numpy.ones((nIBC),Internal.E_NpyFloat)
         else:
-            densNP = numpy.zeros((nIBC),numpy.float64)
+            densNP = numpy.zeros((nIBC),Internal.E_NpyFloat)
 
     zsr[2].append(['Pressure', pressNP, [], 'DataArray_t'])
 
-    gradxPressureNP  = numpy.zeros((nIBC),numpy.float64)
+    gradxPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
     zsr[2].append(['gradxPressure' , gradxPressureNP , [], 'DataArray_t'])
-    gradyPressureNP  = numpy.zeros((nIBC),numpy.float64)
+    gradyPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
     zsr[2].append(['gradyPressure' , gradyPressureNP , [], 'DataArray_t'])
-    gradzPressureNP  = numpy.zeros((nIBC),numpy.float64)
+    gradzPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
     zsr[2].append(['gradzPressure' , gradzPressureNP , [], 'DataArray_t'])
 
     if bcName is not None:
@@ -1344,7 +1344,7 @@ def _setInterpDataChimera__(aR, aD, order=2, penalty=1, nature=0, extrap=1,
                             if resInterp[6] == []: EXdir = numpy.array([], dtype=Internal.E_NpyInt)
                             else: EXdir = resInterp[6][noz]
                             _createInterpRegion__(z, zonesDnr[noz][0], resInterp[0][noz], resInterp[1][noz], resInterp[3][noz], \
-                                                  resInterp[2][noz], numpy.array([],numpy.float64), \
+                                                  resInterp[2][noz], numpy.array([],Internal.E_NpyFloat), \
                                                   extrapPts, resInterp[5], tag='Receiver', loc=locR, EXDir=EXdir)
 
                         else: # inverse
@@ -1353,7 +1353,7 @@ def _setInterpDataChimera__(aR, aD, order=2, penalty=1, nature=0, extrap=1,
                             if resInterp[6] == []: EXdir = numpy.array([], dtype=Internal.E_NpyInt)
                             else: EXdir = resInterp[6][noz]
                             _createInterpRegion__(zonesDnr[noz], z[0], resInterp[1][noz], resInterp[0][noz], resInterp[3][noz], \
-                                                  resInterp[2][noz], numpy.array([],numpy.float64), \
+                                                  resInterp[2][noz], numpy.array([],Internal.E_NpyFloat), \
                                                   extrapPts, resInterp[5], tag='Donor', loc=locR, EXDir=EXdir)
 
 
@@ -1447,7 +1447,7 @@ def _setInterpDataConservative__(aR, aD, storage='direct'):
                     if ninterploc>0: # domaine d'interpolation
                         if storage == 'direct':
                             _createInterpRegion__(zr, dnrname, resInterp[0][noz], resInterp[1][noz], resInterp[3][noz], \
-                                                  resInterp[2][noz], numpy.array([],numpy.float64), \
+                                                  resInterp[2][noz], numpy.array([],Internal.E_NpyFloat), \
                                                   extrapPts, orphanPts, tag='Receiver', loc=locR, EXDir=EXdir)
 
                         else: # inverse
@@ -1455,7 +1455,7 @@ def _setInterpDataConservative__(aR, aD, storage='direct'):
                             EXdir = numpy.array([], dtype=Internal.E_NpyInt)
                             zd = allDnrZones[dnrname]
                             _createInterpRegion__(zd, zr[0], resInterp[1][noz], resInterp[0][noz], resInterp[3][noz], \
-                                                  resInterp[2][noz], numpy.array([],numpy.float64), \
+                                                  resInterp[2][noz], numpy.array([],Internal.E_NpyFloat), \
                                                   extrapPts, orphanPts, tag='Donor', loc=locR, EXDir=EXdir)
 
 
@@ -1482,7 +1482,7 @@ def _setInterpDataForGhostCellsNGon__(aR, aD, storage='inverse', loc='centers'):
 
     indicesExtrap = numpy.array([], dtype=Internal.E_NpyInt)
     indicesOrphan = numpy.array([], dtype=Internal.E_NpyInt)
-    vols =  numpy.array([], numpy.float64)
+    vols =  numpy.array([], Internal.E_NpyFloat)
     EXdir = numpy.array([], dtype=Internal.E_NpyInt)
     prefix = 'ID_'
     for zp in Internal.getZones(aR):
@@ -1557,7 +1557,7 @@ def _setInterpDataForGhostCellsStruct__(aR, aD, storage='direct', loc='nodes'):
     # empty numpy arrays for zonesubregion nodes
     indicesExtrap = numpy.array([], dtype=Internal.E_NpyInt)
     indicesOrphan = numpy.array([], dtype=Internal.E_NpyInt)
-    vols =  numpy.array([], numpy.float64)
+    vols =  numpy.array([], Internal.E_NpyFloat)
     EXdir = numpy.array([], dtype=Internal.E_NpyInt)
 
     if loc == 'nodes': locR = 0; locS = 'Vertex'
@@ -2255,9 +2255,9 @@ def _setInterpTransfersD(topTreeD, variables=[], cellNVariable='',
                                 gradzP = gradzP[1]
                             else:
                                 nIBC = pressure.shape[0]
-                                gradxPressureNP  = numpy.zeros((nIBC),numpy.float64)
-                                gradyPressureNP  = numpy.zeros((nIBC),numpy.float64)
-                                gradzPressureNP  = numpy.zeros((nIBC),numpy.float64)
+                                gradxPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                gradyPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                gradzPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
                                 s[2].append(['gradxPressure' , gradxPressureNP , [], 'DataArray_t'])
                                 s[2].append(['gradyPressure' , gradyPressureNP , [], 'DataArray_t'])
                                 s[2].append(['gradzPressure' , gradzPressureNP , [], 'DataArray_t'])
@@ -2902,7 +2902,7 @@ def _setIBCTransfersDForPressureGradients(topTreeD, ibctypes=[], secondOrder=Fal
                 if field is not None:
                     dictOfNumpys[var] = field[1]
                 else:
-                    fieldNP = numpy.zeros((nIBC),numpy.float64)
+                    fieldNP = numpy.zeros((nIBC),Internal.E_NpyFloat)
                     IBCD[2].append([var , fieldNP , [], 'DataArray_t'])
                     dictOfNumpys[var] = Internal.getNodeFromName1(IBCD, var)[1]
 
@@ -2977,7 +2977,7 @@ def _setIBCTransfersForPressureGradients(aR, topTreeD, ibctypes=[], secondOrder=
                     if field is not None:
                         dictOfNumpys[var] = field[1]
                     else:
-                        fieldNP = numpy.zeros((nIBC),numpy.float64)
+                        fieldNP = numpy.zeros((nIBC),Internal.E_NpyFloat)
                         IBCD[2].append([var , fieldNP , [], 'DataArray_t'])
                         dictOfNumpys[var] = Internal.getNodeFromName1(IBCD, var)[1]
 
@@ -3058,9 +3058,9 @@ def _setIBCTransfers4GradP(aR, topTreeD, variables=[], cellNVariable='',
                                 gradzP = gradzP[1]
                             else:
                                 nIBC = Pressure.shape[0]
-                                gradxPressureNP  = numpy.zeros((nIBC),numpy.float64)
-                                gradyPressureNP  = numpy.zeros((nIBC),numpy.float64)
-                                gradzPressureNP  = numpy.zeros((nIBC),numpy.float64)
+                                gradxPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                gradyPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                gradzPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
                                 s[2].append(['gradxPressure' , gradxPressureNP , [], 'DataArray_t'])
                                 s[2].append(['gradyPressure' , gradyPressureNP , [], 'DataArray_t'])
                                 s[2].append(['gradzPressure' , gradzPressureNP , [], 'DataArray_t'])
@@ -3142,9 +3142,9 @@ def _setIBCTransfers4GradP2(aR, topTreeD, variables=[], cellNVariable='',
                                 gradzP = gradzP[1]
                             else:
                                 nIBC = Pressure.shape[0]
-                                gradxPressureNP  = numpy.zeros((nIBC),numpy.float64)
-                                gradyPressureNP  = numpy.zeros((nIBC),numpy.float64)
-                                gradzPressureNP  = numpy.zeros((nIBC),numpy.float64)
+                                gradxPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                gradyPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                gradzPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
                                 s[2].append(['gradxPressure' , gradxPressureNP , [], 'DataArray_t'])
                                 s[2].append(['gradyPressure' , gradyPressureNP , [], 'DataArray_t'])
                                 s[2].append(['gradzPressure' , gradzPressureNP , [], 'DataArray_t'])
@@ -3158,9 +3158,9 @@ def _setIBCTransfers4GradP2(aR, topTreeD, variables=[], cellNVariable='',
                                 gradxzP = gradxzP[1]
                             else:
                                 nIBC = Pressure.shape[0]
-                                gradxxPressureNP  = numpy.zeros((nIBC),numpy.float64)
-                                gradxyPressureNP  = numpy.zeros((nIBC),numpy.float64)
-                                gradxzPressureNP  = numpy.zeros((nIBC),numpy.float64)
+                                gradxxPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                gradxyPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                gradxzPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
                                 s[2].append(['gradxxPressure' , gradxxPressureNP , [], 'DataArray_t'])
                                 s[2].append(['gradxyPressure' , gradxyPressureNP , [], 'DataArray_t'])
                                 s[2].append(['gradxzPressure' , gradxzPressureNP , [], 'DataArray_t'])
@@ -3174,9 +3174,9 @@ def _setIBCTransfers4GradP2(aR, topTreeD, variables=[], cellNVariable='',
                                 gradyzP = gradyzP[1]
                             else:
                                 nIBC = Pressure.shape[0]
-                                gradyxPressureNP  = numpy.zeros((nIBC),numpy.float64)
-                                gradyyPressureNP  = numpy.zeros((nIBC),numpy.float64)
-                                gradyzPressureNP  = numpy.zeros((nIBC),numpy.float64)
+                                gradyxPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                gradyyPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                gradyzPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
                                 s[2].append(['gradyxPressure' , gradyxPressureNP , [], 'DataArray_t'])
                                 s[2].append(['gradyyPressure' , gradyyPressureNP , [], 'DataArray_t'])
                                 s[2].append(['gradyzPressure' , gradyzPressureNP , [], 'DataArray_t'])
@@ -3190,9 +3190,9 @@ def _setIBCTransfers4GradP2(aR, topTreeD, variables=[], cellNVariable='',
                                 gradzzP = gradzzP[1]
                             else:
                                 nIBC = Pressure.shape[0]
-                                gradzxPressureNP  = numpy.zeros((nIBC),numpy.float64)
-                                gradzyPressureNP  = numpy.zeros((nIBC),numpy.float64)
-                                gradzzPressureNP  = numpy.zeros((nIBC),numpy.float64)
+                                gradzxPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                gradzyPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                gradzzPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
                                 s[2].append(['gradzxPressure' , gradzxPressureNP , [], 'DataArray_t'])
                                 s[2].append(['gradzyPressure' , gradzyPressureNP , [], 'DataArray_t'])
                                 s[2].append(['gradzzPressure' , gradzzPressureNP , [], 'DataArray_t'])
@@ -3357,9 +3357,9 @@ def _setIBCTransfers4FULLTBLE(aR, topTreeD, variables=[], cellNVariable='',
                                 vz = vz[1]
                             else:
                                 nIBC = pressure.shape[0]
-                                vxNP  = numpy.zeros((nIBC),numpy.float64)
-                                vyNP  = numpy.zeros((nIBC),numpy.float64)
-                                vzNP  = numpy.zeros((nIBC),numpy.float64)
+                                vxNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                vyNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                vzNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
                                 s[2].append(['VelocityX' , vxNP , [], 'DataArray_t'])
                                 s[2].append(['VelocityY' , vyNP , [], 'DataArray_t'])
                                 s[2].append(['VelocityZ' , vzNP , [], 'DataArray_t'])
@@ -3373,9 +3373,9 @@ def _setIBCTransfers4FULLTBLE(aR, topTreeD, variables=[], cellNVariable='',
                                 gradzP = gradzP[1]
                             else:
                                 nIBC = pressure.shape[0]
-                                gradxPressureNP  = numpy.zeros((nIBC),numpy.float64)
-                                gradyPressureNP  = numpy.zeros((nIBC),numpy.float64)
-                                gradzPressureNP  = numpy.zeros((nIBC),numpy.float64)
+                                gradxPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                gradyPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                gradzPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
                                 s[2].append(['gradxPressure' , gradxPressureNP , [], 'DataArray_t'])
                                 s[2].append(['gradyPressure' , gradyPressureNP , [], 'DataArray_t'])
                                 s[2].append(['gradzPressure' , gradzPressureNP , [], 'DataArray_t'])
@@ -3389,9 +3389,9 @@ def _setIBCTransfers4FULLTBLE(aR, topTreeD, variables=[], cellNVariable='',
                                 gradzU = gradzU[1]
                             else:
                                 nIBC = pressure.shape[0]
-                                gradxVelocityXNP  = numpy.zeros((nIBC),numpy.float64)
-                                gradyVelocityXNP  = numpy.zeros((nIBC),numpy.float64)
-                                gradzVelocityXNP  = numpy.zeros((nIBC),numpy.float64)
+                                gradxVelocityXNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                gradyVelocityXNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                gradzVelocityXNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
                                 s[2].append(['gradxVelocityX' , gradxVelocityXNP , [], 'DataArray_t'])
                                 s[2].append(['gradyVelocityX' , gradyVelocityXNP , [], 'DataArray_t'])
                                 s[2].append(['gradzVelocityX' , gradzVelocityXNP , [], 'DataArray_t'])
@@ -3405,9 +3405,9 @@ def _setIBCTransfers4FULLTBLE(aR, topTreeD, variables=[], cellNVariable='',
                                 gradzV = gradzV[1]
                             else:
                                 nIBC = pressure.shape[0]
-                                gradxVelocityYNP  = numpy.zeros((nIBC),numpy.float64)
-                                gradyVelocityYNP  = numpy.zeros((nIBC),numpy.float64)
-                                gradzVelocityYNP  = numpy.zeros((nIBC),numpy.float64)
+                                gradxVelocityYNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                gradyVelocityYNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                gradzVelocityYNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
                                 s[2].append(['gradxVelocityY' , gradxVelocityYNP , [], 'DataArray_t'])
                                 s[2].append(['gradyVelocityY' , gradyVelocityYNP , [], 'DataArray_t'])
                                 s[2].append(['gradzVelocityY' , gradzVelocityYNP , [], 'DataArray_t'])
@@ -3421,9 +3421,9 @@ def _setIBCTransfers4FULLTBLE(aR, topTreeD, variables=[], cellNVariable='',
                                 gradzW = gradzW[1]
                             else:
                                 nIBC = pressure.shape[0]
-                                gradxVelocityZNP  = numpy.zeros((nIBC),numpy.float64)
-                                gradyVelocityZNP  = numpy.zeros((nIBC),numpy.float64)
-                                gradzVelocityZNP  = numpy.zeros((nIBC),numpy.float64)
+                                gradxVelocityZNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                gradyVelocityZNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                gradzVelocityZNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
                                 s[2].append(['gradxVelocityZ' , gradxVelocityZNP , [], 'DataArray_t'])
                                 s[2].append(['gradyVelocityZ' , gradyVelocityZNP , [], 'DataArray_t'])
                                 s[2].append(['gradzVelocityZ' , gradzVelocityZNP , [], 'DataArray_t'])
@@ -3504,9 +3504,9 @@ def _setIBCTransfers4FULLTBLE(aR, topTreeD, variables=[], cellNVariable='',
                                     vz = vz[1]
                                 else:
                                     nIBC = pressure.shape[0]
-                                    vxNP  = numpy.zeros((nIBC),numpy.float64)
-                                    vyNP  = numpy.zeros((nIBC),numpy.float64)
-                                    vzNP  = numpy.zeros((nIBC),numpy.float64)
+                                    vxNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                    vyNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                    vzNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
                                     s[2].append(['VelocityX' , vxNP , [], 'DataArray_t'])
                                     s[2].append(['VelocityY' , vyNP , [], 'DataArray_t'])
                                     s[2].append(['VelocityZ' , vzNP , [], 'DataArray_t'])
@@ -3520,9 +3520,9 @@ def _setIBCTransfers4FULLTBLE(aR, topTreeD, variables=[], cellNVariable='',
                                     gradzP = gradzP[1]
                                 else:
                                     nIBC = pressure.shape[0]
-                                    gradxPressureNP  = numpy.zeros((nIBC),numpy.float64)
-                                    gradyPressureNP  = numpy.zeros((nIBC),numpy.float64)
-                                    gradzPressureNP  = numpy.zeros((nIBC),numpy.float64)
+                                    gradxPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                    gradyPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                    gradzPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
                                     s[2].append(['gradxPressure' , gradxPressureNP , [], 'DataArray_t'])
                                     s[2].append(['gradyPressure' , gradyPressureNP , [], 'DataArray_t'])
                                     s[2].append(['gradzPressure' , gradzPressureNP , [], 'DataArray_t'])
@@ -3536,9 +3536,9 @@ def _setIBCTransfers4FULLTBLE(aR, topTreeD, variables=[], cellNVariable='',
                                     gradzU = gradzU[1]
                                 else:
                                     nIBC = pressure.shape[0]
-                                    gradxVelocityXNP  = numpy.zeros((nIBC),numpy.float64)
-                                    gradyVelocityXNP  = numpy.zeros((nIBC),numpy.float64)
-                                    gradzVelocityXNP  = numpy.zeros((nIBC),numpy.float64)
+                                    gradxVelocityXNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                    gradyVelocityXNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                    gradzVelocityXNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
                                     s[2].append(['gradxVelocityX' , gradxVelocityXNP , [], 'DataArray_t'])
                                     s[2].append(['gradyVelocityX' , gradyVelocityXNP , [], 'DataArray_t'])
                                     s[2].append(['gradzVelocityX' , gradzVelocityXNP , [], 'DataArray_t'])
@@ -3552,9 +3552,9 @@ def _setIBCTransfers4FULLTBLE(aR, topTreeD, variables=[], cellNVariable='',
                                     gradzV = gradzV[1]
                                 else:
                                     nIBC = pressure.shape[0]
-                                    gradxVelocityYNP  = numpy.zeros((nIBC),numpy.float64)
-                                    gradyVelocityYNP  = numpy.zeros((nIBC),numpy.float64)
-                                    gradzVelocityYNP  = numpy.zeros((nIBC),numpy.float64)
+                                    gradxVelocityYNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                    gradyVelocityYNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                    gradzVelocityYNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
                                     s[2].append(['gradxVelocityY' , gradxVelocityYNP , [], 'DataArray_t'])
                                     s[2].append(['gradyVelocityY' , gradyVelocityYNP , [], 'DataArray_t'])
                                     s[2].append(['gradzVelocityY' , gradzVelocityYNP , [], 'DataArray_t'])
@@ -3568,9 +3568,9 @@ def _setIBCTransfers4FULLTBLE(aR, topTreeD, variables=[], cellNVariable='',
                                     gradzW = gradzW[1]
                                 else:
                                     nIBC = pressure.shape[0]
-                                    gradxVelocityZNP  = numpy.zeros((nIBC),numpy.float64)
-                                    gradyVelocityZNP  = numpy.zeros((nIBC),numpy.float64)
-                                    gradzVelocityZNP  = numpy.zeros((nIBC),numpy.float64)
+                                    gradxVelocityZNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                    gradyVelocityZNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                    gradzVelocityZNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
                                     s[2].append(['gradxVelocityZ' , gradxVelocityZNP , [], 'DataArray_t'])
                                     s[2].append(['gradyVelocityZ' , gradyVelocityZNP , [], 'DataArray_t'])
                                     s[2].append(['gradzVelocityZ' , gradzVelocityZNP , [], 'DataArray_t'])
@@ -3663,9 +3663,9 @@ def _setIBCTransfers4FULLTBLE2(aR, topTreeD, variables=[], cellNVariable='',
                                 vz = vz[1]
                             else:
                                 nIBC = pressure.shape[0]
-                                vxNP  = numpy.zeros((nIBC),numpy.float64)
-                                vyNP  = numpy.zeros((nIBC),numpy.float64)
-                                vzNP  = numpy.zeros((nIBC),numpy.float64)
+                                vxNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                vyNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                vzNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
                                 s[2].append(['VelocityX' , vxNP , [], 'DataArray_t'])
                                 s[2].append(['VelocityY' , vyNP , [], 'DataArray_t'])
                                 s[2].append(['VelocityZ' , vzNP , [], 'DataArray_t'])
@@ -3679,9 +3679,9 @@ def _setIBCTransfers4FULLTBLE2(aR, topTreeD, variables=[], cellNVariable='',
                                 gradzP = gradzP[1]
                             else:
                                 nIBC = pressure.shape[0]
-                                gradxPressureNP  = numpy.zeros((nIBC),numpy.float64)
-                                gradyPressureNP  = numpy.zeros((nIBC),numpy.float64)
-                                gradzPressureNP  = numpy.zeros((nIBC),numpy.float64)
+                                gradxPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                gradyPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                gradzPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
                                 s[2].append(['gradxPressure' , gradxPressureNP , [], 'DataArray_t'])
                                 s[2].append(['gradyPressure' , gradyPressureNP , [], 'DataArray_t'])
                                 s[2].append(['gradzPressure' , gradzPressureNP , [], 'DataArray_t'])
@@ -3695,9 +3695,9 @@ def _setIBCTransfers4FULLTBLE2(aR, topTreeD, variables=[], cellNVariable='',
                                 gradzU = gradzU[1]
                             else:
                                 nIBC = pressure.shape[0]
-                                gradxVelocityXNP  = numpy.zeros((nIBC),numpy.float64)
-                                gradyVelocityXNP  = numpy.zeros((nIBC),numpy.float64)
-                                gradzVelocityXNP  = numpy.zeros((nIBC),numpy.float64)
+                                gradxVelocityXNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                gradyVelocityXNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                gradzVelocityXNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
                                 s[2].append(['gradxVelocityX' , gradxVelocityXNP , [], 'DataArray_t'])
                                 s[2].append(['gradyVelocityX' , gradyVelocityXNP , [], 'DataArray_t'])
                                 s[2].append(['gradzVelocityX' , gradzVelocityXNP , [], 'DataArray_t'])
@@ -3711,9 +3711,9 @@ def _setIBCTransfers4FULLTBLE2(aR, topTreeD, variables=[], cellNVariable='',
                                 gradzV = gradzV[1]
                             else:
                                 nIBC = pressure.shape[0]
-                                gradxVelocityYNP  = numpy.zeros((nIBC),numpy.float64)
-                                gradyVelocityYNP  = numpy.zeros((nIBC),numpy.float64)
-                                gradzVelocityYNP  = numpy.zeros((nIBC),numpy.float64)
+                                gradxVelocityYNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                gradyVelocityYNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                gradzVelocityYNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
                                 s[2].append(['gradxVelocityY' , gradxVelocityYNP , [], 'DataArray_t'])
                                 s[2].append(['gradyVelocityY' , gradyVelocityYNP , [], 'DataArray_t'])
                                 s[2].append(['gradzVelocityY' , gradzVelocityYNP , [], 'DataArray_t'])
@@ -3727,9 +3727,9 @@ def _setIBCTransfers4FULLTBLE2(aR, topTreeD, variables=[], cellNVariable='',
                                 gradzW = gradzW[1]
                             else:
                                 nIBC = pressure.shape[0]
-                                gradxVelocityZNP  = numpy.zeros((nIBC),numpy.float64)
-                                gradyVelocityZNP  = numpy.zeros((nIBC),numpy.float64)
-                                gradzVelocityZNP  = numpy.zeros((nIBC),numpy.float64)
+                                gradxVelocityZNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                gradyVelocityZNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                gradzVelocityZNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
                                 s[2].append(['gradxVelocityZ' , gradxVelocityZNP , [], 'DataArray_t'])
                                 s[2].append(['gradyVelocityZ' , gradyVelocityZNP , [], 'DataArray_t'])
                                 s[2].append(['gradzVelocityZ' , gradzVelocityZNP , [], 'DataArray_t'])
@@ -3810,9 +3810,9 @@ def _setIBCTransfers4FULLTBLE2(aR, topTreeD, variables=[], cellNVariable='',
                                     vz = vz[1]
                                 else:
                                     nIBC = pressure.shape[0]
-                                    vxNP  = numpy.zeros((nIBC),numpy.float64)
-                                    vyNP  = numpy.zeros((nIBC),numpy.float64)
-                                    vzNP  = numpy.zeros((nIBC),numpy.float64)
+                                    vxNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                    vyNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                    vzNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
                                     s[2].append(['VelocityX' , vxNP , [], 'DataArray_t'])
                                     s[2].append(['VelocityY' , vyNP , [], 'DataArray_t'])
                                     s[2].append(['VelocityZ' , vzNP , [], 'DataArray_t'])
@@ -3826,9 +3826,9 @@ def _setIBCTransfers4FULLTBLE2(aR, topTreeD, variables=[], cellNVariable='',
                                     gradzP = gradzP[1]
                                 else:
                                     nIBC = pressure.shape[0]
-                                    gradxPressureNP  = numpy.zeros((nIBC),numpy.float64)
-                                    gradyPressureNP  = numpy.zeros((nIBC),numpy.float64)
-                                    gradzPressureNP  = numpy.zeros((nIBC),numpy.float64)
+                                    gradxPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                    gradyPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                    gradzPressureNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
                                     s[2].append(['gradxPressure' , gradxPressureNP , [], 'DataArray_t'])
                                     s[2].append(['gradyPressure' , gradyPressureNP , [], 'DataArray_t'])
                                     s[2].append(['gradzPressure' , gradzPressureNP , [], 'DataArray_t'])
@@ -3842,9 +3842,9 @@ def _setIBCTransfers4FULLTBLE2(aR, topTreeD, variables=[], cellNVariable='',
                                     gradzU = gradzU[1]
                                 else:
                                     nIBC = pressure.shape[0]
-                                    gradxVelocityXNP  = numpy.zeros((nIBC),numpy.float64)
-                                    gradyVelocityXNP  = numpy.zeros((nIBC),numpy.float64)
-                                    gradzVelocityXNP  = numpy.zeros((nIBC),numpy.float64)
+                                    gradxVelocityXNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                    gradyVelocityXNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                    gradzVelocityXNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
                                     s[2].append(['gradxVelocityX' , gradxVelocityXNP , [], 'DataArray_t'])
                                     s[2].append(['gradyVelocityX' , gradyVelocityXNP , [], 'DataArray_t'])
                                     s[2].append(['gradzVelocityX' , gradzVelocityXNP , [], 'DataArray_t'])
@@ -3858,9 +3858,9 @@ def _setIBCTransfers4FULLTBLE2(aR, topTreeD, variables=[], cellNVariable='',
                                     gradzV = gradzV[1]
                                 else:
                                     nIBC = pressure.shape[0]
-                                    gradxVelocityYNP  = numpy.zeros((nIBC),numpy.float64)
-                                    gradyVelocityYNP  = numpy.zeros((nIBC),numpy.float64)
-                                    gradzVelocityYNP  = numpy.zeros((nIBC),numpy.float64)
+                                    gradxVelocityYNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                    gradyVelocityYNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                    gradzVelocityYNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
                                     s[2].append(['gradxVelocityY' , gradxVelocityYNP , [], 'DataArray_t'])
                                     s[2].append(['gradyVelocityY' , gradyVelocityYNP , [], 'DataArray_t'])
                                     s[2].append(['gradzVelocityY' , gradzVelocityYNP , [], 'DataArray_t'])
@@ -3874,9 +3874,9 @@ def _setIBCTransfers4FULLTBLE2(aR, topTreeD, variables=[], cellNVariable='',
                                     gradzW = gradzW[1]
                                 else:
                                     nIBC = pressure.shape[0]
-                                    gradxVelocityZNP  = numpy.zeros((nIBC),numpy.float64)
-                                    gradyVelocityZNP  = numpy.zeros((nIBC),numpy.float64)
-                                    gradzVelocityZNP  = numpy.zeros((nIBC),numpy.float64)
+                                    gradxVelocityZNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                    gradyVelocityZNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                                    gradzVelocityZNP  = numpy.zeros((nIBC),Internal.E_NpyFloat)
                                     s[2].append(['gradxVelocityZ' , gradxVelocityZNP , [], 'DataArray_t'])
                                     s[2].append(['gradyVelocityZ' , gradyVelocityZNP , [], 'DataArray_t'])
                                     s[2].append(['gradzVelocityZ' , gradzVelocityZNP , [], 'DataArray_t'])

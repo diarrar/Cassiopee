@@ -25,7 +25,11 @@
 #ifndef _KCORE_DEF_DEFTYPES_H_
 #define _KCORE_DEF_DEFTYPES_H_
 
+// Reals are double (r8) by default. Single precision (r4) is set by
+// compilation option E_SINGLEREAL
+#ifndef E_SINGLEREAL
 #define E_DOUBLEREAL
+#endif
 //#define E_DOUBLEINT // set by compilation option
 
 // ==========================================================================
@@ -46,6 +50,7 @@
   #else
     #define E_PCM_FLOAT sizeof(E_Float)
   #endif
+  #define E_NPY_FLOAT NPY_DOUBLE
   #define E_MAXFLOAT 1.797693134862315e308
 #else
   typedef float E_Float;
@@ -54,6 +59,7 @@
   #else
     #define E_PCM_FLOAT sizeof(E_Float)
   #endif
+  #define E_NPY_FLOAT NPY_FLOAT
   #define E_MAXFLOAT 3.4028235e38
 #endif
 
@@ -82,6 +88,14 @@
   #define E_NPY_INT NPY_INT
   #define E_IDX_NONE 2147483647
   #define E_MAXINT 2147483647 // Max for signed int32
+#endif
+
+// Check that a numpy array (PyArrayObject*) stores E_Float
+// (only checked in single precision, to detect float64 numpys)
+#ifdef E_DOUBLEREAL
+  #define E_ISFLOATNUMPY(a) true
+#else
+  #define E_ISFLOATNUMPY(a) (PyArray_TYPE((PyArrayObject*)(a)) == E_NPY_FLOAT)
 #endif
 
 ///-

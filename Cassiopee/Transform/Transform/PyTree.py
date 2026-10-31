@@ -763,7 +763,7 @@ def composeWins__(win1, win2):
 
 # Transforme un trirac en shift matrix
 def shiftMatrix__(trirac):
-    m = numpy.zeros((9), dtype=numpy.float64)
+    m = numpy.zeros((9), dtype=Internal.E_NpyFloat)
     s = trirac.size
     for c in range(s):
         if trirac[c] == 1: m[0+3*c] = 1
@@ -860,11 +860,11 @@ def getBCMatchData__(bc):
             translation = Internal.getNodeFromName1(pr, 'Translation')
             rotationAngle = Internal.getNodeFromName1(pr, 'RotationAngle')
             if rotCenter is not None: rotCenter = Internal.getValue(rotCenter)
-            else: rotCenter = numpy.zeros((3), numpy.float64)
+            else: rotCenter = numpy.zeros((3), Internal.E_NpyFloat)
             if translation is not None: translation = Internal.getValue(translation)
-            else: translation = numpy.zeros((3), numpy.float64)
+            else: translation = numpy.zeros((3), Internal.E_NpyFloat)
             if rotationAngle is not None: rotationAngle = Internal.getValue(rotationAngle)
-            else: rotationAngle = numpy.zeros((3), numpy.float64)
+            else: rotationAngle = numpy.zeros((3), Internal.E_NpyFloat)
             periodic = [translation, rotCenter, rotationAngle]
     return (oppBlock, rnge, donor, trf, periodic)
 

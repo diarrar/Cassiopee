@@ -1,5 +1,6 @@
 #ifndef _CONVERTER_EXPRESSION_HPP_
 #define _CONVERTER_EXPRESSION_HPP_
+#include "Def/DefTypes.h"
 #include <unordered_map>
 #include <string>
 #include <memory>
@@ -29,7 +30,7 @@ namespace Expression
 	public:
 	    struct data_t {
     	    std::size_t size;
-        	double *    data;
+        	E_Float *    data;
         	data_t( ) : size(0), data(nullptr)
         	{}
     	};

@@ -1001,9 +1001,56 @@ PyObject* K_IO::GenIOHdf::getArrayI4Skel(hid_t node, hid_t tid,
 }
 
 //=============================================================================
+// driver: R8 are converted to E_Float (R4 if E_SINGLEREAL)
 PyObject* K_IO::GenIOHdf::getArrayR8(hid_t node, hid_t tid, int dim, hsize_t* dims,
                                      hid_t mid,  /* mem_space_id */
                                      hid_t sid)
+{
+#ifdef E_DOUBLEREAL
+  return getArrayR8Raw(node, tid, dim, dims, mid, sid);
+#else
+  return getArrayR82R4(node, tid, dim, dims, mid, sid);
+#endif
+}
+
+//=============================================================================
+// avec conversion des R8 en R4 (faite par HDF a la lecture)
+PyObject* K_IO::GenIOHdf::getArrayR82R4(hid_t node, hid_t tid, int dim, hsize_t* dims,
+                                        hid_t mid,  /* mem_space_id */
+                                        hid_t sid)
+{
+  IMPORTNUMPY;
+  PyArrayObject* r = NULL;
+  vector<npy_intp> npy_dim_vals(dim);
+  hid_t did;
+  for (E_Int nn = 0; nn < dim; nn++) npy_dim_vals[nn] = dims[nn];
+  r = (PyArrayObject*)PyArray_EMPTY(dim, &npy_dim_vals[0], NPY_FLOAT, 1);
+
+  did = H5Dopen2(node, L3S_DATA, H5P_DEFAULT);
+
+#if defined(_MPI) && defined(H5_HAVE_PARALLEL)
+  if (_ismpi == 1)    /** HDF is executed in parallel context and compiled in MPI **/
+  {
+    hid_t xfer_plist = H5Pcreate(H5P_DATASET_XFER);
+    H5Pset_dxpl_mpio(xfer_plist, H5FD_MPIO_COLLECTIVE);
+    H5Dread(did, H5T_NATIVE_FLOAT, mid, sid, xfer_plist, PyArray_DATA(r));
+  }
+  else  /** HDF is executed in sequential context and compiled in MPI **/
+  {
+    H5Dread(did, H5T_NATIVE_FLOAT, mid, sid, H5P_DEFAULT, PyArray_DATA(r));
+  }
+#else /** HDF is executed in sequential context and compiled in sequential **/
+  H5Dread(did, H5T_NATIVE_FLOAT, mid, sid, H5P_DEFAULT, PyArray_DATA(r));
+#endif
+  H5Dclose(did);
+
+  return (PyObject*)r;
+}
+
+//=============================================================================
+PyObject* K_IO::GenIOHdf::getArrayR8Raw(hid_t node, hid_t tid, int dim, hsize_t* dims,
+                                        hid_t mid,  /* mem_space_id */
+                                        hid_t sid)
 {
   IMPORTNUMPY;
   PyArrayObject* r = NULL;

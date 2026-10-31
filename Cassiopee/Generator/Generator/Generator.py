@@ -5,6 +5,7 @@ __version__ = "2026.11"
 
 from . import generator
 import numpy
+from Converter.Internal import E_NpyFloat
 import Converter as C
 
 from .TFIs import allTFI, TFI, TFITri, TFITri2, TFIO, TFIHalfO, TFIMono, TFIStar, TFIStar2
@@ -728,7 +729,7 @@ def defineSizeMapForMMGs(array, hmax, sizeConstraints):
     ret = C.nearestNodes(hook, array)
     n = ret[0]; d = ret[1]
     pt = array[1]
-    alpha = numpy.empty(d.size, dtype=numpy.float64)
+    alpha = numpy.empty(d.size, dtype=E_NpyFloat)
     if isinstance(pt, list): alpha[:] = 0.3*d[:] / pt[pos,:]
     else: alpha[:] = 0.3*d[:] / pt[pos][:]
     alpha[:] = (alpha[:] > 1.)*1.+(alpha[:] <= 1.)*alpha[:]
@@ -1421,7 +1422,7 @@ def mapSplitStruct__(array, dist, splitCrit, densMax):
     a = T.splitCurvatureRadius(a, splitCrit)
 
     # Build array with distance of each "split point"
-    L = numpy.zeros((len(a)), dtype=numpy.float64)
+    L = numpy.zeros((len(a)), dtype=E_NpyFloat)
     ltinv = 1./lt
     L[0] = D.getLength(a[0]) * ltinv
 
@@ -1931,8 +1932,8 @@ def _forceMatch2(a1, a2, P1, P2):
     # on garde ceux qui ont a peu pres la meme longeur
     # et un barycentre semblable
     n1 = len(ext1); n2 = len(ext2)
-    diff = numpy.empty(n1+n2, dtype=numpy.float64)
-    bary = numpy.empty(n1+n2, dtype=numpy.float64)
+    diff = numpy.empty(n1+n2, dtype=E_NpyFloat)
+    bary = numpy.empty(n1+n2, dtype=E_NpyFloat)
     for i, e1 in enumerate(ext1):
         di = Geom.getLength(e1)
         bi = barycenter(e1)

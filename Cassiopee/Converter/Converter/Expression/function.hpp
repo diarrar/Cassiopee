@@ -9,7 +9,7 @@ namespace Expression {
     class function : public ast::node {
       public:
         function(std::shared_ptr<node> &r_stmt) : m_right_statement(r_stmt) {}
-        double operator()(std::size_t i) const final {
+        E_Float operator()(std::size_t i) const final {
             return apply_to((*m_right_statement)(i));
         }
         simd_vector_wrapper eval_simd(std::size_t i) const final {
@@ -44,7 +44,7 @@ namespace Expression {
         virtual std::shared_ptr<node>      simplify()   = 0;
         virtual simd_vector_wrapper
                        apply_to(const simd_vector_wrapper &x) const = 0;
-        virtual double apply_to(double x) const                     = 0;
+        virtual E_Float apply_to(E_Float x) const                     = 0;
         // Pas de statement à gauche pour une fonction
         std::shared_ptr<ast::node> m_right_statement;
     };

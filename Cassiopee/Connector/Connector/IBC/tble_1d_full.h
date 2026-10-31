@@ -36,9 +36,9 @@
           nutr  = nutilde1d[j  ]*xi/(xi + Cv1cube);
           nutrp = nutilde1d[j+1]*xip/(xip + Cv1cube);
 
-          nutrm=max(nutrm,0.0);
-          nutr=max(nutr,0.0);
-          nutrp=max(nutrp,0.0);
+          nutrm=max(nutrm,(E_Float)0.0);
+          nutr=max(nutr,(E_Float)0.0);
+          nutrp=max(nutrp,(E_Float)0.0);
           
           nutm = 0.5*(nutrm + nutr);
           nutp = 0.5*(nutr  + nutrp);

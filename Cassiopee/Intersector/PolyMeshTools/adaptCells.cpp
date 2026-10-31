@@ -1975,7 +1975,7 @@ PyObject* K_INTERSECTOR::conformizeHMesh(PyObject* self, PyObject* args)
       farr.resize(fieldsC.size(), fieldsC[0].size());
       for (size_t i=0; i < fieldsC.size(); ++i)
       {
-        std::vector<double>& fld = fieldsC[i];
+        std::vector<E_Float>& fld = fieldsC[i];
         for (size_t j = 0; j < fld.size(); ++j)farr(i, j) = fld[j];
       }
       tpl = K_ARRAY::buildArray(farr, fvarStringsC, cnto, -1, feltType, false);
@@ -1994,7 +1994,7 @@ PyObject* K_INTERSECTOR::conformizeHMesh(PyObject* self, PyObject* args)
       farr.resize(fieldsN.size(), fieldsN[0].size());
       for (size_t i=0; i < fieldsN.size(); ++i)
       {
-        std::vector<double>& fld = fieldsN[i];
+        std::vector<E_Float>& fld = fieldsN[i];
         for (size_t j = 0; j < fld.size(); ++j)farr(i, j) = fld[j];
       }
       tpl = K_ARRAY::buildArray(farr, fvarStringsN, cnto, -1, feltType, false);

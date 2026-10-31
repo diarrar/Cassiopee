@@ -257,8 +257,8 @@ PyObject* K_GENERATOR::tetgen(PyObject* self, PyObject* args)
   E_Float* pty = f->begin(posy);
   E_Float* ptz = f->begin(posz);
   in.numberofpoints = n;
-  in.pointlist = new E_Float [n*3];
-  E_Float* ptin = in.pointlist;
+  in.pointlist = new REAL [n*3];
+  REAL* ptin = in.pointlist;
   for (E_Int i = 0; i < n; i++)
   {
     ptin[0] = ptx[i]; ptin[1] = pty[i]; ptin[2] = ptz[i]; ptin += 3;
@@ -340,7 +340,7 @@ PyObject* K_GENERATOR::tetgen(PyObject* self, PyObject* args)
   E_Float* fy = fout->begin(2);
   E_Float* fz = fout->begin(3);
 
-  E_Float* pt = out.pointlist;
+  REAL* pt = out.pointlist;
   for (E_Int i = 0; i < np; i++)
   {
     fx[i] = pt[0]; fy[i] = pt[1]; fz[i] = pt[2]; pt += 3;

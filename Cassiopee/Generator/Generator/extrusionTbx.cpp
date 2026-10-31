@@ -427,8 +427,8 @@ PyObject* K_GENERATOR::getLocalStepFactor2(PyObject* self, PyObject* args)
             
             //printf("ind=%d: alpha=%f %f %f\n", ind, alpha*180./K_CONST::E_PI, ps, ps2);
             E_Float sas2 = K_FUNC::E_abs(sin(alpha*0.5));
-            sas2 = std::max(sas2, 0.5);
-            sas2 = std::min(sas2, 2.);
+            sas2 = std::max(sas2, (E_Float)0.5);
+            sas2 = std::min(sas2, (E_Float)2.);
             fouth[ind] = 1./sas2;
             //printf("ind=%d: sas2=%f, fout=%f\n", ind,sas2,fout[ind]);
             

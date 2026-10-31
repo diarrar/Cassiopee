@@ -119,7 +119,7 @@ PyObject *K_XCORE::exchangeFields(PyObject *self, PyObject *args)
 
     for (E_Int j = 0; j < fsize; j++) {
       const auto &data = fields[j];
-      PyArrayObject *recv = (PyArrayObject *)PyArray_SimpleNew(1, dims, NPY_DOUBLE);
+      PyArrayObject *recv = (PyArrayObject *)PyArray_SimpleNew(1, dims, E_NPY_FLOAT);
       
       for (E_Int k = 0; k < npf; k++) {
         E_Int face = pfaces[k]-1;
@@ -128,9 +128,9 @@ PyObject *K_XCORE::exchangeFields(PyObject *self, PyObject *args)
         send_buf[k] = val;
       }
 
-      MPI_Irecv(PyArray_DATA(recv), npf, MPI_DOUBLE, dest, 0, MPI_COMM_WORLD,
+      MPI_Irecv(PyArray_DATA(recv), npf, XMPI_FLOAT, dest, 0, MPI_COMM_WORLD,
         &reqs[nreq++]); 
-      MPI_Isend((void *)send_buf, npf, MPI_DOUBLE, dest, 0, MPI_COMM_WORLD,
+      MPI_Isend((void *)send_buf, npf, XMPI_FLOAT, dest, 0, MPI_COMM_WORLD,
         &reqs[nreq++]);
       
       PyList_Append(proc_rdata, (PyObject *)recv);

@@ -129,6 +129,13 @@ E_Int K_ARRAY::getFromArray2(PyObject* o,
       Py_DECREF(tpl);
       return -4;
     }    
+    if (!E_ISFLOATNUMPY(a))
+    {
+      PyErr_Warn(PyExc_Warning,
+                 "getFromArray2: field must be a numpy of E_Float (float32 in single precision).");
+      Py_DECREF(tpl);
+      return -4;
+    }
     f = new FldArrayF(s, nfld, (E_Float*)PyArray_DATA(a), true, true);
   }
   else if (PyList_Check(tpl) == true) // -- Array2 --
@@ -143,6 +150,13 @@ E_Int K_ARRAY::getFromArray2(PyObject* o,
       {
         a = (PyArrayObject*)p; //Py_INCREF(a);
         s = PyArray_SIZE(a); // must be constant
+        if (!E_ISFLOATNUMPY(a))
+        {
+          PyErr_Warn(PyExc_Warning,
+                     "getFromArray2: field must be a list of numpys of E_Float (float32 in single precision).");
+          delete [] acu; Py_DECREF(tpl);
+          return -4;
+        }
         acu[i] = (E_Float*)PyArray_DATA(a);
       }
       else
@@ -404,6 +418,13 @@ E_Int K_ARRAY::getFromArray2(PyObject* o,
       Py_DECREF(tpl);
       return -4;
     }    
+    if (!E_ISFLOATNUMPY(a))
+    {
+      PyErr_Warn(PyExc_Warning,
+                 "getFromArray2: field must be a numpy of E_Float (float32 in single precision).");
+      Py_DECREF(tpl);
+      return -4;
+    }
     f = new FldArrayF(s, nfld, (E_Float*)PyArray_DATA(a), true, true);
   }
   else if (PyList_Check(tpl) == true) // -- Array2 --
@@ -418,6 +439,13 @@ E_Int K_ARRAY::getFromArray2(PyObject* o,
       {
         a = (PyArrayObject*)p; //Py_INCREF(a);
         s = PyArray_SIZE(a); // must be constant
+        if (!E_ISFLOATNUMPY(a))
+        {
+          PyErr_Warn(PyExc_Warning,
+                     "getFromArray2: field must be a list of numpys of E_Float (float32 in single precision).");
+          delete [] acu; Py_DECREF(tpl);
+          return -4;
+        }
         acu[i] = (E_Float*)PyArray_DATA(a);
       }
       else

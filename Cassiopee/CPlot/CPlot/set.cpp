@@ -37,28 +37,29 @@ PyObject* K_CPLOT::setState(PyObject* self, PyObject* args)
   int displayBB, displayInfo, displayIsoLegend;
   int meshStyle, solidStyle, scalarStyle, vectorStyle, colormap, niso;
   char* colormapC1; char* colormapC2; char* colormapC3; PyObject* colormapC;
-  E_Float xcam, ycam, zcam, xeye, yeye, zeye, viewAngle, dirx, diry, dirz;
-  E_Float isoEdges, vectorScale, vectorDensity;
+  // double: parsed with "d" whatever the real precision
+  double xcam, ycam, zcam, xeye, yeye, zeye, viewAngle, dirx, diry, dirz;
+  double isoEdges, vectorScale, vectorDensity;
   int vectorNormalize, vectorShowSurface, vectorShape, vectorProjection;
   int bgColor, shadow, dof;
   int ghostifyDeactivatedZones;
   int edgifyActivatedZones;
   int edgifyDeactivatedZones;
   int simplifyOnDrag;
-  int stereo; E_Float stereoDist;
+  int stereo; double stereoDist;
   int cursor;
   char* exportFile; char* exportResolution; int exportAA;
   char* envmap; char* message;
   PyObject* isoScales; PyObject* billBoards; 
   PyObject* materials; PyObject* bumpMaps;
   int gridSizeI, gridSizeJ;
-  E_Float lightOffsetX, lightOffsetY; 
-  E_Float dofPower; E_Float gamma; E_Int toneMapping; 
-  E_Float sobelThreshold; E_Float sharpenPower; E_Float ssaoPower;
+  double lightOffsetX, lightOffsetY; 
+  double dofPower; double gamma; E_Int toneMapping; 
+  double sobelThreshold; double sharpenPower; double ssaoPower;
   int timer; int selectionStyle; int frameBuffer; int offscreen;
   int continuousExport; int activateShortCuts;
   char* backgroundFile;
-  E_Float billBoardSize;
+  double billBoardSize;
   if (!PyArg_ParseTuple(args, 
 	    "iOOiiiiiiiiiiddiiiiisssOidO(ii)(ddd)(ddd)(ddd)d(dd)isiiddidddiiiissiissidi(ii)iiiOdOOii",
         &dim, &modeObject, &scalarFieldObject, 

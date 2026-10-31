@@ -13,12 +13,12 @@ namespace Expression
 		cos( std::shared_ptr<node> r_stmt ) : function(r_stmt) {}
 	private:
 		virtual std::string name() const final { return "cos"; }
-		virtual double apply_to(double x) const final { return std::cos(x); }
+		virtual E_Float apply_to(E_Float x) const final { return std::cos(x); }
 		virtual simd_vector_wrapper apply_to( const simd_vector_wrapper& u ) const  final
 		{
 			simd_vector_wrapper w;
-			double* __restrict__  dw = w.data();
-			const double* __restrict__ du = u.data();
+			E_Float* __restrict__  dw = w.data();
+			const E_Float* __restrict__ du = u.data();
 #           pragma omp simd			
 			for ( std::size_t i = 0; i < simd_vector_wrapper::max_size; ++i )
 				dw[i] = std::cos(du[i]);
@@ -40,12 +40,12 @@ namespace Expression
 		sin( std::shared_ptr<node> r_stmt ) : function(r_stmt) {}
 	private:
 		virtual std::string name() const final { return "sin"; }
-		virtual double apply_to(double x) const final { return std::sin(x); }
+		virtual E_Float apply_to(E_Float x) const final { return std::sin(x); }
 		virtual simd_vector_wrapper apply_to( const simd_vector_wrapper& u ) const   final
 		{
 			simd_vector_wrapper w;
-			double* __restrict__ dw = w.data();
-			const double* __restrict__ du = u.data();
+			E_Float* __restrict__ dw = w.data();
+			const E_Float* __restrict__ du = u.data();
 # pragma omp simd
 			for ( std::size_t i = 0; i < simd_vector_wrapper::max_size; ++i )
 				dw[i] = std::sin(du[i]);
@@ -65,12 +65,12 @@ namespace Expression
 		tan( std::shared_ptr<node> r_stmt ) : function(r_stmt) {}
 	private:
 		virtual std::string name() const final { return "tan"; }
-		virtual double apply_to(double x) const final { return std::tan(x); }
+		virtual E_Float apply_to(E_Float x) const final { return std::tan(x); }
 		virtual simd_vector_wrapper apply_to( const simd_vector_wrapper& u ) const   final
 		{
 			simd_vector_wrapper w;
-			double* __restrict__ dw = w.data();
-			const double* __restrict__ du = u.data();
+			E_Float* __restrict__ dw = w.data();
+			const E_Float* __restrict__ du = u.data();
 # pragma omp simd
 			for ( std::size_t i = 0; i < simd_vector_wrapper::max_size; ++i )
 				dw[i] = std::tan(du[i]);
@@ -90,12 +90,12 @@ namespace Expression
 		ln( std::shared_ptr<node> r_stmt ) : function(r_stmt) {}
 	private:
 		virtual std::string name() const final { return "ln"; }
-		virtual double apply_to(double x) const final { return std::log(x); }
+		virtual E_Float apply_to(E_Float x) const final { return std::log(x); }
 		virtual simd_vector_wrapper apply_to( const simd_vector_wrapper& u ) const   final
 		{
 			simd_vector_wrapper w;
-			double* __restrict__ dw = w.data();
-			const double* __restrict__ du = u.data();
+			E_Float* __restrict__ dw = w.data();
+			const E_Float* __restrict__ du = u.data();
 # pragma omp simd
 			for ( std::size_t i = 0; i < simd_vector_wrapper::max_size; ++i )
 				dw[i] = std::log(du[i]);
@@ -115,12 +115,12 @@ namespace Expression
 		exp( std::shared_ptr<node> r_stmt ) : function(r_stmt) {}
 	private:
 		virtual std::string name() const final { return "exp"; }
-		virtual double apply_to(double x) const final { return std::exp(x); }
+		virtual E_Float apply_to(E_Float x) const final { return std::exp(x); }
 		virtual simd_vector_wrapper apply_to( const simd_vector_wrapper& u ) const   final
 		{
 			simd_vector_wrapper w;
-			double* __restrict__ dw = w.data();
-			const double* __restrict__ du = u.data();
+			E_Float* __restrict__ dw = w.data();
+			const E_Float* __restrict__ du = u.data();
 # pragma omp simd
 			for ( std::size_t i = 0; i < simd_vector_wrapper::max_size; ++i )
 				dw[i] = std::exp(du[i]);
@@ -143,12 +143,12 @@ namespace Expression
 		sqrt( std::shared_ptr<node> r_stmt ) : function(r_stmt) {}
 	private:
 		virtual std::string name() const final { return "sqrt"; }
-		virtual double apply_to(double x) const final { return std::sqrt(x); }
+		virtual E_Float apply_to(E_Float x) const final { return std::sqrt(x); }
 		virtual simd_vector_wrapper apply_to( const simd_vector_wrapper& u ) const   final
 		{
 			simd_vector_wrapper w;
-			double* __restrict__ dw = w.data();
-			const double* __restrict__ du = u.data();
+			E_Float* __restrict__ dw = w.data();
+			const E_Float* __restrict__ du = u.data();
 # pragma omp simd
 			for ( std::size_t i = 0; i < simd_vector_wrapper::max_size; ++i )
 				dw[i] = std::sqrt(du[i]);
@@ -169,12 +169,12 @@ namespace Expression
 		cosh( std::shared_ptr<node> r_stmt ) : function(r_stmt) {}
 	private:
 		virtual std::string name() const final { return "cosh"; }
-		virtual double apply_to(double x) const final { return std::cosh(x); }
+		virtual E_Float apply_to(E_Float x) const final { return std::cosh(x); }
 		virtual simd_vector_wrapper apply_to( const simd_vector_wrapper& u ) const   final
 		{
 			simd_vector_wrapper w;
-			double* __restrict__ dw = w.data();
-			const double* __restrict__ du = u.data();
+			E_Float* __restrict__ dw = w.data();
+			const E_Float* __restrict__ du = u.data();
 # pragma omp simd
 			for ( std::size_t i = 0; i < simd_vector_wrapper::max_size; ++i )
 				dw[i] = std::cosh(du[i]);
@@ -195,12 +195,12 @@ namespace Expression
 		sinh( std::shared_ptr<node> r_stmt ) : function(r_stmt) {}
 	private:
 		virtual std::string name() const final { return "sinh"; }
-		virtual double apply_to(double x) const final { return std::sinh(x); }
+		virtual E_Float apply_to(E_Float x) const final { return std::sinh(x); }
 		virtual simd_vector_wrapper apply_to( const simd_vector_wrapper& u ) const   final
 		{
 			simd_vector_wrapper w;
-			double* __restrict__ dw = w.data();
-			const double* __restrict__ du = u.data();
+			E_Float* __restrict__ dw = w.data();
+			const E_Float* __restrict__ du = u.data();
 # pragma omp simd
 			for ( std::size_t i = 0; i < simd_vector_wrapper::max_size; ++i )
 				dw[i] = std::sinh(du[i]);
@@ -221,12 +221,12 @@ namespace Expression
 		abs( std::shared_ptr<node> r_stmt ) : function(r_stmt) {}
 	private:
 		virtual std::string name() const final { return "abs"; }
-		virtual double apply_to(double x) const final { return std::abs(x); }
+		virtual E_Float apply_to(E_Float x) const final { return std::abs(x); }
 		virtual simd_vector_wrapper apply_to( const simd_vector_wrapper& u ) const   final
 		{
 			simd_vector_wrapper w;
-			double* __restrict__ dw = w.data();
-			const double* __restrict__ du = u.data();
+			E_Float* __restrict__ dw = w.data();
+			const E_Float* __restrict__ du = u.data();
 # pragma omp simd
 			for ( std::size_t i = 0; i < simd_vector_wrapper::max_size; ++i )
 				dw[i] = std::abs(du[i]);
@@ -247,12 +247,12 @@ namespace Expression
 		sign( std::shared_ptr<node> r_stmt ) : function(r_stmt) {}
 	private:
 		virtual std::string name() const final { return "sign"; }
-		virtual double apply_to(double x) const final { return (0. < x) - (x < 0.); }
+		virtual E_Float apply_to(E_Float x) const final { return (0. < x) - (x < 0.); }
 		virtual simd_vector_wrapper apply_to( const simd_vector_wrapper& u ) const   
 		{
 			simd_vector_wrapper w;
-			double* __restrict__ dw = w.data();
-			const double* __restrict__ du = u.data();
+			E_Float* __restrict__ dw = w.data();
+			const E_Float* __restrict__ du = u.data();
 # pragma omp simd
 			for ( std::size_t i = 0; i < simd_vector_wrapper::max_size; ++i )
 				dw[i] = (0. < du[i]) - (du[i] < 0.);

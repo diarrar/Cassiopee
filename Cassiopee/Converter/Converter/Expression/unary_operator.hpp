@@ -22,7 +22,7 @@ namespace Expression
 			m_right_statement(r_stmt), m_op(op)
 		{}
 
-		double operator() ( std::size_t i ) const final
+		E_Float operator() ( std::size_t i ) const final
 		{
 			switch(m_op)
 			{

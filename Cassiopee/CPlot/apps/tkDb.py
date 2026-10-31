@@ -7,6 +7,7 @@ import CPlot.Tk as CTK
 import Converter.PyTree as C
 import numpy
 
+from Converter.Internal import E_NpyFloat
 # local widgets list
 WIDGETS = {}; VARS = []
 
@@ -39,7 +40,7 @@ def initParametersFromDb():
     p = points[0]
     for k in p: RANGEMIN[k] = +1.e6
     for k in p: RANGEMAX[k] = -1.e6
-    for k in p: POINTS[k] = numpy.zeros( (npoints), dtype=numpy.float64 )
+    for k in p: POINTS[k] = numpy.zeros( (npoints), dtype=E_NpyFloat )
     for c, p in enumerate(points):
         for k in p: RANGEMIN[k] = min(RANGEMIN[k], p[k])
         for k in p: RANGEMAX[k] = max(RANGEMAX[k], p[k])

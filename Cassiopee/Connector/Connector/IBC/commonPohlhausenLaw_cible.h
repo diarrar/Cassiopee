@@ -15,7 +15,7 @@ for (E_Int noind = 0; noind < ifin-ideb; noind++)
 
   // uext: norme de la composante tangentielle de la vitesse externe
   uext = sqrt(ut_vec[noind]*ut_vec[noind]+vt_vec[noind]*vt_vec[noind]+wt_vec[noind]*wt_vec[noind]);
-  uext = std::max(uext, 1.e-12);
+  uext = std::max(uext, (E_Float)1.e-12);
 
   delta = 5.84/sqrt(uext*ro_vec[noind]/(mu_vec[noind]*xPW[noind+ideb]));
   eta   = yibc/delta;

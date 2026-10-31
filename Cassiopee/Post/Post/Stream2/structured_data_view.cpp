@@ -554,7 +554,7 @@ namespace K_POST
 
     }
     //_ ___________________ Calcul du volume d'une cellule du maillage structuré __________________________
-    double structured_data_view::Implementation::compute_volume_of_cell(E_Int ind_cell) const
+    E_Float structured_data_view::Implementation::compute_volume_of_cell(E_Int ind_cell) const
     {
         const auto& crds = this->getCoordinates();
         auto indices_cell = this->get_indices_of_cell_from_unique_index(ind_cell);

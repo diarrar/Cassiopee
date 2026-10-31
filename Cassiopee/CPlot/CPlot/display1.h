@@ -8,8 +8,9 @@
   int displayBB, displayInfo, displayIsoLegend;
   int meshStyle, solidStyle, scalarStyle, vectorStyle, colormap, niso;
   char* colormapC1; char* colormapC2; char* colormapC3; PyObject* colormapC;
-  E_Float xcam, ycam, zcam, xeye, yeye, zeye, dirx, diry, dirz, isoEdges;
-  E_Float stereoDist, viewAngle, vectorScale, vectorDensity;
+  // double: parsed with "d" whatever the real precision
+  double xcam, ycam, zcam, xeye, yeye, zeye, dirx, diry, dirz, isoEdges;
+  double stereoDist, viewAngle, vectorScale, vectorDensity;
   int vectorNormalize, vectorShowSurface, vectorShape, vectorProjection;
   char* exportFile; char* exportResolution; int exportAA;
   PyObject* zoneNamesObject;
@@ -17,8 +18,8 @@
   PyObject* isoScales;
   char* backgroundFile;
   int bgColor, shadow, dof, offscreen, stereo, frameBuffer, panorama;
-  E_Float lightOffsetX, lightOffsetY;
-  E_Float dofPower, gamma; int toneMapping;
+  double lightOffsetX, lightOffsetY;
+  double dofPower, gamma; int toneMapping;
   PyObject* posCamList; PyObject* posEyeList; PyObject* dirCamList; // only for ODS
   if (!PyArg_ParseTuple(args, "OiOOOOOiiiiiiiddiiiiisssOidO(ii)(ddd)(ddd)(ddd)disi(dd)iddiidissiOOiiOOO",
                         &arrays, &dim, &modeObject, &scalarFieldObject,

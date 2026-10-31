@@ -1990,8 +1990,8 @@ def getIBMFrontType0__(tc, frontvar, dim):
         dmin = C.getMaxValue(front, 'TurbulentDistance')
 
         if Cmpi.KCOMM is not None:
-            dmin = numpy.array([dmin], dtype=numpy.float64)
-            dmin_max = numpy.zeros(1, dtype=numpy.float64)
+            dmin = numpy.array([dmin], dtype=Internal.E_NpyFloat)
+            dmin_max = numpy.zeros(1, dtype=Internal.E_NpyFloat)
             Cmpi.KCOMM.Allreduce(dmin, dmin_max, Cmpi.MAX)
             dmin = dmin_max[0]
 
@@ -2004,8 +2004,8 @@ def getIBMFrontType0__(tc, frontvar, dim):
         dmin = C.getMaxValue(front, 'TurbulentDistance')
 
         if Cmpi.KCOMM is not None:
-            dmin = numpy.array([dmin], dtype=numpy.float64)
-            dmin_max = numpy.zeros(1, dtype=numpy.float64)
+            dmin = numpy.array([dmin], dtype=Internal.E_NpyFloat)
+            dmin_max = numpy.zeros(1, dtype=Internal.E_NpyFloat)
             Cmpi.KCOMM.Allreduce(dmin, dmin_max, Cmpi.MAX)
             dmin = dmin_max[0]
 

@@ -30,6 +30,7 @@
 #include <set>
 #include <vector>
 #include <algorithm>
+#include <type_traits>
 
 namespace K_FLD 
 {
@@ -81,6 +82,12 @@ Design
     DynArray(size_type rows, size_type cols, bool calloc = false);
     /// Constructor with number of rows, columns and default value.
     DynArray(size_type rows, size_type cols, const value_type& val, bool calloc = false);
+#ifndef E_DOUBLEREAL
+    /// Same with a default value of another floating type (ex: double literal for a float array)
+    template <typename V, typename std::enable_if<std::is_floating_point<V>::value && std::is_floating_point<T>::value && !std::is_same<V, T>::value, int>::type = 0>
+    DynArray(size_type rows, size_type cols, V val, bool calloc = false)
+      : DynArray(rows, cols, value_type(val), calloc) {}
+#endif
     /// Constructor with input data : WARNING becomes owner
     DynArray(T*& compactdata, size_type rows, size_type cols, bool calloc = false);
 

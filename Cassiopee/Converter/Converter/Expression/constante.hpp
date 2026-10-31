@@ -9,10 +9,10 @@ namespace Expression
 	class constante : public ast::node
 	{
 	public:
-		constante(double val) : m_value(val)
+		constante(E_Float val) : m_value(val)
 		{}
 
-		double operator() ( std::size_t i ) const final
+		E_Float operator() ( std::size_t i ) const final
 		{
 			return m_value;
 		}
@@ -40,7 +40,7 @@ namespace Expression
 			return std::make_shared<constante>(m_value);
 		}
 	private:
-		double m_value;
+		E_Float m_value;
 	};
 }
 

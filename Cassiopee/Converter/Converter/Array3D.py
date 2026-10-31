@@ -2,6 +2,7 @@
 # Written by P. Ginibre
 
 import numpy
+from .Internal import E_NpyFloat
 
 # Convert arrays in 3D arrays
 def convertArrays2Arrays3D(CArrays, VERBOSE=None):
@@ -40,7 +41,7 @@ def convertArray3D2Array(var, Var):
         if Var[n].shape != Shape0:
             raise Exception("Dimensions Differentes des variables non autorise !")
 
-    V = numpy.zeros((len(var),Var[0].size))
+    V = numpy.zeros((len(var),Var[0].size), dtype=E_NpyFloat)
     for n in range(len(var)):
         #print Var[n]
         if len(Shape0) == 2:

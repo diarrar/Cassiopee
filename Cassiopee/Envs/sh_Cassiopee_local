@@ -20,6 +20,7 @@ EXT=""
 if [ -n "$MACHINE" ]; then
     # Detect MAC environement from MACHINE
     INTTYPE=""
+    REALTYPE=""
     DBGMODE=""
     BRANCHNAME=""
     MACHINETMP=$MACHINE
@@ -32,6 +33,11 @@ if [ -n "$MACHINE" ]; then
         MACHINETMP="${MACHINETMP//_i8/}"
         INTTYPE="_i8"
     fi
+
+    if [ "${MACHINETMP#*_r4*}" != "$MACHINETMP" ]; then
+        MACHINETMP="${MACHINETMP//_r4/}"
+        REALTYPE="_r4"
+    fi
     
     if [ "${MACHINETMP#*_b-*}" != "$MACHINETMP" ]; then
         BRANCHNAME=${MACHINETMP#*_b-$BRANCHNAME}
@@ -42,8 +48,8 @@ if [ -n "$MACHINE" ]; then
     fi
     
     export MAC=$MACHINETMP
-    EXT=$BRANCHNAME$INTTYPE$DBGMODE
-    unset MACHINETMP BRANCHNAME INTTYPE DBGMODE
+    EXT=$BRANCHNAME$INTTYPE$REALTYPE$DBGMODE
+    unset MACHINETMP BRANCHNAME INTTYPE REALTYPE DBGMODE
 else
     # Detect machine by uname (longest first)
     KC=$(uname -n)

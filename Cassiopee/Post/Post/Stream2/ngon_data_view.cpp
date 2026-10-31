@@ -863,7 +863,7 @@ namespace K_POST
         vector3d e3(coords[vertices_index[0]],coords[vertices_index[nb_verts_per_elt-1]]);
         vector3d pp0(coords[vertices_index[0]], pt);
 
-        matrix_3x3_type A{std::array<double,3>{e1.x,e2.x,e3.x},
+        matrix_3x3_type A{std::array<E_Float,3>{e1.x,e2.x,e3.x},
                                               {e1.y,e2.y,e3.y},
                                               {e1.z,e2.z,e3.z}
                          };

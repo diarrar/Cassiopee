@@ -67,7 +67,7 @@ E_Int __check_array(PyObject* o, PyArrayObject*& a, char*& varString)
                "getFromArrayDyn: second arg in array must be a numpy array.");
     return -4;
   }
-  //a = (PyArrayObject*)PyArray_ContiguousFromObject(tpl, NPY_DOUBLE,
+  //a = (PyArrayObject*)PyArray_ContiguousFromObject(tpl, E_NPY_FLOAT,
   //                                                 1, 10000000);
   a = (PyArrayObject*)tpl; Py_INCREF(a);
 
@@ -278,13 +278,27 @@ E_Int K_ARRAY::getFromArray(PyObject* o,
   }
   
   f = new DynArray<E_Float>(nfld, s);
-  E_Float* d = (E_Float*)PyArray_DATA(a);
   DynArray<E_Float>::iterator it = f->begin();
-  for (E_Int i = 0; i < s; i++)
-    for (E_Int n = 0; n < nfld; n++)
-    {
-      *it = d[i + s*n]; it++;
-    }
+#ifndef E_DOUBLEREAL
+  if (PyArray_TYPE(a) == NPY_DOUBLE) // copie avec conversion en E_Float
+  {
+    double* dd = (double*)PyArray_DATA(a);
+    for (E_Int i = 0; i < s; i++)
+      for (E_Int n = 0; n < nfld; n++)
+      {
+        *it = (E_Float)dd[i + s*n]; it++;
+      }
+  }
+  else
+#endif
+  {
+    E_Float* d = (E_Float*)PyArray_DATA(a);
+    for (E_Int i = 0; i < s; i++)
+      for (E_Int n = 0; n < nfld; n++)
+      {
+        *it = d[i + s*n]; it++;
+      }
+  }
 
   c = new DynArray<E_Int>(1, 1);//will be resized inside
   return __get_connectivity(o, a, ni, nj, nk, *c, eltType);
@@ -318,13 +332,27 @@ E_Int K_ARRAY::getFromArray(PyObject* o,
   
   f.resize(nfld, s);
   
-  E_Float* d = (E_Float*)PyArray_DATA(a);
   DynArray<E_Float>::iterator it = f.begin();
-  for (E_Int i = 0; i < s; i++)
-    for (E_Int n = 0; n < nfld; n++)
-    {
-      *it = d[i + s*n]; it++;
-    }
+#ifndef E_DOUBLEREAL
+  if (PyArray_TYPE(a) == NPY_DOUBLE) // copie avec conversion en E_Float
+  {
+    double* dd = (double*)PyArray_DATA(a);
+    for (E_Int i = 0; i < s; i++)
+      for (E_Int n = 0; n < nfld; n++)
+      {
+        *it = (E_Float)dd[i + s*n]; it++;
+      }
+  }
+  else
+#endif
+  {
+    E_Float* d = (E_Float*)PyArray_DATA(a);
+    for (E_Int i = 0; i < s; i++)
+      for (E_Int n = 0; n < nfld; n++)
+      {
+        *it = d[i + s*n]; it++;
+      }
+  }
 
   return __get_connectivity(o, a, ni, nj, nk, c, eltType);
 }

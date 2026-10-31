@@ -65,7 +65,7 @@ void K_KCORE::memcpy__(E_Float* a, E_Float* b, E_Int s)
 
 //=============================================================================
 // Equivalent de la fonction empty de numpy mais avec des tableaux 
-// de double fortrans alignes sur align bits
+// de E_Float fortrans alignes sur align bits
 // IN: shape: un tuple (120,3)
 // IN: align: nbre octets pour l'alignement
 //=============================================================================
@@ -96,30 +96,30 @@ PyObject* K_KCORE::empty(PyObject* self, PyObject* args)
   }
 
   // buffer surdimensionne pour l'alignement
-  char* buf = (char*)malloc((8*size+align)*sizeof(char));
+  char* buf = (char*)malloc((sizeof(E_Float)*size+align)*sizeof(char));
   if (!buf) return PyErr_NoMemory();
   
-  double* mymem = (double*)buf;
+  E_Float* mymem = (E_Float*)buf;
   E_LONG addr = (E_LONG)mymem; // adresse en bytes
   //printf("%ld < %d\n", addr%align, align);
   PyObject* arr;
   if (align == 0 || addr%align == 0)
   {
-    arr = PyArray_SimpleNewFromData(nd, dims, NPY_DOUBLE, mymem);
+    arr = PyArray_SimpleNewFromData(nd, dims, E_NPY_FLOAT, mymem);
     Py_INCREF(arr);
     FLAG(arr);
   }
   else
   {
     // Premier numpy (possesseur)
-    PyObject* arr1 = PyArray_SimpleNewFromData(nd, dims, NPY_DOUBLE, mymem);
+    PyObject* arr1 = PyArray_SimpleNewFromData(nd, dims, E_NPY_FLOAT, mymem);
     Py_INCREF(arr1);
     FLAG(arr1);
 
     // Le deuxieme non-possesseur aligne
     E_LONG addr2 = addr + addr%align;
-    double* data = (double*)addr2;
-    arr = PyArray_SimpleNewFromData(nd, dims, NPY_DOUBLE, data);
+    E_Float* data = (E_Float*)addr2;
+    arr = PyArray_SimpleNewFromData(nd, dims, E_NPY_FLOAT, data);
     Py_INCREF(arr);
     FLAG2(arr);
   }

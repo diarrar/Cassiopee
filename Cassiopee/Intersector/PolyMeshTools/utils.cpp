@@ -1130,7 +1130,7 @@ PyObject* K_INTERSECTOR::checkCellsFlux(PyObject* self, PyObject* args)
   tpl = Py_BuildValue("d", double(fluxmax));
   PyList_Append(l, tpl);
 #else
-  tpl =  Py_BuildValue("f", float(fluxmax);
+  tpl =  Py_BuildValue("f", float(fluxmax));
   PyList_Append(l, tpl);
 #endif
   
@@ -1231,7 +1231,7 @@ PyObject* K_INTERSECTOR::checkAngularExtrema(PyObject* self, PyObject* args)
   tpl = Py_BuildValue("d", double(maxA));
   PyList_Append(l, tpl);
 #else
-  tpl =  Py_BuildValue("f", float(maxA);
+  tpl =  Py_BuildValue("f", float(maxA));
   PyList_Append(l, tpl);
 #endif
 
@@ -1247,14 +1247,14 @@ PyObject* K_INTERSECTOR::checkAngularExtrema(PyObject* self, PyObject* args)
   tpl = Py_BuildValue("d", double(minA));
   PyList_Append(l, tpl);
 #else
-  tpl =  Py_BuildValue("f", float(minA);
+  tpl =  Py_BuildValue("f", float(minA));
   PyList_Append(l, tpl);
 #endif
   
   return l;
 }
 
-int comp_vol(const K_FLD::FloatArray& crd, const ngon_type& ngi, const FldArrayI* cFE, std::vector<E_Int>& orient, E_Int i, DELAUNAY::Triangulator & dt, double &v)
+int comp_vol(const K_FLD::FloatArray& crd, const ngon_type& ngi, const FldArrayI* cFE, std::vector<E_Int>& orient, E_Int i, DELAUNAY::Triangulator & dt, E_Float &v)
 {
   //std::cout << "PH : " << i << std::endl;
   orient.clear();
@@ -1336,7 +1336,7 @@ PyObject* K_INTERSECTOR::checkCellsVolume(PyObject* self, PyObject* args)
 #pragma omp for //schedule(dynamic)
   for (i=0; i < ngi.PHs.size(); ++i)
   {
-    double v;
+    E_Float v;
     E_Int err = comp_vol(crd, ngi, cFE, orient[id], i, dt, v);
     if (!err && v < vm[id]) // min for current thread
     {
@@ -1384,7 +1384,7 @@ PyObject* K_INTERSECTOR::checkCellsVolume(PyObject* self, PyObject* args)
   tpl = Py_BuildValue("d", double(vmin));
   PyList_Append(l, tpl);
 #else
-  tpl =  Py_BuildValue("f", float(vmin);
+  tpl =  Py_BuildValue("f", float(vmin));
   PyList_Append(l, tpl);
 #endif
   
@@ -1425,7 +1425,7 @@ PyObject* K_INTERSECTOR::checkCellsVolumeAndGrowthRatio(PyObject* self, PyObject
 
   E_Int nphs = ngi.PHs.size();
 
-  std::vector<double> vols(nphs, NUGA::FLOAT_MAX);
+  std::vector<E_Float> vols(nphs, NUGA::FLOAT_MAX);
 
   E_Int nb_max_threads = __NUMTHREADS__;
   //std::cout << "nb threads max : " << nb_max_threads << std::endl;
@@ -1442,7 +1442,7 @@ PyObject* K_INTERSECTOR::checkCellsVolumeAndGrowthRatio(PyObject* self, PyObject
 #pragma omp for //schedule(dynamic)
     for (i=0; i < ngi.PHs.size(); ++i)
     {
-      double v;
+      E_Float v;
       E_Int err = comp_vol(crd, ngi, cFE, orient[id], i, dt, v);
       if (!err)
         vols[i] = v;
@@ -1493,7 +1493,7 @@ PyObject* K_INTERSECTOR::checkCellsVolumeAndGrowthRatio(PyObject* self, PyObject
   tpl = Py_BuildValue("d", double(volmin));
   PyList_Append(l, tpl);
 #else
-  tpl =  Py_BuildValue("f", float(volmin);
+  tpl =  Py_BuildValue("f", float(volmin));
   PyList_Append(l, tpl);
 #endif
 
@@ -1509,7 +1509,7 @@ PyObject* K_INTERSECTOR::checkCellsVolumeAndGrowthRatio(PyObject* self, PyObject
   tpl = Py_BuildValue("d", double(grmin));
   PyList_Append(l, tpl);
 #else
-  tpl =  Py_BuildValue("f", float(grmin);
+  tpl =  Py_BuildValue("f", float(grmin));
   PyList_Append(l, tpl);
 #endif
   
@@ -1554,7 +1554,7 @@ PyObject* K_INTERSECTOR::extractBadVolCells(PyObject* self, PyObject* args)
   E_Int nphs = ngi.PHs.size();
 
   std::vector<E_Int> orient;
-  std::vector<double> vols(nphs, NUGA::FLOAT_MAX);
+  std::vector<E_Float> vols(nphs, NUGA::FLOAT_MAX);
   
   //compute volumes using input orientation 
   for (E_Int i=0; i < ngi.PHs.size(); ++i)
@@ -1575,7 +1575,7 @@ PyObject* K_INTERSECTOR::extractBadVolCells(PyObject* self, PyObject* args)
 
     //std::cout << "computing flux for PH : " << i << std::endl;
     K_MESH::Polyhedron<0> PH(ngi, i);
-    double v;
+    E_Float v;
     DELAUNAY::Triangulator dt;
     E_Int err = PH.volume<DELAUNAY::Triangulator>(crd, &orient[0], v, dt);
 
@@ -3418,7 +3418,7 @@ PyObject* K_INTERSECTOR::getOverlappingFaces(PyObject* self, PyObject* args)
   c.start();
 #endif
 
-  AMAX = std::max(0., AMAX);
+  AMAX = std::max((E_Float)0., AMAX);
   AMAX = std::min(K_CONST::E_PI, AMAX);
   double PS_MIN = ::cos(AMAX);
 

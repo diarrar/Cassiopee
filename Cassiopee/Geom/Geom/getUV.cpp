@@ -562,7 +562,7 @@ PyObject* K_GEOM::getUV(PyObject* self, PyObject* args)
       vmax = std::max(vmax, dx*dx+dy*dy+dz*dz);
     }
     vmax = sqrt(vmax);
-    vmax = std::max(vmax, 1.e-12);
+    vmax = std::max(vmax, (E_Float)1.e-12);
   }
 
   //===============================

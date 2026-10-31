@@ -131,7 +131,7 @@ E_Int K_ARRAY::getFromList(PyObject* o, FldArrayF& out)
   else if (PyArray_Check(o))
   {
     //PyArrayObject* ac = (PyArrayObject*)
-    //  PyArray_ContiguousFromObject(o, NPY_DOUBLE, 1, 10000000);
+    //  PyArray_ContiguousFromObject(o, E_NPY_FLOAT, 1, 10000000);
     PyArrayObject* ac = (PyArrayObject*)o; Py_INCREF(ac);
     if (ac == NULL) return 0;
     E_Int nd = PyArray_NDIM(ac);
@@ -139,6 +139,15 @@ E_Int K_ARRAY::getFromList(PyObject* o, FldArrayF& out)
     E_Int n = 1;
     for (E_Int i = 0; i < nd; i++) n *= PyArray_DIMS(ac)[i];
     out.malloc(n);
+#ifndef E_DOUBLEREAL
+    if (PyArray_TYPE(ac) == NPY_DOUBLE) // copie avec conversion en E_Float
+    {
+      double* ptrd = (double*)PyArray_DATA(ac);
+      for (E_Int i = 0; i < n; i++) out[i] = (E_Float)ptrd[i];
+      Py_DECREF(ac);
+      return 1;
+    }
+#endif
     E_Float* ptr = (E_Float*)PyArray_DATA(ac);
     for (E_Int i = 0; i < n; i++) out[i] = ptr[i];
     Py_DECREF(ac);

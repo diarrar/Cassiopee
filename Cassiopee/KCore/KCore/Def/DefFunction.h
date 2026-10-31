@@ -122,6 +122,55 @@ inline E_Int E_max(E_Int a, E_Int b, E_Int c, E_Int d)
   return ( E_max( E_max(a,b), E_max(c,d) ));
 }
 
+#ifndef E_DOUBLEREAL
+/** Min/Max for double when E_Float is float (single precision) */
+inline double E_min(double a, double b)
+{
+  return ( (b) < (a) ? (b) : (a) );
+}
+
+inline double E_max(double a, double b)
+{
+  return ( (b) > (a) ? (b) : (a) );
+}
+
+/** Mixed float/double (ex: E_max(a, 1.e-12)): result is E_Float */
+inline E_Float E_min(E_Float a, double b)
+{
+  return ( (b) < (a) ? (E_Float)(b) : (a) );
+}
+
+inline E_Float E_min(double a, E_Float b)
+{
+  return ( (b) < (a) ? (b) : (E_Float)(a) );
+}
+
+inline E_Float E_max(E_Float a, double b)
+{
+  return ( (b) > (a) ? (E_Float)(b) : (a) );
+}
+
+inline E_Float E_max(double a, E_Float b)
+{
+  return ( (b) > (a) ? (b) : (E_Float)(a) );
+}
+
+inline double E_min(double a, double b, double c)
+{
+  return ( E_min( E_min(a,b), c ));
+}
+
+inline double E_max(double a, double b, double c)
+{
+  return ( E_max( E_max(a,b), c ));
+}
+
+inline double E_max(double a, double b, double c, double d)
+{
+  return ( E_max( E_max(a,b), E_max(c,d) ));
+}
+#endif
+
 /** Absolute value for E_Float */
 inline E_Float E_abs(E_Float a)
 {

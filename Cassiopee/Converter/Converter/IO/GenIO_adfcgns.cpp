@@ -332,12 +332,28 @@ PyObject* K_IO::GenIOAdf::getArrayR8(double node)
   ADF_Get_Number_of_Dimensions(node, &dim, &_errorFlag);
   ADF_Get_Dimension_Values(node, _dims, &_errorFlag);
 
+#ifdef E_DOUBLEREAL
   // Create numpy: toujours en double
   npy_intp* npy_dim_vals = new npy_intp [dim];
   for (E_Int nn = 0; nn < dim; nn++) npy_dim_vals[nn] = _dims[nn];
   r = (PyObject*)PyArray_EMPTY(dim, npy_dim_vals, NPY_DOUBLE, 1);
   ADF_Read_All_Data(node, (char*)PyArray_DATA((PyArrayObject*)r), &_errorFlag);
   delete [] npy_dim_vals;
+#else
+  // Create numpy: conversion des R8 en R4 (E_Float)
+  int sizem = 1;
+  for (int s = 0; s < dim; s++) sizem = sizem*_dims[s];
+  double* ptr = (double*)::malloc(sizem*sizeof(double));
+  if (!ptr) { Py_INCREF(Py_None); return Py_None; }
+  ADF_Read_All_Data(node, (char*)ptr, &_errorFlag);
+  npy_intp* npy_dim_vals = new npy_intp [dim];
+  for (E_Int nn = 0; nn < dim; nn++) npy_dim_vals[nn] = _dims[nn];
+  r = (PyObject*)PyArray_EMPTY(dim, npy_dim_vals, NPY_FLOAT, 1);
+  float* ptr2 = (float*)PyArray_DATA((PyArrayObject*)r);
+  for (int n = 0; n < sizem; n++) ptr2[n] = (float)(ptr[n]);
+  free(ptr);
+  delete [] npy_dim_vals;
+#endif
   return r;
 }
 
@@ -366,6 +382,13 @@ PyObject* K_IO::GenIOAdf::getArrayR4(double node)
   sizem = 1;
   for (s = 0; s < dim; s++) sizem = sizem*_dims[s];
 
+#ifndef E_DOUBLEREAL
+  // Create numpy: R4 lus tels quels (E_Float)
+  vector<npy_intp> npy_dim_valsR4(dim);
+  for (E_Int nn = 0; nn < dim; nn++) npy_dim_valsR4[nn] = _dims[nn];
+  r = (PyArrayObject*)PyArray_EMPTY(dim, &npy_dim_valsR4[0], NPY_FLOAT, 1);
+  ADF_Read_All_Data(node, (char*)PyArray_DATA(r), &_errorFlag);
+#else
   float* ptr = (float*)::malloc(sizem*sizeof(float));
   if (!ptr) { Py_INCREF(Py_None); return Py_None; }
 
@@ -387,6 +410,7 @@ PyObject* K_IO::GenIOAdf::getArrayR4(double node)
   r = (PyArrayObject*)PyArray_EMPTY(dim, &npy_dim_vals[0], NPY_DOUBLE, 1);
   memcpy(PyArray_DATA(r), ptr2, sizem*sizeof(double));
   free(ptr2);
+#endif
   return (PyObject*)r;
 }
 

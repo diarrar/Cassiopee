@@ -20,7 +20,7 @@ namespace Expression
 		 * @param i The index for vector variables
 		 * @return The value of the expression
 		 */
-		virtual double operator() ( std::size_t i ) const = 0;
+		virtual E_Float operator() ( std::size_t i ) const = 0;
 
 		/**
 		 * @brief Evaluate the node for a pack of values ( a vector ) for vectorization

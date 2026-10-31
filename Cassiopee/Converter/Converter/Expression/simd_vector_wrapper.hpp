@@ -1,5 +1,6 @@
 #ifndef _CORE_HPC_SIMD_VECTOR_WRAPPER_HPP_
 #define _CORE_HPC_SIMD_VECTOR_WRAPPER_HPP_
+#include "Def/DefTypes.h"
 #include "Memory/vector_view.hpp"
 #include <array>
 #include <cassert>
@@ -21,8 +22,8 @@ namespace Expression {
     class simd_vector_wrapper {
       public:
         static constexpr std::size_t max_size = 512;
-        using iterator       = K_MEMORY::vector_view<double>::iterator;
-        using const_iterator = K_MEMORY::vector_view<double>::const_iterator;
+        using iterator       = K_MEMORY::vector_view<E_Float>::iterator;
+        using const_iterator = K_MEMORY::vector_view<E_Float>::const_iterator;
 
         /** @name Constructors and destructor
          *
@@ -47,7 +48,7 @@ namespace Expression {
          *
          * @param pt_data The pointer on the first element of the data to wrap.
          */
-        simd_vector_wrapper(double *pt_data)
+        simd_vector_wrapper(E_Float *pt_data)
             : m_own_data(), m_pt_data(pt_data, max_size) {}
         /**
          * @brief build a simd vector with owned data initialized from arr
@@ -56,7 +57,7 @@ namespace Expression {
          *
          * @param arr data to copy in simd vector
          */
-        simd_vector_wrapper(const std::array<double, max_size> &arr)
+        simd_vector_wrapper(const std::array<E_Float, max_size> &arr)
             : m_own_data(arr), m_pt_data(m_own_data.data(), max_size) {
             assert(has_owned_data() &&
                    "Error, simd vector must own here his data !");
@@ -69,11 +70,11 @@ namespace Expression {
          *
          * @param scal The scalar to broadcast
          */
-        simd_vector_wrapper(double scal)
+        simd_vector_wrapper(E_Float scal)
             : m_own_data(), m_pt_data(m_own_data.data(), max_size) {
             assert(has_owned_data() &&
                    "Error, simd vector must own here his data !");
-            double *pt = m_own_data.data();
+            E_Float *pt = m_own_data.data();
 #pragma omp simd
             for (std::size_t i = 0; i < max_size; ++i)
                 pt[i] = scal;
@@ -142,8 +143,8 @@ namespace Expression {
          * @return The address of the first element.
          */
         ///@{
-        double *      data() { return m_pt_data.data(); }
-        const double *data() const { return m_pt_data.data(); }
+        E_Float *      data() { return m_pt_data.data(); }
+        const E_Float *data() const { return m_pt_data.data(); }
         ///@}
 
         /**
@@ -189,8 +190,8 @@ namespace Expression {
          */
         void copy_in( const simd_vector_wrapper& v )
         {
-            const double * __restrict__ dv = v.data();
-            double * __restrict__     du = data();
+            const E_Float * __restrict__ dv = v.data();
+            E_Float * __restrict__     du = data();
             #pragma omp simd
             for (std::size_t i = 0; i < max_size; ++i) {
                 du[i] = dv[i];
@@ -204,8 +205,8 @@ namespace Expression {
         simd_vector_wrapper &operator=(const simd_vector_wrapper &v) {
             if (this->data() != v.data()) {
                 if (has_owned_data()) {
-                    const double *dv = v.data();
-                    double *      du = data();
+                    const E_Float *dv = v.data();
+                    E_Float *      du = data();
 #pragma omp simd
                     for (std::size_t i = 0; i < max_size; ++i) {
                         du[i] = dv[i];
@@ -227,8 +228,8 @@ namespace Expression {
                     m_own_data = std::move(v.m_own_data);
                     m_pt_data  = {m_own_data.data(), max_size};
                 } else if (has_owned_data()) {
-                    const double *dv = v.data();
-                    double *      du = data();
+                    const E_Float *dv = v.data();
+                    E_Float *      du = data();
 #pragma omp simd
                     for (std::size_t i = 0; i < max_size; ++i) {
                         du[i] = dv[i];
@@ -240,8 +241,8 @@ namespace Expression {
         }
 
         simd_vector_wrapper &operator+=(const simd_vector_wrapper &v)  {
-            double *      pt_u = data();
-            const double *pt_v = v.data();
+            E_Float *      pt_u = data();
+            const E_Float *pt_v = v.data();
 #pragma omp simd
             for (std::size_t i = 0; i < max_size; ++i) {
                 pt_u[i] += pt_v[i];
@@ -252,9 +253,9 @@ namespace Expression {
         simd_vector_wrapper operator+(const simd_vector_wrapper &v) const
              {
             simd_vector_wrapper w;
-            const double *__restrict__ pt_u = data();
-            const double *__restrict__ pt_v = v.data();
-            double *__restrict__ pt_w       = w.m_own_data.data();
+            const E_Float *__restrict__ pt_u = data();
+            const E_Float *__restrict__ pt_v = v.data();
+            E_Float *__restrict__ pt_w       = w.m_own_data.data();
 #pragma omp simd
             for (std::size_t i = 0; i < max_size; ++i)
                 pt_w[i] = pt_u[i] + pt_v[i];
@@ -262,8 +263,8 @@ namespace Expression {
         }
 
         simd_vector_wrapper &operator-=(const simd_vector_wrapper &v)  {
-            double *__restrict__ pt_u       = data();
-            const double *__restrict__ pt_v = v.data();
+            E_Float *__restrict__ pt_u       = data();
+            const E_Float *__restrict__ pt_v = v.data();
 #pragma omp simd
             for (std::size_t i = 0; i < max_size; ++i) {
                 pt_u[i] -= pt_v[i];
@@ -274,9 +275,9 @@ namespace Expression {
         simd_vector_wrapper operator-(const simd_vector_wrapper &v) const
              {
             simd_vector_wrapper w;
-            const double * __restrict__ pt_u = data();
-            const double * __restrict__ pt_v = v.data();
-            double *__restrict__ pt_w       = w.data();
+            const E_Float * __restrict__ pt_u = data();
+            const E_Float * __restrict__ pt_v = v.data();
+            E_Float *__restrict__ pt_w       = w.data();
 #pragma omp simd
             for (std::size_t i = 0; i < max_size; ++i)
                 pt_w[i] = pt_u[i] - pt_v[i];
@@ -285,8 +286,8 @@ namespace Expression {
 
         simd_vector_wrapper operator-() const {
             simd_vector_wrapper w;
-            const double * __restrict__     pt_u = data();
-            double * __restrict__           pt_w = w.data();
+            const E_Float * __restrict__     pt_u = data();
+            E_Float * __restrict__           pt_w = w.data();
 #pragma omp simd
             for (std::size_t i = 0; i < max_size; ++i)
                 pt_w[i] = -pt_u[i];
@@ -294,8 +295,8 @@ namespace Expression {
         }
 
         simd_vector_wrapper &operator*=(const simd_vector_wrapper &v)  {
-            double * __restrict__     pt_u = data();
-            const double * __restrict__ pt_v = v.data();
+            E_Float * __restrict__     pt_u = data();
+            const E_Float * __restrict__ pt_v = v.data();
 #pragma omp simd
             for (std::size_t i = 0; i < max_size; ++i) {
                 pt_u[i] *= pt_v[i];
@@ -306,9 +307,9 @@ namespace Expression {
         simd_vector_wrapper operator*(const simd_vector_wrapper &v) const
              {
             simd_vector_wrapper w;
-            const double * __restrict__     pt_u = data();
-            const double * __restrict__ pt_v = v.data();
-            double * __restrict__            pt_w = w.data();
+            const E_Float * __restrict__     pt_u = data();
+            const E_Float * __restrict__ pt_v = v.data();
+            E_Float * __restrict__            pt_w = w.data();
 #pragma omp simd
             for (std::size_t i = 0; i < max_size; ++i)
                 pt_w[i] = pt_u[i] * pt_v[i];
@@ -316,8 +317,8 @@ namespace Expression {
         }
 
         simd_vector_wrapper &operator/=(const simd_vector_wrapper &v)  {
-            double * __restrict__      pt_u = data();
-            const double * __restrict__ pt_v = v.data();
+            E_Float * __restrict__      pt_u = data();
+            const E_Float * __restrict__ pt_v = v.data();
 #pragma omp simd
             for (std::size_t i = 0; i < max_size; ++i) {
                 pt_u[i] /= pt_v[i];
@@ -328,9 +329,9 @@ namespace Expression {
         simd_vector_wrapper operator/(const simd_vector_wrapper &v) const
              {
             simd_vector_wrapper w;
-            const double * __restrict__      pt_u = data();
-            const double * __restrict__ pt_v = v.data();
-            double * __restrict__            pt_w = w.data();
+            const E_Float * __restrict__      pt_u = data();
+            const E_Float * __restrict__ pt_v = v.data();
+            E_Float * __restrict__            pt_w = w.data();
 #pragma omp simd
             for (std::size_t i = 0; i < max_size; ++i)
                 pt_w[i] = pt_u[i] / pt_v[i];
@@ -340,79 +341,79 @@ namespace Expression {
         simd_vector_wrapper operator==(const simd_vector_wrapper &v) const
              {
             simd_vector_wrapper w;
-            const double * __restrict__      pt_u = data();
-            const double * __restrict__ pt_v = v.data();
-            double * __restrict__             pt_w = w.data();
+            const E_Float * __restrict__      pt_u = data();
+            const E_Float * __restrict__ pt_v = v.data();
+            E_Float * __restrict__             pt_w = w.data();
 #pragma omp simd
             for (std::size_t i = 0; i < max_size; ++i)
-                pt_w[i] = double(pt_u[i] == pt_v[i]);
+                pt_w[i] = E_Float(pt_u[i] == pt_v[i]);
             return w;
         }
 
         simd_vector_wrapper operator!=(const simd_vector_wrapper &v) const
              {
             simd_vector_wrapper w;
-            const double *      pt_u = data(), *pt_v = v.data();
-            double *            pt_w = w.data();
+            const E_Float *      pt_u = data(), *pt_v = v.data();
+            E_Float *            pt_w = w.data();
 #pragma omp simd
             for (std::size_t i = 0; i < max_size; ++i)
-                pt_w[i] = double(pt_u[i] != pt_v[i]);
+                pt_w[i] = E_Float(pt_u[i] != pt_v[i]);
             return w;
         }
 
         simd_vector_wrapper operator>(const simd_vector_wrapper &v) const
              {
             simd_vector_wrapper w;
-            const double *      pt_u = data(), *pt_v = v.data();
-            double *            pt_w = w.data();
+            const E_Float *      pt_u = data(), *pt_v = v.data();
+            E_Float *            pt_w = w.data();
 #pragma omp simd
             for (std::size_t i = 0; i < max_size; ++i)
-                pt_w[i] = double(pt_u[i] > pt_v[i]);
+                pt_w[i] = E_Float(pt_u[i] > pt_v[i]);
             return w;
         }
 
         simd_vector_wrapper operator>=(const simd_vector_wrapper &v) const
              {
             simd_vector_wrapper w;
-            const double *      pt_u = data(), *pt_v = v.data();
-            double *            pt_w = w.data();
+            const E_Float *      pt_u = data(), *pt_v = v.data();
+            E_Float *            pt_w = w.data();
 #pragma omp simd
             for (std::size_t i = 0; i < max_size; ++i)
-                pt_w[i] = double(pt_u[i] >= pt_v[i]);
+                pt_w[i] = E_Float(pt_u[i] >= pt_v[i]);
             return w;
         }
 
         simd_vector_wrapper operator<(const simd_vector_wrapper &v) const
              {
             simd_vector_wrapper w;
-            const double *      pt_u = data(), *pt_v = v.data();
-            double *            pt_w = w.data();
+            const E_Float *      pt_u = data(), *pt_v = v.data();
+            E_Float *            pt_w = w.data();
 #pragma omp simd
             for (std::size_t i = 0; i < max_size; ++i)
-                pt_w[i] = double(pt_u[i] < pt_v[i]);
+                pt_w[i] = E_Float(pt_u[i] < pt_v[i]);
             return w;
         }
 
         simd_vector_wrapper operator<=(const simd_vector_wrapper &v) const
              {
             simd_vector_wrapper w;
-            const double *__restrict__ pt_u = data();
-            const double *__restrict__ pt_v = v.data();
-            double *__restrict__ pt_w       = w.data();
+            const E_Float *__restrict__ pt_u = data();
+            const E_Float *__restrict__ pt_v = v.data();
+            E_Float *__restrict__ pt_w       = w.data();
 #pragma omp simd
               for (std::size_t i = 0; i < max_size; ++i)
-                pt_w[i] = double(pt_u[i] <= pt_v[i]);
+                pt_w[i] = E_Float(pt_u[i] <= pt_v[i]);
             return w;
         }
 
         simd_vector_wrapper operator !() const
         {
             simd_vector_wrapper w;
-            const double *__restrict__ pt_u = data();
-            double *__restrict__ pt_w       = w.data();
+            const E_Float *__restrict__ pt_u = data();
+            E_Float *__restrict__ pt_w       = w.data();
 #pragma omp simd
               for (std::size_t i = 0; i < max_size; ++i)
-                pt_w[i] = double(!(long(pt_u[i])));
+                pt_w[i] = E_Float(!(long(pt_u[i])));
             return w;
         }
 
@@ -420,8 +421,8 @@ namespace Expression {
         ///@}
 
       private:
-        alignas(64) std::array<double, max_size>  m_own_data;
-        K_MEMORY::vector_view<double> m_pt_data;
+        alignas(64) std::array<E_Float, max_size>  m_own_data;
+        K_MEMORY::vector_view<E_Float> m_pt_data;
     };
 } // namespace Expression
 

@@ -4,6 +4,7 @@ __version__ = "2026.11"
 
 from . import geom
 import numpy
+from Converter.Internal import E_NpyFloat
 import KCore.Vector as Vector
 
 from .MapEdge import (
@@ -15,7 +16,7 @@ from .MapEdge import (
 def point(P):
     """Create a point. 
     Usage: a = point((x,y,z))"""
-    a = numpy.zeros((3, 1), numpy.float64)
+    a = numpy.zeros((3, 1), E_NpyFloat)
     a[0,0] = P[0]; a[1,0] = P[1]; a[2,0] = P[2]
     c = numpy.ones((1, 0), numpy.int32)
     return ['x,y,z', a, c, 'NODE']
@@ -24,7 +25,7 @@ def cloud(arr):
     """Create a point cloud. 
     Usage: a = cloud([(x1,x2,...,xn),(y1,y2,...,yn),(z1,z2,...,zn)])"""
     if not isinstance(arr, numpy.ndarray):
-        arr = numpy.asarray(arr, numpy.float64)
+        arr = numpy.asarray(arr, E_NpyFloat)
     c = numpy.ones((arr.shape[1], 0), numpy.int32)
     return ['x,y,z', arr, c, 'NODE']
 
@@ -110,7 +111,7 @@ def nurbs(Pts, weight='weight', order=3, N=100, M=100, density=-1):
         Weights = Converter.extractVars(Pts,[weight])
     except:
         ni = Pts[2]; nj = Pts[3]; nk = Pts[4]
-        Weights = [weight, numpy.ones((1,ni*nj*nk), numpy.float64), ni, nj, nk]
+        Weights = [weight, numpy.ones((1,ni*nj*nk), E_NpyFloat), ni, nj, nk]
     return geom.nurbs(Pts, Weights, order, N, order, M, density)
 
 def polyline(Pts):
@@ -354,7 +355,7 @@ def curve_(f, N):
 
 # Parametric curve from a function
 def curve__(f, N):
-    a = numpy.zeros((3, N), dtype=numpy.float64)
+    a = numpy.zeros((3, N), dtype=E_NpyFloat)
     r = f(0)
     if len(r) != 3:
         print("Warning: curve: parametric function must return a (x,y,z) tuple.")
@@ -384,7 +385,7 @@ def surface_(f, N):
 # Parametric surface from a function
 def surface__(f, N, isVectorized=False):
     import Generator
-    a = numpy.zeros((3, N*N), dtype=numpy.float64)
+    a = numpy.zeros((3, N*N), dtype=E_NpyFloat)
     r = f(0,0)
     if len(r) != 3:
         print("Warning: surface: parametric function must return a (x,y,z) tuple.")
@@ -1036,8 +1037,8 @@ def getUVFromIJ(a):
     else: # array1
         pu = a[1][3].ravel('k'); pv = a[1][4].ravel('k')
     ni = a[2]; nj = a[3]
-    u = numpy.arange(nj, dtype=numpy.float64)/(nj-1)
-    v = numpy.arange(ni, dtype=numpy.float64)/(ni-1)
+    u = numpy.arange(nj, dtype=E_NpyFloat)/(nj-1)
+    v = numpy.arange(ni, dtype=E_NpyFloat)/(ni-1)
     pu[:] = numpy.repeat(u, ni)
     pv[:] = numpy.tile(v, nj)
     return a

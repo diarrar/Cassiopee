@@ -6,9 +6,12 @@ import KCore.kcore as KCore
 from . import converter
 
 # INT size for numpy connectivities
-from KCore.Dist import EDOUBLEINT
+from KCore.Dist import EDOUBLEINT, ESINGLEREAL
 if EDOUBLEINT(): E_NpyInt = numpy.int64
 else: E_NpyInt = numpy.int32
+# REAL size for numpys fields
+if ESINGLEREAL(): E_NpyFloat = numpy.float32
+else: E_NpyFloat = numpy.float64
 
 # Containers
 __GridCoordinates__ = 'GridCoordinates'
@@ -314,14 +317,14 @@ def setValue(node, value=None):
     elif isinstance(value, (int, numpy.integer)):
       node[1] = numpy.array([value], dtype=E_NpyInt)
     elif isinstance(value, (float, numpy.floating)):
-      node[1] = numpy.array([value], dtype=numpy.float64)
+      node[1] = numpy.array([value], dtype=E_NpyFloat)
     elif isinstance(value, str):
       node[1] = numpy.array([c for c in value], 'c')
     elif isinstance(value, list):
       testValue = value
       while isinstance(testValue, list): testValue = testValue[0]
       if isinstance(testValue, (float, numpy.floating)):
-        node[1] = numpy.array(value, dtype=numpy.float64, order='F')
+        node[1] = numpy.array(value, dtype=E_NpyFloat, order='F')
       elif isinstance(testValue, (int, numpy.integer)):
         node[1] = numpy.array(value, dtype=E_NpyInt, order='F')
       elif isinstance(testValue, str):
@@ -350,7 +353,7 @@ def setValue(node, value=None):
       testValue = value
       while isinstance(testValue, tuple): testValue = testValue[0]
       if isinstance(testValue, (float, numpy.floating)):
-        node[1] = numpy.array(value, dtype=numpy.float64, order='F')
+        node[1] = numpy.array(value, dtype=E_NpyFloat, order='F')
       elif isinstance(testValue, (int, numpy.integer)):
         node[1] = numpy.array(value, dtype=E_NpyInt, order='F')
       elif isinstance(testValue, str):
@@ -2121,6 +2124,7 @@ def getValue(node):
       else: return n
     elif n.dtype == numpy.float32:
       if n.size == 1: return float(n.flat[0])
+      elif E_NpyFloat == numpy.float32: return n
       else: # cast en float64
         b = numpy.empty(n.shape, dtype=numpy.float64)
         b[:] = n[:]
@@ -3108,8 +3112,8 @@ def convertDataNode2Array(node, dim, connects, loc=-1):
   array = None
   ar = node[1]
   if ar is None: return ['unknown', None]
-  if ar.dtype != numpy.float64: # mauvais type de noeud, copie
-    ar2 = numpy.empty(ar.shape, numpy.float64)
+  if ar.dtype != E_NpyFloat: # mauvais type de noeud, copie
+    ar2 = numpy.empty(ar.shape, E_NpyFloat)
     ar2[:] = ar
     ar = ar2
 
@@ -3161,8 +3165,8 @@ def convertDataNode2Array2(node, dim, connects, loc=-1):
   array = None
   ar = node[1]
   if ar is None: return ['unknown', None]
-  if ar.dtype != numpy.float64: # mauvais type de noeud, copie
-    ar2 = numpy.empty(ar.shape, numpy.float64)
+  if ar.dtype != E_NpyFloat: # mauvais type de noeud, copie
+    ar2 = numpy.empty(ar.shape, E_NpyFloat)
     ar2[:] = ar
     ar = ar2
 
@@ -3256,8 +3260,8 @@ def convertDataNode2Array3(node, dim, connects, loc=-1):
   array = None
   ar = node[1]
   if ar is None: return ['unknown', None]
-  if ar.dtype != numpy.float64: # mauvais type de noeud, copie
-    ar2 = numpy.empty(ar.shape, numpy.float64)
+  if ar.dtype != E_NpyFloat: # mauvais type de noeud, copie
+    ar2 = numpy.empty(ar.shape, E_NpyFloat)
     ar2[:] = ar
     ar = ar2
 
@@ -3379,14 +3383,14 @@ def convertDataNodes2Array(nodes, dim, connects, loc=-1):
   if ar is None: return []
 
   s = ar.size
-  a = numpy.empty((nfld,s), numpy.float64)
+  a = numpy.empty((nfld,s), E_NpyFloat)
   vars = nodes[0][0]
   for n in nodes[1:]: vars += ','+n[0]
   c = 0
   for n in nodes:
     if n[1] is None: a[c,:] = 0.
-    elif n[1].dtype != numpy.float64: # mauvais type de noeud
-      n2 = numpy.empty(n[1].shape, numpy.float64)
+    elif n[1].dtype != E_NpyFloat: # mauvais type de noeud
+      n2 = numpy.empty(n[1].shape, E_NpyFloat)
       n2[:] = n[1]
       n[1] = n2
       converter.cpyValueByField(a, n[1], s, c)

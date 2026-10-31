@@ -41,6 +41,25 @@ cd $CASSIOPEE
 ./install
 ```
 
+## Compilation options
+
+Options are set by suffixes appended to MACHINE (they are also appended to
+ELSAPROD, so that each combination is installed in its own directory):
+
+- `_i8`: integers in 64 bits (E_Int is int64, numpy connectivities are int64),
+- `_r4`: reals in single precision (E_Float is float, numpy fields are float32).
+  Default is double precision (r8),
+- `_DBG`: debug compilation.
+
+Options can be combined, for example:
+```shell
+export MACHINE=ubuntu_i8_r4
+source $CASSIOPEE/Cassiopee/Envs/sh_Cassiopee_r8
+```
+
+In python, the numpy types corresponding to E_Int and E_Float are
+`Converter.Internal.E_NpyInt` and `Converter.Internal.E_NpyFloat`.
+
 ## More apt-get commands
 
 Find package from keyword:

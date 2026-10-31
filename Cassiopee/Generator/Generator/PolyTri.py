@@ -1,6 +1,7 @@
 """PolyTri mesh generator. Extension of Generator.
 """
 from . import Generator as G
+from Converter.Internal import E_NpyFloat
 __version__ = G.__version__
 
 from Converter.Internal import E_NpyInt
@@ -35,7 +36,7 @@ def polyTri2PolyQuad(polyTri):
             raise TypeError("polyTri2PolyQuad: requires a TRI array.")
 
     f = polyTri[1]; c = polyTri[2]; ne = c.shape[1]; n = f.shape[1]
-    fq = numpy.zeros((3,n+4*ne),dtype=numpy.float64)
+    fq = numpy.zeros((3,n+4*ne),dtype=E_NpyFloat)
     for i in range(n):
         fq[0,i] = f[0,i]; fq[1,i] = f[1,i]; fq[2,i] = f[2,i]
     cq = numpy.zeros((4,3*ne), dtype=E_NpyInt)

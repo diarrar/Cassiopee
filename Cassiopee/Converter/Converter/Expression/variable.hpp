@@ -12,7 +12,7 @@ namespace Expression
     public:
         variable( const std::string& name ) : m_name(name), m_data(symbol_table::get()[name]) {}
 
-        double operator() ( std::size_t i ) const final
+        E_Float operator() ( std::size_t i ) const final
         {
             return m_data.size==1 ? m_data.data[0] : m_data.data[i];
         }
@@ -24,7 +24,7 @@ namespace Expression
             return { m_data.data+i };
         }        
 
-        double& operator[] ( std::size_t i ) const 
+        E_Float& operator[] ( std::size_t i ) const 
         {
             return m_data.size==1 ? m_data.data[0] : m_data.data[i];
         }

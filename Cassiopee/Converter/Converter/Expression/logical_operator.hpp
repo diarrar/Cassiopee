@@ -16,39 +16,39 @@ namespace Expression
             m_left_statement(l_stmt), m_right_statement(r_stmt), m_op(op)
         {}
 
-        double operator() ( std::size_t i ) const final
+        E_Float operator() ( std::size_t i ) const final
         {
             switch(m_op)
             {
             case EQU:
-                return double((*m_left_statement)(i) == (*m_right_statement)(i));
+                return E_Float((*m_left_statement)(i) == (*m_right_statement)(i));
                 break;
             case NE:
-                return double((*m_left_statement)(i) != (*m_right_statement)(i));
+                return E_Float((*m_left_statement)(i) != (*m_right_statement)(i));
                 break;
             case LT:
-                return double((*m_left_statement)(i) < (*m_right_statement)(i));
+                return E_Float((*m_left_statement)(i) < (*m_right_statement)(i));
                 break;
             case LE:
-                return double((*m_left_statement)(i) <= (*m_right_statement)(i));
+                return E_Float((*m_left_statement)(i) <= (*m_right_statement)(i));
                 break;          
             case GT:
-                return double((*m_left_statement)(i) > (*m_right_statement)(i));
+                return E_Float((*m_left_statement)(i) > (*m_right_statement)(i));
                 break;
             case GE:
-                return double((*m_left_statement)(i) >= (*m_right_statement)(i));
+                return E_Float((*m_left_statement)(i) >= (*m_right_statement)(i));
                 break;
             case AND:
-                return double(long((*m_left_statement)(i)) && long((*m_right_statement)(i))); 
+                return E_Float(long((*m_left_statement)(i)) && long((*m_right_statement)(i))); 
                 break;
             case OR:
-                return double(long((*m_left_statement)(i)) || long((*m_right_statement)(i))); 
+                return E_Float(long((*m_left_statement)(i)) || long((*m_right_statement)(i))); 
                 break;
             case XOR:
                 {
                     bool l = (*m_left_statement)(i)  != 0;
                     bool r = (*m_right_statement)(i) != 0;
-                    return double(l != r);
+                    return E_Float(l != r);
                 }
                 break;
             }
@@ -82,12 +82,12 @@ namespace Expression
                     simd_vector_wrapper w;
                     auto                u  = m_left_statement->eval_simd(i);
                     auto                v  = m_right_statement->eval_simd(i);
-                    const double *      du = u.data(), *dv = v.data();
-                    double *            dw = w.data();
+                    const E_Float *      du = u.data(), *dv = v.data();
+                    E_Float *            dw = w.data();
 
 #                   pragma omp simd
                     for (std::size_t ind = 0; ind < simd_vector_wrapper::max_size; ++ind)
-                        dw[ind] = double( (du[ind]!=0) and (dv[ind]!=0) );
+                        dw[ind] = E_Float( (du[ind]!=0) and (dv[ind]!=0) );
                     return w;
                 }
                 break;
@@ -96,12 +96,12 @@ namespace Expression
                     simd_vector_wrapper w;
                     auto                u  = m_left_statement->eval_simd(i);
                     auto                v  = m_right_statement->eval_simd(i);
-                    const double *      du = u.data(), *dv = v.data();
-                    double *            dw = w.data();
+                    const E_Float *      du = u.data(), *dv = v.data();
+                    E_Float *            dw = w.data();
 
 #                   pragma omp simd
                     for (std::size_t ind = 0; ind < simd_vector_wrapper::max_size; ++ind)
-                        dw[ind] = double( (du[ind]!=0) or (dv[ind]!=0) );
+                        dw[ind] = E_Float( (du[ind]!=0) or (dv[ind]!=0) );
                     return w;
                 }
                 break;
@@ -110,12 +110,12 @@ namespace Expression
                     simd_vector_wrapper w;
                     auto                u  = m_left_statement->eval_simd(i);
                     auto                v  = m_right_statement->eval_simd(i);
-                    const double *      du = u.data(), *dv = v.data();
-                    double *            dw = w.data();
+                    const E_Float *      du = u.data(), *dv = v.data();
+                    E_Float *            dw = w.data();
 
 #                   pragma omp simd
                     for (std::size_t ind = 0; ind < simd_vector_wrapper::max_size; ++ind)
-                        dw[ind] = double( (du[ind]!=0) != (dv[ind]!=0) );
+                        dw[ind] = E_Float( (du[ind]!=0) != (dv[ind]!=0) );
                     return w;
                 }
                 break;
