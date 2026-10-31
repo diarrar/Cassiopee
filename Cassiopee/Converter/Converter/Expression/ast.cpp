@@ -137,7 +137,7 @@ namespace Expression {
 
     ast::ast(std::shared_ptr<tree> tr) : m_pt_tree(tr) {}
 
-    std::vector<double> ast::operator()(const std::unordered_map<std::string, vector_view<double>> &params) {
+    std::vector<E_Float> ast::operator()(const std::unordered_map<std::string, vector_view<E_Float>> &params) {
         auto &st = symbol_table::get();
         for (auto &v : st)
             v.second = symbol_table::data_t();
@@ -152,7 +152,7 @@ namespace Expression {
             d.data = v.second.data();
         }
         auto &              root = m_pt_tree->root();
-        std::vector<double> result(sz);
+        std::vector<E_Float> result(sz);
             if (sz > simd_vector_wrapper::max_size) {
 #pragma omp parallel for 
                 for (std::size_t i = 0; i < sz - simd_vector_wrapper::max_size; i += simd_vector_wrapper::max_size) {
@@ -166,7 +166,7 @@ namespace Expression {
         return result;
     }
 
-    void ast::eval(const std::unordered_map<std::string, vector_view<double>> &params, vector_view<double> &result) {
+    void ast::eval(const std::unordered_map<std::string, vector_view<E_Float>> &params, vector_view<E_Float> &result) {
         auto &st = symbol_table::get();
         for (auto &v : st) v.second = symbol_table::data_t();
         std::size_t sz = 0;
@@ -193,7 +193,7 @@ namespace Expression {
         }
     }
 
-    void ast::eval(const std::unordered_map<std::string, vector_view<double>> &params) {
+    void ast::eval(const std::unordered_map<std::string, vector_view<E_Float>> &params) {
         auto &st = symbol_table::get();
         for (auto &v : st)
             v.second = symbol_table::data_t();

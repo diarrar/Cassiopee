@@ -1,3 +1,4 @@
+from KCore import E_NpyFloat
 # POD subclass - numpy implementation
 from . import POD
 import Converter.PyTree as C
@@ -80,8 +81,8 @@ class nPOD( POD.POD ):
         if self.Phi is None:
             raise ValueError("build: Phi modes are not built.")
         ncols = self.A.shape[1]
-        self.coords = numpy.empty( (ncols, self.K), dtype=numpy.float64 )
-        coords = numpy.empty( (self.K), dtype=numpy.float64 )
+        self.coords = numpy.empty( (ncols, self.K), dtype=E_NpyFloat )
+        coords = numpy.empty( (self.K), dtype=E_NpyFloat )
         for j in range(ncols):
             m = self.A[:,j].ravel('k')
             for i in range(self.K):
@@ -150,7 +151,7 @@ class nPOD( POD.POD ):
                     FS = Internal.getNodeFromName1(z, Internal.__FlowSolutionNodes__)
                     if FS is None:
                         FS = Internal.newFlowSolution(Internal.__FlowSolutionNodes__, 'Vertex', parent=z)
-                    b = numpy.zeros( (npts, 1), dtype=numpy.float64)
+                    b = numpy.zeros( (npts, 1), dtype=E_NpyFloat)
                     Internal.newDataArray(v, value=b, parent=FS)
                     b[:,0] = m[pt0:pt0+npts]
                     pt0 += npts
@@ -158,7 +159,7 @@ class nPOD( POD.POD ):
                     FC = Internal.getNodeFromName1(z, Internal.__FlowSolutionCenters__)
                     if FC is None:
                         FC = Internal.newFlowSolution(Internal.__FlowSolutionCenters__, 'CellCenter', parent=z)
-                    b = numpy.zeros( (ncells, 1), dtype=numpy.float64)
+                    b = numpy.zeros( (ncells, 1), dtype=E_NpyFloat)
                     Internal.newDataArray(v, value=b, parent=FC)
                     b[:,0] = m[pt0:pt0+ncells]
                     pt0 += ncells
@@ -178,7 +179,7 @@ class nPOD( POD.POD ):
         rbfInterpolator = RBFInterpolator(xo, yo, kernel='linear')
         # Define the input point
         np = xo.shape[1]
-        inputPoint = numpy.empty( (1,np), dtype=numpy.float64 )
+        inputPoint = numpy.empty( (1,np), dtype=E_NpyFloat )
         for c, i in enumerate(self.parameters):
             inputPoint[0,c] = point[i]
         # Evaluate the interpolator at the input point

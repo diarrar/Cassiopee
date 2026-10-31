@@ -1,0 +1,16 @@
+#!/bin/sh
+# *Cassiopee* Single precision compilation environment
+export CASSIOPEE_PRECISION=single
+
+if [ -z "$CASSIOPEE" ]; then
+    echo "Environment variable CASSIOPEE must be set."
+else
+    PREFIX="${CASSIOPEE_INSTALL_PREFIX:-$CASSIOPEE}"
+    if [ -e "$CASSIOPEE/Cassiopee/Envs/sh_Cassiopee_local" ]; then
+        . "$CASSIOPEE/Cassiopee/Envs/sh_Cassiopee_local"
+    elif [ -e "$PREFIX/Dist/sh_Cassiopee_local" ]; then
+        . "$PREFIX/Dist/sh_Cassiopee_local"
+    else
+        echo 'Could not load prod. File sh_Cassiopee_local not found.'
+    fi
+fi

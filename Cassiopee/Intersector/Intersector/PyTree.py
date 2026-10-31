@@ -1,5 +1,6 @@
 """Grid intersection module.
 """
+from KCore import E_NpyFloat
 #
 # Python Interface to create PyTrees defining meshes
 #
@@ -905,7 +906,7 @@ def booleanUnion(a1, a2, tol=0., jtol=0., preserve_right=1, solid_right=1, agg_m
         nsize2  = len(phnids2)
 
         for varname in varnames:
-            varnew  = numpy.zeros(ncells, numpy.float64)
+            varnew  = numpy.zeros(ncells, E_NpyFloat)
             # Operande 1
             # ----------
             if cont1 is not None:
@@ -1022,7 +1023,7 @@ def _booleanUnionMZ(t1, t2, xtol=0., jtol=0., agg_mode=1, improve_qual=False, si
 
             for f in fields:
                 pt = f[1].ravel('k')
-                f[1] = numpy.empty( (ph_oids.size), numpy.float64)
+                f[1] = numpy.empty( (ph_oids.size), E_NpyFloat)
                 f[1][:] = pt[ph_oids[:]]
 
             zs.append(z)
@@ -1082,7 +1083,7 @@ def _booleanUnionMZ(t1, t2, xtol=0., jtol=0., agg_mode=1, improve_qual=False, si
 
             for f in fields:
                 pt = f[1].ravel('k')
-                f[1] = numpy.empty( (ph_oids.size), numpy.float64)
+                f[1] = numpy.empty( (ph_oids.size), E_NpyFloat)
                 f[1][:] = pt[ph_oids[:]]
 
             zs.append(z)
@@ -1390,7 +1391,7 @@ def _XcellN_(t, priorities, output_type=0, rtol=0.05):
 
                     for f in fields:
                         pt = f[1].ravel('k')
-                        f[1] = numpy.empty( (pg_oids.size), numpy.float64)
+                        f[1] = numpy.empty( (pg_oids.size), E_NpyFloat)
                         f[1][:] = pt[pg_oids[:]]
                 else: # stocke le chemin des zones a supprimer
                     paths.append(Internal.getPath(t, z))
@@ -4192,12 +4193,12 @@ def concatenate(t, tol=1.e-15):
                 varnode = Internal.getNodeFromName(cont, varname)
                 # Put zero if variable does not exist
                 if varnode is None:
-                    varnode = numpy.zeros(ncells, numpy.float64)
+                    varnode = numpy.zeros(ncells, E_NpyFloat)
                 else:
                     varnode = varnode[1]
 
             else: # no FlowSolution in z
-                varnode = numpy.zeros(ncells, numpy.float64)
+                varnode = numpy.zeros(ncells, E_NpyFloat)
 
             if varglob is None:
                 varglob = varnode.ravel('k')
@@ -4210,7 +4211,7 @@ def concatenate(t, tol=1.e-15):
         C._initVars(newz, 'centers:'+varname, 0)
 
         # c. Extract and replace new data array
-        varnew = numpy.zeros(new_size, numpy.float64)
+        varnew = numpy.zeros(new_size, E_NpyFloat)
         i      = 0
         ik     = 0
         for z in zones:

@@ -24,6 +24,14 @@
 #include "netcdf.h"
 #include "kcore.h"
 
+#ifdef E_SINGLEREAL
+#define NC_GET_REAL nc_get_vara_float
+#define NC_PUT_REAL nc_put_var_float
+#else
+#define NC_GET_REAL nc_get_vara_double
+#define NC_PUT_REAL nc_put_var_double
+#endif
+
 /* ------------------------------------------------------------------------- */
 // return new index when input is global orig index in connectivities
 /* ------------------------------------------------------------------------- */
@@ -166,9 +174,9 @@ E_Int K_IO::GenIO::tauread(char* file, PyObject*& tree)
       {
         npy_dim_vals[0] = dims[0];
         count[0] = dims[0];
-        xc = (PyArrayObject*)PyArray_EMPTY(1, &npy_dim_vals[0], NPY_FLOAT64, 1);
+        xc = (PyArrayObject*)PyArray_EMPTY(1, &npy_dim_vals[0], E_NPY_FLOAT, 1);
         E_Float* pxc = (E_Float*)PyArray_DATA(xc);
-        nc_get_vara_double(ncid, id, start, count, pxc);
+        NC_GET_REAL(ncid, id, start, count, pxc);
         nvertex = dims[0];
       }
     }
@@ -178,9 +186,9 @@ E_Int K_IO::GenIO::tauread(char* file, PyObject*& tree)
       {
         npy_dim_vals[0] = dims[0];
         count[0] = dims[0];
-        yc = (PyArrayObject*)PyArray_EMPTY(1, &npy_dim_vals[0], NPY_FLOAT64, 1);
+        yc = (PyArrayObject*)PyArray_EMPTY(1, &npy_dim_vals[0], E_NPY_FLOAT, 1);
         E_Float* pyc = (E_Float*)PyArray_DATA(yc);
-        nc_get_vara_double(ncid, id, start, count, pyc);
+        NC_GET_REAL(ncid, id, start, count, pyc);
       }
     }
     else if (strcmp(name, "points_zc") == 0)
@@ -189,9 +197,9 @@ E_Int K_IO::GenIO::tauread(char* file, PyObject*& tree)
       {
         npy_dim_vals[0] = dims[0];
         count[0] = dims[0];
-        zc = (PyArrayObject*)PyArray_EMPTY(1, &npy_dim_vals[0], NPY_FLOAT64, 1);
+        zc = (PyArrayObject*)PyArray_EMPTY(1, &npy_dim_vals[0], E_NPY_FLOAT, 1);
         E_Float* pzc = (E_Float*)PyArray_DATA(zc);
-        nc_get_vara_double(ncid, id, start, count, pzc);
+        NC_GET_REAL(ncid, id, start, count, pzc);
       }
     }
     else if (strcmp(name, "points_of_hexaeders") == 0) // HEXA
@@ -836,15 +844,15 @@ E_Int K_IO::GenIO::tauwrite(char* file, PyObject* tree)
     
   PyObject* xc = K_PYTREE::getNodeFromName1(gc, "CoordinateX");
   E_Float* xcv = K_PYTREE::getValueAF(xc, hook);
-  nc_put_var_double(ncid, var_xc, xcv);
+  NC_PUT_REAL(ncid, var_xc, xcv);
 
   PyObject* yc = K_PYTREE::getNodeFromName1(gc, "CoordinateY");
   E_Float* ycv = K_PYTREE::getValueAF(yc, hook);
-  nc_put_var_double(ncid, var_yc, ycv);
+  NC_PUT_REAL(ncid, var_yc, ycv);
 
   PyObject* zc = K_PYTREE::getNodeFromName1(gc, "CoordinateZ");
   E_Float* zcv = K_PYTREE::getValueAF(zc, hook);
-  nc_put_var_double(ncid, var_zc, zcv);
+  NC_PUT_REAL(ncid, var_zc, zcv);
   
   // Write boundary markers
   E_Int nmarkers = ntri+nquad;

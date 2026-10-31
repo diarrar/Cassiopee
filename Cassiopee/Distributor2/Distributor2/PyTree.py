@@ -1,5 +1,6 @@
 """Distribution module for Cassiopee package.
 """
+from KCore import E_NpyFloat
 import Distributor2
 import Converter.Internal as Internal
 import Converter.PyTree as C
@@ -456,7 +457,7 @@ def stats(t, useCom='match', mode='nodes'):
 
     # meanPtsPerProc, nbNodePerProc
     meanPtsPerProc = nbTot*1./NProc
-    nbNodePerProc = numpy.zeros( (NProc), dtype=numpy.float64 )
+    nbNodePerProc = numpy.zeros( (NProc), dtype=E_NpyFloat )
     for c, p in enumerate(out):
         nbNodePerProc[p] += nbPts[c]
 

@@ -1,4 +1,5 @@
 """Mesh generation for IBM"""
+from KCore import E_NpyFloat
 from . import Generator
 from . import PyTree as G
 
@@ -1436,12 +1437,12 @@ def extrudeCartesianZDir(t, tb, check=False, extrusion="cart", dz=0.01, NPas=10,
                     prop     = Internal.getNodeFromName(tmp1, 'GridConnectivityProperty')
                     Internal.createUniqueChild(prop ,'Periodic', 'Periodic_t')
                     period    = Internal.getNodeFromName(prop, 'Periodic')
-                    datap = numpy.zeros( 3 , numpy.float64)
+                    datap = numpy.zeros( 3 , E_NpyFloat)
                     Internal.createUniqueChild(period ,'RotationCenter', 'DataArray_t',datap)
-                    datap = numpy.zeros( 3 , numpy.float64)
+                    datap = numpy.zeros( 3 , E_NpyFloat)
                     datap[0]= angle
                     Internal.createUniqueChild(period ,'RotationAngle' ,'DataArray_t',datap)
-                    datap = numpy.zeros( 3 , numpy.float64)
+                    datap = numpy.zeros( 3 , E_NpyFloat)
                     datap[2]= trans
                     Internal.createUniqueChild(period ,'Translation', 'DataArray_t',datap)
 

@@ -370,44 +370,46 @@ def _uncompressCartesian(t):
 def _packNode(node, tol=1.e-8, ctype=0):
     """Compress a pyTree node."""
     if Internal.getNodeFromName1(node, 'ZData') is not None: return None # already compressed node
+    # ZData encodes dimensions as reals: retain binary64 metadata even with
+    # binary32 fields, so dimensions above 2**24 remain exact.
     if ctype == 0: # sz
         from . import sz
         ret = sz.pack(node[1], {'relBoundRatio':tol})
         #ret = sz.pack(n, {'absErrBound':tol, 'errorBoundMode':2})
         shape = [0.,tol,float(ret[2])]+list(ret[0])
         node[1] = ret[1]
-        Internal._createUniqueChild(node, 'ZData', 'DataArray_t', value=shape)
+        Internal._createUniqueChild(node, 'ZData', 'DataArray_t', value=numpy.asarray(shape, dtype=numpy.float64))
     elif ctype == 1: # zfp
         from . import zfp
         ret = zfp.pack(node[1], accuracy=tol)
         shape = [1.,tol,float(ret[2])]+list(ret[0])
         node[1] = ret[1]
-        Internal._createUniqueChild(node, 'ZData', 'DataArray_t', value=shape)
+        Internal._createUniqueChild(node, 'ZData', 'DataArray_t', value=numpy.asarray(shape, dtype=numpy.float64))
     elif ctype == 2: # cellN
         ret = Compressor.compressor.compressCellN(node[1])
         iscorder = not numpy.isfortran(node[1])
         shape = [2.,tol,float(iscorder)]+list(ret[0])
         node[1] = ret[1]
-        Internal._createUniqueChild(node, 'ZData', 'DataArray_t', value=shape)
+        Internal._createUniqueChild(node, 'ZData', 'DataArray_t', value=numpy.asarray(shape, dtype=numpy.float64))
     elif ctype == 3: # Basic elements
         net = int(tol)
         ret = Compressor.compressor.compressIndices((net,node[1]))
         iscorder = not numpy.isfortran(node[1])
         shape = [3.,0.,float(iscorder),net,node[1].size]
         node[1] = ret[2]
-        Internal._createUniqueChild(node, 'ZData', 'DataArray_t', value=shape)
+        Internal._createUniqueChild(node, 'ZData', 'DataArray_t', value=numpy.asarray(shape, dtype=numpy.float64))
     elif ctype == 4: # Elements NGONs
         ret = Compressor.compressor.compressNGonIndices(node[1])
         iscorder = not numpy.isfortran(node[1])
         shape = [4.,0.,float(iscorder),ret[0]]
         node[1] = ret[1]
-        Internal._createUniqueChild(node, 'ZData', 'DataArray_t', value=shape)
+        Internal._createUniqueChild(node, 'ZData', 'DataArray_t', value=numpy.asarray(shape, dtype=numpy.float64))
     elif ctype == 5: # fpc
         #print('compress', node[0], node[1].shape, flush=True)
         ret = Compressor.compressor.compressFpc(node[1])
         shape = [5.,0.,float(ret[2])]+list(ret[0])
         node[1] = ret[1]
-        Internal._createUniqueChild(node, 'ZData', 'DataArray_t', value=shape)
+        Internal._createUniqueChild(node, 'ZData', 'DataArray_t', value=numpy.asarray(shape, dtype=numpy.float64))
     else:
         raise ValueError("packNode: unknow compression type.")
     return None

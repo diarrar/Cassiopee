@@ -1,3 +1,4 @@
+from KCore import E_NpyFloat
 # ANCIENNES FONCTIONS DE POST.IBM A NE PLUS UTILISER
 import Converter.PyTree as C
 import Converter.Internal as Internal
@@ -364,8 +365,8 @@ def prepareWallReconstruction(tw, tc):
     del tcw_bb
 
     EXTRAP = numpy.array([],numpy.int32)
-    VOL = numpy.array([],numpy.float64)
-    ORPHAN = numpy.array([],numpy.float64)
+    VOL = numpy.array([],E_NpyFloat)
+    ORPHAN = numpy.array([],E_NpyFloat)
     datas = {}
 
     for zw in Internal.getZones(tw):

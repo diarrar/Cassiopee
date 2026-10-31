@@ -89,7 +89,22 @@ py_compress(PyObject *self, PyObject *args, PyObject *kwd)
         bool is_c_order = false;
         if (PyArray_CHKFLAGS(an_array, NPY_ARRAY_C_CONTIGUOUS)) is_c_order = true;
 
-        void* data = PyArray_DATA(an_array);
+    // These backend streams use binary64; convert float32 storage explicitly.
+    const void* input_data = PyArray_DATA(an_array);
+    std::vector<double> widened;
+    if (PyArray_TYPE(an_array) == NPY_FLOAT)
+    {
+        const float* values = (const float*)PyArray_DATA(an_array);
+        widened.assign(values, values + PyArray_SIZE(an_array));
+        input_data = widened.data();
+    }
+    else if (PyArray_TYPE(an_array) != NPY_DOUBLE)
+    {
+        PyErr_SetString(PyExc_TypeError, "pack: expected a float32 or float64 array.");
+        Py_DECREF(compressed_list);
+        return NULL;
+    }
+        void* data = const_cast<void*>(input_data);
         if (ndims > 4)
         {
             PyErr_SetString(PyExc_ValueError, "Array must have less than five entries");
@@ -307,7 +322,7 @@ py_decompress(PyObject *self, PyObject *args, PyObject* kwd)
         }
         else//_ Fortran order _
         {
-            if (ndim == 2) field = zfp_field_2d(py_array_data, type, dims[1], dims[0]);
+            if (ndim == 2) field = zfp_field_2d(py_array_data, type, dims[0], dims[1]);
             else if (ndim == 3) field = zfp_field_3d(py_array_data, type, dims[0], dims[1], dims[2]);
             else if (ndim == 4) field = zfp_field_4d(py_array_data, type, dims[0], dims[1], dims[2], dims[3]);            
         }
@@ -337,6 +352,12 @@ py_decompress(PyObject *self, PyObject *args, PyObject* kwd)
         zfp_field_free(field);
         zfp_stream_close(zfp);
         stream_close(stream);
+#ifdef E_SINGLEREAL
+        PyArrayObject* converted = (PyArrayObject*)PyArray_CastToType(py_array, PyArray_DescrFromType(E_NPY_FLOAT), !is_c);
+        Py_DECREF(py_array);
+        if (converted == NULL) { Py_DECREF(lst_out_arrays); return NULL; }
+        py_array = converted;
+#endif
         if (!is_list) {
             Py_DecRef(lst_out_arrays);
             /* clean up */

@@ -41,7 +41,9 @@ K_OCC::OCCSurface::OCCSurface(const TopoDS_Face& F, TopTools_IndexedMapOfShape& 
   // check if the surface is of revolution
   _isUClosed = _isVClosed = false;
   _isRevol = false;
-  ShapeAnalysis::GetFaceUVBounds(F, _U0, _U1, _V0, _V1);
+  Standard_Real ou0, ou1, ov0, ov1;
+  ShapeAnalysis::GetFaceUVBounds(F, ou0, ou1, ov0, ov1);
+  _U0 = ou0; _U1 = ou1; _V0 = ov0; _V1 = ov1;
   //printf("bounds U=%f %f - V=%f %f\n",_U0,_U1,_V0,_V1);
   // Analyse par OCC
   ShapeAnalysis_Surface o(_surface);
@@ -145,8 +147,10 @@ K_OCC::OCCSurface::parameters(const E_Float* pt, E_Float& u, E_Float& v, E_Int i
   gp_Pnt Point;
   Point.SetCoord(pt[0], pt[1], pt[2]);
   
-  E_Int ok = GeomLib_Tool::Parameters(_surface, Point, 1.e+100/*dummytol*/, u, v);
-  if (!ok || u==-1 || v==-1) return 1;
+  Standard_Real ou = -1., ov = -1.;
+  E_Int ok = GeomLib_Tool::Parameters(_surface, Point, 1.e+100/*dummytol*/, ou, ov);
+  if (!ok || ou==-1 || ov==-1) return 1;
+  u = ou; v = ov;
   
   // normalize in [0,1]
   __normalize(u,v);
@@ -510,7 +514,9 @@ void K_OCC::OCCSurface::__get_params_and_type
 {
   E_Float paramtol = 1.e-6;
   
-  ShapeAnalysis::GetFaceUVBounds(F, U0, U1, V0, V1);
+  Standard_Real ou0, ou1, ov0, ov1;
+  ShapeAnalysis::GetFaceUVBounds(F, ou0, ou1, ov0, ov1);
+  U0 = ou0; U1 = ou1; V0 = ov0; V1 = ov1;
   
   //printf("bounds U=%f %f - V=%f %f\n",U0,U1,V0,V1); 
   

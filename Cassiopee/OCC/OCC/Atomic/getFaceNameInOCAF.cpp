@@ -143,7 +143,7 @@ PyObject* K_OCC::getFaceNameInOCAF(PyObject* self, PyObject* args)
         n = 1;
         //TopoDS_Face face2 = TopoDS::Face(faces2(i2+1));
         TopoDS_Face face2 = TopoDS::Face(faces2(i2+1).Located(TopLoc_Location()));
-        E_Float xmin2, ymin2, zmin2, xmax2, ymax2, zmax2;
+        Standard_Real xmin2, ymin2, zmin2, xmax2, ymax2, zmax2;
         Bnd_Box bbox2;
         BRepBndLib::Add(face2, bbox2);
         bbox2.Get(xmin2, ymin2, zmin2, xmax2, ymax2, zmax2);
@@ -176,7 +176,7 @@ PyObject* K_OCC::getFaceNameInOCAF(PyObject* self, PyObject* args)
             //double area2 = gprops.Mass();
             //printf("area=%g %g\n", area1, area2);
 
-            E_Float xmin1, ymin1, zmin1, xmax1, ymax1, zmax1;
+            Standard_Real xmin1, ymin1, zmin1, xmax1, ymax1, zmax1;
             Bnd_Box bbox1;
             BRepBndLib::Add(face1, bbox1);
             bbox1.Get(xmin1, ymin1, zmin1, xmax1, ymax1, zmax1);

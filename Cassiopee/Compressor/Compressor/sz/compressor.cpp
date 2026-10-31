@@ -593,7 +593,22 @@ py_compress(PyObject *self, PyObject *args)
       if (ndims > 3) r4 = dims[3];
       if (ndims > 4) r5 = dims[4];
     }
-    unsigned char *compressed_data = SZ_compress(SZ_DOUBLE, PyArray_DATA(an_array), &outSize, r5, r4, r3, r2, r1);
+    // These backend streams use binary64; convert float32 storage explicitly.
+    const void* input_data = PyArray_DATA(an_array);
+    std::vector<double> widened;
+    if (PyArray_TYPE(an_array) == NPY_FLOAT)
+    {
+        const float* values = (const float*)PyArray_DATA(an_array);
+        widened.assign(values, values + PyArray_SIZE(an_array));
+        input_data = widened.data();
+    }
+    else if (PyArray_TYPE(an_array) != NPY_DOUBLE)
+    {
+        PyErr_SetString(PyExc_TypeError, "pack: expected a float32 or float64 array.");
+        Py_DECREF(compressed_list);
+        return NULL;
+    }
+    unsigned char *compressed_data = SZ_compress(SZ_DOUBLE, const_cast<void*>(input_data), &outSize, r5, r4, r3, r2, r1);
     npy_intp out_dim = outSize;
     PyObject *shape = PyTuple_New(ndims);
     for (int i = 0; i < ndims; ++i) PyTuple_SET_ITEM(shape, i, PyLong_FromLong(long(dims[i])));
@@ -832,6 +847,12 @@ py_decompress(PyObject *self, PyObject *args)
         std::size_t    sz_decompressed_array =
             SZ_decompress_args(SZ_DOUBLE, cpr_data, cpr_length, py_array_data, shape_arrays[i].r[0],
                                shape_arrays[i].r[1], shape_arrays[i].r[2], shape_arrays[i].r[3], shape_arrays[i].r[4]);
+#ifdef E_SINGLEREAL
+        PyArrayObject* converted = (PyArrayObject*)PyArray_CastToType(py_array, PyArray_DescrFromType(E_NPY_FLOAT), is_fortran);
+        Py_DECREF(py_array);
+        if (converted == NULL) { Py_DECREF(lst_out_arrays); return NULL; }
+        py_array = converted;
+#endif
         if (!is_list) {
             SZ_Finalize();
             Py_DecRef(lst_out_arrays);

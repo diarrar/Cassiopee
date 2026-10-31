@@ -109,8 +109,8 @@ void naca2(E_Float e, E_Int& npt,
   for (n = 1; n <= npt / 4; n++)
   {
     no = npt - n + 1;
-    y[n - 1] = y[n - 1] + hbfs2 * exp(std::max(bdabf * (x[n - 1] - xpn), -30.0));
-    y[no - 1] = y[no - 1] - hbfs2 * exp(std::max(bdabf * (x[no - 1] - xpn), -30.0));
+    y[n - 1] = y[n - 1] + hbfs2 * exp(std::max(bdabf * (x[n - 1] - xpn), E_Float(-30.0)));
+    y[no - 1] = y[no - 1] - hbfs2 * exp(std::max(bdabf * (x[no - 1] - xpn), E_Float(-30.0)));
   }
 
   x[0] = 1.0;

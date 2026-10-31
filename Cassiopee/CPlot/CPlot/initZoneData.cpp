@@ -330,7 +330,7 @@ void Data::replaceVolumetricZones()
         zn.ni = 2; zn.nj = 2; zn.nk = 2;
         zn.nfield = z.nfield;
         zn.dim = z.dim;
-        zn.x = new E_Float[zn.npts];
+        zn.x = new double[zn.npts];
         double factor = 0.3;
         double deltax = factor*(z.xmax - z.xmin);
         double deltay = factor*(z.ymax - z.ymin);
@@ -339,12 +339,12 @@ void Data::replaceVolumetricZones()
         zn.x[2] = z.xmin - deltax; zn.x[3] = z.xmax + deltax;
         zn.x[4] = z.xmin - deltax; zn.x[5] = z.xmax + deltax;
         zn.x[6] = z.xmin - deltax; zn.x[7] = z.xmax + deltax;
-        zn.y = new E_Float[zn.npts];
+        zn.y = new double[zn.npts];
         zn.y[0] = z.ymin - deltay; zn.y[1] = z.ymin - deltay;
         zn.y[2] = z.ymax + deltay; zn.y[3] = z.ymax + deltay;
         zn.y[4] = z.ymin - deltay; zn.y[5] = z.ymin - deltay;
         zn.y[6] = z.ymax + deltay; zn.y[7] = z.ymax + deltay;
-        zn.z = new E_Float[zn.npts];
+        zn.z = new double[zn.npts];
         zn.z[0] = z.zmin - deltaz; zn.z[1] = z.zmin - deltaz;
         zn.z[2] = z.zmin - deltaz; zn.z[3] = z.zmin - deltaz;
         zn.z[4] = z.zmax + deltaz; zn.z[5] = z.zmax + deltaz;
@@ -353,8 +353,8 @@ void Data::replaceVolumetricZones()
         for (E_Int n = 0; n < zn.nfield; n++)
         {
           strcpy(zn.varnames[n], z.varnames[n]);
-          zn.f[n] = new E_Float [zn.npts];
-          memset(zn.f[n], 0, zn.npts*sizeof(E_Float));
+          zn.f[n] = new double [zn.npts];
+          memset(zn.f[n], 0, zn.npts*sizeof(double));
         }
         strcpy(zn.renderTag, z.renderTag);
         zn.colorR = z.colorR;
@@ -396,17 +396,17 @@ void Data::replaceVolumetricZones()
         double deltax = factor*(z.xmax - z.xmin);
         double deltay = factor*(z.ymax - z.ymin);
         double deltaz = factor*(z.zmax - z.zmin);
-        zn.x = new E_Float[zn.npts];
+        zn.x = new double[zn.npts];
         zn.x[0] = z.xmin - deltax; zn.x[1] = z.xmax + deltax;
         zn.x[2] = z.xmax + deltax; zn.x[3] = z.xmin - deltax;
         zn.x[4] = z.xmin - deltax; zn.x[5] = z.xmax + deltax;
         zn.x[6] = z.xmax + deltax; zn.x[7] = z.xmin - deltax;
-        zn.y = new E_Float[zn.npts];
+        zn.y = new double[zn.npts];
         zn.y[0] = z.ymin - deltay; zn.y[1] = z.ymin - deltay;
         zn.y[2] = z.ymax + deltay; zn.y[3] = z.ymax + deltay;
         zn.y[4] = z.ymin - deltay; zn.y[5] = z.ymin - deltay;
         zn.y[6] = z.ymax + deltay; zn.y[7] = z.ymax + deltay;
-        zn.z = new E_Float[zn.npts];
+        zn.z = new double[zn.npts];
         zn.z[0] = z.zmin - deltaz; zn.z[1] = z.zmin - deltaz;
         zn.z[2] = z.zmin - deltaz; zn.z[3] = z.zmin - deltaz;
         zn.z[4] = z.zmax + deltaz; zn.z[5] = z.zmax + deltaz;
@@ -418,8 +418,8 @@ void Data::replaceVolumetricZones()
         for (E_Int n = 0; n < zn.nfield; n++)
         {
           strcpy(zn.varnames[n], z.varnames[n]);
-          zn.f[n] = new E_Float [zn.npts];
-          memset(zn.f[n], 0, zn.npts*sizeof(E_Float));
+          zn.f[n] = new double [zn.npts];
+          memset(zn.f[n], 0, zn.npts*sizeof(double));
         }
         strcpy(zn.renderTag, z.renderTag);
         zn.colorR = z.colorR;

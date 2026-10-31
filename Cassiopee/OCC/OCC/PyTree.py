@@ -1,5 +1,6 @@
 """OpenCascade definition module (pyTree).
 """
+from KCore import E_NpyFloat
 try:
     import OCC
     import OCC.occ as occ
@@ -1380,7 +1381,7 @@ def _updateConnectivityTree(tc, name, nameDonor, ptList, ptListDonor):
     # donor point indices
     Internal.createNode('PointListDonor', 'IndexArray_t', value=ptList, parent=zsr)
     # coefficient a 1 (injection)
-    data = numpy.ones((npts), dtype=numpy.float64)
+    data = numpy.ones((npts), dtype=E_NpyFloat)
     Internal.createNode('InterpolantsDonor', 'DataArray_t', value=data, parent=zsr)
     # type d'interpolation a 1 (injection)
     data = numpy.ones((npts), dtype=Internal.E_NpyInt)

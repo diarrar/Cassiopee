@@ -610,7 +610,7 @@ PyObject* K_OCC::getNodalParameters(PyObject* self, PyObject* args)
     
     allsas[j] = new ShapeAnalysis_Surface(surface);
     
-    E_Float U1, U2, V1, V2;
+    Standard_Real U1, U2, V1, V2;
     BRepTools::UVBounds(F,U1,U2,V1,V2);
     
     allsas[j]->SetDomain(U1, U2, V1, V2);

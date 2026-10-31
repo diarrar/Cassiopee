@@ -1,5 +1,6 @@
 """Immersed boundary geometry definition module.
 """
+from KCore import E_NpyFloat
 import Converter.PyTree as C
 import Converter.Internal as Internal
 import numpy
@@ -563,7 +564,7 @@ def _initInj(tc, familyName, PTot, HTot, injDir=[1.,0.,0.], InterpolPlane=None, 
 # Add variables to the IBC
 #==============================================================================
 def _addVariablesTcIbc(zsr, ibctype, nIBC, nsModel='NSLaminar'):
-    Nlength = numpy.zeros((nIBC),numpy.float64)
+    Nlength = numpy.zeros((nIBC),E_NpyFloat)
     if ibctype in [2, 3, 6, 10, 11, 31, 32, 331, 332]:
         zsr[2].append(['utau' , copy.copy(Nlength), [], 'DataArray_t'])
         zsr[2].append(['yplus', copy.copy(Nlength), [], 'DataArray_t'])
@@ -667,7 +668,7 @@ def _transformTc2(tc2):
                 for var_local in vars_delete:
                     Internal._rmNodesByName(zsr, var_local)
 
-                Nlength = numpy.zeros((nIBC),numpy.float64)
+                Nlength = numpy.zeros((nIBC),E_NpyFloat)
                 zsr[2].append(['Density'   , copy.copy(Nlength) , [], 'DataArray_t'])
                 zsr[2].append(['VelocityX' , copy.copy(Nlength) , [], 'DataArray_t'])
                 zsr[2].append(['VelocityY' , copy.copy(Nlength) , [], 'DataArray_t'])

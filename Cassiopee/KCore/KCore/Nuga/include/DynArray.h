@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <ostream>
 #include <set>
+#include <type_traits>
 #include <vector>
 #include <algorithm>
 
@@ -81,6 +82,13 @@ Design
     DynArray(size_type rows, size_type cols, bool calloc = false);
     /// Constructor with number of rows, columns and default value.
     DynArray(size_type rows, size_type cols, const value_type& val, bool calloc = false);
+    // Keep numeric fill values distinct from the bool allocation selector when
+    // value_type is float (a double literal otherwise makes the call ambiguous).
+    template <typename U, typename std::enable_if<
+      std::is_arithmetic<U>::value && !std::is_same<U, bool>::value &&
+      !std::is_same<U, value_type>::value, int>::type = 0>
+    DynArray(size_type rows, size_type cols, U val, bool calloc = false)
+      : DynArray(rows, cols, static_cast<value_type>(val), calloc) {}
     /// Constructor with input data : WARNING becomes owner
     DynArray(T*& compactdata, size_type rows, size_type cols, bool calloc = false);
 

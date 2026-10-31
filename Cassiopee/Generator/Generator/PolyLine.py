@@ -1,5 +1,6 @@
 """PolyLine mesh generator. Extension of Generator.
 """
+from KCore import E_NpyFloat
 from . import Generator as G
 __version__ = G.__version__
 
@@ -69,7 +70,7 @@ def polyLineMesher(polyLine, h, yplus, density):
     add = int(addFactor*add)
     distrib = G.enforcePlusX(distrib, yplus/h, nj-1, add)
     nj = distrib[2]-1
-    delta = C.array('d',nj,1,1)
+    delta = C.array(E_NpyFloat,nj,1,1)
     for i in range(nj):
         delta[1][0,i] = h* distrib[1][0,i]
     mesh = []; walls = []

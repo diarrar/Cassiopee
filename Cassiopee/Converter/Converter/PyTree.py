@@ -1,3 +1,4 @@
+from KCore import E_NpyFloat
 # Converter PyTree interface
 from . import Converter
 from . import converter
@@ -1065,8 +1066,8 @@ def hackCenters(a):
     if ncenterFields == 0: return a, []
     if isinstance(a[3], str):
         npts = Converter.getNPts(a); nelts = Converter.getNCells(a)
-        a1 = [varStringN,numpy.zeros((nfield-ncenterFields,npts), numpy.float64),a[2],a[3]]
-        a2 = [varStringC,numpy.zeros((ncenterFields,nelts), numpy.float64),a[2],a[3]+'*']
+        a1 = [varStringN,numpy.zeros((nfield-ncenterFields,npts), E_NpyFloat),a[2],a[3]]
+        a2 = [varStringC,numpy.zeros((ncenterFields,nelts), E_NpyFloat),a[2],a[3]+'*']
     else:
         ni = a[2], nj = a[3]; nk = a[4]; npts = ni*nj*nk
         ni1 = max(ni-1,1); nj1 = max(nj-1,1); nk1 = max(nk-1,1); nelts = ni1*nj1*nk1
@@ -1957,7 +1958,7 @@ def makeAllNumpy__(node):
         if isinstance(c[1], int):
             c[1] = numpy.array(c[1], dtype=Internal.E_NpyInt)
         if isinstance(c[1], float):
-            c[1] = numpy.array(c[1], dtype=numpy.float64)
+            c[1] = numpy.array(c[1], dtype=E_NpyFloat)
         makeAllNumpy__(c)
 
 # -- makeNumpyStringString
@@ -2695,31 +2696,31 @@ def _addAVar__(z, dim, var):
         if loc == 'nodes':
             ni = dim[1]; nj = dim[2]; nk = dim[3]
             if var == 'cellN' or var == 'cellNF':
-                n = numpy.ones((ni*nj*nk), dtype=numpy.float64)
+                n = numpy.ones((ni*nj*nk), dtype=E_NpyFloat)
             else:
-                n = numpy.zeros((ni*nj*nk), dtype=numpy.float64)
+                n = numpy.zeros((ni*nj*nk), dtype=E_NpyFloat)
             array2 = [var, [n], ni, nj, nk]
         elif loc == 'centers':
             ni1 = max(dim[1]-1,1); nj1 = max(dim[2]-1,1); nk1 = max(dim[3]-1,1)
             if var == 'cellN' or var == 'cellNF':
-                n = numpy.ones((ni1*nj1*nk1), dtype=numpy.float64)
+                n = numpy.ones((ni1*nj1*nk1), dtype=E_NpyFloat)
             else:
-                n = numpy.zeros((ni1*nj1*nk1), dtype=numpy.float64)
+                n = numpy.zeros((ni1*nj1*nk1), dtype=E_NpyFloat)
             array2 = [var, [n], ni1, nj1, nk1]
     else:
         if loc == 'nodes':
             npts = dim[1]
             if var == 'cellN' or var == 'cellNF':
-                n = numpy.ones((npts), dtype=numpy.float64)
+                n = numpy.ones((npts), dtype=E_NpyFloat)
             else:
-                n = numpy.zeros((npts), dtype=numpy.float64)
+                n = numpy.zeros((npts), dtype=E_NpyFloat)
             array2 = [var, [n], npts, 1, 1]
         else:
             nelts = dim[2]
             if var == 'cellN' or var == 'cellNF':
-                n = numpy.ones((nelts), dtype=numpy.float64)
+                n = numpy.ones((nelts), dtype=E_NpyFloat)
             else:
-                n = numpy.zeros((nelts), dtype=numpy.float64)
+                n = numpy.zeros((nelts), dtype=E_NpyFloat)
             array2 = [var, [n], nelts, 1, 1]
     setFields([array2], z, loc=loc, writeDim=False)
     return None
@@ -2862,9 +2863,9 @@ def _nullifyBCDataSetVectors(t, bndType, loc='FaceCenter',
                 d = Internal.newBCData('BCDirichlet', parent=d)
                 cont, noc = Internal.getParentOfNode(z, d)
                 for vect in vectors:
-                    vxname = vect[0]; fxInt = numpy.zeros((np), numpy.float64)
-                    vyname = vect[1]; fyInt = numpy.zeros((np), numpy.float64)
-                    vzname = vect[2]; fzInt = numpy.zeros((np), numpy.float64)
+                    vxname = vect[0]; fxInt = numpy.zeros((np), E_NpyFloat)
+                    vyname = vect[1]; fyInt = numpy.zeros((np), E_NpyFloat)
+                    vzname = vect[2]; fzInt = numpy.zeros((np), E_NpyFloat)
                     if PR is not None:
                         converter.nullifyVectorAtBCFaceStruct(
                             z, fxInt, fyInt, fzInt,
@@ -2883,9 +2884,9 @@ def _nullifyBCDataSetVectors(t, bndType, loc='FaceCenter',
             else: # BCDataSet exists: add missing variables
                 d = Internal.getNodeFromType2(bc,'BCData_t')
                 for vect in vectors:
-                    vxname = vect[0]; fxInt = numpy.zeros((np), numpy.float64)
-                    vyname = vect[1]; fyInt = numpy.zeros((np), numpy.float64)
-                    vzname = vect[2]; fzInt = numpy.zeros((np), numpy.float64)
+                    vxname = vect[0]; fxInt = numpy.zeros((np), E_NpyFloat)
+                    vyname = vect[1]; fyInt = numpy.zeros((np), E_NpyFloat)
+                    vzname = vect[2]; fzInt = numpy.zeros((np), E_NpyFloat)
                     converter.nullifyVectorAtBCFaceStruct(
                         z, fxInt, fyInt, fzInt,
                         imin, imax, jmin, jmax, kmin, kmax, locI,
@@ -2948,7 +2949,7 @@ def _createBCDataSetOfType(t, bndType, loc='FaceCenter', update=True, vectors=[]
                 for fs in FSNode[2]:
                     if fs[3] == 'DataArray_t':
                         varname = fs[0]
-                        fInt = numpy.zeros((np),numpy.float64)
+                        fInt = numpy.zeros((np),E_NpyFloat)
                         if PR is not None:
                             converter.extrapInterior2BCFaceStruct(
                                 z, fInt, imin, imax, jmin, jmax, kmin, kmax, locI, varname,
@@ -2966,7 +2967,7 @@ def _createBCDataSetOfType(t, bndType, loc='FaceCenter', update=True, vectors=[]
                 for dataSet in d[2]: dataSetNames.append(dataSet[0])
                 for varname in varnames:
                     if varname not in dataSetNames or update is True:
-                        fInt = numpy.zeros((np), numpy.float64)
+                        fInt = numpy.zeros((np), E_NpyFloat)
                         converter.extrapInterior2BCFaceStruct(
                             z, fInt, imin, imax, jmin, jmax, kmin, kmax, locI, varname,
                             Internal.__GridCoordinates__,
@@ -3811,11 +3812,11 @@ def _addPeriodicInfoInGC__(info, rotationCenter, rotationAngle, translation, uni
         if len(trans) != 3:
             raise ValueError("_addPeriodicInfoInGC__: translation must be (tx, ty, tz).")
 
-        v = numpy.zeros((3), numpy.float64)
+        v = numpy.zeros((3), E_NpyFloat)
         v[0] = rotCenter[0]; v[1] = rotCenter[1]; v[2] = rotCenter[2]
         info[2].append(['RotationCenter', v, [], 'DataArray_t'])
 
-        v = numpy.zeros((3), numpy.float64)
+        v = numpy.zeros((3), E_NpyFloat)
         if unitAngle is None:
             unitAngle='Radian'
             RA1 = rotAngle[0]*Internal.__DEG2RAD__
@@ -3831,7 +3832,7 @@ def _addPeriodicInfoInGC__(info, rotationCenter, rotationAngle, translation, uni
         if unitAngle is not None:
             Internal.newDimensionalUnits(angleUnit=unitAngle, parent=info[2][-1])
 
-        v = numpy.zeros((3), numpy.float64)
+        v = numpy.zeros((3), E_NpyFloat)
         v[0] = trans[0]; v[1] = trans[1]; v[2] = trans[2]
         info[2].append(['Translation', v, [], 'DataArray_t'])
     return None
@@ -4007,7 +4008,7 @@ def _addBC2StructZone__(z, bndName, bndType, wrange=[], faceList=[],
         for i in range(size): o[i] = trirac[i]
         info[2].append(['Transform', o, [], 'DataArray_t'])
         ratio = getNMRatio__(wrange, rangeDonor, trirac)
-        size = len(ratio); ro = numpy.zeros((size), numpy.float64)
+        size = len(ratio); ro = numpy.zeros((size), E_NpyFloat)
         for i in range(size): ro[i] = ratio[i]
         info[2].append(['NMRatio', ro, [], 'DataArray_t'])
 
@@ -4047,7 +4048,7 @@ def _addBC2StructZone__(z, bndName, bndType, wrange=[], faceList=[],
 
         info = zoneGC[2][-1]
         d = numpy.ones((3,1), dtype=Internal.E_NpyInt)
-        c = numpy.ones((3,1), dtype=numpy.float64)
+        c = numpy.ones((3,1), dtype=E_NpyFloat)
         r = Internal.window2Range(wrange)
         info[2].append(['PointRange', r, [], 'IndexRange_t'])
         Internal._createChild(info, 'GridConnectivityType', 'GridConnectivityType_t', value='Overset')
@@ -6778,12 +6779,12 @@ def _patchArrayForCenter2NodeNK1__(fields, a):
             if dim[0] == 'Structured' and nk == 2 and s == ni*nj:
                 if isinstance(fp, list): # array2/3
                     for n, fl in enumerate(fp):
-                        b = numpy.empty( (ni*nj*2), dtype=numpy.float64 )
+                        b = numpy.empty( (ni*nj*2), dtype=E_NpyFloat )
                         b[0:ni*nj] = fl[0:ni*nj]
                         b[ni*nj:2*ni*nj] = fl[0:ni*nj]
                         fp[n] = b
                 else:
-                    b = numpy.empty( (nfld, ni*nj*2), dtype=numpy.float64 )
+                    b = numpy.empty( (nfld, ni*nj*2), dtype=E_NpyFloat )
                     b[:,0:ni*nj] = fp[:,0:ni*nj]
                     b[:,ni*nj:2*ni*nj] = fp[:,0:ni*nj]
                     f[1] = b; f[4] = 2
@@ -7376,7 +7377,7 @@ def _addChimera2Base(base, setting, value):
 
     # XRayTol
     elif setting == 'XRayTol':
-        v = numpy.empty((1,1), numpy.float64); v[0,0] = value
+        v = numpy.empty((1,1), E_NpyFloat); v[0,0] = value
         node = Internal.getNodeFromName1(chimera, 'XRayTol')
         if node is not None:
             node[1] = v
@@ -7386,7 +7387,7 @@ def _addChimera2Base(base, setting, value):
 
     # XRayDelta
     elif setting == 'XRayDelta':
-        v = numpy.empty((1,1), numpy.float64); v[0,0] = value
+        v = numpy.empty((1,1), E_NpyFloat); v[0,0] = value
         node = Internal.getNodeFromName1(chimera, 'XRayDelta')
         if node is not None:
             node[1] = v
@@ -7396,7 +7397,7 @@ def _addChimera2Base(base, setting, value):
 
     # DoubleWallTol
     elif setting == 'DoubleWallTol':
-        v = numpy.empty((1,1), numpy.float64); v[0,0] = value
+        v = numpy.empty((1,1), E_NpyFloat); v[0,0] = value
         node = Internal.getNodeFromName1(chimera, 'DoubleWallTol')
         if node is not None:
             node[1] = v
@@ -7743,7 +7744,7 @@ def intersect(zone, BBTree):
 def intersect2(t, BBTree):
     """Check intersection using BBTree."""
     zones = Internal.getZones(t)
-    inBB = numpy.empty((6*len(zones)), dtype=numpy.float64)
+    inBB = numpy.empty((6*len(zones)), dtype=E_NpyFloat)
     for c, z in enumerate(zones):
         gc = Internal.getNodeFromName1(z, Internal.__GridCoordinates__)
         xCoords = Internal.getNodeFromName1(gc, 'CoordinateX')[1]

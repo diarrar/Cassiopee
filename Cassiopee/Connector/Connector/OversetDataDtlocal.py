@@ -1,3 +1,4 @@
+from KCore import E_NpyFloat
 # - OversetDataDtlocal -
 # Module for internal functions used for overset info and for local time stepping
 from . import Connector
@@ -298,7 +299,7 @@ def setInterpData3(tR, tD, double_wall=0, order=2, penalty=1, nature=0,
                             if resInterp[6] == []: EXdir = numpy.array([], Internal.E_NpyInt)
                             else: EXdir = resInterp[6][noz]
                             OversetData._createInterpRegion__(z, zonesDnr[noz][0], resInterp[0][noz], resInterp[1][noz], resInterp[3][noz], \
-                                                              resInterp[2][noz], numpy.array([],numpy.float64), \
+                                                              resInterp[2][noz], numpy.array([],E_NpyFloat), \
                                                               extrapPts, resInterp[5], tag='Receiver', loc=locR, EXDir=EXdir)
 
                         else: # inverse
@@ -307,7 +308,7 @@ def setInterpData3(tR, tD, double_wall=0, order=2, penalty=1, nature=0,
                             if resInterp[6] == []: EXdir = numpy.array([], Internal.E_NpyInt)
                             else: EXdir = resInterp[6][noz]
                             OversetData._createInterpRegion__(zonesDnr[noz], z[0], resInterp[1][noz], resInterp[0][noz], resInterp[3][noz], \
-                                                              resInterp[2][noz], numpy.array([],numpy.float64), \
+                                                              resInterp[2][noz], numpy.array([],E_NpyFloat), \
                                                               extrapPts, resInterp[5], tag='Donor', loc=locR, EXDir=EXdir)
 
                             dim__       = Internal.getZoneDim(zonesDnr[noz])
@@ -576,7 +577,7 @@ def setInterpDataForGhostCells2__(tR, tD, storage='direct', loc='nodes'):
     # empty numpy arrays for zonesubregion nodes
     indicesExtrap = numpy.array([],Internal.E_NpyInt)
     indicesOrphan = numpy.array([],Internal.E_NpyInt)
-    vols =  numpy.array([],numpy.float64)
+    vols =  numpy.array([],E_NpyFloat)
     EXdir = numpy.array([],Internal.E_NpyInt)
 
     bases  = Internal.getNodesFromType1(tR     , 'CGNSBase_t')       # noeud
@@ -720,7 +721,7 @@ def setInterpDataForGhostCells2__(tR, tD, storage='direct', loc='nodes'):
                     res = connector.setInterpDataForGC(arrayOfIndicesR, listOfIndicesD,
                                                        dimPb, locR, depth, incrR, incrD)
                     # Stockage
-                    vol = numpy.array([],numpy.float64)
+                    vol = numpy.array([],E_NpyFloat)
                     prefix = 'ID_'
                     if RotationAngle is not None:
                         val = Internal.getValue(RotationAngle)

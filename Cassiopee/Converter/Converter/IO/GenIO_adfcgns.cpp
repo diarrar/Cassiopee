@@ -338,7 +338,14 @@ PyObject* K_IO::GenIOAdf::getArrayR8(double node)
   r = (PyObject*)PyArray_EMPTY(dim, npy_dim_vals, NPY_DOUBLE, 1);
   ADF_Read_All_Data(node, (char*)PyArray_DATA((PyArrayObject*)r), &_errorFlag);
   delete [] npy_dim_vals;
+#ifdef E_SINGLEREAL
+  if (strcmp(_name, "ZData") == 0) return r; // codec dimensions require binary64
+  PyObject* converted = PyArray_CastToType((PyArrayObject*)r, PyArray_DescrFromType(E_NPY_FLOAT), 1);
+  Py_DECREF(r);
+  return converted;
+#else
   return r;
+#endif
 }
 
 //=============================================================================
@@ -371,10 +378,10 @@ PyObject* K_IO::GenIOAdf::getArrayR4(double node)
 
   ADF_Read_All_Data(node, (char*)ptr, &_errorFlag);
 
-  double* ptr2 = (double*)::malloc(sizem*sizeof(double));
+  E_Float* ptr2 = (E_Float*)::malloc(sizem*sizeof(E_Float));
   for (int n = 0; n < sizem; n++)
   {
-    ptr2[n] = (double)(ptr[n]);
+    ptr2[n] = E_Float(ptr[n]);
   }
   free(ptr);
 
@@ -384,8 +391,8 @@ PyObject* K_IO::GenIOAdf::getArrayR4(double node)
   {
     npy_dim_vals[nn] = _dims[nn];
   }
-  r = (PyArrayObject*)PyArray_EMPTY(dim, &npy_dim_vals[0], NPY_DOUBLE, 1);
-  memcpy(PyArray_DATA(r), ptr2, sizem*sizeof(double));
+  r = (PyArrayObject*)PyArray_EMPTY(dim, &npy_dim_vals[0], E_NPY_FLOAT, 1);
+  memcpy(PyArray_DATA(r), ptr2, sizem*sizeof(E_Float));
   free(ptr2);
   return (PyObject*)r;
 }

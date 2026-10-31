@@ -1,4 +1,5 @@
 """Connector for IBM preprocessing"""
+from KCore import E_NpyFloat
 from . import PyTree as X
 from . import OversetData as XOD
 from . import Connector
@@ -1990,8 +1991,8 @@ def getIBMFrontType0__(tc, frontvar, dim):
         dmin = C.getMaxValue(front, 'TurbulentDistance')
 
         if Cmpi.KCOMM is not None:
-            dmin = numpy.array([dmin], dtype=numpy.float64)
-            dmin_max = numpy.zeros(1, dtype=numpy.float64)
+            dmin = numpy.array([dmin], dtype=E_NpyFloat)
+            dmin_max = numpy.zeros(1, dtype=E_NpyFloat)
             Cmpi.KCOMM.Allreduce(dmin, dmin_max, Cmpi.MAX)
             dmin = dmin_max[0]
 
@@ -2004,8 +2005,8 @@ def getIBMFrontType0__(tc, frontvar, dim):
         dmin = C.getMaxValue(front, 'TurbulentDistance')
 
         if Cmpi.KCOMM is not None:
-            dmin = numpy.array([dmin], dtype=numpy.float64)
-            dmin_max = numpy.zeros(1, dtype=numpy.float64)
+            dmin = numpy.array([dmin], dtype=E_NpyFloat)
+            dmin_max = numpy.zeros(1, dtype=E_NpyFloat)
             Cmpi.KCOMM.Allreduce(dmin, dmin_max, Cmpi.MAX)
             dmin = dmin_max[0]
 

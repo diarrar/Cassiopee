@@ -1,5 +1,6 @@
 """Geometry definition module.
 """
+from KCore import E_NpyFloat
 import Geom
 __version__ = Geom.__version__
 
@@ -541,8 +542,8 @@ def _getUVFromIJ(a):
         dim = Internal.getZoneDim(z)
         if dim[0] == 'Structured':
             ni = dim[1]; nj = dim[2]
-            u = numpy.arange(nj, dtype=numpy.float64)/(nj-1)
-            v = numpy.arange(ni, dtype=numpy.float64)/(ni-1)
+            u = numpy.arange(nj, dtype=E_NpyFloat)/(nj-1)
+            v = numpy.arange(ni, dtype=E_NpyFloat)/(ni-1)
             pu[:] = numpy.repeat(u, ni)
             pv[:] = numpy.tile(v, nj)
     return None

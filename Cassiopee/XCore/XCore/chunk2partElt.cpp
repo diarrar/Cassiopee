@@ -1277,8 +1277,8 @@ PyObject *K_XCORE::chunk2partElt(PyObject *self, PyObject *args)
     }
   }
 
-  MPI_Alltoallv(&sxyz[0], &sxcount[0], &sxdist[0], MPI_DOUBLE,
-                &rxyz[0], &rxcount[0], &rxdist[0], MPI_DOUBLE,
+  MPI_Alltoallv(&sxyz[0], &sxcount[0], &sxdist[0], E_MPI_FLOAT,
+                &rxyz[0], &rxcount[0], &rxdist[0], E_MPI_FLOAT,
                 MPI_COMM_WORLD);
 
   if (rank == 0)

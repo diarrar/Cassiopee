@@ -1,3 +1,4 @@
+#include "Def/DefTypes.h"
 #ifndef _CONVERTER_EXPRESSION_BINARY_OPERATOR_HPP_
 #define _CONVERTER_EXPRESSION_BINARY_OPERATOR_HPP_
 #include "Expression/constante.hpp"
@@ -22,7 +23,7 @@ namespace Expression {
         binary_operator(OP op, std::shared_ptr<ast::node> l_stmt, std::shared_ptr<ast::node> r_stmt)
             : m_left_statement(l_stmt), m_right_statement(r_stmt), m_op(op) {}
 
-        double operator()(std::size_t i) const final {
+        E_Float operator()(std::size_t i) const final {
             switch (m_op) {
             case ADD:
                 return (*m_left_statement)(i) + (*m_right_statement)(i);
@@ -69,8 +70,8 @@ namespace Expression {
                 simd_vector_wrapper w;
                 auto                u  = m_left_statement->eval_simd(i);
                 auto                v  = m_right_statement->eval_simd(i);
-                const double *      du = u.data(), *dv = v.data();
-                double *            dw = w.data();
+                const E_Float *      du = u.data(), *dv = v.data();
+                E_Float *            dw = w.data();
 #pragma omp simd
                 for (std::size_t ind = 0; ind < simd_vector_wrapper::max_size; ++ind)
                     dw[ind] = std::pow(du[ind], dv[ind]);
@@ -86,8 +87,8 @@ namespace Expression {
                 simd_vector_wrapper w;
                 auto                u  = m_left_statement->eval_simd(i);
                 auto                v  = m_right_statement->eval_simd(i);
-                const double *      du = u.data(), *dv = v.data();
-                double *            dw = w.data();
+                const E_Float *      du = u.data(), *dv = v.data();
+                E_Float *            dw = w.data();
 #pragma omp simd
                 for (std::size_t ind = 0; ind < simd_vector_wrapper::max_size; ++ind)
                     dw[ind] = (du[ind] < dv[ind] ? du[ind] : dv[ind]);
@@ -97,8 +98,8 @@ namespace Expression {
                 simd_vector_wrapper w;
                 auto                u  = m_left_statement->eval_simd(i);
                 auto                v  = m_right_statement->eval_simd(i);
-                const double *      du = u.data(), *dv = v.data();
-                double *            dw = w.data();
+                const E_Float *      du = u.data(), *dv = v.data();
+                E_Float *            dw = w.data();
 #pragma omp simd
                 for (std::size_t ind = 0; ind < simd_vector_wrapper::max_size; ++ind)
                     dw[ind] = (du[ind] > dv[ind] ? du[ind] : dv[ind]);
@@ -175,7 +176,7 @@ namespace Expression {
                 auto &r             = *m_right_statement;
                 bool  r_stmt_is_cte = typeid(r).hash_code() == typeid(constante).hash_code();
                 if (r_stmt_is_cte) { // d(x^a) = a * dx * x^{a-1}
-                    double value = r(0);
+                    E_Float value = r(0);
                     return std::make_shared<binary_operator>(
                         MULT,
                         std::make_shared<binary_operator>(MULT, std::make_shared<constante>(value),
@@ -232,7 +233,7 @@ namespace Expression {
             if (l_stmt_is_cte && r_stmt_is_cte) return std::make_shared<constante>((*this)(0));
             // Si left stmt est une constante :
             if (l_stmt_is_cte) {
-                double value = l(0);
+                E_Float value = l(0);
                 // 0 + x -> x
                 if ((m_op == ADD) && (value == 0)) return m_right_statement;
                 // 0 - x -> -x
@@ -248,7 +249,7 @@ namespace Expression {
                 if ((m_op == POW) && (value == 1)) return std::make_shared<constante>(1.);
             }
             if (r_stmt_is_cte) {
-                double value = r(0);
+                E_Float value = r(0);
                 // x + 0 -> x
                 if ((m_op == ADD) && (value == 0)) return m_left_statement;
                 // x - 0 -> x

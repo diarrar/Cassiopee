@@ -1,3 +1,4 @@
+from KCore import E_NpyFloat
 import Converter.Internal as Internal
 import numpy
 import Compressor
@@ -133,9 +134,9 @@ def computeUnsteadyInterp(tp, hook, ite,loc='cell', nGhostCells=2):
             for rcvId in ref[donorName]:
                 if rcvId not in interpData:
                     if FaceDirection is None:
-                        data=[numpy.array([], dtype=Internal.E_NpyInt), numpy.array([], dtype=Internal.E_NpyInt), numpy.array([], dtype=Internal.E_NpyInt), numpy.array([], dtype=numpy.float64)]
+                        data=[numpy.array([], dtype=Internal.E_NpyInt), numpy.array([], dtype=Internal.E_NpyInt), numpy.array([], dtype=Internal.E_NpyInt), numpy.array([], dtype=E_NpyFloat)]
                     else:
-                        data=[numpy.array([], dtype=Internal.E_NpyInt), numpy.array([], dtype=Internal.E_NpyInt), numpy.array([], dtype=Internal.E_NpyInt), numpy.array([], dtype=numpy.float64), numpy.array([], dtype=Internal.E_NpyInt)]
+                        data=[numpy.array([], dtype=Internal.E_NpyInt), numpy.array([], dtype=Internal.E_NpyInt), numpy.array([], dtype=Internal.E_NpyInt), numpy.array([], dtype=E_NpyFloat), numpy.array([], dtype=Internal.E_NpyInt)]
                     delta = Co.deltaInterpolations(data, ref[donorName][rcvId],loc)
                     interpData[rcvId]=delta
                     ref[donorName][rcvId] = data
@@ -144,9 +145,9 @@ def computeUnsteadyInterp(tp, hook, ite,loc='cell', nGhostCells=2):
         elif donorName in listInterpData:
             for rcvId in ref[donorName]:
                 if FaceDirection is None:
-                    data=[numpy.array([], dtype=Internal.E_NpyInt), numpy.array([], dtype=Internal.E_NpyInt), numpy.array([], dtype=Internal.E_NpyInt), numpy.array([], dtype=numpy.float64)]
+                    data=[numpy.array([], dtype=Internal.E_NpyInt), numpy.array([], dtype=Internal.E_NpyInt), numpy.array([], dtype=Internal.E_NpyInt), numpy.array([], dtype=E_NpyFloat)]
                 else:
-                    data=[numpy.array([], dtype=Internal.E_NpyInt), numpy.array([], dtype=Internal.E_NpyInt), numpy.array([], dtype=Internal.E_NpyInt), numpy.array([], dtype=numpy.float64), numpy.array([], dtype=Internal.E_NpyInt)]
+                    data=[numpy.array([], dtype=Internal.E_NpyInt), numpy.array([], dtype=Internal.E_NpyInt), numpy.array([], dtype=Internal.E_NpyInt), numpy.array([], dtype=E_NpyFloat), numpy.array([], dtype=Internal.E_NpyInt)]
                 delta = Co.deltaInterpolations(data, ref[donorName][rcvId],loc)
                 interpData[rcvId]=delta
                 ref[donorName][rcvId] = data

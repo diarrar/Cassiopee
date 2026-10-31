@@ -353,7 +353,7 @@ PyObject* K_INTERSECTOR::deleteHMesh(PyObject* self, PyObject* args)
 /* getDonnorPG */
 //============================================================================
 template <typename ELT_t, NUGA::eSUBDIV_TYPE STYPE>
-E_Int getDonnorPG(NUGA::hierarchical_mesh<ELT_t, STYPE>& hmesh, std::vector<double>& fieldN, E_Int PG, std::vector<E_Int>& pth2a)
+E_Int getDonnorPG(NUGA::hierarchical_mesh<ELT_t, STYPE>& hmesh, std::vector<E_Float>& fieldN, E_Int PG, std::vector<E_Int>& pth2a)
 {
   E_Int PGparent = hmesh._PGtree.parent(PG);
   if (PGparent == IDX_NONE) return PG;
@@ -381,7 +381,7 @@ E_Int getDonnorPG(NUGA::hierarchical_mesh<ELT_t, STYPE>& hmesh, std::vector<doub
 /* MAJenfants */
 //============================================================================
 template <typename ELT_t, NUGA::eSUBDIV_TYPE STYPE>
-void MAJenfants(NUGA::hierarchical_mesh<ELT_t, STYPE>& hmesh, std::vector<double>& fieldN, E_Int PG, std::vector<E_Int>& pth2a)
+void MAJenfants(NUGA::hierarchical_mesh<ELT_t, STYPE>& hmesh, std::vector<E_Float>& fieldN, E_Int PG, std::vector<E_Int>& pth2a)
 {
     
   // Parent information:
@@ -438,7 +438,7 @@ void MAJenfants(NUGA::hierarchical_mesh<ELT_t, STYPE>& hmesh, std::vector<double
 /* InterpolateHMeshNodalField */
 //============================================================================
 template <typename ELT_t, NUGA::eSUBDIV_TYPE STYPE>
-void __interpolateHMeshNodalField(const void* hmesh_ptrs, std::vector<double>& fieldN, std::vector<std::vector<E_Int>>& bcptlists)
+void __interpolateHMeshNodalField(const void* hmesh_ptrs, std::vector<E_Float>& fieldN, std::vector<std::vector<E_Int>>& bcptlists)
 {
   using mesh_type = NUGA::hierarchical_mesh<ELT_t, STYPE>;
   mesh_type* hmesh = (mesh_type*)hmesh_ptrs;
@@ -513,7 +513,7 @@ PyObject* K_INTERSECTOR::interpolateHMeshNodalField(PyObject* self, PyObject* ar
   E_Float* pfieldN = fi->begin(0);
   E_Int npts = fi->getSize();
 
-  std::vector<double> fieldN(npts);
+  std::vector<E_Float> fieldN(npts);
   
   for(E_Int i=0; i<npts; ++i)
       fieldN[i] = pfieldN[i];
@@ -570,7 +570,7 @@ PyObject* K_INTERSECTOR::interpolateHMeshNodalField(PyObject* self, PyObject* ar
   //Retourner les champs mis à jour
   K_FLD::FloatArray farr(1,fieldN.size());
   
-  std::vector<double>& fld = fieldN;
+  std::vector<E_Float>& fld = fieldN;
   for (size_t j = 0; j < fieldN.size(); ++j)farr(0, j) = fld[j];
 
   PyObject* tpl = K_ARRAY::buildArray(farr, varString, *c, -1, eltType, false);
@@ -1975,7 +1975,7 @@ PyObject* K_INTERSECTOR::conformizeHMesh(PyObject* self, PyObject* args)
       farr.resize(fieldsC.size(), fieldsC[0].size());
       for (size_t i=0; i < fieldsC.size(); ++i)
       {
-        std::vector<double>& fld = fieldsC[i];
+        std::vector<E_Float>& fld = fieldsC[i];
         for (size_t j = 0; j < fld.size(); ++j)farr(i, j) = fld[j];
       }
       tpl = K_ARRAY::buildArray(farr, fvarStringsC, cnto, -1, feltType, false);
@@ -1994,7 +1994,7 @@ PyObject* K_INTERSECTOR::conformizeHMesh(PyObject* self, PyObject* args)
       farr.resize(fieldsN.size(), fieldsN[0].size());
       for (size_t i=0; i < fieldsN.size(); ++i)
       {
-        std::vector<double>& fld = fieldsN[i];
+        std::vector<E_Float>& fld = fieldsN[i];
         for (size_t j = 0; j < fld.size(); ++j)farr(i, j) = fld[j];
       }
       tpl = K_ARRAY::buildArray(farr, fvarStringsN, cnto, -1, feltType, false);

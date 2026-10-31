@@ -1,5 +1,6 @@
 #!/bin/sh
 # *Cassiopee* Compilation Environment
+export CASSIOPEE_PRECISION=double
 
 #-----------------------------------------------------------------------------
 if [ -z "$CASSIOPEE" ]; then

@@ -1,3 +1,4 @@
+from KCore import E_NpyFloat
 # - IBM specific post-processing -
 from . import PyTree as P
 import Connector.OversetData as XOD
@@ -740,8 +741,8 @@ def _extractConvectiveTerms(tc):
                 VelocityZ      = Internal.getNodeFromName(zsr, 'VelocityZ')[1]
 
                 nIBC = numpy.shape(CoordinateX)[0]
-                conv1  = numpy.zeros((nIBC),numpy.float64)
-                conv2  = numpy.zeros((nIBC),numpy.float64)
+                conv1  = numpy.zeros((nIBC),E_NpyFloat)
+                conv2  = numpy.zeros((nIBC),E_NpyFloat)
 
                 for i in range(nIBC):
                     nx = CoordinateX_PC[i] - CoordinateX[i]
@@ -1419,7 +1420,7 @@ def _addGradxiP__(tc):
                 gradxP   = Internal.getNodeFromName(zsr, 'gradxPressure')
 
                 nIBC    = pressure.shape[0]
-                Nlength = numpy.zeros((nIBC),numpy.float64)
+                Nlength = numpy.zeros((nIBC),E_NpyFloat)
                 if gradxP is None:
                     zsr[2].append(['gradxPressure' , Nlength            , [], 'DataArray_t'])
                     zsr[2].append(['gradyPressure' , copy.copy(Nlength) , [], 'DataArray_t'])

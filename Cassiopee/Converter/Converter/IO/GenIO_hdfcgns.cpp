@@ -894,10 +894,10 @@ PyObject* K_IO::GenIOHdf::getArrayR42R8(hid_t node, hid_t tid,
 #endif
   H5Tclose(yid); H5Dclose(did);
 
-  double* ptr2 = (double*)::malloc(sizem*sizeof(double));
+  E_Float* ptr2 = (E_Float*)::malloc(sizem*sizeof(E_Float));
   for (int n = 0; n < sizem; n++)
   {
-    ptr2[n] = (double)(ptr[n]);
+    ptr2[n] = E_Float(ptr[n]);
   }
   free(ptr);
 
@@ -907,8 +907,8 @@ PyObject* K_IO::GenIOHdf::getArrayR42R8(hid_t node, hid_t tid,
   {
     npy_dim_vals[nn] = dims[nn];
   }
-  r = (PyArrayObject*)PyArray_EMPTY(dim, &npy_dim_vals[0], NPY_DOUBLE, 1);
-  memcpy(PyArray_DATA(r), ptr2, sizem*sizeof(double));
+  r = (PyArrayObject*)PyArray_EMPTY(dim, &npy_dim_vals[0], E_NPY_FLOAT, 1);
+  memcpy(PyArray_DATA(r), ptr2, sizem*sizeof(E_Float));
   free(ptr2);
 
   return (PyObject*)r;
@@ -1013,10 +1013,11 @@ PyObject* K_IO::GenIOHdf::getArrayR8(hid_t node, hid_t tid, int dim, hsize_t* di
   // printf("K_IO::GenIOHdf::getArrayR8 \n ");
   // Create numpy: toujours en DOUBLE
   for (E_Int nn = 0; nn < dim; nn++) npy_dim_vals[nn] = dims[nn];
-  r = (PyArrayObject*)PyArray_EMPTY(dim, &npy_dim_vals[0], NPY_DOUBLE, 1);
+  const int realType = strcmp(_name, "ZData") == 0 ? NPY_DOUBLE : E_NPY_FLOAT;
+  r = (PyArrayObject*)PyArray_EMPTY(dim, &npy_dim_vals[0], realType, 1);
 
   did = H5Dopen2(node, L3S_DATA, H5P_DEFAULT);
-  yid = H5Tget_native_type(tid, H5T_DIR_ASCEND);
+  yid = H5Tcopy(realType == NPY_FLOAT ? H5T_NATIVE_FLOAT : H5T_NATIVE_DOUBLE);
 
 #if defined(_MPI) && defined(H5_HAVE_PARALLEL)
   if (_ismpi == 1)    /** HDF is executed in parallel context and compiled in MPI **/
@@ -1097,7 +1098,9 @@ PyObject* K_IO::GenIOHdf::getArrayContigous(hid_t     node,
   }
 
   did = H5Dopen2(node, L3S_DATA, H5P_DEFAULT);
-  yid = H5Tget_native_type(tid, H5T_DIR_ASCEND);
+  if (NPYtype == E_NPY_FLOAT)
+    yid = H5Tcopy(sizeof(E_Float) == 4 ? H5T_NATIVE_FLOAT : H5T_NATIVE_DOUBLE);
+  else yid = H5Tget_native_type(tid, H5T_DIR_ASCEND);
 
 #if defined(_MPI) && defined(H5_HAVE_PARALLEL)
   if (_ismpi == 1) /** HDF is executed in parallel context and compiled in MPI **/

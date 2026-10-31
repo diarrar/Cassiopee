@@ -1,3 +1,4 @@
+#include <algorithm>
 /*    
     Copyright 2013-2026 ONERA.
 
@@ -54,12 +55,12 @@ StructZone* Data::createStructZone(FldArrayF* structF, char* varString,
   if (z.nk != 1) z.dim = 3;
   else if (z.nj != 1) z.dim = 2;
   else z.dim = 1;
-  z.x = new E_Float[z.npts];
-  memcpy(z.x, structF->begin(posx), z.npts*sizeof(E_Float));
-  z.y = new E_Float[z.npts];
-  memcpy(z.y, structF->begin(posy), z.npts*sizeof(E_Float));
-  z.z = new E_Float[z.npts];
-  memcpy(z.z, structF->begin(posz), z.npts*sizeof(E_Float));
+  z.x = new double[z.npts];
+  std::copy_n(structF->begin(posx), z.npts, z.x);
+  z.y = new double[z.npts];
+  std::copy_n(structF->begin(posy), z.npts, z.y);
+  z.z = new double[z.npts];
+  std::copy_n(structF->begin(posz), z.npts, z.z);
 
   vector<char*> vars;
   K_ARRAY::extractVars(varString, vars);
@@ -85,8 +86,8 @@ StructZone* Data::createStructZone(FldArrayF* structF, char* varString,
         if (K_STRING::cmp(vars[p], referenceVarNames[n]) == 0)
         {
           nall++;
-          z.f[n] = new E_Float[z.npts];
-          memcpy(z.f[n], structF->begin(p+1), z.npts*sizeof(E_Float));
+          z.f[n] = new double[z.npts];
+          std::copy_n(structF->begin(p+1), z.npts, z.f[n]);
           strcpy(z.varnames[n], vars[p]); break;
         }
       }
@@ -96,7 +97,7 @@ StructZone* Data::createStructZone(FldArrayF* structF, char* varString,
     {
       if (z.f[n] == NULL)
       {
-        z.f[n] = new E_Float[z.npts];
+        z.f[n] = new double[z.npts];
         if (K_STRING::cmp(referenceVarNames[n], "cellN") == 0)
         { for (int i = 0; i < z.npts; i++) z.f[n][i] = 1.; }
         else { for (int i = 0; i < z.npts; i++) z.f[n][i] = 0.; }
@@ -175,14 +176,14 @@ StructZone* Data::createStructZone(FldArrayF* structF, char* varString,
           {
             //printf("adding var %s (%d) in zone %d\n", vars[p], nall, nz);
             Zone* zp = _zones[nz];
-            zp->f[nall] = new E_Float[zp->npts];
+            zp->f[nall] = new double[zp->npts];
             if (K_STRING::cmp(vars[p], "cellN") == 0)
             { for (E_Int i = 0; i < zp->npts; i++) zp->f[nall][i] = 1.; }
             else { for (E_Int i = 0; i < zp->npts; i++) zp->f[nall][i] = 0.; }
             strcpy(zp->varnames[nall], vars[p]);
           }
-          z.f[nall] = new E_Float[z.npts];
-          memcpy(z.f[nall], structF->begin(p+1), z.npts*sizeof(E_Float));
+          z.f[nall] = new double[z.npts];
+          std::copy_n(structF->begin(p+1), z.npts, z.f[nall]);
           strcpy(z.varnames[nall], vars[p]);
           nall++;
         }
@@ -196,8 +197,8 @@ StructZone* Data::createStructZone(FldArrayF* structF, char* varString,
     {
       if (n != posx-1 && n != posy-1 && n != posz-1)
       {
-        z.f[p] = new E_Float[z.npts];
-        memcpy(z.f[p], structF->begin(n+1), z.npts*sizeof(E_Float));
+        z.f[p] = new double[z.npts];
+        std::copy_n(structF->begin(n+1), z.npts, z.f[p]);
         strcpy(z.varnames[p], vars[n]); p++;
       }
     }
@@ -251,7 +252,7 @@ StructZone* Data::createStructZone(FldArrayF* structF, char* varString,
     if (z.texu == NULL)
     {
       // Create uniform texture field
-      z.regtexu = new E_Float [z.npts];
+      z.regtexu = new double [z.npts];
       E_Float di = 1./(z.ni-1);
       for (E_Int j = 0; j < z.nj; j++)
         for (E_Int i = 0; i < z.ni; i++)
@@ -261,7 +262,7 @@ StructZone* Data::createStructZone(FldArrayF* structF, char* varString,
     if (z.texv == NULL)
     {
       // Create uniform texture field
-      z.regtexv = new E_Float [z.npts];
+      z.regtexv = new double [z.npts];
       E_Float dj = 1./(z.nj-1);
       for (E_Int j = 0; j < z.nj; j++)
         for (E_Int i = 0; i < z.ni; i++)
@@ -321,12 +322,12 @@ UnstructZone* Data::createUnstrZone(FldArrayF* unstrF, char* varString,
   bool isHighOrder = (pt_type != NULL);
   z._isHighOrder = isHighOrder;
 # endif
-  z.x = new E_Float[z.npts];
-  memcpy(z.x, unstrF->begin(posx), z.npts*sizeof(E_Float));
-  z.y = new E_Float[z.npts];
-  memcpy(z.y, unstrF->begin(posy), z.npts*sizeof(E_Float));
-  z.z = new E_Float[z.npts];
-  memcpy(z.z, unstrF->begin(posz), z.npts*sizeof(E_Float));
+  z.x = new double[z.npts];
+  std::copy_n(unstrF->begin(posx), z.npts, z.x);
+  z.y = new double[z.npts];
+  std::copy_n(unstrF->begin(posy), z.npts, z.y);
+  z.z = new double[z.npts];
+  std::copy_n(unstrF->begin(posz), z.npts, z.z);
   z.ne = cn->getSize();
   vector<char*> vars;
   K_ARRAY::extractVars(varString, vars);
@@ -351,8 +352,8 @@ UnstructZone* Data::createUnstrZone(FldArrayF* unstrF, char* varString,
         if (K_STRING::cmp(vars[p], referenceVarNames[n]) == 0)
         {
           nall++;
-          z.f[n] = new E_Float[z.npts];
-          memcpy(z.f[n], unstrF->begin(p+1), z.npts*sizeof(E_Float));
+          z.f[n] = new double[z.npts];
+          std::copy_n(unstrF->begin(p+1), z.npts, z.f[n]);
           strcpy(z.varnames[n], vars[p]); break;
         }
       }
@@ -362,7 +363,7 @@ UnstructZone* Data::createUnstrZone(FldArrayF* unstrF, char* varString,
     {
       if (z.f[n] == NULL)
       {
-        z.f[n] = new E_Float[z.npts];
+        z.f[n] = new double[z.npts];
         if (K_STRING::cmp(referenceVarNames[n], "cellN") == 0)
         { for (E_Int i = 0; i < z.npts; i++) z.f[n][i] = 1.; }
         else { for (E_Int i = 0; i < z.npts; i++) z.f[n][i] = 0.; }
@@ -441,14 +442,14 @@ UnstructZone* Data::createUnstrZone(FldArrayF* unstrF, char* varString,
           {
             //printf("adding var %s (%d) in zone %d\n", vars[p], nall, nz);
             Zone* zp = _zones[nz];
-            zp->f[nall] = new E_Float[zp->npts];
+            zp->f[nall] = new double[zp->npts];
             if (K_STRING::cmp(vars[p], "cellN") == 0)
             { for (E_Int i = 0; i < zp->npts; i++) zp->f[nall][i] = 1.; }
             else { for (E_Int i = 0; i < zp->npts; i++) zp->f[nall][i] = 0.; }
             strcpy(zp->varnames[nall], vars[p]);
           }
-          z.f[nall] = new E_Float[z.npts];
-          memcpy(z.f[nall], unstrF->begin(p+1), z.npts*sizeof(E_Float));
+          z.f[nall] = new double[z.npts];
+          std::copy_n(unstrF->begin(p+1), z.npts, z.f[nall]);
           strcpy(z.varnames[nall], vars[p]);
           nall++;
         }
@@ -462,8 +463,8 @@ UnstructZone* Data::createUnstrZone(FldArrayF* unstrF, char* varString,
     {
       if (n != posx-1 && n != posy-1 && n != posz-1)      
       {
-        z.f[p] = new E_Float[z.npts];
-        memcpy(z.f[p], unstrF->begin(n+1), z.npts*sizeof(E_Float));
+        z.f[p] = new double[z.npts];
+        std::copy_n(unstrF->begin(n+1), z.npts, z.f[p]);
         strcpy(z.varnames[p], vars[n]); p++;
       }
     }

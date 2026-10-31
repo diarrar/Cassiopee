@@ -20,27 +20,6 @@
 #include "kcore.h"
 #include <stdlib.h>
 
-#ifdef NPY_1_7_API_VERSION
-#define FLAG(arr)                                                   \
-  PyArray_ENABLEFLAGS((PyArrayObject*)arr, NPY_ARRAY_OWNDATA);      \
-  PyArray_ENABLEFLAGS((PyArrayObject*)arr, NPY_ARRAY_F_CONTIGUOUS); \
-  PyArray_CLEARFLAGS((PyArrayObject*)arr, NPY_ARRAY_C_CONTIGUOUS);
-#define FLAG2(arr)                              \
-  PyArray_CLEARFLAGS((PyArrayObject*)arr, NPY_ARRAY_OWNDATA); \
-  PyArray_ENABLEFLAGS((PyArrayObject*)arr, NPY_ARRAY_F_CONTIGUOUS);     \
-  PyArray_CLEARFLAGS((PyArrayObject*)arr, NPY_ARRAY_C_CONTIGUOUS);
-#else
-#define FLAG(arr)                                               \
-  ((PyArrayObject*)arr)->flags |= NPY_OWNDATA;                  \
-  ((PyArrayObject*)arr)->flags |= NPY_F_CONTIGUOUS;             \
-  ((PyArrayObject*)arr)->flags ^= NPY_C_CONTIGUOUS;
-#define FLAG2(arr)                                              \
-  ((PyArrayObject*)arr)->flags |= NPY_F_CONTIGUOUS;             \
-  ((PyArrayObject*)arr)->flags ^= NPY_C_CONTIGUOUS;             \
-  ((PyArrayObject*)arr)->flags ^= NPY_OWNDATA;                  \
-  ((PyArrayObject*)arr)->flags ^= NPY_OWNDATA;
-#endif
-
 //=============================================================================
 // Threaded memcpy
 //==============================================================================
@@ -64,65 +43,51 @@ void K_KCORE::memcpy__(E_Float* a, E_Float* b, E_Int s)
 }
 
 //=============================================================================
-// Equivalent de la fonction empty de numpy mais avec des tableaux 
-// de double fortrans alignes sur align bits
-// IN: shape: un tuple (120,3)
-// IN: align: nbre octets pour l'alignement
+// Allocate an aligned, Fortran-contiguous array of the compiled real type.
 //=============================================================================
 PyObject* K_KCORE::empty(PyObject* self, PyObject* args)
 {
   PyObject* shape; E_Int align;
   if (!PYPARSETUPLE_(args, O_ I_, &shape, &align)) return NULL;
   IMPORTNUMPY;
-  npy_intp dims[3];
-  E_Int nd; E_Int size;
-  if (PyTuple_Check(shape)) 
+  if (align < 0 || (align != 0 && (align & (align-1)) != 0))
   {
-    nd = PyTuple_Size(shape);
-    size = 1;
-    for (E_Int i = 0; i < nd; i++)
+    PyErr_SetString(PyExc_ValueError, "empty: alignment must be zero or a power of two.");
+    return NULL;
+  }
+  npy_intp alignment = align > E_Int(sizeof(E_Float)) ? align : sizeof(E_Float);
+  npy_intp dims[NPY_MAXDIMS];
+  int nd = PyTuple_Check(shape) ? int(PyTuple_Size(shape)) : 1;
+  if (nd > NPY_MAXDIMS)
+  {
+    PyErr_SetString(PyExc_ValueError, "empty: too many dimensions.");
+    return NULL;
+  }
+  npy_intp bytes = sizeof(E_Float);
+  for (int i = 0; i < nd; ++i)
+  {
+    PyObject* item = PyTuple_Check(shape) ? PyTuple_GetItem(shape, i) : shape;
+    dims[i] = PyLong_AsSsize_t(item);
+    if (PyErr_Occurred()) return NULL;
+    if (dims[i] < 0)
     {
-      PyObject* s = PyTuple_GetItem(shape, i);
-      E_Int sl = PyLong_AsLong(s);
-      size *= sl;
-      dims[i] = sl;
+      PyErr_SetString(PyExc_ValueError, "empty: negative dimensions are not allowed.");
+      return NULL;
     }
+    if (dims[i] != 0 && bytes > (NPY_MAX_INTP-alignment)/dims[i])
+      return PyErr_NoMemory();
+    bytes *= dims[i];
   }
-  else
-  {
-    nd = 1;
-    size = PyLong_AsLong(shape);
-    dims[0] = size;
-  }
-
-  // buffer surdimensionne pour l'alignement
-  char* buf = (char*)malloc((8*size+align)*sizeof(char));
-  if (!buf) return PyErr_NoMemory();
-  
-  double* mymem = (double*)buf;
-  E_LONG addr = (E_LONG)mymem; // adresse en bytes
-  //printf("%ld < %d\n", addr%align, align);
-  PyObject* arr;
-  if (align == 0 || addr%align == 0)
-  {
-    arr = PyArray_SimpleNewFromData(nd, dims, NPY_DOUBLE, mymem);
-    Py_INCREF(arr);
-    FLAG(arr);
-  }
-  else
-  {
-    // Premier numpy (possesseur)
-    PyObject* arr1 = PyArray_SimpleNewFromData(nd, dims, NPY_DOUBLE, mymem);
-    Py_INCREF(arr1);
-    FLAG(arr1);
-
-    // Le deuxieme non-possesseur aligne
-    E_LONG addr2 = addr + addr%align;
-    double* data = (double*)addr2;
-    arr = PyArray_SimpleNewFromData(nd, dims, NPY_DOUBLE, data);
-    Py_INCREF(arr);
-    FLAG2(arr);
-  }
-  //free(buf);
+  npy_intp capacity = bytes + alignment;
+  PyObject* owner = PyArray_SimpleNew(1, &capacity, NPY_UBYTE);
+  if (owner == NULL) return NULL;
+  uintptr_t address = reinterpret_cast<uintptr_t>(PyArray_DATA((PyArrayObject*)owner));
+  void* data = reinterpret_cast<void*>((address+alignment-1) & ~(uintptr_t(alignment)-1));
+  PyObject* arr = PyArray_NewFromDescr(&PyArray_Type, PyArray_DescrFromType(E_NPY_FLOAT),
+                                      nd, dims, NULL, data, NPY_ARRAY_F_CONTIGUOUS |
+                                      NPY_ARRAY_ALIGNED | NPY_ARRAY_WRITEABLE, NULL);
+  if (arr == NULL) { Py_DECREF(owner); return NULL; }
+  if (PyArray_SetBaseObject((PyArrayObject*)arr, owner) < 0)
+  { Py_DECREF(arr); return NULL; }
   return arr;
 }

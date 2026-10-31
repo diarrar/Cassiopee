@@ -1,3 +1,4 @@
+#include "Def/DefTypes.h"
 #ifndef _CONVERTER_EXPRESSION_UNARY_OPERATOR_HPP_
 # define _CONVERTER_EXPRESSION_UNARY_OPERATOR_HPP_
 # include <memory>
@@ -22,7 +23,7 @@ namespace Expression
 			m_right_statement(r_stmt), m_op(op)
 		{}
 
-		double operator() ( std::size_t i ) const final
+		E_Float operator() ( std::size_t i ) const final
 		{
 			switch(m_op)
 			{

@@ -36,6 +36,14 @@
 
 //#define DEBUG_CAD_READER
 
+static void lowerDistanceParameters(const GeomAPI_ProjectPointOnSurf& projection,
+                                    E_Float& u, E_Float& v)
+{
+  Standard_Real ou, ov;
+  projection.LowerDistanceParameters(ou, ov);
+  u = ou; v = ov;
+}
+
 // Calcule une discretisation de la surface avec connect QUAD
 void K_OCC::OCCSurface::discretize(K_FLD::FloatArray& coord3D, K_FLD::IntArray& connect, E_Int ni, E_Int nj)
 {
@@ -803,7 +811,7 @@ K_OCC::OCCSurface::parameters2(const E_Float* pt, E_Float& u, E_Float& v,
   E_Float un,vn;
   E_Float step1,stepA,stepB;
   GeomAPI_ProjectPointOnSurf o(Point, _surface, Extrema_ExtAlgo_Tree);
-  try { o.LowerDistanceParameters(u,v); }
+  try { lowerDistanceParameters(o,u,v); }
   catch( StdFail_NotDone& e ) { fail = true; }
   
   //printf("%f %f %f -> %f %f\n",pt[0],pt[1],pt[2],u,v);
@@ -813,7 +821,7 @@ K_OCC::OCCSurface::parameters2(const E_Float* pt, E_Float& u, E_Float& v,
     // try perturbations
     Point.SetCoord(pt[0]+1.e-6, pt[1], pt[2]);
     GeomAPI_ProjectPointOnSurf o(Point, _surface, Extrema_ExtAlgo_Tree);
-    try { o.LowerDistanceParameters(u,v); }
+    try { lowerDistanceParameters(o,u,v); }
     catch( StdFail_NotDone& e ) { fail = true; }
   }
   
@@ -822,7 +830,7 @@ K_OCC::OCCSurface::parameters2(const E_Float* pt, E_Float& u, E_Float& v,
     // try perturbations
     Point.SetCoord(pt[0]-1.e-6, pt[1], pt[2]);
     GeomAPI_ProjectPointOnSurf o(Point, _surface, Extrema_ExtAlgo_Tree);
-    try { o.LowerDistanceParameters(u,v); }
+    try { lowerDistanceParameters(o,u,v); }
     catch( StdFail_NotDone& e ) { fail = true; }
   }
   
@@ -831,7 +839,7 @@ K_OCC::OCCSurface::parameters2(const E_Float* pt, E_Float& u, E_Float& v,
     // try perturbations
     Point.SetCoord(pt[0], pt[1]+1.e-6, pt[2]);
     GeomAPI_ProjectPointOnSurf o(Point, _surface, Extrema_ExtAlgo_Tree);
-    try { o.LowerDistanceParameters(u,v); }
+    try { lowerDistanceParameters(o,u,v); }
     catch( StdFail_NotDone& e ) { fail = true; }
   }
   
@@ -840,7 +848,7 @@ K_OCC::OCCSurface::parameters2(const E_Float* pt, E_Float& u, E_Float& v,
     // try perturbations
     Point.SetCoord(pt[0], pt[1]-1.e-6, pt[2]);
     GeomAPI_ProjectPointOnSurf o(Point, _surface, Extrema_ExtAlgo_Tree);
-    try { o.LowerDistanceParameters(u,v); }
+    try { lowerDistanceParameters(o,u,v); }
     catch( StdFail_NotDone& e ) { fail = true; }
   }
   
@@ -849,7 +857,7 @@ K_OCC::OCCSurface::parameters2(const E_Float* pt, E_Float& u, E_Float& v,
     // try perturbations
     Point.SetCoord(pt[0], pt[1], pt[2]+1.e-6);
     GeomAPI_ProjectPointOnSurf o(Point, _surface, Extrema_ExtAlgo_Tree);
-    try { o.LowerDistanceParameters(u,v); }
+    try { lowerDistanceParameters(o,u,v); }
     catch( StdFail_NotDone& e ) { fail = true; }
   }
   
@@ -858,7 +866,7 @@ K_OCC::OCCSurface::parameters2(const E_Float* pt, E_Float& u, E_Float& v,
     // try perturbations
     Point.SetCoord(pt[0], pt[1], pt[2]-1.e-6);
     GeomAPI_ProjectPointOnSurf o(Point, _surface, Extrema_ExtAlgo_Tree);
-    try { o.LowerDistanceParameters(u,v); }
+    try { lowerDistanceParameters(o,u,v); }
     catch( StdFail_NotDone& e ) { fail = true; }
   }
   

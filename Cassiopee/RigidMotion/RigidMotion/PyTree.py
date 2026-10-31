@@ -1,5 +1,6 @@
 """Module performing rigid motion.
 """
+from KCore import E_NpyFloat
 from . import RigidMotion
 from . import rigidMotion
 __version__ = RigidMotion.__version__
@@ -131,87 +132,87 @@ def _setPrescribedMotion2(t, name,
         motion[2] = []
         motion[2].append(['MotionType', numpy.array([2], dtype=Internal.E_NpyInt),
                           [], 'DataArray_t'])
-        motion[2].append(['transl_speed', numpy.array([transl_speed[0], transl_speed[1], transl_speed[2]], numpy.float64),
+        motion[2].append(['transl_speed', numpy.array([transl_speed[0], transl_speed[1], transl_speed[2]], E_NpyFloat),
                           [], 'DataArray_t'])
-        motion[2].append(['psi0', numpy.array([psi0], numpy.float64),
+        motion[2].append(['psi0', numpy.array([psi0], E_NpyFloat),
                           [], 'DataArray_t'])
-        motion[2].append(['psi0_b', numpy.array([psi0_b], numpy.float64),
+        motion[2].append(['psi0_b', numpy.array([psi0_b], E_NpyFloat),
                           [], 'DataArray_t'])
-        motion[2].append(['alp_pnt', numpy.array([alp_pnt[0], alp_pnt[1], alp_pnt[2]], numpy.float64),
+        motion[2].append(['alp_pnt', numpy.array([alp_pnt[0], alp_pnt[1], alp_pnt[2]], E_NpyFloat),
                           [], 'DataArray_t'])
-        motion[2].append(['alp_vct', numpy.array([alp_vct[0], alp_vct[1], alp_vct[2]], numpy.float64),
+        motion[2].append(['alp_vct', numpy.array([alp_vct[0], alp_vct[1], alp_vct[2]], E_NpyFloat),
                           [], 'DataArray_t'])
-        motion[2].append(['alp0', numpy.array([alp0], numpy.float64),
+        motion[2].append(['alp0', numpy.array([alp0], E_NpyFloat),
                           [], 'DataArray_t'])
 
-        motion[2].append(['rot_pnt', numpy.array([rot_pnt[0], rot_pnt[1], rot_pnt[2]], numpy.float64),
+        motion[2].append(['rot_pnt', numpy.array([rot_pnt[0], rot_pnt[1], rot_pnt[2]], E_NpyFloat),
                           [], 'DataArray_t'])
-        motion[2].append(['rot_vct', numpy.array([rot_vct[0], rot_vct[1], rot_vct[2]], numpy.float64),
+        motion[2].append(['rot_vct', numpy.array([rot_vct[0], rot_vct[1], rot_vct[2]], E_NpyFloat),
                           [], 'DataArray_t'])
-        motion[2].append(['rot_omg', numpy.array([rot_omg], numpy.float64),
+        motion[2].append(['rot_omg', numpy.array([rot_omg], E_NpyFloat),
                           [], 'DataArray_t'])
 
         # LEAD LAG
-        motion[2].append(['del_pnt', numpy.array([del_pnt[0], del_pnt[1], del_pnt[2]], numpy.float64),
+        motion[2].append(['del_pnt', numpy.array([del_pnt[0], del_pnt[1], del_pnt[2]], E_NpyFloat),
                           [], 'DataArray_t'])
-        motion[2].append(['del_vct', numpy.array([del_vct[0], del_vct[1], del_vct[2]], numpy.float64),
+        motion[2].append(['del_vct', numpy.array([del_vct[0], del_vct[1], del_vct[2]], E_NpyFloat),
                           [], 'DataArray_t'])
-        motion[2].append(['del0', numpy.array([del0], numpy.float64),
+        motion[2].append(['del0', numpy.array([del0], E_NpyFloat),
                           [], 'DataArray_t'])
         # harmonics for lead-lag
         DELHC = []
         for noh in range(len(delc)): DELHC.append(delc[noh])
-        motion[2].append(['delc', numpy.array(DELHC, numpy.float64), [], 'DataArray_t'])
+        motion[2].append(['delc', numpy.array(DELHC, E_NpyFloat), [], 'DataArray_t'])
         DELHS = []
         for noh in range(len(dels)): DELHS.append(dels[noh])
-        motion[2].append(['dels', numpy.array(DELHS, numpy.float64), [], 'DataArray_t'])
+        motion[2].append(['dels', numpy.array(DELHS, E_NpyFloat), [], 'DataArray_t'])
 
         # FLAPPING
-        motion[2].append(['bet_pnt', numpy.array([bet_pnt[0], bet_pnt[1], bet_pnt[2]], numpy.float64),
+        motion[2].append(['bet_pnt', numpy.array([bet_pnt[0], bet_pnt[1], bet_pnt[2]], E_NpyFloat),
                           [], 'DataArray_t'])
-        motion[2].append(['bet_vct', numpy.array([bet_vct[0], bet_vct[1], bet_vct[2]], numpy.float64),
+        motion[2].append(['bet_vct', numpy.array([bet_vct[0], bet_vct[1], bet_vct[2]], E_NpyFloat),
                           [], 'DataArray_t'])
-        motion[2].append(['bet0', numpy.array([bet0], numpy.float64),
+        motion[2].append(['bet0', numpy.array([bet0], E_NpyFloat),
                           [], 'DataArray_t'])
         # harmonics for flapping
         DELHC = []
         for noh in range(len(betc)): DELHC.append(betc[noh])
-        motion[2].append(['betc', numpy.array(DELHC, numpy.float64), [], 'DataArray_t'])
+        motion[2].append(['betc', numpy.array(DELHC, E_NpyFloat), [], 'DataArray_t'])
         DELHS = []
         for noh in range(len(bets)): DELHS.append(bets[noh])
-        motion[2].append(['bets', numpy.array(DELHS, numpy.float64), [], 'DataArray_t'])
+        motion[2].append(['bets', numpy.array(DELHS, E_NpyFloat), [], 'DataArray_t'])
 
         # PITCHING
-        motion[2].append(['tet_pnt', numpy.array([tet_pnt[0], tet_pnt[1], tet_pnt[2]], numpy.float64),
+        motion[2].append(['tet_pnt', numpy.array([tet_pnt[0], tet_pnt[1], tet_pnt[2]], E_NpyFloat),
                           [], 'DataArray_t'])
-        motion[2].append(['tet_vct', numpy.array([tet_vct[0], tet_vct[1], tet_vct[2]], numpy.float64),
+        motion[2].append(['tet_vct', numpy.array([tet_vct[0], tet_vct[1], tet_vct[2]], E_NpyFloat),
                           [], 'DataArray_t'])
-        motion[2].append(['tet0', numpy.array([tet0], numpy.float64),
+        motion[2].append(['tet0', numpy.array([tet0], E_NpyFloat),
                           [], 'DataArray_t'])
         DELHC = []
         for noh in range(len(tetc)): DELHC.append(tetc[noh])
-        motion[2].append(['tetc', numpy.array(DELHC, numpy.float64), [], 'DataArray_t'])
+        motion[2].append(['tetc', numpy.array(DELHC, E_NpyFloat), [], 'DataArray_t'])
         DELHS = []
         for noh in range(len(tets)): DELHS.append(tets[noh])
-        motion[2].append(['tets', numpy.array(DELHS, numpy.float64), [], 'DataArray_t'])
+        motion[2].append(['tets', numpy.array(DELHS, E_NpyFloat), [], 'DataArray_t'])
 
         # blade spanwise vector
-        motion[2].append(['span_vct', numpy.array([span_vct[0], span_vct[1], span_vct[2]], numpy.float64),
+        motion[2].append(['span_vct', numpy.array([span_vct[0], span_vct[1], span_vct[2]], E_NpyFloat),
                           [], 'DataArray_t'])
 
         # pre-lag
-        motion[2].append(['pre_lag_pnt', numpy.array([pre_lag_pnt[0], pre_lag_pnt[1], pre_lag_pnt[2]], numpy.float64),
+        motion[2].append(['pre_lag_pnt', numpy.array([pre_lag_pnt[0], pre_lag_pnt[1], pre_lag_pnt[2]], E_NpyFloat),
                           [], 'DataArray_t'])
-        motion[2].append(['pre_lag_vct', numpy.array([pre_lag_vct[0], pre_lag_vct[1], pre_lag_vct[2]], numpy.float64),
+        motion[2].append(['pre_lag_vct', numpy.array([pre_lag_vct[0], pre_lag_vct[1], pre_lag_vct[2]], E_NpyFloat),
                           [], 'DataArray_t'])
-        motion[2].append(['pre_lag_ang', numpy.array([pre_lag_ang], numpy.float64),
+        motion[2].append(['pre_lag_ang', numpy.array([pre_lag_ang], E_NpyFloat),
                           [], 'DataArray_t'])
         # pre-conicity
-        motion[2].append(['pre_con_pnt', numpy.array([pre_con_pnt[0], pre_con_pnt[1], pre_con_pnt[2]], numpy.float64),
+        motion[2].append(['pre_con_pnt', numpy.array([pre_con_pnt[0], pre_con_pnt[1], pre_con_pnt[2]], E_NpyFloat),
                           [], 'DataArray_t'])
-        motion[2].append(['pre_con_vct', numpy.array([pre_con_vct[0], pre_con_vct[1], pre_con_vct[2]], numpy.float64),
+        motion[2].append(['pre_con_vct', numpy.array([pre_con_vct[0], pre_con_vct[1], pre_con_vct[2]], E_NpyFloat),
                           [], 'DataArray_t'])
-        motion[2].append(['pre_con_ang', numpy.array([pre_con_ang], numpy.float64),
+        motion[2].append(['pre_con_ang', numpy.array([pre_con_ang], E_NpyFloat),
                           [], 'DataArray_t'])
     return None
 
@@ -249,13 +250,13 @@ def _setPrescribedMotion3(t, name, transl_speed=(0.,0.,0.),
         motion[2] = []
         motion[2].append(['MotionType', numpy.array([3], dtype=Internal.E_NpyInt),
                           [], 'DataArray_t'])
-        motion[2].append(['transl_speed', numpy.array([transl_speed[0], transl_speed[1], transl_speed[2]], numpy.float64),
+        motion[2].append(['transl_speed', numpy.array([transl_speed[0], transl_speed[1], transl_speed[2]], E_NpyFloat),
                           [], 'DataArray_t'])
-        motion[2].append(['axis_pnt', numpy.array([axis_pnt[0], axis_pnt[1], axis_pnt[2]], numpy.float64),
+        motion[2].append(['axis_pnt', numpy.array([axis_pnt[0], axis_pnt[1], axis_pnt[2]], E_NpyFloat),
                           [], 'DataArray_t'])
-        motion[2].append(['axis_vct', numpy.array([axis_vct[0], axis_vct[1], axis_vct[2]], numpy.float64),
+        motion[2].append(['axis_vct', numpy.array([axis_vct[0], axis_vct[1], axis_vct[2]], E_NpyFloat),
                           [], 'DataArray_t'])
-        motion[2].append(['omega', numpy.array([omega], numpy.float64),
+        motion[2].append(['omega', numpy.array([omega], E_NpyFloat),
                           [], 'DataArray_t'])
     return None
 
@@ -623,7 +624,7 @@ def getMotionMatrixForZone(z, time, F=None):
                     return getRotationMatrix__(cx,cy,cz,ex,ey,ez,theta)
 
                 elif dtype == 4: # ?
-                    Rot = numpy.zeros((3,3), numpy.float64)
+                    Rot = numpy.zeros((3,3), E_NpyFloat)
                     Rot[0,0]=1.; Rot[1,1]=1.; Rot[2,2]=1.
                     return Rot
                 else:
@@ -631,13 +632,13 @@ def getMotionMatrixForZone(z, time, F=None):
     else:
         raise ValueError("getMotionMatrixForZone: not yet implemented with a function.")
 
-    Rot = numpy.zeros((3,3), numpy.float64)
+    Rot = numpy.zeros((3,3), E_NpyFloat)
     Rot[0,0]=1.; Rot[1,1]=1.; Rot[2,2]=1.
     return Rot
 
 # getRotationMatrix: l'angle theta doit etre en radians
 def getRotationMatrix__(cx,cy,cz,ex,ey,ez,theta):
-    Rot = numpy.zeros((3,3), numpy.float64)
+    Rot = numpy.zeros((3,3), E_NpyFloat)
     vnorm = sqrt(ex*ex+ey*ey+ez*ez)
     if vnorm < 1.e-12: return Rot
 

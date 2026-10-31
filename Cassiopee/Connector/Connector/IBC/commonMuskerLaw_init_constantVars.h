@@ -3,7 +3,7 @@ b1 = yPI[noind]-yPW[noind];
 b2 = zPI[noind]-zPW[noind];
 
 normb = sqrt(b0*b0+b1*b1+b2*b2);
-normb = std::max(normb, 1.e-12);
+normb = std::max<E_Float>(normb, 1.e-12);
 n0 = b0/normb;
 n1 = b1/normb;
 n2 = b2/normb;
@@ -25,7 +25,7 @@ vt = v-vn;
 wt = w-wn;
 // uext: norme de la composante tangentielle de la vitesse externe
 uext = sqrt(ut*ut+vt*vt+wt*wt);
-uext = std::max(uext, 1.e-12);
+uext = std::max<E_Float>(uext, 1.e-12);
 
 // loi de Musker 
 rowall = roext;              

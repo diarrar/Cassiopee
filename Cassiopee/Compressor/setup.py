@@ -64,7 +64,7 @@ if srcs.SZ:
                   sources=["Compressor/sz/compressor.cpp"],
                   include_dirs=["Compressor", "Compressor/sz/include"]+additionalIncludePaths+[numpyIncDir, kcoreIncDir],
                   library_dirs=additionalLibPaths+libraryDirs,
-                  libraries=libraries+["ksz", "kzstd"]+additionalLibs,
+                  libraries=["ksz", "kzstd"]+libraries+additionalLibs,
                   extra_compile_args=Dist.getCppArgs(),
                   extra_link_args=Dist.getLinkArgs())]
 if srcs.ZFP:
@@ -73,7 +73,7 @@ if srcs.ZFP:
                   sources=["Compressor/zfp/compressor.cpp"],
                   include_dirs=["Compressor", "Compressor/zfp/include"]+additionalIncludePaths+[numpyIncDir, kcoreIncDir],
                   library_dirs=additionalLibPaths+libraryDirs,
-                  libraries=libraries+["kzfp"]+additionalLibs,
+                  libraries=["kzfp"]+libraries+additionalLibs,
                   extra_compile_args=Dist.getCppArgs(),
                   extra_link_args=Dist.getLinkArgs())]
 

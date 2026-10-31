@@ -1,3 +1,4 @@
+#include "Def/DefTypes.h"
 #ifndef _CONVERTER_EXPRESSION_AST_HPP_
 #define _CONVERTER_EXPRESSION_AST_HPP_
 #include <iterator>
@@ -73,7 +74,7 @@ public:
      * @return The value which is the result of the expression evaluation. This value is always a vector,
      *         with dimension one if the result is a scalar.
      */
-    std::vector<double> operator( )(const std::unordered_map<std::string, vector_view<double>> &params);
+    std::vector<E_Float> operator( )(const std::unordered_map<std::string, vector_view<E_Float>> &params);
     /**
      * @brief Evaluate expression for some values
      * @details Evaluate expression with some values defined in a dictionnary and store the result in the
@@ -82,7 +83,7 @@ public:
      * @param params The dictionnary of the values
      */
 
-    void eval(const std::unordered_map<std::string, vector_view<double>> &params, vector_view<double>& output);
+    void eval(const std::unordered_map<std::string, vector_view<E_Float>> &params, vector_view<E_Float>& output);
     /**
      * @brief Evaluate the expression
      * @details Evaluate the expression. The result must be written in the expression with the assign operator ( symbol = )
@@ -90,7 +91,7 @@ public:
      * 
      * @param params The dictionnary of the values and variables used.
      */
-    void eval(const std::unordered_map<std::string, vector_view<double>> &params);
+    void eval(const std::unordered_map<std::string, vector_view<E_Float>> &params);
 
     /**
      * @brief Return the derivate of the expression

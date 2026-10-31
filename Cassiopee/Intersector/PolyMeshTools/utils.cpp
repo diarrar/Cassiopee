@@ -1097,7 +1097,7 @@ PyObject* K_INTERSECTOR::checkCellsFlux(PyObject* self, PyObject* args)
       fluxmax = flux;
     }
 
-    double Lref = ::sqrt(PH.Lref2(crd, NUGA::ISO_MEAN));
+    E_Float Lref = ::sqrt(PH.Lref2(crd, NUGA::ISO_MEAN));
 
     flux /= Lref; // normalizing #2
 
@@ -1127,10 +1127,10 @@ PyObject* K_INTERSECTOR::checkCellsFlux(PyObject* self, PyObject* args)
 #endif
 
 #ifdef E_DOUBLEREAL
-  tpl = Py_BuildValue("d", double(fluxmax));
+  tpl = Py_BuildValue("d", E_Float(fluxmax));
   PyList_Append(l, tpl);
 #else
-  tpl =  Py_BuildValue("f", float(fluxmax);
+  tpl =  Py_BuildValue("f", float(fluxmax));
   PyList_Append(l, tpl);
 #endif
   
@@ -1228,10 +1228,10 @@ PyObject* K_INTERSECTOR::checkAngularExtrema(PyObject* self, PyObject* args)
 #endif
 
 #ifdef E_DOUBLEREAL
-  tpl = Py_BuildValue("d", double(maxA));
+  tpl = Py_BuildValue("d", E_Float(maxA));
   PyList_Append(l, tpl);
 #else
-  tpl =  Py_BuildValue("f", float(maxA);
+  tpl =  Py_BuildValue("f", float(maxA));
   PyList_Append(l, tpl);
 #endif
 
@@ -1244,17 +1244,17 @@ PyObject* K_INTERSECTOR::checkAngularExtrema(PyObject* self, PyObject* args)
 #endif
 
 #ifdef E_DOUBLEREAL
-  tpl = Py_BuildValue("d", double(minA));
+  tpl = Py_BuildValue("d", E_Float(minA));
   PyList_Append(l, tpl);
 #else
-  tpl =  Py_BuildValue("f", float(minA);
+  tpl =  Py_BuildValue("f", float(minA));
   PyList_Append(l, tpl);
 #endif
   
   return l;
 }
 
-int comp_vol(const K_FLD::FloatArray& crd, const ngon_type& ngi, const FldArrayI* cFE, std::vector<E_Int>& orient, E_Int i, DELAUNAY::Triangulator & dt, double &v)
+int comp_vol(const K_FLD::FloatArray& crd, const ngon_type& ngi, const FldArrayI* cFE, std::vector<E_Int>& orient, E_Int i, DELAUNAY::Triangulator & dt, E_Float &v)
 {
   //std::cout << "PH : " << i << std::endl;
   orient.clear();
@@ -1336,7 +1336,7 @@ PyObject* K_INTERSECTOR::checkCellsVolume(PyObject* self, PyObject* args)
 #pragma omp for //schedule(dynamic)
   for (i=0; i < ngi.PHs.size(); ++i)
   {
-    double v;
+    E_Float v;
     E_Int err = comp_vol(crd, ngi, cFE, orient[id], i, dt, v);
     if (!err && v < vm[id]) // min for current thread
     {
@@ -1381,10 +1381,10 @@ PyObject* K_INTERSECTOR::checkCellsVolume(PyObject* self, PyObject* args)
 #endif
 
 #ifdef E_DOUBLEREAL
-  tpl = Py_BuildValue("d", double(vmin));
+  tpl = Py_BuildValue("d", E_Float(vmin));
   PyList_Append(l, tpl);
 #else
-  tpl =  Py_BuildValue("f", float(vmin);
+  tpl =  Py_BuildValue("f", float(vmin));
   PyList_Append(l, tpl);
 #endif
   
@@ -1425,7 +1425,7 @@ PyObject* K_INTERSECTOR::checkCellsVolumeAndGrowthRatio(PyObject* self, PyObject
 
   E_Int nphs = ngi.PHs.size();
 
-  std::vector<double> vols(nphs, NUGA::FLOAT_MAX);
+  std::vector<E_Float> vols(nphs, NUGA::FLOAT_MAX);
 
   E_Int nb_max_threads = __NUMTHREADS__;
   //std::cout << "nb threads max : " << nb_max_threads << std::endl;
@@ -1442,7 +1442,7 @@ PyObject* K_INTERSECTOR::checkCellsVolumeAndGrowthRatio(PyObject* self, PyObject
 #pragma omp for //schedule(dynamic)
     for (i=0; i < ngi.PHs.size(); ++i)
     {
-      double v;
+      E_Float v;
       E_Int err = comp_vol(crd, ngi, cFE, orient[id], i, dt, v);
       if (!err)
         vols[i] = v;
@@ -1490,10 +1490,10 @@ PyObject* K_INTERSECTOR::checkCellsVolumeAndGrowthRatio(PyObject* self, PyObject
 #endif
 
 #ifdef E_DOUBLEREAL
-  tpl = Py_BuildValue("d", double(volmin));
+  tpl = Py_BuildValue("d", E_Float(volmin));
   PyList_Append(l, tpl);
 #else
-  tpl =  Py_BuildValue("f", float(volmin);
+  tpl =  Py_BuildValue("f", float(volmin));
   PyList_Append(l, tpl);
 #endif
 
@@ -1506,10 +1506,10 @@ PyObject* K_INTERSECTOR::checkCellsVolumeAndGrowthRatio(PyObject* self, PyObject
 #endif
 
 #ifdef E_DOUBLEREAL
-  tpl = Py_BuildValue("d", double(grmin));
+  tpl = Py_BuildValue("d", E_Float(grmin));
   PyList_Append(l, tpl);
 #else
-  tpl =  Py_BuildValue("f", float(grmin);
+  tpl =  Py_BuildValue("f", float(grmin));
   PyList_Append(l, tpl);
 #endif
   
@@ -1519,7 +1519,7 @@ PyObject* K_INTERSECTOR::checkCellsVolumeAndGrowthRatio(PyObject* self, PyObject
 PyObject* K_INTERSECTOR::extractBadVolCells(PyObject* self, PyObject* args)
 {
   PyObject *arr, *PE;
-  double aratio{0.125}, vmin{0.};
+  E_Float aratio{0.125}, vmin{0.};
   int nneighs{1};
 
   if (!PYPARSETUPLE_(args, OO_ RR_ I_, &arr, &PE, &aratio, &vmin, &nneighs)) return NULL;
@@ -1554,7 +1554,7 @@ PyObject* K_INTERSECTOR::extractBadVolCells(PyObject* self, PyObject* args)
   E_Int nphs = ngi.PHs.size();
 
   std::vector<E_Int> orient;
-  std::vector<double> vols(nphs, NUGA::FLOAT_MAX);
+  std::vector<E_Float> vols(nphs, NUGA::FLOAT_MAX);
   
   //compute volumes using input orientation 
   for (E_Int i=0; i < ngi.PHs.size(); ++i)
@@ -1575,7 +1575,7 @@ PyObject* K_INTERSECTOR::extractBadVolCells(PyObject* self, PyObject* args)
 
     //std::cout << "computing flux for PH : " << i << std::endl;
     K_MESH::Polyhedron<0> PH(ngi, i);
-    double v;
+    E_Float v;
     DELAUNAY::Triangulator dt;
     E_Int err = PH.volume<DELAUNAY::Triangulator>(crd, &orient[0], v, dt);
 
@@ -1969,7 +1969,7 @@ PyObject* K_INTERSECTOR::edgeLengthExtrema(PyObject* self, PyObject* args)
   delete f; delete cn;
 
 #ifdef E_DOUBLEREAL
-    return Py_BuildValue("d", double(Lmin));
+    return Py_BuildValue("d", E_Float(Lmin));
 #else
     return Py_BuildValue("f", float(Lmin));
 #endif
@@ -2006,7 +2006,7 @@ PyObject* K_INTERSECTOR::edgeLengthMax(PyObject* self, PyObject* args)
   delete f; delete cn;
 
 #ifdef E_DOUBLEREAL
-    return Py_BuildValue("d", double(Lmax));
+    return Py_BuildValue("d", E_Float(Lmax));
 #else
     return Py_BuildValue("f", float(Lmax));
 #endif
@@ -2772,28 +2772,28 @@ PyObject* K_INTERSECTOR::statsSize(PyObject* self, PyObject* args)
 #endif
 
 #ifdef E_DOUBLEREAL
-  tpl = Py_BuildValue("d", double(smin));
+  tpl = Py_BuildValue("d", E_Float(smin));
   PyList_Append(l, tpl);
 #else
   tpl =  Py_BuildValue("f", smin);
   PyList_Append(l, tpl);
 #endif
 #ifdef E_DOUBLEREAL
-  tpl = Py_BuildValue("d", double(smax));
+  tpl = Py_BuildValue("d", E_Float(smax));
   PyList_Append(l, tpl);
 #else
   tpl =  Py_BuildValue("f", smax);
   PyList_Append(l, tpl);
 #endif
 #ifdef E_DOUBLEREAL
-  tpl = Py_BuildValue("d", double(vmin));
+  tpl = Py_BuildValue("d", E_Float(vmin));
   PyList_Append(l, tpl);
 #else
   tpl =  Py_BuildValue("f", vmin);
   PyList_Append(l, tpl);
 #endif
 #ifdef E_DOUBLEREAL
-  tpl = Py_BuildValue("d", double(vmax));
+  tpl = Py_BuildValue("d", E_Float(vmax));
   PyList_Append(l, tpl);
 #else
   tpl =  Py_BuildValue("f", vmax);
@@ -2936,7 +2936,7 @@ PyObject* K_INTERSECTOR::oneZonePerFace(PyObject* self, PyObject* args)
 PyObject* K_INTERSECTOR::immerseNodes(PyObject* self, PyObject* args)
 {
   PyObject *arr1, *arr2;
-  double TOL{0.};
+  E_Float TOL{0.};
 
   if (!PYPARSETUPLE_(args, OO_ R_, &arr1, &arr2, &TOL)) return NULL;
 
@@ -3418,9 +3418,9 @@ PyObject* K_INTERSECTOR::getOverlappingFaces(PyObject* self, PyObject* args)
   c.start();
 #endif
 
-  AMAX = std::max(0., AMAX);
+  AMAX = std::max<E_Float>(0., AMAX);
   AMAX = std::min(K_CONST::E_PI, AMAX);
-  double PS_MIN = ::cos(AMAX);
+  E_Float PS_MIN = ::cos(AMAX);
 
   NUGA::COLLIDE::compute_overlap<K_MESH::Polygon, K_MESH::Polygon>(crd1, ng1.PGs, crd2, ng2.PGs, localiz, isx1, isx2, RTOL, PS_MIN, true/*shuffle triangulation*/, pdir2);
 
@@ -4268,7 +4268,7 @@ PyObject* K_INTERSECTOR::drawOrientation(PyObject* self, PyObject* args)
     K_MESH::Polygon::normal<K_FLD::FloatArray, 3>(crd, nodes, nb_nodes, 1, n);
 
     K_MESH::Polygon pg(nodes, nb_nodes, -1);
-    double Lref = ::sqrt(pg.Lref2(crd));
+    E_Float Lref = ::sqrt(pg.Lref2(crd));
 
     K_FUNC::sum<3>(1., c, Lref, n, top);
 
@@ -4445,7 +4445,7 @@ PyObject* K_INTERSECTOR::getFaceIdsCollidingVertex(PyObject* self, PyObject* arg
   std::vector<E_Int> cands;
   std::set<E_Int> ids;
 
-  double TOL = 1.e-6;
+  E_Float TOL = 1.e-6;
 
   if (geodim == ngon_type::eGEODIM::SURFACIC)
   {

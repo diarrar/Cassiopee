@@ -1,3 +1,4 @@
+from KCore import E_NpyFloat
 #  ---------------------------------------------------------------------------
 #  pyCGNS - Python package for CFD General Notation System -
 #  See license.txt file in the root directory of this Python module source
@@ -319,7 +320,7 @@ def newDataArray(parent, name, value=None):
         vv = numpy.array([value], dtype=numpy.int64, order="F")
         CU.checkArray(vv)
     elif isinstance(value, float):
-        vv = numpy.array([value], dtype=numpy.float64, order="F")
+        vv = numpy.array([value], dtype=E_NpyFloat, order="F")
         CU.checkArray(vv)
     elif isinstance(value, str):
         vv = CU.setStringAsArray(value)
@@ -565,7 +566,7 @@ def newDimensionalExponents(
                 TemperatureExponent,
                 AngleExponent,
             ],
-            dtype=numpy.float64,
+            dtype=E_NpyFloat,
             order="F",
         ),
         [],
@@ -607,7 +608,7 @@ def newDataConversion(parent, ConversionScale=1.0, ConversionOffset=1.0):
     node = CU.newNode(
         CK.DataConversion_s,
         numpy.array(
-            [ConversionScale, ConversionOffset], dtype=numpy.float64, order="F"
+            [ConversionScale, ConversionOffset], dtype=E_NpyFloat, order="F"
         ),
         [],
         CK.DataConversion_ts,

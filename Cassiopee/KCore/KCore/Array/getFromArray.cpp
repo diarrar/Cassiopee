@@ -122,6 +122,13 @@ E_Int K_ARRAY::getFromArray(PyObject* o,
     return -4;
   }
 
+  if (PyArray_TYPE(a) != E_NPY_FLOAT || !PyArray_ISNOTSWAPPED(a))
+  {
+    PyErr_WarnEx(PyExc_RuntimeWarning, "field dtype must match the compiled Cassiopee precision (" E_REAL_DTYPE ").", 1);
+    Py_DECREF(a);
+    return -4;
+  }
+
   if (PyArray_NDIM(a) != 2)
   {
     PyErr_Warn(PyExc_Warning,

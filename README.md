@@ -26,3 +26,5 @@ pip install cassiopee
 - [On windows](https://github.com/onera/Cassiopee/blob/dev/docs/developers/Install/msys2.md)
 
 - [On linux ubuntu](https://github.com/onera/Cassiopee/blob/dev/docs/developers/Install/ubuntu.md)
+
+- [Selecting single or double precision](docs/developers/Install/precision.md)

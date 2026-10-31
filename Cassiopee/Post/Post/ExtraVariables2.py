@@ -1,4 +1,5 @@
 """Compute other derived variables from primitive variables."""
+from KCore import E_NpyFloat
 
 from . import PyTree as P
 from . import Mpi as Pmpi
@@ -128,7 +129,7 @@ def _computeLambda2(t, ghostCells=False):
     zones = Internal.getZones(t)
     for z in zones:
         nc = C.getNCells(z)
-        AAA = numpy.empty( (nc,3,3), dtype=numpy.float64)
+        AAA = numpy.empty( (nc,3,3), dtype=E_NpyFloat)
         p = Internal.getNodeFromName(z, 'a11')[1].ravel('k')
         AAA[:,0,0] = p[:]
         p = Internal.getNodeFromName(z, 'a22')[1].ravel('k')
@@ -152,7 +153,7 @@ def _computeLambda2(t, ghostCells=False):
         lambda2 = numpy.sort(lambda2, axis=1)
 
         s = Internal.getNodeFromName2(z, 'a13')[1].shape
-        lambda2out = numpy.empty( (s), dtype=numpy.float64, order='F')
+        lambda2out = numpy.empty( (s), dtype=E_NpyFloat, order='F')
         lambda2out.ravel('k')[:] = lambda2[:,1]
         p = Internal.getNodeFromName2(z, 'Lambda2')
         p[1] = lambda2out

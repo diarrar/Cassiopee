@@ -1,5 +1,6 @@
 """Do something cool with arrays.
 """
+from KCore import E_NpyFloat
 __version__ = "2026.11"
 
 import numpy
@@ -528,14 +529,14 @@ def wing(sections=[airfoil(),airfoil()], span=[1.], washout=[0.], sweep=[0.],
     # Makes the interpolation matrices based upon the provided sections
     W4dims = numpy.shape(Wing[1])
     print ('W4dims:',W4dims,'Ntot:',Ntot)
-    InterpXmatrix = numpy.zeros((Ns,W4dims[1]),dtype=numpy.float64,order='F')
-    InterpYmatrix = numpy.zeros((Ns,W4dims[1]),dtype=numpy.float64,order='F')
+    InterpXmatrix = numpy.zeros((Ns,W4dims[1]),dtype=E_NpyFloat,order='F')
+    InterpYmatrix = numpy.zeros((Ns,W4dims[1]),dtype=E_NpyFloat,order='F')
     for s in range(Ns):
         InterpXmatrix[s,:] = sections[s][1][0]
         InterpYmatrix[s,:] = sections[s][1][1]
 
     # Searches the spanwise coordinate
-    ElementSpanPositions = numpy.zeros(Ntot,numpy.float64)
+    ElementSpanPositions = numpy.zeros(Ntot,E_NpyFloat)
     k0 = 0
     PreviousSpan = 0. # and this is its corresponding spanwise position
     for w in range(WingElts):
@@ -666,8 +667,8 @@ def sweepSections(sections=[airfoil(),airfoil()], SpanPositions=None,
 
     # Makes the interpolation matrices based upon the provided sections
     W4dims = numpy.shape(Surf[1])
-    InterpXmatrix = numpy.zeros((Ns,sections[0][2]),dtype=numpy.float64,order='F')
-    InterpYmatrix = numpy.zeros((Ns,sections[0][2]),dtype=numpy.float64,order='F')
+    InterpXmatrix = numpy.zeros((Ns,sections[0][2]),dtype=E_NpyFloat,order='F')
+    InterpYmatrix = numpy.zeros((Ns,sections[0][2]),dtype=E_NpyFloat,order='F')
     for s in range(Ns):
         InterpXmatrix[s,:] = sections[s][1][0]
         InterpYmatrix[s,:] = sections[s][1][1]

@@ -18,7 +18,7 @@ b1 = yPI[noind+ideb]-yPW[noind+ideb];
 b2 = zPI[noind+ideb]-zPW[noind+ideb];
 
 normb = sqrt(b0*b0+b1*b1+b2*b2);
-normb = std::max(normb, 1.e-12);
+normb = std::max<E_Float>(normb, 1.e-12);
 n0 = b0/normb;
 n1 = b1/normb;
 n2 = b2/normb;
@@ -59,7 +59,7 @@ vt = v-vn;
 wt = w-wn;
 // uext: norme de la composante tangentielle de la vitesse externe
 uext = sqrt(ut*ut+vt*vt+wt*wt);
-uext = std::max(uext, 1.e-12);
+uext = std::max<E_Float>(uext, 1.e-12);
 
 twall  = text + 0.5*pow(Pr,one_third)/(cv*gamma)*(uext*uext);               // Temperature a la paroi
 rowall = pext/twall*cvgaminv;                                               // Densite a la paroi

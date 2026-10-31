@@ -33,6 +33,21 @@ def GDOUBLEINT():
     elsaprod = os.getenv("ELSAPROD", "")
     return _GDOUBLEINT or "_i8" in elsaprod
 
+def getPrecision():
+    """Return the build precision; installed dtypes come from KCore.kcore."""
+    precision = os.getenv("CASSIOPEE_PRECISION")
+    single = "r4" in os.getenv("ELSAPROD", "").split('_')
+    if precision is None:
+        return "single" if single else "double"
+    if precision not in ("single", "double"):
+        raise ValueError("CASSIOPEE_PRECISION must be 'single' or 'double'.")
+    if single and precision != "single":
+        raise ValueError("An _r4 ELSAPROD requires CASSIOPEE_PRECISION=single.")
+    return precision
+
+def SINGLEPRECISION():
+    return getPrecision() == "single"
+
 #==============================================================================
 # System configuration using installBase.json / installBaseUser.json
 #==============================================================================
@@ -59,7 +74,7 @@ def setConfigDict(installDict=None):
     cassProd = None
     # prod est tout d'abord cherche dans le dictionnaire
     if prod is not None:
-        prod = prod.replace('_i8', '').replace('_DBG', '')
+        prod = prod.replace('_i8', '').replace('_DBG', '').replace('_r4', '').replace('_r8', '')
         # check if machine contains a branch name and if so, remove it from the prod
         # this cannot be detected using the ELSAPROD alone as the prefix '_b-' is
         # replaced with '_' in Envs/sh_Cassiopee_local
@@ -486,56 +501,59 @@ def writeEnvs(installPath, libPath):
 def writeSetupCfg():
     Cppcompiler = getCppCompiler()
     mySystem = getSystem()
+    # Separate real ABIs. Relink extensions after SCons updates static libraries
+    # (setuptools does not track these libraries as source dependencies).
+    prod = os.getenv("ELSAPROD", "default")
+    build = '[build]\nbuild_base=build/%s/python-%s\n' % (prod, getPrecision())
 
     # Windows + mingw
     if mySystem[0] == 'mingw' and mySystem[1] == '32':
         p = open("./setup.cfg", 'w')
-        p.write('[build_ext]\ncompiler=mingw32\n')
+        p.write(build + '[build_ext]\nforce=1\ncompiler=mingw32\n')
         p.close(); return
     if mySystem[0] == 'mingw' and mySystem[1] == '64':
         p = open("./setup.cfg", 'w')
-        p.write('[build_ext]\ncompiler=mingw32\n')
+        p.write(build + '[build_ext]\nforce=1\ncompiler=mingw32\n')
         p.close(); return
 
     # Unix
     if Cppcompiler is None or Cppcompiler == "":
-        a = os.access("./setup.cfg", os.F_OK)
-        if a: os.remove("./setup.cfg")
+        with open("./setup.cfg", 'w') as p: p.write(build + '[build_ext]\nforce=1\n')
     elif Cppcompiler == 'icc' or Cppcompiler == 'icpc':
         p = open("./setup.cfg", 'w')
-        p.write('[build_ext]\ncompiler=unix\n')
+        p.write(build + '[build_ext]\nforce=1\ncompiler=unix\n')
         p.close()
     elif Cppcompiler == 'icx' or Cppcompiler == 'icpx':
         p = open("./setup.cfg", 'w')
-        p.write('[build_ext]\ncompiler=unix\n')
+        p.write(build + '[build_ext]\nforce=1\ncompiler=unix\n')
         p.close()
     elif Cppcompiler == 'gcc' or Cppcompiler == 'g++':
         p = open("./setup.cfg", 'w')
-        p.write('[build_ext]\ncompiler=unix\n')
+        p.write(build + '[build_ext]\nforce=1\ncompiler=unix\n')
         p.close()
     elif Cppcompiler == 'pgcc' or Cppcompiler == 'pgc++':
         p = open("./setup.cfg", 'w')
-        p.write('[build_ext]\ncompiler=unix\n')
+        p.write(build + '[build_ext]\nforce=1\ncompiler=unix\n')
         p.close()
     elif Cppcompiler == 'nvc' or Cppcompiler == 'nvc++':
         p = open("./setup.cfg", 'w')
-        p.write('[build_ext]\ncompiler=unix\n')
+        p.write(build + '[build_ext]\nforce=1\ncompiler=unix\n')
         p.close()
     elif Cppcompiler == 'craycc' or Cppcompiler == 'craycxx':
         p = open("./setup.cfg", 'w')
-        p.write('[build_ext]\ncompiler=unix\n')
+        p.write(build + '[build_ext]\nforce=1\ncompiler=unix\n')
         p.close()
     elif Cppcompiler == 'cc' or Cppcompiler == 'cc':
         p = open("./setup.cfg", 'w')
-        p.write('[build_ext]\ncompiler=unix\n')
+        p.write(build + '[build_ext]\nforce=1\ncompiler=unix\n')
         p.close()
     elif Cppcompiler == 'clang' or Cppcompiler == 'clang++':
         p = open("./setup.cfg", 'w')
-        p.write('[build_ext]\ncompiler=unix\n')
+        p.write(build + '[build_ext]\nforce=1\ncompiler=unix\n')
         p.close()
     else:
         p = open("./setup.cfg", 'w')
-        p.write('[build_ext]\ncompiler=%s\n'%Cppcompiler)
+        p.write(build + '[build_ext]\nforce=1\ncompiler=%s\n'%Cppcompiler)
         p.close()
 
 #==============================================================================
@@ -605,7 +623,7 @@ def getDistUtilsCompilers():
 #==============================================================================
 def getPP():
     Cppcompiler = getCppCompiler()
-    sizes = '-DREAL_E="REAL*8"'
+    sizes = '-DREAL_E="REAL*4" -DE_SINGLEREAL' if SINGLEPRECISION() else '-DREAL_E="REAL*8" -DE_DOUBLEREAL'
     if EDOUBLEINT(): sizes += ' -DINTEGER_E="INTEGER*8"'
     else: sizes += ' -DINTEGER_E="INTEGER*4"'
     if GDOUBLEINT(): sizes += ' -DINTEGER_G="INTEGER*8"'
@@ -924,6 +942,7 @@ def getCArgs():
     l = len(compiler)-1
     Cppcompiler = compiler[l]
     options = getCppAdditionalOptions()
+    if SINGLEPRECISION(): options += ['-DE_SINGLEREAL']
     if EDOUBLEINT(): options += ['-DE_DOUBLEINT']
     if GDOUBLEINT(): options += ['-DG_DOUBLEINT']
     if Cppcompiler == "icpc" or Cppcompiler == "icc":
@@ -1045,6 +1064,7 @@ def getCppArgs():
 #==============================================================================
 def getCudaArgs():
     options = getNvccAdditionalOptions()
+    if SINGLEPRECISION(): options += ['-DE_SINGLEREAL']
     if DEBUG(): options += ['-g', '-O0']
     else: options += ['-DNDEBUG', '-O2']
     return options
@@ -1078,7 +1098,7 @@ def getForArgs():
             options += ['-large-address-aware']
         options += simdOptions
         if EDOUBLEINT(): options += ['-fdefault-integer-8']
-        options += ['-fdefault-real-8', '-fdefault-double-8']
+        if not SINGLEPRECISION(): options += ['-fdefault-real-8', '-fdefault-double-8']
         return options
     elif f77compiler == "ifort":
         if DEBUG(): options += ['-g', '-O0', '-CB', '-traceback', '-fpe0']
@@ -1094,7 +1114,7 @@ def getForArgs():
         else: options += ['-fPIC']
         options += simdOptions
         if EDOUBLEINT(): options += ['-i8']
-        options += ['-r8']
+        if not SINGLEPRECISION(): options += ['-r8']
         return options
     elif f77compiler == "ifx":
         if DEBUG(): options += ['-g', '-O0', '-CB', '-fpe0']
@@ -1105,7 +1125,7 @@ def getForArgs():
         else: options += ['-fPIC']
         options += simdOptions
         if EDOUBLEINT(): options += ['-i8']
-        options += ['-r8']
+        if not SINGLEPRECISION(): options += ['-r8']
         return options
     elif f77compiler == "pgfortran":
         if useStatic == 1: options += ['-static']
@@ -1115,7 +1135,7 @@ def getForArgs():
         if useOMP == 1: options += ['-mp=multicore']
         options += simdOptions
         if EDOUBLEINT(): options += ['-i8']
-        options += ['-r8']
+        if not SINGLEPRECISION(): options += ['-r8']
         return options
     elif f77compiler == "nvfortran":
         if useStatic == 1: options += ['-static']
@@ -1125,7 +1145,7 @@ def getForArgs():
         if useOMP == 1: options += ['-mp=multicore']
         options += simdOptions
         if EDOUBLEINT(): options += ['-i8']
-        options += ['-r8']
+        if not SINGLEPRECISION(): options += ['-r8']
         return options
     elif f77compiler == "x86_64-w64-mingw32-gfortran":
         if DEBUG(): options += ['-g', '-O0']
@@ -1135,7 +1155,7 @@ def getForArgs():
         else: options += ['-fPIC']
         options += simdOptions
         if EDOUBLEINT(): options += ['-fdefault-integer-8']
-        options += ['-fdefault-real-8', '-fdefault-double-8']
+        if not SINGLEPRECISION(): options += ['-fdefault-real-8', '-fdefault-double-8']
         return options
     elif f77compiler == "ifort.exe":
         if useOMP == 1: return ['/names:lowercase', '/assume:underscore', '/Qopenmp']
@@ -1148,7 +1168,7 @@ def getForArgs():
         if useOMP == 1: options += ['-fopenmp']
         options += simdOptions
         if EDOUBLEINT(): options += ['-i8']
-        options += ['-r8']
+        if not SINGLEPRECISION(): options += ['-r8']
         return options
     elif f77compiler == "ftn":
         if useStatic == 1: options += ['-static']
@@ -1158,7 +1178,7 @@ def getForArgs():
         if useOMP == 1: options += ['-fopenmp']
         options += simdOptions
         if EDOUBLEINT(): options += ['-i8']
-        options += ['-r8']
+        if not SINGLEPRECISION(): options += ['-r8']
         return options
     elif f77compiler == "flang":
         if useStatic == 1: options += ['-static']
@@ -1168,7 +1188,7 @@ def getForArgs():
         if useOMP == 1: options += ['-fopenmp']
         options += simdOptions
         if EDOUBLEINT(): options += ['-fdefault-integer-8']
-        options += ['-fdefault-real-8', '-fdefault-double-8']
+        if not SINGLEPRECISION(): options += ['-fdefault-real-8', '-fdefault-double-8']
         return options
     else: return options
 
@@ -1255,6 +1275,13 @@ def checkModuleCassiopee(modname):
     try:
         import importlib
         module = importlib.import_module(modname)
+        import KCore
+        expected = 4 if SINGLEPRECISION() else 8
+        if getattr(KCore, "REAL_SIZE", 8) != expected:
+            raise RuntimeError(
+                "The installed KCore precision does not match CASSIOPEE_PRECISION. "
+                "Build and activate KCore with the same precision first."
+            )
         modInstallPath = os.path.abspath(module.__file__)
         buildInfo = getBuildInfoDict(modInstallPath)
         modIncDir = os.path.dirname(buildInfo["includePath"])
@@ -2579,6 +2606,7 @@ def checkIncFile__(file, additionalIncludePaths):
 def writeBuildInfo(moduleFilePath=None):
     import time
     d = {}
+    d['precision'] = getPrecision()
     # Date
     execTime = time.strftime('%d/%m/%y %Hh%M', time.localtime())
     d['date'] = execTime

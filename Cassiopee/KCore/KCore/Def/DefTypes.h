@@ -25,7 +25,14 @@
 #ifndef _KCORE_DEF_DEFTYPES_H_
 #define _KCORE_DEF_DEFTYPES_H_
 
-#define E_DOUBLEREAL
+// Double precision remains the default for downstream users of these headers.
+// The build system defines E_SINGLEREAL for a single precision installation.
+#if defined(E_SINGLEREAL) && defined(E_DOUBLEREAL)
+  #error "E_SINGLEREAL and E_DOUBLEREAL are mutually exclusive"
+#endif
+#ifndef E_SINGLEREAL
+  #define E_DOUBLEREAL
+#endif
 //#define E_DOUBLEINT // set by compilation option
 
 // ==========================================================================
@@ -41,6 +48,9 @@
 
 #ifdef E_DOUBLEREAL
   typedef double E_Float;
+  #define E_NPY_FLOAT NPY_DOUBLE
+  #define E_REAL_DTYPE "float64"
+  #define E_MPI_FLOAT MPI_DOUBLE
   #ifdef E_MPI
     #define E_PCM_FLOAT MPI_DOUBLE
   #else
@@ -49,6 +59,9 @@
   #define E_MAXFLOAT 1.797693134862315e308
 #else
   typedef float E_Float;
+  #define E_NPY_FLOAT NPY_FLOAT
+  #define E_REAL_DTYPE "float32"
+  #define E_MPI_FLOAT MPI_FLOAT
   #ifdef E_MPI
     #define E_PCM_FLOAT MPI_FLOAT
   #else

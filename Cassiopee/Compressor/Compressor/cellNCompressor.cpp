@@ -54,10 +54,16 @@ PyObject* py_cellN_compress(PyObject *self, PyObject *args)
     {
         //= On recupere un tableau numpy et ses dimensions et sa taille
         PyArrayObject* an_array = np_arrays[i];
+        if (PyArray_TYPE(an_array) != E_NPY_FLOAT)
+        {
+            PyErr_SetString(PyExc_TypeError, "compressCellN: array dtype must match Cassiopee precision.");
+            Py_DECREF(compressed_list);
+            return NULL;
+        }
         E_Int ndims = PyArray_NDIM(an_array);
         npy_intp *dims  = PyArray_DIMS(an_array);
         std::size_t  an_array_length = PyArray_SIZE(an_array);
-        double* array_data = (double*)PyArray_DATA(an_array);
+        E_Float* array_data = (E_Float*)PyArray_DATA(an_array);
         bool is_c_order = false;
         if (PyArray_CHKFLAGS(an_array, NPY_ARRAY_C_CONTIGUOUS)) is_c_order = true;
         //= On prepare l'objet decrivant la compression du cellN
@@ -238,12 +244,12 @@ PyObject* py_cellN_uncompress(PyObject *self, PyObject *args)
         }
         PyArrayObject *py_array;
         bool is_c_ord = is_c_order[i];
-        if (is_c_ord)  py_array = (PyArrayObject *)PyArray_EMPTY(ndim, dims, NPY_DOUBLE,0);
+        if (is_c_ord)  py_array = (PyArrayObject *)PyArray_EMPTY(ndim, dims, E_NPY_FLOAT,0);
         else 
         {
-            py_array = (PyArrayObject *)PyArray_EMPTY(ndim, dims, NPY_DOUBLE,1);
+            py_array = (PyArrayObject *)PyArray_EMPTY(ndim, dims, E_NPY_FLOAT,1);
         }
-        double* py_array_data = (double*)PyArray_DATA(py_array);
+        E_Float* py_array_data = (E_Float*)PyArray_DATA(py_array);
         std::size_t cpr_length = PyArray_SIZE(np_cpr_arrays[i]);
         //std::size_t   array_length  = PyArray_SIZE(py_array);
         std::uint8_t* cpr_data = (std::uint8_t*)PyArray_DATA(np_cpr_arrays[i]);

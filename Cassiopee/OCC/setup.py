@@ -57,7 +57,13 @@ if OCCPresent:
     includeDirs += [OCCIncDir]
 
 srcs = loadModuleFromPath('srcs')
-libOCC = Dist.getOCCModules()
+libOCC = Dist.getOCCModules(OCCIncDir)
+if OCCPresent and Dist.getSystem()[0] == 'Linux':
+    # SDKs package optional Draw/VTK/Windows toolkits separately. Link the
+    # installed toolkits, using their actual version rather than the default.
+    libOCC = [name for name in libOCC
+              if any(os.path.isfile(os.path.join(OCCLibDir, 'lib'+name+suffix))
+                     for suffix in ('.so', '.a'))]
 if OCCPresent and Dist.getSystem()[0] == 'mingw':
     libOCE = [i+".dll" for i in libOCC]
 libraries += libOCC + libOCC

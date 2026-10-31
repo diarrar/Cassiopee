@@ -17,6 +17,12 @@ INSTALLPATH="$PREFIX/Dist/bin"
 
 # Compilation on different machines:
 EXT=""
+case "${CASSIOPEE_PRECISION:-double}" in
+    single) REALMODE="_r4" ;;
+    double) REALMODE="" ;;
+    *) echo "CASSIOPEE_PRECISION must be single or double."; return 1 ;;
+esac
+EXT=$REALMODE
 if [ -n "$MACHINE" ]; then
     # Detect MAC environement from MACHINE
     INTTYPE=""
@@ -42,7 +48,7 @@ if [ -n "$MACHINE" ]; then
     fi
     
     export MAC=$MACHINETMP
-    EXT=$BRANCHNAME$INTTYPE$DBGMODE
+    EXT=$BRANCHNAME$REALMODE$INTTYPE$DBGMODE
     unset MACHINETMP BRANCHNAME INTTYPE DBGMODE
 else
     # Detect machine by uname (longest first)

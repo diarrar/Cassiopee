@@ -22,6 +22,7 @@
 #include "Def/DefTypes.h"
 #include "Def/DefCplusPlusConst.h"
 #include <math.h>
+#include <type_traits>
 
 // ___________________________________________________
 //
@@ -50,6 +51,32 @@ inline E_Int fact(E_Int n)
 }
 
 ///+ Numerical Helper Functions
+// Mixed real types occur at interfaces to libraries that require double and
+// in expressions containing double literals, also in a single precision build.
+template <typename T, typename U>
+inline typename std::common_type<T, U>::type E_min(T a, U b)
+{ return a < b ? a : b; }
+
+template <typename T, typename U>
+inline typename std::common_type<T, U>::type E_max(T a, U b)
+{ return a > b ? a : b; }
+
+template <typename T, typename U, typename V>
+inline typename std::common_type<T, U, V>::type E_min(T a, U b, V c)
+{ return E_min(E_min(a, b), c); }
+
+template <typename T, typename U, typename V>
+inline typename std::common_type<T, U, V>::type E_max(T a, U b, V c)
+{ return E_max(E_max(a, b), c); }
+
+template <typename T, typename U, typename V, typename W>
+inline typename std::common_type<T, U, V, W>::type E_min(T a, U b, V c, W d)
+{ return E_min(E_min(a, b), E_min(c, d)); }
+
+template <typename T, typename U, typename V, typename W>
+inline typename std::common_type<T, U, V, W>::type E_max(T a, U b, V c, W d)
+{ return E_max(E_max(a, b), E_max(c, d)); }
+
 /** Minimum for 2 E_Float  */
 inline E_Float E_min(E_Float a, E_Float b)
 {

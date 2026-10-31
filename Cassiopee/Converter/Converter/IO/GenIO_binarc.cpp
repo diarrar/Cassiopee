@@ -939,7 +939,7 @@ E_Int K_IO::GenIO::arcread(
       for (size_t j = 0; j < m._nfields.size(); j++)
       {
         E_Float* fp = f->begin(4+j);
-        E_Float* pf = m._nfields[j];
+        const double* pf = m._nfields[j];
         for (E_Int p = 0; p < np; p++) fp[p] = pf[p];
       }
       // update varString    
@@ -956,7 +956,7 @@ E_Int K_IO::GenIO::arcread(
       for (size_t j = 0; j < m._cfields.size(); j++)
       {
         E_Float* fp = fc->begin(j+1);
-        E_Float* pf = m._cfields[j];
+        const double* pf = m._cfields[j];
         for (E_Int p = 0; p < m._nceli; p++) fp[p] = pf[p];
         //for (E_Int p = 0; p < m._nceli; p++) fp[p] = 0.;   
       }

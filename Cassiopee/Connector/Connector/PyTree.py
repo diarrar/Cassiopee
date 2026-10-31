@@ -1,5 +1,6 @@
 """Find grid connectivity.
 """
+from KCore import E_NpyFloat
 from . import Connector
 from . import connector
 import numpy
@@ -93,15 +94,15 @@ def _connectMatchNGON__(a, tol, dim, glob, allExtFaces=None, allExtIndices=None,
                 faceListR = allListRcvFaces[nm]
                 faceListD = allListDnrFaces[nm]
                 if periodic == 1:
-                    tsign = numpy.array([signT,signT,signT], dtype=numpy.float64)
-                    rsign = numpy.array([signR,signR,signR], dtype=numpy.float64)
+                    tsign = numpy.array([signT,signT,signT], dtype=E_NpyFloat)
+                    rsign = numpy.array([signR,signR,signR], dtype=E_NpyFloat)
                     C._addBC2Zone(zones[noz1], name1, 'BCMatch', faceList=faceListR,\
                                   zoneDonor=z2OppName, faceListDonor=faceListD,tol=tol,\
                                   rotationCenter=rotationCenter, rotationAngle=rsign*rotationAngle,\
                                   translation=tsign*Translation, unitAngle=unitAngle)
 
-                    tsign = numpy.array([-signT,-signT,-signT], dtype=numpy.float64)
-                    rsign = numpy.array([-signR,-signR,-signR], dtype=numpy.float64)
+                    tsign = numpy.array([-signT,-signT,-signT], dtype=E_NpyFloat)
+                    rsign = numpy.array([-signR,-signR,-signR], dtype=E_NpyFloat)
                     C._addBC2Zone(zones[noz2], name2, 'BCMatch', faceList=faceListD,\
                                   zoneDonor=z1OppName, faceListDonor=faceListR, tol=tol,\
                                   rotationCenter=rotationCenter, rotationAngle=rsign*rotationAngle,\

@@ -1,3 +1,4 @@
+from KCore import E_NpyFloat
 # Extrusion for STRAND (TRI, pyTree, parallel, new version)
 import Converter.PyTree as C
 import Transform.PyTree as T
@@ -87,9 +88,9 @@ def addNormalLayers(t, tc, distrib, niter=0, eps=0.4):
         coord = coords[z[0]]
         nk = len(coord)
         np = C.getNPts(z)
-        fx = numpy.empty(np*nk, dtype=numpy.float64)
-        fy = numpy.empty(np*nk, dtype=numpy.float64)
-        fz = numpy.empty(np*nk, dtype=numpy.float64)
+        fx = numpy.empty(np*nk, dtype=E_NpyFloat)
+        fy = numpy.empty(np*nk, dtype=E_NpyFloat)
+        fz = numpy.empty(np*nk, dtype=E_NpyFloat)
         for k, i in enumerate(coord):
             px = i[0]; py = i[1]; pz = i[2]
             fx[k*np:(k+1)*np] = px[:]
@@ -194,9 +195,9 @@ def addNormalLayers2(t, tc, distrib, niter=0, eps=0.4):
         coord = coords[z[0]]
         nk = len(coord)
         np = C.getNPts(z)
-        fx = numpy.empty(np*nk, dtype=numpy.float64)
-        fy = numpy.empty(np*nk, dtype=numpy.float64)
-        fz = numpy.empty(np*nk, dtype=numpy.float64)
+        fx = numpy.empty(np*nk, dtype=E_NpyFloat)
+        fy = numpy.empty(np*nk, dtype=E_NpyFloat)
+        fz = numpy.empty(np*nk, dtype=E_NpyFloat)
         for k, i in enumerate(coord):
             px = i[0]; py = i[1]; pz = i[2]
             fx[k*np:(k+1)*np] = px[:]

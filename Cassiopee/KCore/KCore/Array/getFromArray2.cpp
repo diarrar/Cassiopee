@@ -110,6 +110,12 @@ E_Int K_ARRAY::getFromArray2(PyObject* o,
   if (PyArray_Check(tpl) == true) // -- Array1 --
   {
     a = (PyArrayObject*)tpl;
+    if (PyArray_TYPE(a) != E_NPY_FLOAT || !PyArray_ISNOTSWAPPED(a))
+    {
+      PyErr_WarnEx(PyExc_RuntimeWarning, "field dtype must match the compiled Cassiopee precision (" E_REAL_DTYPE ").", 1);
+      Py_DECREF(tpl);
+      return -4;
+    }
 
     if (PyArray_NDIM(a) != 2)
     {
@@ -142,6 +148,13 @@ E_Int K_ARRAY::getFromArray2(PyObject* o,
       if (PyArray_Check(p) == true)
       {
         a = (PyArrayObject*)p; //Py_INCREF(a);
+        if (PyArray_TYPE(a) != E_NPY_FLOAT || !PyArray_ISNOTSWAPPED(a))
+        {
+          PyErr_WarnEx(PyExc_RuntimeWarning, "field dtype must match the compiled Cassiopee precision (" E_REAL_DTYPE ").", 1);
+          delete [] acu;
+          Py_DECREF(tpl);
+          return -4;
+        }
         s = PyArray_SIZE(a); // must be constant
         acu[i] = (E_Float*)PyArray_DATA(a);
       }
@@ -385,6 +398,12 @@ E_Int K_ARRAY::getFromArray2(PyObject* o,
   if (PyArray_Check(tpl) == true) // -- Array1 --
   {
     a = (PyArrayObject*)tpl;
+    if (PyArray_TYPE(a) != E_NPY_FLOAT || !PyArray_ISNOTSWAPPED(a))
+    {
+      PyErr_WarnEx(PyExc_RuntimeWarning, "field dtype must match the compiled Cassiopee precision (" E_REAL_DTYPE ").", 1);
+      Py_DECREF(tpl);
+      return -4;
+    }
 
     if (PyArray_NDIM(a) != 2)
     {
@@ -417,6 +436,13 @@ E_Int K_ARRAY::getFromArray2(PyObject* o,
       if (PyArray_Check(p) == true)
       {
         a = (PyArrayObject*)p; //Py_INCREF(a);
+        if (PyArray_TYPE(a) != E_NPY_FLOAT || !PyArray_ISNOTSWAPPED(a))
+        {
+          PyErr_WarnEx(PyExc_RuntimeWarning, "field dtype must match the compiled Cassiopee precision (" E_REAL_DTYPE ").", 1);
+          delete [] acu;
+          Py_DECREF(tpl);
+          return -4;
+        }
         s = PyArray_SIZE(a); // must be constant
         acu[i] = (E_Float*)PyArray_DATA(a);
       }

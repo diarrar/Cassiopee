@@ -499,7 +499,7 @@ namespace NUGA
   ///
   template <typename bound_mesh_t> inline
     void move_double_walls
-    (bound_mesh_t* bit, const bound_mesh_t& zbound, double ARTOL, eMetricType mtype, double AMAX, const std::vector<E_Int>& zmask_wall_ids, std::vector<bool>& is_dw)
+    (bound_mesh_t* bit, const bound_mesh_t& zbound, E_Float ARTOL, eMetricType mtype, E_Float AMAX, const std::vector<E_Int>& zmask_wall_ids, std::vector<bool>& is_dw)
   {
     is_dw.clear();
 

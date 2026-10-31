@@ -1,3 +1,4 @@
+from KCore import E_NpyFloat
 #  ---------------------------------------------------------------------------
 #  pyCGNS - Python package for CFD General Notation System -
 #  See license.txt file in the root directory of this Python module source
@@ -1239,7 +1240,7 @@ def setDoubleByPath(tree: TreeNode, path: str, *d) -> TreeNode:
     if isinstance(d, type(None)) or (len(d) == 0):
         raise CE.cgnsNameError(112)
     node = getNodeByPath(tree, path)
-    setValue(node, numpy.array(d, dtype=numpy.float64))
+    setValue(node, numpy.array(d, dtype=E_NpyFloat))
     return node
 
 
@@ -1252,7 +1253,7 @@ def setDoubleAsArray(*d) -> numpy.ndarray:
     """
     if isinstance(d, type(None)) or (len(d) == 0):
         raise CE.cgnsNameError(112)
-    return numpy.array(d, dtype=numpy.float64)
+    return numpy.array(d, dtype=E_NpyFloat)
 
 
 # -----------------------------------------------------------------------------
@@ -1282,7 +1283,7 @@ def getValueAsStringEval(value: Any) -> Optional[numpy.ndarray]:
         pass
 
     try:
-        v = numpy.array(value, dtype=numpy.float64)
+        v = numpy.array(value, dtype=E_NpyFloat)
         return v
     except ValueError:
         pass
@@ -1294,7 +1295,7 @@ def getValueAsStringEval(value: Any) -> Optional[numpy.ndarray]:
         pass
 
     try:
-        v = numpy.array(eval(value), dtype=numpy.float64)
+        v = numpy.array(eval(value), dtype=E_NpyFloat)
         return v
     except ValueError:
         pass

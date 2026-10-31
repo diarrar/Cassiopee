@@ -59,6 +59,21 @@ PyObject* py_fpc_compress(PyObject *self, PyObject *args)
         npy_intp *dims  = PyArray_DIMS(an_array);
         std::size_t an_array_length = PyArray_SIZE(an_array);
         double* array_data = (double*)PyArray_DATA(an_array);
+        // FPC's stream format is always IEEE-754 binary64. Widen single
+        // precision input explicitly instead of reading its storage as doubles.
+        std::vector<double> widened;
+        if (PyArray_TYPE(an_array) == NPY_FLOAT)
+        {
+            const float* values = (const float*)PyArray_DATA(an_array);
+            widened.assign(values, values + an_array_length);
+            array_data = widened.data();
+        }
+        else if (PyArray_TYPE(an_array) != NPY_DOUBLE)
+        {
+            PyErr_SetString(PyExc_TypeError, "compressFpc: expected a float32 or float64 array.");
+            Py_DECREF(compressed_list);
+            return NULL;
+        }
         bool is_c_order = false;
         if (PyArray_CHKFLAGS(an_array, NPY_ARRAY_C_CONTIGUOUS)) is_c_order = true;
         
@@ -285,6 +300,12 @@ PyObject* py_fpc_uncompress(PyObject *self, PyObject *args)
         
         //for (E_Int i = 0; i < array_length; i++) py_array_data[i] = 0.;
         fpc_decode(&ctx, cpr_data, py_array_data, array_length);
+#ifdef E_SINGLEREAL
+        PyArrayObject* converted = (PyArrayObject*)PyArray_CastToType(py_array, PyArray_DescrFromType(E_NPY_FLOAT), !is_c_ord);
+        Py_DECREF(py_array);
+        if (converted == NULL) { Py_DECREF(lst_out_arrays); return NULL; }
+        py_array = converted;
+#endif
         //double* decompressed = new double [array_length];
         //fpc_decode(&ctx, cpr_data, decompressed, array_length);
         //for (E_Int j = 0; j < array_length; j++) printf("%f ", py_array_data[j]);

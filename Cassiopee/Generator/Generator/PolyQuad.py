@@ -1,5 +1,6 @@
 """PolyQuad mesh generator. Extension of Generator.
 """
+from KCore import E_NpyFloat
 from . import Generator as G
 import Geom as D
 import numpy
@@ -84,7 +85,7 @@ def polyQuadMesher(polyQuad, h, hf, density, next):
     add = int(addFactor*add)
     distribk = G.enforcePlusX(distribk, hf/h, nk-1, add)
     nk = distribk[2]-1
-    delta = C.array('d',nk,1,1)
+    delta = C.array(E_NpyFloat,nk,1,1)
     for i in range(nk):
         delta[1][0,i] = h*( distribk[1][0,i+1] - distribk[1][0,i])
     mesh = []; walls = []

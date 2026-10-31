@@ -68,8 +68,11 @@ extern "C"
 #if PY_MAJOR_VERSION >= 3
     PyObject* module = PyModule_Create(&moduledef);
 #else
-    Py_InitModule("kcore", Pykcore);
+    PyObject* module = Py_InitModule("kcore", Pykcore);
 #endif
+    if (module == NULL) return NULL;
+    PyModule_AddIntConstant(module, "REAL_SIZE", sizeof(E_Float));
+    PyModule_AddStringConstant(module, "REAL_DTYPE", E_REAL_DTYPE);
 #if PY_MAJOR_VERSION >= 3
     return module;
 #endif

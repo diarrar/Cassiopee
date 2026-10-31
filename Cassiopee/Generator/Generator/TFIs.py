@@ -1,3 +1,4 @@
+from KCore import E_NpyFloat
 # Various specific TFIs
 try:
     from . import Generator as G
@@ -352,7 +353,7 @@ def TFITri2(a1, a2, a3, tol=1.e-6):
     Nt1 = a1[2]; Nt2 = a2[2]; Nt3 = a3[2]
 
     # Constraint Npts
-    ai = numpy.array([[0.5,0.5,-0.5],[0.5,-0.5,0.5],[-0.5,0.5,0.5]], dtype=numpy.float64)
+    ai = numpy.array([[0.5,0.5,-0.5],[0.5,-0.5,0.5],[-0.5,0.5,0.5]], dtype=E_NpyFloat)
     N1 = ai[0,0]*(Nt1+1) + ai[0,1]*(Nt2+1) + ai[0,2]*(Nt3+1)
     N2 = ai[1,0]*(Nt1+1) + ai[1,1]*(Nt2+1) + ai[1,2]*(Nt3+1)
     N3 = ai[2,0]*(Nt1+1) + ai[2,1]*(Nt2+1) + ai[2,2]*(Nt3+1)

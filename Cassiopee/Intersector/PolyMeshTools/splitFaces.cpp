@@ -498,7 +498,7 @@ PyObject* K_INTERSECTOR::superMeshCompSurf(PyObject* self, PyObject* args)
   std::vector<E_Int> anc0, anc1; // anc0/anc1 : indice ancetre d'un polygone de xmesh dans m0/m1
   NUGA::xmatch<zmesh_t>(m0, m1, ARTOL, anc0, anc1, xmesh, (proj_on_first==1));
   
-  std::vector<double> surfFace, surfM0 ;
+  std::vector<E_Float> surfFace, surfM0 ;
 
   surfFace.clear();
   surfM0.clear();
@@ -727,7 +727,7 @@ PyObject* K_INTERSECTOR::replaceFaces(PyObject* self, PyObject* args)
   std::map<E_Int, std::vector<E_Int>> split_map;
   K_CONNECT::IdTool::reverse_indirection(&m0.cnt.PGs._type[0], m0.cnt.PGs._type.size(), split_map);
 
-  double ARTOL = -0.1;
+  E_Float ARTOL = -0.1;
   std::set<E_Int> modifiedPHs;
   replace_faces(m0, split_map, ARTOL, modifiedPHs);
 
@@ -831,8 +831,8 @@ PyObject* K_INTERSECTOR::syncMacthPeriodicFaces(PyObject* self, PyObject* args)
                                                     &trans[0], &trans[1], &trans[2], &artol)) return nullptr;
   
   bool is_rot = false;
-  double rot_angle = 0.;
-  double * paxis{nullptr}, *ptrans{nullptr};
+  E_Float rot_angle = 0.;
+  E_Float * paxis{nullptr}, *ptrans{nullptr};
 
   if (axis[0] != 0. || axis[1] != 0. || axis[2] != 0.)
   {

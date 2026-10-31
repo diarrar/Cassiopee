@@ -1,3 +1,4 @@
+from KCore import E_NpyFloat
 # Interface pour MPI
 
 import Converter.Mpi as Cmpi
@@ -81,8 +82,8 @@ def integ(t, var=''):
     """Integral of fields defined in t."""
     if t is not None: ret = P.integ(t, var)
     else: ret = 0.
-    ret  = numpy.array(ret, dtype=numpy.float64)
-    ret1 = numpy.empty(ret.shape, dtype=numpy.float64)
+    ret  = numpy.array(ret, dtype=E_NpyFloat)
+    ret1 = numpy.empty(ret.shape, dtype=E_NpyFloat)
     Cmpi.Allreduce(ret, ret1, Cmpi.SUM)
     return ret1.tolist()
 
@@ -91,8 +92,8 @@ def integNorm(t, var=''):
     """Integral of fields times normal."""
     if t is not None: ret = P.integNorm(t, var)
     else: ret = 0.
-    ret  = numpy.array(ret, dtype=numpy.float64)
-    ret1 = numpy.empty(ret.shape, dtype=numpy.float64)
+    ret  = numpy.array(ret, dtype=E_NpyFloat)
+    ret1 = numpy.empty(ret.shape, dtype=E_NpyFloat)
     Cmpi.Allreduce(ret, ret1, Cmpi.SUM)
     return [ret1.tolist()]
 
@@ -101,8 +102,8 @@ def integNormProduct(t, vector=[]):
     """Integral of fields product normal."""
     if t is not None: ret = P.integNormProduct(t, vector)
     else: ret = 0.
-    ret = numpy.array(ret, dtype=numpy.float64)
-    ret1 = numpy.empty(ret.shape, dtype=numpy.float64)
+    ret = numpy.array(ret, dtype=E_NpyFloat)
+    ret1 = numpy.empty(ret.shape, dtype=E_NpyFloat)
     Cmpi.Allreduce(ret, ret1, Cmpi.SUM)
     return ret1.tolist()
 
@@ -111,8 +112,8 @@ def integMoment(t, center=(0.,0.,0.), vector=[]):
     """Integral of moments."""
     if t is not None: ret = P.integMoment(t, center, vector)
     else: ret = 0.
-    ret = numpy.array(ret, dtype=numpy.float64)
-    ret1 = numpy.empty(ret.shape, dtype=numpy.float64)
+    ret = numpy.array(ret, dtype=E_NpyFloat)
+    ret1 = numpy.empty(ret.shape, dtype=E_NpyFloat)
     Cmpi.Allreduce(ret, ret1, Cmpi.SUM)
     return ret1.tolist()
 
@@ -121,8 +122,8 @@ def integMomentNorm(t, center=(0.,0.,0.), var=''):
     """Integral of moments."""
     if t is not None: ret = P.integMomentNorm(t, center, var)
     else: ret = 0.
-    ret = numpy.array(ret, dtype=numpy.float64)
-    ret1 = numpy.empty(ret.shape, dtype=numpy.float64)
+    ret = numpy.array(ret, dtype=E_NpyFloat)
+    ret1 = numpy.empty(ret.shape, dtype=E_NpyFloat)
     Cmpi.Allreduce(ret, ret1, Cmpi.SUM)
     return ret1.tolist()
 

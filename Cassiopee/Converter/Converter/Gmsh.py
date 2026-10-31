@@ -1,4 +1,5 @@
 """Interface with gmsh python module"""
+from KCore import E_NpyFloat
 try: import gmsh
 except ImportError: raise ImportError("Gmsh: need gmsh module.")
 import numpy
@@ -19,7 +20,7 @@ def convertMesh2Arrays(dim=2, tag=-1):
     # transforme coords en numpy pour Cassiopee
     npts = coords.size//3
     print('npts=',npts, coords.dtype)
-    crds = numpy.empty((3,npts), dtype=numpy.float64)
+    crds = numpy.empty((3,npts), dtype=E_NpyFloat)
     crds[0,0:npts] = coords[0:3*npts:3]
     crds[1,0:npts] = coords[1:3*npts:3]
     crds[2,0:npts] = coords[2:3*npts:3]

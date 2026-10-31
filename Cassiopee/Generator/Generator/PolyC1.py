@@ -1,5 +1,6 @@
 """PolyC1 mesh generator. Extension of Generator.
 """
+from KCore import E_NpyFloat
 from . import Generator as G
 import numpy
 try:
@@ -45,15 +46,15 @@ def polyC1Mesher(curve, h, yplus, density, splitCrit=10., dalpha=5.,depth=1):
     nghb = numpy.zeros((ne,2), dtype=E_NpyInt); nghb[:] = -1 # no de la courbe voisine
     nghbind = numpy.zeros((ne,2), dtype=E_NpyInt) # index corresp. sur la courbe voisine
     # coord des pts de contact
-    xpts = numpy.zeros((ne,2), dtype=numpy.float64)
-    ypts = numpy.zeros((ne,2), dtype=numpy.float64)
-    zpts = numpy.zeros((ne,2), dtype=numpy.float64)
+    xpts = numpy.zeros((ne,2), dtype=E_NpyFloat)
+    ypts = numpy.zeros((ne,2), dtype=E_NpyFloat)
+    zpts = numpy.zeros((ne,2), dtype=E_NpyFloat)
     # courbure au pts de contact
-    cpts = numpy.zeros((ne,2), dtype=numpy.float64)
+    cpts = numpy.zeros((ne,2), dtype=E_NpyFloat)
     # normale aux points de contact
-    surfxpts = numpy.zeros((ne,2), dtype=numpy.float64)
-    surfypts = numpy.zeros((ne,2), dtype=numpy.float64)
-    surfzpts = numpy.zeros((ne,2), dtype=numpy.float64)
+    surfxpts = numpy.zeros((ne,2), dtype=E_NpyFloat)
+    surfypts = numpy.zeros((ne,2), dtype=E_NpyFloat)
+    surfzpts = numpy.zeros((ne,2), dtype=E_NpyFloat)
 
     # Calcul des coord. des Pts de contact entre courbes C1
     for c in range(ne):
@@ -214,7 +215,7 @@ def polyC1Mesher(curve, h, yplus, density, splitCrit=10., dalpha=5.,depth=1):
     add = int(addFactor*add)
     # Distribution avec resserrement utilisee a la fin pour remailler en j
     distrib2 = G.enforcePlusX(distrib, yplus/h, nj-1, add)
-    nj = distrib[2]; delta = C.array('d', nj, 1, 1)
+    nj = distrib[2]; delta = C.array(E_NpyFloat, nj, 1, 1)
     for i in range(nj): delta[1][0,i] = h*distrib[1][0,i]
     # Generation des maillages
     mesh = []; walls = []
