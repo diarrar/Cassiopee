@@ -774,6 +774,16 @@ def convertExt2Format__(fileName):
     fmt = ext2Format.get(extension.lower(), 'unknown')
     return fmt
 
+# Convert fields of an array to E_NpyFloat (if they are floats)
+def _adaptFieldType__(a):
+    if len(a) < 4: return
+    if isinstance(a[1], list): # array2/3
+        for c, k in enumerate(a[1]):
+            if k.dtype.kind == 'f' and k.dtype != E_NpyFloat: a[1][c] = k.astype(E_NpyFloat, order='K')
+    elif isinstance(a[1], numpy.ndarray): # array1
+        if a[1].dtype.kind == 'f' and a[1].dtype != E_NpyFloat: a[1] = a[1].astype(E_NpyFloat, order='K')
+    return
+
 def convertFile2Arrays(fileName, format=None, nptsCurve=20, nptsLine=2,
                        density=-1., zoneNames=None, BCFaces=None, BCFields=None,
                        hmax=0.0, hausd=1., grow=0.0, mergeTol=-1, occAlgo=0,
@@ -817,6 +827,11 @@ def convertFile2Arrays(fileName, format=None, nptsCurve=20, nptsLine=2,
                             if k.dtype != E_NpyInt: a[2][c] = k.astype(E_NpyInt, order='K')
                     else: # array1
                         if a[2].dtype != E_NpyInt: a[2] = a[2].astype(E_NpyInt, order='K')
+            # convert r8 fields to r4 if necessary
+            if E_NpyFloat == numpy.float32:
+                if isinstance(a[0], list):
+                    for i in a: _adaptFieldType__(i)
+                else: _adaptFieldType__(a)
 
             print('done.')
             return a

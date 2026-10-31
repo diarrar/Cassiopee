@@ -537,7 +537,7 @@ def setValue(t, var, ind, val):
     else: loc = '*'; var = u[0]
 
     c = 0
-    if isinstance(val, float): val = [val]
+    if isinstance(val, (float, numpy.floating)): val = [val]
     elif isinstance(val, int): val=[float(val)]
 
     # dim
@@ -1959,7 +1959,7 @@ def makeAllNumpy__(node):
             c[1] = numpy.array(c[1], dtype='c')
         if isinstance(c[1], int):
             c[1] = numpy.array(c[1], dtype=Internal.E_NpyInt)
-        if isinstance(c[1], float):
+        if isinstance(c[1], (float, numpy.floating)):
             c[1] = numpy.array(c[1], dtype=Internal.E_NpyFloat)
         makeAllNumpy__(c)
 
@@ -4087,7 +4087,7 @@ def _addBC2StructZone__(z, bndName, bndType, wrange=[], faceList=[],
             nodes = []
             if isinstance(data, numpy.ndarray):
                 nodes.append(Internal.createNode('State', 'DataArray_t', value=data))
-            elif isinstance(data, list) and len(data) > 0 and isinstance(data[0], float):
+            elif isinstance(data, list) and len(data) > 0 and isinstance(data[0], (float, numpy.floating)):
                 nodes.append(Internal.createNode('State', 'DataArray_t', value=data))
             elif isinstance(data, list): # list of DataArray_t nodes
                 for d in data:
@@ -4220,7 +4220,7 @@ def _addBC2NGonZone__(z, bndName, bndType, faceList, data, subzone,
             nodes = []
             if isinstance(data, numpy.ndarray):
                 nodes.append(Internal.createNode('State', 'DataArray_t', value=data))
-            elif isinstance(data, list) and len(data) > 0 and isinstance(data[0], float):
+            elif isinstance(data, list) and len(data) > 0 and isinstance(data[0], (float, numpy.floating)):
                 nodes.append(Internal.createNode('State', 'DataArray_t', value=data))
             elif isinstance(data, list): # list of DataArray_t nodes
                 for d in data:

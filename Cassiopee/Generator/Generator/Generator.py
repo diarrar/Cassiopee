@@ -645,7 +645,7 @@ def refinePerDir__(a, power, dir):
     if a[2] == 1 and dir == 1: return a
     if a[3] == 1 and dir == 2: return a
     if a[4] == 1 and dir == 3: return a
-    if not isinstance(power,float): factor = float(power)
+    if not isinstance(power, (float, numpy.floating)): factor = float(power)
     else: factor = power
     try:
         import Transform as T
@@ -1034,10 +1034,10 @@ def getSmoothNormalMap(array, niter=2, eps=0.4, cellN=None, algo=0):
         np = C.normalize(np, ['sx','sy','sz'])
         it += 1
         if algo == 0:
-            if isinstance(eps, float): n[1][:] += eps*np[1][:]
+            if isinstance(eps, (float, numpy.floating)): n[1][:] += eps*np[1][:]
             else: n[1][:] += eps[:]*np[1][:]
         else:
-            if isinstance(eps, float): n[1][:] += eps*(np[1][:]-n[1][:])
+            if isinstance(eps, (float, numpy.floating)): n[1][:] += eps*(np[1][:]-n[1][:])
             else: n[1][:] += eps[:]*(np[1][:]-n[1][:])
         n = C.normalize(n, ['sx','sy','sz'])
     return n

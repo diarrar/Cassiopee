@@ -532,7 +532,7 @@ def TFIO(a, weight=None):
 
     # si weight est donne, on l'utilise sinon plage de recherche de 3 a 10
     if weight is None: weightRange = numpy.arange(3.,10.,1.)
-    elif isinstance(weight, float): weightRange = numpy.arange(weight, weight+1)
+    elif isinstance(weight, (float, numpy.floating)): weightRange = numpy.arange(weight, weight+1)
     elif isinstance(weight, int): weightRange = numpy.arange(weight, weight+1)
     elif len(weight) == 2: weightRange = numpy.arange(weight[0],weight[1],1.)
     elif len(weight) == 3: weightRange = numpy.arange(weight[0],weight[1],weight[2])

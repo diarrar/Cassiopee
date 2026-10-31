@@ -2661,7 +2661,7 @@ def repr__(t, Out=None, DEB='', LAST=False, code=['','','']):
   out = "['%s%s%s',"%(code[0],t[0],code[2])
   if isinstance(t[1], str):
     out += "'%s',["%t[1]
-  elif isinstance(t[1], (int,float,list)):
+  elif isinstance(t[1], (int,float,numpy.floating,list)):
     out += str(t[1])+",["
   elif isinstance(t[1], numpy.ndarray):
     if t[1].dtype == numpy.array('a').dtype and t[1].size < 32:

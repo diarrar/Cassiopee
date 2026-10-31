@@ -21,6 +21,13 @@
 using namespace std;
 using namespace K_FLD;
 
+// Integer of the same size as E_Float, stored bitwise in the globalIndex field
+#ifdef E_DOUBLEREAL
+typedef E_LONG E_GINDEX;
+#else
+typedef int32_t E_GINDEX;
+#endif
+
 //=============================================================================
 /* create global index as a field
    IN: array in vertex with 'globalIndex' field
@@ -56,14 +63,14 @@ PyObject* K_CONVERTER::createGlobalIndex(PyObject* self, PyObject* args)
   }
   pos += 1; 
   E_Float* fp = f->begin(pos);
-  E_LONG* gi = (E_LONG*)fp;
+  E_GINDEX* gi = (E_GINDEX*)fp;
 
 #pragma omp parallel
   {
 #pragma omp for
     for (E_Int ind = 0; ind < f->getSize(); ind++)
     {
-      gi[ind] = (E_LONG)ind;
+      gi[ind] = (E_GINDEX)ind;
     }
   }
 
@@ -107,7 +114,7 @@ PyObject* K_CONVERTER::recoverGlobalIndex(PyObject* self, PyObject* args)
   }
   pos += 1; 
   E_Float* find = f->begin(pos);
-  E_LONG* indp = (E_LONG*)find;
+  E_GINDEX* indp = (E_GINDEX*)find;
 
   // Get var list of input array
   vector<char*> vars;
