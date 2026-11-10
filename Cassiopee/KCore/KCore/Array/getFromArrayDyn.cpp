@@ -67,7 +67,7 @@ E_Int __check_array(PyObject* o, PyArrayObject*& a, char*& varString)
                "getFromArrayDyn: second arg in array must be a numpy array.");
     return -4;
   }
-  //a = (PyArrayObject*)PyArray_ContiguousFromObject(tpl, NPY_DOUBLE,
+  //a = (PyArrayObject*)PyArray_ContiguousFromObject(tpl, E_NPY_FLOAT,
   //                                                 1, 10000000);
   a = (PyArrayObject*)tpl; Py_INCREF(a);
 

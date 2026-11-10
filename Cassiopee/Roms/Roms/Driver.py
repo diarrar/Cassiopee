@@ -682,19 +682,19 @@ class Entity:
 
         elif self.type == "polyline":
             s = len(self.P)
-            n = numpy.zeros((3,s), dtype=numpy.float64)
+            n = numpy.zeros((3,s), dtype=Internal.E_NpyFloat)
             for c, p in enumerate(self.P): n[:,c] = p.v()
             OCC._addSpline(self.hook, n, 0, 1)
 
         elif self.type == "spline1": # by control points
             s = len(self.P)
-            n = numpy.zeros((3,s), dtype=numpy.float64)
+            n = numpy.zeros((3,s), dtype=Internal.E_NpyFloat)
             for c, p in enumerate(self.P): n[:,c] = p.v()
             OCC._addSpline(self.hook, n, 0, 3)
 
         elif self.type == "spline2": # by approximated points
             s = len(self.P)
-            n = numpy.zeros((3,s), dtype=numpy.float64)
+            n = numpy.zeros((3,s), dtype=Internal.E_NpyFloat)
             for c, p in enumerate(self.P): n[:,c] = p.v()
             OCC._addSpline(self.hook, n, 1, 3)
 
@@ -1621,9 +1621,9 @@ class Surface():
             # identify edges in bc
             bc = C.extractBCOfType(z, "BCWall", reorder=False)[0]
             xc = Internal.getNodeFromName2(bc, "CoordinateX")
-            self.dx1[i+1] = numpy.empty((xc[1].size), dtype=numpy.float64)
-            self.dy1[i+1] = numpy.empty((xc[1].size), dtype=numpy.float64)
-            self.dz1[i+1] = numpy.empty((xc[1].size), dtype=numpy.float64)
+            self.dx1[i+1] = numpy.empty((xc[1].size), dtype=Internal.E_NpyFloat)
+            self.dy1[i+1] = numpy.empty((xc[1].size), dtype=Internal.E_NpyFloat)
+            self.dz1[i+1] = numpy.empty((xc[1].size), dtype=Internal.E_NpyFloat)
             a = C.getAllFields(bc, 'nodes', api=3)[0]
             hook = Converter.createHook(a, function='nodes')
             for loops in wires:
@@ -1905,9 +1905,9 @@ class Volume2D():
         # identify borders in bc
         bc = C.extractBCOfName(self.RefMesh2, "wall", reorder=False)[0]
         xc = Internal.getNodeFromName2(bc, "CoordinateX")
-        self.dx1 = numpy.empty((xc[1].size), dtype=numpy.float64)
-        self.dy1 = numpy.empty((xc[1].size), dtype=numpy.float64)
-        self.dz1 = numpy.empty((xc[1].size), dtype=numpy.float64)
+        self.dx1 = numpy.empty((xc[1].size), dtype=Internal.E_NpyFloat)
+        self.dy1 = numpy.empty((xc[1].size), dtype=Internal.E_NpyFloat)
+        self.dz1 = numpy.empty((xc[1].size), dtype=Internal.E_NpyFloat)
         a = C.getAllFields(bc, 'nodes', api=3)[0]
         hook = Converter.createHook(a, function='nodes')
         self.inds = []
@@ -3089,7 +3089,7 @@ class Part:
                 np += k[1]-k[0]
         m = self.readSnaphot(0)
         nv = m[1].shape[1]
-        F = numpy.empty( (nv*3, np), dtype=numpy.float64)
+        F = numpy.empty( (nv*3, np), dtype=Internal.E_NpyFloat)
 
         for indexes in itertools.product(*ranges):
             hash = self.getHash(indexes)
@@ -3143,7 +3143,7 @@ class Part:
     # OUT: coordinates (coefficients) of mesh on POD basis
     def addCoefs(self, hashcode, msh):
         import Converter.Distributed as Distributed
-        coords = numpy.empty( (self.K), dtype=numpy.float64 )
+        coords = numpy.empty( (self.K), dtype=Internal.E_NpyFloat )
         m = msh[1].ravel('k')
         for i in range(self.K):
             c0 = numpy.dot(self.Phi[:,i], m)

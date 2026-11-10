@@ -42,7 +42,7 @@ PyObject* K_ARRAY::buildArray3(E_Int nfld, const char* varString,
     npy_intp dim[2];
     dim[1] = ni*nj*nk;
     dim[0] = nfld;
-    PyArrayObject* a = (PyArrayObject*)PyArray_SimpleNew(2, dim, NPY_DOUBLE);
+    PyArrayObject* a = (PyArrayObject*)PyArray_SimpleNew(2, dim, E_NPY_FLOAT);
     tpl = Py_BuildValue("[sOlll]", varString, a, (long)ni, (long)nj, (long)nk);
     Py_DECREF(a);
   }
@@ -53,7 +53,7 @@ PyObject* K_ARRAY::buildArray3(E_Int nfld, const char* varString,
     PyObject* rake = PyList_New(0);
     for (E_Int n=0; n < nfld; n++)
     {
-      PyArrayObject* a = (PyArrayObject*)PyArray_EMPTY(3, dim, NPY_DOUBLE, 1);
+      PyArrayObject* a = (PyArrayObject*)PyArray_EMPTY(3, dim, E_NPY_FLOAT, 1);
       PyList_Append(rake, (PyObject*)a); Py_DECREF(a);
     }
     tpl = Py_BuildValue("[sOlll]", varString, rake, (long)ni, (long)nj, (long)nk);
@@ -103,7 +103,7 @@ PyObject* K_ARRAY::buildArray3(E_Int nfld, const char* varString,
   if (api == 1) // Array1
   { 
     dim[1] = fSize; dim[0] = nfld;
-    a = PyArray_SimpleNew(2, dim, NPY_DOUBLE);
+    a = PyArray_SimpleNew(2, dim, E_NPY_FLOAT);
   }
   else // Array2 or Array3
   {
@@ -111,7 +111,7 @@ PyObject* K_ARRAY::buildArray3(E_Int nfld, const char* varString,
     a = PyList_New(0);
     for (E_Int n=0; n < nfld; n++)
     {
-      PyArrayObject* ar = (PyArrayObject*)PyArray_EMPTY(1, dim, NPY_DOUBLE, 1);
+      PyArrayObject* ar = (PyArrayObject*)PyArray_EMPTY(1, dim, E_NPY_FLOAT, 1);
       PyList_Append(a, (PyObject*)ar); Py_DECREF(ar);
     }
   } 
@@ -286,7 +286,7 @@ PyObject* K_ARRAY::buildArray3(E_Int nfld, const char* varString,
   if (api == 1) // Array1
   { 
     dim[1] = fSize; dim[0] = nfld;
-    a = PyArray_SimpleNew(2, dim, NPY_DOUBLE);
+    a = PyArray_SimpleNew(2, dim, E_NPY_FLOAT);
   }
   else // Array2 or Array3
   {
@@ -294,7 +294,7 @@ PyObject* K_ARRAY::buildArray3(E_Int nfld, const char* varString,
     a = PyList_New(0);
     for (E_Int n=0; n < nfld; n++)
     {
-      PyArrayObject* ar = (PyArrayObject*)PyArray_EMPTY(1, dim, NPY_DOUBLE, 1);
+      PyArrayObject* ar = (PyArrayObject*)PyArray_EMPTY(1, dim, E_NPY_FLOAT, 1);
       PyList_Append(a, (PyObject*)ar); Py_DECREF(ar);
     }
   } 
@@ -371,7 +371,7 @@ PyObject* K_ARRAY::buildArray3(E_Int nfld, const char* varString,
   if (api == 1) // Array1
   { 
     dim[1] = fSize; dim[0] = nfld;
-    a = PyArray_SimpleNew(2, dim, NPY_DOUBLE);
+    a = PyArray_SimpleNew(2, dim, E_NPY_FLOAT);
   }
   else // Array2 or Array3
   {
@@ -379,7 +379,7 @@ PyObject* K_ARRAY::buildArray3(E_Int nfld, const char* varString,
     a = PyList_New(0);
     for (E_Int n=0; n < nfld; n++)
     {
-      PyArrayObject* ar = (PyArrayObject*)PyArray_EMPTY(1, dim, NPY_DOUBLE, 1);
+      PyArrayObject* ar = (PyArrayObject*)PyArray_EMPTY(1, dim, E_NPY_FLOAT, 1);
       PyList_Append(a, (PyObject*)ar); Py_DECREF(ar);
     }
   } 

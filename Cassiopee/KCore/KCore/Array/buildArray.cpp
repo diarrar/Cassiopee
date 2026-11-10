@@ -40,7 +40,7 @@ PyObject* K_ARRAY::buildArray(FldArrayF& field, const char* varString,
 
   dim[1] = field.getSize();
   dim[0] = field.getNfld();
-  PyArrayObject* a = (PyArrayObject*)PyArray_SimpleNew(2, dim, NPY_DOUBLE);
+  PyArrayObject* a = (PyArrayObject*)PyArray_SimpleNew(2, dim, E_NPY_FLOAT);
   //memcpy(PyArray_DATA(a), field.begin(), dim[0]*dim[1]*sizeof(double));
 
   E_Float* ptrf = field.begin();
@@ -71,7 +71,7 @@ PyObject* K_ARRAY::buildArray(E_Int nfld, const char* varString,
 
   dim[1] = ni*nj*nk;
   dim[0] = nfld;
-  PyArrayObject* a = (PyArrayObject*)PyArray_SimpleNew(2, dim, NPY_DOUBLE);
+  PyArrayObject* a = (PyArrayObject*)PyArray_SimpleNew(2, dim, E_NPY_FLOAT);
   tpl = Py_BuildValue("[sOlll]", varString, a,  
                       (long)ni, (long)nj, (long)nk);
   Py_DECREF(a);
@@ -178,7 +178,7 @@ PyObject* K_ARRAY::buildArray(FldArrayF& field, const char* varString,
   dim[1] = fSize;
   dim[0] = field.getNfld();
   E_Int s1 = dim[0]*dim[1];
-  PyArrayObject* a = (PyArrayObject*)PyArray_SimpleNew(2, dim, NPY_DOUBLE);
+  PyArrayObject* a = (PyArrayObject*)PyArray_SimpleNew(2, dim, E_NPY_FLOAT);
 
   // Build array for connectivity   
   dim[1] = cSize;
@@ -334,7 +334,7 @@ PyObject* K_ARRAY::buildArray(E_Int nfld, const char* varString,
   
   // Build array of field 
   dim[1] = fSize; dim[0] = nfld;
-  a = PyArray_SimpleNew(2, dim, NPY_DOUBLE);
+  a = PyArray_SimpleNew(2, dim, E_NPY_FLOAT);
 
   // Build array for connectivity
   dim[1] = cSize; dim[0] = nvpe;

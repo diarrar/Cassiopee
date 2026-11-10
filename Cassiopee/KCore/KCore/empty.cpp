@@ -105,21 +105,21 @@ PyObject* K_KCORE::empty(PyObject* self, PyObject* args)
   PyObject* arr;
   if (align == 0 || addr%align == 0)
   {
-    arr = PyArray_SimpleNewFromData(nd, dims, NPY_DOUBLE, mymem);
+    arr = PyArray_SimpleNewFromData(nd, dims, E_NPY_FLOAT, mymem);
     Py_INCREF(arr);
     FLAG(arr);
   }
   else
   {
     // Premier numpy (possesseur)
-    PyObject* arr1 = PyArray_SimpleNewFromData(nd, dims, NPY_DOUBLE, mymem);
+    PyObject* arr1 = PyArray_SimpleNewFromData(nd, dims, E_NPY_FLOAT, mymem);
     Py_INCREF(arr1);
     FLAG(arr1);
 
     // Le deuxieme non-possesseur aligne
     E_LONG addr2 = addr + addr%align;
     double* data = (double*)addr2;
-    arr = PyArray_SimpleNewFromData(nd, dims, NPY_DOUBLE, data);
+    arr = PyArray_SimpleNewFromData(nd, dims, E_NPY_FLOAT, data);
     Py_INCREF(arr);
     FLAG2(arr);
   }

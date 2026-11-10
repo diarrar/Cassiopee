@@ -104,7 +104,7 @@ def sigmaFunctionInv__(s, gamma=1.4, range='subsonic'):
     """
     with numpy.nditer([s, None],
                       op_flags=[['readonly'], ['writeonly', 'allocate', 'no_broadcast']],
-                      op_dtypes=['float64', 'float64']) as it:
+                      op_dtypes=[Internal.E_NpyFloat, Internal.E_NpyFloat]) as it:
         for x, y in it:
             y[...] = _scalarSigmaFunctionInv__(s, gamma=gamma)
         return it.operands[1]

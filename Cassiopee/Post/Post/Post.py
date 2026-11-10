@@ -5,6 +5,7 @@ from . import post
 import numpy
 try: import Converter
 except ImportError: raise ImportError("Post: requires Converter module.")
+from Converter.Internal import E_NpyFloat
 
 __all__ = [
     'coarsen', 'computeCurl', 'computeDiff', 'computeExtraVariable',
@@ -692,7 +693,7 @@ def buildTag2__(array, F):
 
     # Evaluation
     formula = eval(loc) # is a numpy bool
-    tag = numpy.zeros(ap.shape[1], numpy.float64)
+    tag = numpy.zeros(ap.shape[1], E_NpyFloat)
     tag[:] = formula[:]
     tag = tag.reshape(1, tag.size)
     if len(array) == 5: out = ['__tag__', tag, array[2], array[3], array[4]]
@@ -715,7 +716,7 @@ def buildTag1__(array, F, varStrings):
     n = array[1]
     nsize = n.shape[1]
     l = len(varStrings)
-    tag = numpy.zeros(nsize, numpy.float64)
+    tag = numpy.zeros(nsize, E_NpyFloat)
 
     if l == 0:
         if F(): tag[:] = 1

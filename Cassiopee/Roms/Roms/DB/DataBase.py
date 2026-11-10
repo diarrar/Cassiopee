@@ -343,10 +343,10 @@ class DataBase:
         nparam = len(q[0])-5
         nrows = len(q)
         if exportJax:
-            param = jnp.zeros((nrows,nparam), dtype=numpy.float64)
+            param = jnp.zeros((nrows,nparam), dtype=Internal.E_NpyFloat)
             for c, r in enumerate(q): param.at[c,:] = r[5:]
         else:
-            param = numpy.zeros((nrows,nparam), dtype=numpy.float64)
+            param = numpy.zeros((nrows,nparam), dtype=Internal.E_NpyFloat)
             for c, r in enumerate(q): param[c,:] = r[5:]
         return param
 
@@ -417,12 +417,12 @@ class DataBase:
                     nf = p[1].size
                     if exportJax:
                         if matrix is None:
-                            matrix = jnp.zeros((sizetot, nq), dtype=numpy.float64)
+                            matrix = jnp.zeros((sizetot, nq), dtype=Internal.E_NpyFloat)
                         jp = jnp.array(p.ravel('k'))
                         matrix.at[pt0[x,n]:pt1[x,n], c].set(jp)
                     else:
                         if matrix is None:
-                            matrix = numpy.zeros((sizetot, nq), dtype=numpy.float64)
+                            matrix = numpy.zeros((sizetot, nq), dtype=Internal.E_NpyFloat)
                         matrix[pt0[x,n]:pt1[x,n], c] = p[1].ravel('k')
 
         return matrix
@@ -441,9 +441,9 @@ class DataBase:
             p = Internal.getNodeFromName2(z, "vol")
             sizetot += p[1].size
         if exportJax:
-            v = jnp.zeros((sizetot, 1), dtype=numpy.float64)
+            v = jnp.zeros((sizetot, 1), dtype=Internal.E_NpyFloat)
         else:
-            v = numpy.zeros((sizetot, 1), dtype=numpy.float64)
+            v = numpy.zeros((sizetot, 1), dtype=Internal.E_NpyFloat)
         pt0 = 0
         for n, z in enumerate(zones):
             p = Internal.getNodeFromName2(z, "vol")

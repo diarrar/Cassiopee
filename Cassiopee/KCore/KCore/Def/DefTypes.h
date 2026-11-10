@@ -25,7 +25,11 @@
 #ifndef _KCORE_DEF_DEFTYPES_H_
 #define _KCORE_DEF_DEFTYPES_H_
 
-#define E_DOUBLEREAL
+// Real precision: double (default) or float when E_SINGLEREAL is set
+// by compilation option (ELSAPROD suffix _r4)
+#ifndef E_SINGLEREAL
+  #define E_DOUBLEREAL
+#endif
 //#define E_DOUBLEINT // set by compilation option
 
 // ==========================================================================
@@ -46,6 +50,7 @@
   #else
     #define E_PCM_FLOAT sizeof(E_Float)
   #endif
+  #define E_NPY_FLOAT E_NPY_FLOAT
   #define E_MAXFLOAT 1.797693134862315e308
 #else
   typedef float E_Float;
@@ -54,6 +59,7 @@
   #else
     #define E_PCM_FLOAT sizeof(E_Float)
   #endif
+  #define E_NPY_FLOAT NPY_FLOAT32
   #define E_MAXFLOAT 3.4028235e38
 #endif
 
@@ -86,7 +92,11 @@
 
 ///-
 
-#define E_EPSILON 1.e-12
+#ifdef E_DOUBLEREAL
+  #define E_EPSILON 1.e-12
+#else
+  #define E_EPSILON 1.e-6
+#endif
 
 ///-
 
