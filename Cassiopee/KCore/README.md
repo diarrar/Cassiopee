@@ -24,6 +24,15 @@ For standard install:
 - binaries will be installed to $CASSIOPEE/Dist/bin/$ELSAPROD
 - follow instructions
 
+Build variants (suffixes appended to ELSAPROD, can be combined):
+- _DBG: debug build (no optimization, sanitizers, bound checks)
+- _i8: all integers (E_Int) compiled in 64 bits (default: 32 bits)
+- _r4: all reals (E_Float) compiled in single precision, 32 bits
+  (default: double precision, 64 bits). Numpy fields exchanged with
+  the compiled modules must then be numpy.float32: use
+  Converter.Internal.E_NpyFloat as dtype in Python code.
+  Example: export ELSAPROD="x86_r4"
+
 For custom install:
 - set CASSIOPEE variable to Cassiopee source directory, for instance:
   in sh/bash: export CASSIOPEE="/home/john/Cassiopee"

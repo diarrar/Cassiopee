@@ -50,7 +50,7 @@
   #else
     #define E_PCM_FLOAT sizeof(E_Float)
   #endif
-  #define E_NPY_FLOAT E_NPY_FLOAT
+  #define E_NPY_FLOAT NPY_DOUBLE
   #define E_MAXFLOAT 1.797693134862315e308
 #else
   typedef float E_Float;

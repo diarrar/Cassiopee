@@ -47,13 +47,13 @@ E_Int *compute_cell_weights(Mesh *M)
     }
 
     E_Float gmin_weight;
-    MPI_Allreduce(&min_weight, &gmin_weight, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+    MPI_Allreduce(&min_weight, &gmin_weight, 1, XMPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
 
     E_Float sum = 0.0;
     for (E_Int weight : weights) sum += weight;
 
     E_Float gsum;
-    MPI_Allreduce(&sum, &gsum, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(&sum, &gsum, 1, XMPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
 
     E_Float velotabsum = gsum / min_weight;
 
@@ -583,16 +583,16 @@ E_Int Mesh_redistribute(Mesh *M, E_Int *cmap)
         assert(spcount[i] == count);
     }
     
-    MPI_Alltoallv(sx, spcount, spdist, MPI_DOUBLE,
-                  rx, rpcount, rpdist, MPI_DOUBLE,
+    MPI_Alltoallv(sx, spcount, spdist, XMPI_FLOAT,
+                  rx, rpcount, rpdist, XMPI_FLOAT,
                   MPI_COMM_WORLD);
 
-    MPI_Alltoallv(sy, spcount, spdist, MPI_DOUBLE,
-                  ry, rpcount, rpdist, MPI_DOUBLE,
+    MPI_Alltoallv(sy, spcount, spdist, XMPI_FLOAT,
+                  ry, rpcount, rpdist, XMPI_FLOAT,
                   MPI_COMM_WORLD);
     
-    MPI_Alltoallv(sz, spcount, spdist, MPI_DOUBLE,
-                  rz, rpcount, rpdist, MPI_DOUBLE,
+    MPI_Alltoallv(sz, spcount, spdist, XMPI_FLOAT,
+                  rz, rpcount, rpdist, XMPI_FLOAT,
                   MPI_COMM_WORLD);
 
     // Shift the point indices

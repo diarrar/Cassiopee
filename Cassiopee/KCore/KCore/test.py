@@ -5,9 +5,14 @@
 # objects: testO
 import numpy, sys, os
 
-# global tolerance on float fields
-TOLERANCE = 1.e-11  # absolute
-RELTOLERANCE = 1.e-14 # relative
+# global tolerance on float fields (depends on the compiled real precision)
+from KCore.Dist import ESINGLEREAL
+if ESINGLEREAL():
+    TOLERANCE = 1.e-5  # absolute
+    RELTOLERANCE = 1.e-6 # relative
+else:
+    TOLERANCE = 1.e-11  # absolute
+    RELTOLERANCE = 1.e-14 # relative
 
 # whether to diffArrays geometrically or topologically. default is topologically.
 GEOMETRIC_DIFF = False

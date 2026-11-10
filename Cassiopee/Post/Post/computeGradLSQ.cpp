@@ -370,9 +370,9 @@ PyObject *K_POST::computeGradLSQ(PyObject *self, PyObject *args)
   {
     const auto &Field = Fields[i];
 
-    PyArrayObject *Gx = (PyArrayObject *)PyArray_SimpleNew(1, dims, NPY_DOUBLE);
-    PyArrayObject *Gy = (PyArrayObject *)PyArray_SimpleNew(1, dims, NPY_DOUBLE);
-    PyArrayObject *Gz = (PyArrayObject *)PyArray_SimpleNew(1, dims, NPY_DOUBLE);
+    PyArrayObject *Gx = (PyArrayObject *)PyArray_SimpleNew(1, dims, E_NPY_FLOAT);
+    PyArrayObject *Gy = (PyArrayObject *)PyArray_SimpleNew(1, dims, E_NPY_FLOAT);
+    PyArrayObject *Gz = (PyArrayObject *)PyArray_SimpleNew(1, dims, E_NPY_FLOAT);
 
     E_Float *gx = (E_Float *)PyArray_DATA(Gx);
     E_Float *gy = (E_Float *)PyArray_DATA(Gy);

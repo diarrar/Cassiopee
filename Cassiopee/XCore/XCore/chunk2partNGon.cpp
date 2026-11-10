@@ -826,8 +826,8 @@ PyObject* K_XCORE::chunk2partNGon(PyObject *self, PyObject *args)
     }
   }
 
-  MPI_Alltoallv(&sxyz[0], &scount[0], &sdist[0], MPI_DOUBLE,
-                &rxyz[0], &rcount[0], &rdist[0], MPI_DOUBLE,
+  MPI_Alltoallv(&sxyz[0], &scount[0], &sdist[0], XMPI_FLOAT,
+                &rxyz[0], &rcount[0], &rdist[0], XMPI_FLOAT,
                 MPI_COMM_WORLD);
 
   if (rank == 0) puts("Coordinates OK");
@@ -1201,7 +1201,7 @@ PyObject* K_XCORE::chunk2partNGon(PyObject *self, PyObject *args)
 
     for (E_Int k = 0; k < csize; k++) 
     {
-      PyArrayObject *ca = (PyArrayObject *)PyArray_SimpleNew(1, dims, NPY_DOUBLE);
+      PyArrayObject *ca = (PyArrayObject *)PyArray_SimpleNew(1, dims, E_NPY_FLOAT);
 
       for (E_Int i = 0; i < nproc; i++) idx[i] = c_sdist[i];
       for (E_Int i = 0; i < nproc; i++)
@@ -1215,8 +1215,8 @@ PyObject* K_XCORE::chunk2partNGon(PyObject *self, PyObject *args)
         }
       }
 
-      MPI_Alltoallv(&c_sdata[0], &c_scount[0], &c_sdist[0], MPI_DOUBLE,
-                    PyArray_DATA(ca), &c_rcount[0], &c_rdist[0], MPI_DOUBLE,
+      MPI_Alltoallv(&c_sdata[0], &c_scount[0], &c_sdist[0], XMPI_FLOAT,
+                    PyArray_DATA(ca), &c_rcount[0], &c_rdist[0], XMPI_FLOAT,
                     MPI_COMM_WORLD);
 
       PyList_Append(clist, (PyObject *)ca);
@@ -1257,7 +1257,7 @@ PyObject* K_XCORE::chunk2partNGon(PyObject *self, PyObject *args)
 
     for (E_Int k = 0; k < psize; k++) 
     {
-      PyArrayObject *pa = (PyArrayObject *)PyArray_SimpleNew(1, dims, NPY_DOUBLE);
+      PyArrayObject *pa = (PyArrayObject *)PyArray_SimpleNew(1, dims, E_NPY_FLOAT);
 
       for (E_Int i = 0; i < nproc; i++) idx[i] = p_sdist[i];
       
@@ -1272,8 +1272,8 @@ PyObject* K_XCORE::chunk2partNGon(PyObject *self, PyObject *args)
         }
       }
 
-      MPI_Alltoallv(&p_sdata[0], &p_scount[0], &p_sdist[0], MPI_DOUBLE,
-                    PyArray_DATA(pa), &p_rcount[0], &p_rdist[0], MPI_DOUBLE,
+      MPI_Alltoallv(&p_sdata[0], &p_scount[0], &p_sdist[0], XMPI_FLOAT,
+                    PyArray_DATA(pa), &p_rcount[0], &p_rdist[0], XMPI_FLOAT,
                     MPI_COMM_WORLD);
 
       PyList_Append(plist, (PyObject *)pa);
@@ -1523,7 +1523,7 @@ PyObject* K_XCORE::chunk2partNGon(PyObject *self, PyObject *args)
         E_Float** pfas = new E_Float* [bcfieldsize[bc]];
         for (E_Int n = 0; n < bcfieldsize[bc]; n++)
         { 
-          PyArrayObject* fa = (PyArrayObject *)PyArray_SimpleNew(1, dims, NPY_DOUBLE);
+          PyArrayObject* fa = (PyArrayObject *)PyArray_SimpleNew(1, dims, E_NPY_FLOAT);
           E_Float* pfa = (E_Float*)PyArray_DATA(fa);
           pfas[n] = pfa;
           PyList_Append(listfields, (PyObject*)fa); Py_DECREF(fa);
@@ -1592,8 +1592,8 @@ PyObject* K_XCORE::chunk2partNGon(PyObject *self, PyObject *args)
           
           for (E_Int n = 0; n < bcfieldsize[bc]; n++)
           {
-            MPI_Send(bcfields[bc][n], bcsize[bc], MPI_DOUBLE, dest, 101, MPI_COMM_WORLD);
-            MPI_Recv(buf2, size1, MPI_DOUBLE, src, 101, MPI_COMM_WORLD, &status);
+            MPI_Send(bcfields[bc][n], bcsize[bc], XMPI_FLOAT, dest, 101, MPI_COMM_WORLD);
+            MPI_Recv(buf2, size1, XMPI_FLOAT, src, 101, MPI_COMM_WORLD, &status);
 
             /*
             if (rank == 0)

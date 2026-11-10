@@ -1011,12 +1011,17 @@ PyObject* K_IO::GenIOHdf::getArrayR8(hid_t node, hid_t tid, int dim, hsize_t* di
   hid_t did, yid;
   // for (E_Int nn = 0; nn < dim; nn++) printf("getArrayR8 of dims :: %d \n", dims[nn]);
   // printf("K_IO::GenIOHdf::getArrayR8 \n ");
-  // Create numpy: toujours en DOUBLE
+  // Create numpy: dans la precision compilee (E_Float)
   for (E_Int nn = 0; nn < dim; nn++) npy_dim_vals[nn] = dims[nn];
-  r = (PyArrayObject*)PyArray_EMPTY(dim, &npy_dim_vals[0], NPY_DOUBLE, 1);
+  r = (PyArrayObject*)PyArray_EMPTY(dim, &npy_dim_vals[0], E_NPY_FLOAT, 1);
 
   did = H5Dopen2(node, L3S_DATA, H5P_DEFAULT);
+#ifdef E_SINGLEREAL
+  // R8 in file, R4 in memory: HDF5 converts on the fly
+  yid = H5Tcopy(H5T_NATIVE_FLOAT);
+#else
   yid = H5Tget_native_type(tid, H5T_DIR_ASCEND);
+#endif
 
 #if defined(_MPI) && defined(H5_HAVE_PARALLEL)
   if (_ismpi == 1)    /** HDF is executed in parallel context and compiled in MPI **/
@@ -1097,7 +1102,10 @@ PyObject* K_IO::GenIOHdf::getArrayContigous(hid_t     node,
   }
 
   did = H5Dopen2(node, L3S_DATA, H5P_DEFAULT);
-  yid = H5Tget_native_type(tid, H5T_DIR_ASCEND);
+  // Memory type: follow the numpy type for reals (HDF5 converts on the fly)
+  if (NPYtype == NPY_FLOAT) yid = H5Tcopy(H5T_NATIVE_FLOAT);
+  else if (NPYtype == NPY_DOUBLE) yid = H5Tcopy(H5T_NATIVE_DOUBLE);
+  else yid = H5Tget_native_type(tid, H5T_DIR_ASCEND);
 
 #if defined(_MPI) && defined(H5_HAVE_PARALLEL)
   if (_ismpi == 1) /** HDF is executed in parallel context and compiled in MPI **/

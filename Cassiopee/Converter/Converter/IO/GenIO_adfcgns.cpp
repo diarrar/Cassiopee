@@ -332,11 +332,23 @@ PyObject* K_IO::GenIOAdf::getArrayR8(double node)
   ADF_Get_Number_of_Dimensions(node, &dim, &_errorFlag);
   ADF_Get_Dimension_Values(node, _dims, &_errorFlag);
 
-  // Create numpy: toujours en double
+  // Create numpy: dans la precision compilee (E_Float)
   npy_intp* npy_dim_vals = new npy_intp [dim];
   for (E_Int nn = 0; nn < dim; nn++) npy_dim_vals[nn] = _dims[nn];
-  r = (PyObject*)PyArray_EMPTY(dim, npy_dim_vals, NPY_DOUBLE, 1);
+  r = (PyObject*)PyArray_EMPTY(dim, npy_dim_vals, E_NPY_FLOAT, 1);
+#ifdef E_SINGLEREAL
+  // R8 in file, R4 in memory: read then convert
+  int sizem = 1;
+  for (int s = 0; s < dim; s++) sizem = sizem*_dims[s];
+  double* ptr = (double*)::malloc(sizem*sizeof(double));
+  if (!ptr) { Py_DECREF(r); delete [] npy_dim_vals; Py_INCREF(Py_None); return Py_None; }
+  ADF_Read_All_Data(node, (char*)ptr, &_errorFlag);
+  float* ptr2 = (float*)PyArray_DATA((PyArrayObject*)r);
+  for (int n = 0; n < sizem; n++) ptr2[n] = (float)(ptr[n]);
+  free(ptr);
+#else
   ADF_Read_All_Data(node, (char*)PyArray_DATA((PyArrayObject*)r), &_errorFlag);
+#endif
   delete [] npy_dim_vals;
   return r;
 }
@@ -366,27 +378,30 @@ PyObject* K_IO::GenIOAdf::getArrayR4(double node)
   sizem = 1;
   for (s = 0; s < dim; s++) sizem = sizem*_dims[s];
 
-  float* ptr = (float*)::malloc(sizem*sizeof(float));
-  if (!ptr) { Py_INCREF(Py_None); return Py_None; }
-
-  ADF_Read_All_Data(node, (char*)ptr, &_errorFlag);
-
-  double* ptr2 = (double*)::malloc(sizem*sizeof(double));
-  for (int n = 0; n < sizem; n++)
-  {
-    ptr2[n] = (double)(ptr[n]);
-  }
-  free(ptr);
-
-  // Create numpy : toujours en doubles
+  // Create numpy : dans la precision compilee (E_Float)
   vector<npy_intp> npy_dim_vals(dim);
   for (E_Int nn = 0; nn < dim; nn++)
   {
     npy_dim_vals[nn] = _dims[nn];
   }
-  r = (PyArrayObject*)PyArray_EMPTY(dim, &npy_dim_vals[0], NPY_DOUBLE, 1);
-  memcpy(PyArray_DATA(r), ptr2, sizem*sizeof(double));
-  free(ptr2);
+  r = (PyArrayObject*)PyArray_EMPTY(dim, &npy_dim_vals[0], E_NPY_FLOAT, 1);
+#ifdef E_SINGLEREAL
+  // R4 in file, R4 in memory: direct read
+  ADF_Read_All_Data(node, (char*)PyArray_DATA(r), &_errorFlag);
+#else
+  // R4 in file, R8 in memory: read then convert
+  float* ptr = (float*)::malloc(sizem*sizeof(float));
+  if (!ptr) { Py_DECREF(r); Py_INCREF(Py_None); return Py_None; }
+
+  ADF_Read_All_Data(node, (char*)ptr, &_errorFlag);
+
+  double* ptr2 = (double*)PyArray_DATA(r);
+  for (int n = 0; n < sizem; n++)
+  {
+    ptr2[n] = (double)(ptr[n]);
+  }
+  free(ptr);
+#endif
   return (PyObject*)r;
 }
 
