@@ -1194,7 +1194,7 @@ def convertFile2PyTree(fileName, format=None, nptsCurve=20, nptsLine=2,
             if Internal.E_NpyInt == numpy.int32: Internal._adaptTypes(a, convertR42R8=False, convertI82I4=True, convertI42I8=False)
             elif Internal.E_NpyInt == numpy.int64: Internal._adaptTypes(a, convertR42R8=False, convertI82I4=False, convertI42I8=True)
             # modify r4/r8 types
-            if Internal.E_NpyFloat == Internal.E_NpyFloat: Internal._adaptTypes(a, convertR42R8=True, convertI82I4=False, convertR82R4=False)
+            if Internal.E_NpyFloat == numpy.float64: Internal._adaptTypes(a, convertR42R8=True, convertI82I4=False, convertR82R4=False)
             elif Internal.E_NpyFloat == numpy.float32: Internal._adaptTypes(a, convertR42R8=False, convertI82I4=False, convertR82R4=True)
             print('done.')
 
@@ -2741,7 +2741,7 @@ def _initVars(t, varNameString, v1=None, v2=None, mode=0, isVectorized=False):
     loc = 'nodes'
     centerCoordNeeded = False
     # Check that the type of varNameString is correct for all types of initialisations
-    isFuncOrConstInit = callable(v1) or isinstance(v1, (int, float, Internal.E_NpyFloat))
+    isFuncOrConstInit = callable(v1) or isinstance(v1, (int, float, numpy.floating))
 
     if isFuncOrConstInit:
         # Initialisation(s) by constant or function
@@ -2784,7 +2784,7 @@ def _initVars(t, varNameString, v1=None, v2=None, mode=0, isVectorized=False):
                       "significantly affect performance")
             _TZAGC3(t, loc, loc, False, Converter.initVars,
                     Converter.initVars, varNames, v1, v2, mode, isVectorized)
-        elif isinstance(v1, (int, float, Internal.E_NpyFloat)):
+        elif isinstance(v1, (int, float, numpy.floating)):
             # Initialisation(s) by constant
             _TZAGC3(t, loc, loc, False, Converter.initVars, Converter.initVars,
                     varNames, v1, v2, mode)
