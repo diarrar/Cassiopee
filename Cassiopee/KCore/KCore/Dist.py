@@ -65,13 +65,13 @@ def setConfigDict(installDict=None):
     cassProd = None
     # prod est tout d'abord cherche dans le dictionnaire
     if prod is not None:
-        prod = prod.replace('_i8', '').replace('_DBG', '')
+        prod = prod.replace('_i8', '').replace('_r4', '').replace('_DBG', '')
         # check if machine contains a branch name and if so, remove it from the prod
         # this cannot be detected using the ELSAPROD alone as the prefix '_b-' is
         # replaced with '_' in Envs/sh_Cassiopee_local
         mac = os.getenv("MACHINE")
         if mac is not None:
-            mac = mac.replace('_i8', '').replace('_DBG', '').split('_b-')
+            mac = mac.replace('_i8', '').replace('_r4', '').replace('_DBG', '').split('_b-')
             if len(mac) == 2:
                 branchName = mac[1]
                 prod = prod.replace('_' + branchName, '')
