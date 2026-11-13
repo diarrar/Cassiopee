@@ -30,6 +30,7 @@
 #include <set>
 #include <vector>
 #include <algorithm>
+#include <type_traits>
 
 namespace K_FLD 
 {
@@ -81,6 +82,14 @@ Design
     DynArray(size_type rows, size_type cols, bool calloc = false);
     /// Constructor with number of rows, columns and default value.
     DynArray(size_type rows, size_type cols, const value_type& val, bool calloc = false);
+    /// Same as above for an arithmetic initial value of another type (e.g. a double
+    /// literal when T is float): avoids an ambiguity with the bool overload.
+    template <typename U,
+              typename = typename std::enable_if<std::is_arithmetic<U>::value &&
+                                                 !std::is_same<U, bool>::value &&
+                                                 !std::is_same<U, T>::value>::type>
+    DynArray(size_type rows, size_type cols, U val, bool calloc = false)
+      : DynArray(rows, cols, value_type(val), calloc) {}
     /// Constructor with input data : WARNING becomes owner
     DynArray(T*& compactdata, size_type rows, size_type cols, bool calloc = false);
 
