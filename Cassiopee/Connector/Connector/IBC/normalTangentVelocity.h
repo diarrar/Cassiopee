@@ -13,4 +13,4 @@ wt = w-wn;
 
 // uext: norme de la composante tangentielle de la vitesse externe
 uext = sqrt(ut*ut+vt*vt+wt*wt);
-uext = std::max(uext, 1.e-12);
+uext = std::max(uext, E_Float(1.e-12));

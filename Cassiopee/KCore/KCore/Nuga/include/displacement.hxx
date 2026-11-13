@@ -736,7 +736,7 @@ namespace NUGA
   /// 
   template <> inline
     void move_double_walls<edge_mesh_t>
-    (edge_mesh_t* bit, const edge_mesh_t& zbound, E_Float ARTOL, eMetricType mtype, E_Float AMAX, const std::vector<E_Int>& zmask_wall_ids, std::vector<bool>& is_dw)
+    (edge_mesh_t* bit, const edge_mesh_t& zbound, double ARTOL, eMetricType mtype, double AMAX, const std::vector<E_Int>& zmask_wall_ids, std::vector<bool>& is_dw)
   {
     // not implemented for surfaces
   }
