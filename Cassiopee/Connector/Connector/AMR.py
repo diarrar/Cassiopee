@@ -1004,7 +1004,9 @@ def checkRelativeOffset__(ip_pts, wallpts, imagepts, forceAlignment=False, local
     y_offsetPointLocation = y_wall + y_facePointWallPointVec * donorPointWallPointDist;
     z_offsetPointLocation = z_wall + z_facePointWallPointVec * donorPointWallPointDist;
 
-    epsDonorPointOffset = 1e-6
+    # relative tolerance on the tangential offset: loosened in single precision
+    if Internal.E_NpyFloat == numpy.float32: epsDonorPointOffset = 1e-4
+    else: epsDonorPointOffset = 1e-6
     offsetcheck = ( (x_offsetPointLocation - x_image)**2 + (y_offsetPointLocation - y_image)**2 + (z_offsetPointLocation - z_image)**2 )**0.5
     array_check =  numpy.where(offsetcheck > (epsDonorPointOffset * donorPointWallPointDist))[0]
     print("Rank: %d :: Check not aligned points: size array=%d"%(Cmpi.rank,array_check.size), flush=True)
