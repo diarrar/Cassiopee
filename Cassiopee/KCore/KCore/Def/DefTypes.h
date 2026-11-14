@@ -52,6 +52,7 @@
   #endif
   #define E_NPY_FLOAT NPY_DOUBLE
   #define E_MAXFLOAT 1.797693134862315e308
+  typedef int64_t E_FloatAsInt; // integer stored in an E_Float slot (same size)
 #else
   typedef float E_Float;
   #ifdef E_MPI
@@ -61,6 +62,7 @@
   #endif
   #define E_NPY_FLOAT NPY_FLOAT32
   #define E_MAXFLOAT 3.4028235e38
+  typedef int32_t E_FloatAsInt; // integer stored in an E_Float slot (same size)
 #endif
 
 // Int (int or long long)

@@ -204,7 +204,7 @@ def _createHook4AdaptMesh(a, dim=3, splitInfos=None):
     Internal._adaptNGon32NGon4(z)
 
     if dim == 3: normal2D = None
-    else:normal2D = numpy.array([0.0,0.0,1.0])
+    else:normal2D = numpy.array([0.0,0.0,1.0], dtype=Internal.E_NpyFloat)
     if splitInfos is None or eltType != 'NGON':
         ngonelts = Internal.getNGonNode(z)
         ER = Internal.getNodeFromName1(ngonelts, 'ElementRange')[1]

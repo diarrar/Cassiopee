@@ -23,13 +23,13 @@ a2 = D.circle((0,0,0),1, N=40); a2 = C.convertArray2Tetra(a2); a2 = G.close(a2)
 GC = Internal.getNodeFromType1(a2, 'GridCoordinates_t')
 FSN = Internal.getNodeFromType1(a2, 'FlowSolution_t')
 nIBC = Internal.getZoneDim(a2)[1]
-XP = numpy.zeros((nIBC),numpy.float64)
+XP = numpy.zeros((nIBC),Internal.E_NpyFloat)
 XN = Internal.getNodeFromName1(GC,'CoordinateX')[1]; XP[:]=XN[:]
-YP = numpy.zeros((nIBC),numpy.float64)
+YP = numpy.zeros((nIBC),Internal.E_NpyFloat)
 YN = Internal.getNodeFromName1(GC,'CoordinateY')[1]; YP[:]=YN[:]
-ZP = numpy.ones((nIBC),numpy.float64)*0.005
-DENS = numpy.ones((nIBC),numpy.float64)
-PRESS = 101325*numpy.ones((nIBC),numpy.float64)
+ZP = numpy.ones((nIBC),Internal.E_NpyFloat)*0.005
+DENS = numpy.ones((nIBC),Internal.E_NpyFloat)
+PRESS = 101325*numpy.ones((nIBC),Internal.E_NpyFloat)
 zsr[2].append(['CoordinateX_PW', XP, [], 'DataArray_t'])
 zsr[2].append(['CoordinateY_PW', YP, [], 'DataArray_t'])
 zsr[2].append(['CoordinateZ_PW', ZP, [], 'DataArray_t'])
@@ -62,14 +62,14 @@ a2 = D.sphere((0,0,0),1, N=30); a2 = C.convertArray2Tetra(a2); a2 = G.close(a2)
 GC = Internal.getNodeFromType(a2,"GridCoordinates_t")
 FSN = Internal.getNodeFromType(a2,'FlowSolution_t')
 nIBC = Internal.getZoneDim(a2)[1]
-XP = numpy.zeros((nIBC),numpy.float64)
+XP = numpy.zeros((nIBC),Internal.E_NpyFloat)
 XN = Internal.getNodeFromName(GC,'CoordinateX')[1]; XP[:]=XN[:]
-YP = numpy.zeros((nIBC),numpy.float64)
+YP = numpy.zeros((nIBC),Internal.E_NpyFloat)
 YN = Internal.getNodeFromName(GC,'CoordinateY')[1]; YP[:]=YN[:]
-ZP = numpy.zeros((nIBC),numpy.float64)
+ZP = numpy.zeros((nIBC),Internal.E_NpyFloat)
 ZN = Internal.getNodeFromName(GC,'CoordinateZ')[1]; ZP[:]=ZN[:]
-DENS = numpy.ones((nIBC),numpy.float64)
-PRESS = 101325*numpy.ones((nIBC),numpy.float64)
+DENS = numpy.ones((nIBC),Internal.E_NpyFloat)
+PRESS = 101325*numpy.ones((nIBC),Internal.E_NpyFloat)
 zsr[2].append(['CoordinateX_PW', XP, [], 'DataArray_t'])
 zsr[2].append(['CoordinateY_PW', YP, [], 'DataArray_t'])
 zsr[2].append(['CoordinateZ_PW', ZP, [], 'DataArray_t'])

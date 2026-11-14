@@ -21,8 +21,13 @@
 #ifndef __NUGA_DEFS_H__
 #define __NUGA_DEFS_H__
 
+#ifdef E_SINGLEREAL
+#define ZERO_M       1.e-7
+#define EPSILON      1.e-4
+#else
 #define ZERO_M       1.e-15
 #define EPSILON      1.e-12
+#endif
 
 #define Vector_t     std::vector
 

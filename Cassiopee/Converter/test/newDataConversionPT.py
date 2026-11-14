@@ -5,7 +5,7 @@ import Converter.Internal as Internal
 
 # Create a DataConversion node
 n = Internal.newDataConversion(conversionScale=1., conversionOffset=0.); Internal.printTree(n)
-#>> ['DataConversion',array(shape=(2,),dtype='float64',order='F'),[0 son],'DataConversion_t']
+#>> ['DataConversion',array(shape=(2,),dtype=Internal.E_NpyFloat,order='F'),[0 son],'DataConversion_t']
 
 # Attach it to a parent node
 d = Internal.newDiscreteData('DiscreteData')

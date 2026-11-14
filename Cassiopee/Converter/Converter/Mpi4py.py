@@ -35,6 +35,9 @@ __all__ = [
 
 from mpi4py import MPI
 import numpy
+# MPI datatype matching the compiled real precision (Internal.E_NpyFloat)
+if Internal.E_NpyFloat == numpy.float32: E_MPI_FLOAT = MPI.FLOAT
+else: E_MPI_FLOAT = MPI.DOUBLE
 import os
 
 COMM_WORLD = MPI.COMM_WORLD
@@ -489,9 +492,9 @@ def bcastZone(z, root=0, coord=True, variables=[]):
             py = numpy.empty(sy, dtype=Internal.E_NpyFloat, order='F')
             pz = numpy.empty(sz, dtype=Internal.E_NpyFloat, order='F')
 
-        KCOMM.Bcast([px,MPI.DOUBLE], root)
-        KCOMM.Bcast([py,MPI.DOUBLE], root)
-        KCOMM.Bcast([pz,MPI.DOUBLE], root)
+        KCOMM.Bcast([px,E_MPI_FLOAT], root)
+        KCOMM.Bcast([py,E_MPI_FLOAT], root)
+        KCOMM.Bcast([pz,E_MPI_FLOAT], root)
 
         if rank != root:
             # Reconstruction de la zone
@@ -516,7 +519,7 @@ def bcastZone(z, root=0, coord=True, variables=[]):
         if rank != root:
             pv = numpy.empty(sv, dtype=Internal.E_NpyFloat, order='F')
 
-        KCOMM.Bcast([pv,MPI.DOUBLE], root)
+        KCOMM.Bcast([pv,E_MPI_FLOAT], root)
 
         if rank != root:
             # Reconstruction de la zone

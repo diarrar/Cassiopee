@@ -4,6 +4,7 @@ import Converter.PyTree as C
 import Transform.PyTree as T
 import KCore.test as test
 import numpy
+import Converter.Internal as Internal
 
 a = G.cartTetra((0,0,0), (1,1,1), (10,10,1))
 a = C.initVars(a, '{Density}={CoordinateX}')
@@ -18,7 +19,7 @@ test.testT(a, 1)
 #C.convertPyTree2File(a, 'out.cgns')
 #test.testT(a, 2)
 
-eps = numpy.empty((C.getNPts(a)), dtype=numpy.float64)
+eps = numpy.empty((C.getNPts(a)), dtype=Internal.E_NpyFloat)
 eps[:] = 0.1
 T._smoothField(a, eps, niter, type, ['Density'])
 test.testT(a, 3)

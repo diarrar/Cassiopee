@@ -3,6 +3,7 @@
 import Converter as C
 import Post as P
 import numpy
+import Converter.Internal as Internal
 
 # Lit le fichier et le met dans arrays
 arrays = []
@@ -33,7 +34,7 @@ for i in a :
     print(ni, nj, nk)
 #    dens = ones( (1, ni * nj * nk), float64 )
 #    densa = ['t', dens, ni, nj, nk]
-    dens = numpy.ones( (1, (ni-1) * (nj-1) * (nk-1)), numpy.float64 )
+    dens = numpy.ones( (1, (ni-1) * (nj-1) * (nk-1)), Internal.E_NpyFloat )
     densa = ['t', dens, (ni-1), (nj-1), (nk-1)]
     data.append(densa)
     c=P.node2Center(arrays[i])

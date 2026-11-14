@@ -8,6 +8,7 @@ import Converter.Internal as I
 from   mpi4py             import MPI
 import numpy
 import Distribution       as     DIST
+import Converter.Internal as Internal
 
 # ------------------------------------------------------------------------
 # 2/ Initialise MPI
@@ -34,7 +35,7 @@ DIST.computeDistribution(distribVtx, sVtx, rVtx)
 NbE = distribVtx[rank+1] - distribVtx[rank]
 
 # > Create numpy array
-CoordX = numpy.ones(NbE, order='F', dtype=numpy.float64)*rank+1
+CoordX = numpy.ones(NbE, order='F', dtype=Internal.E_NpyFloat)*rank+1
 CoordY = numpy.ones(NbE, order='F', dtype=numpy.int32)*rank
 
 # ------------------------------------------------------------------------

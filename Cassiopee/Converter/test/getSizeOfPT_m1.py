@@ -9,6 +9,6 @@ a = G.cart((0,0,0), (1,1,1), (10,10,10))
 s = Cmpi.getSizeOf(a, 'sum')
 if Cmpi.rank == 0: test.testO(s, 1)
 
-a = [numpy.zeros((100), dtype=numpy.float64)]
+a = [numpy.zeros((100), dtype=Internal.E_NpyFloat)]
 s = Cmpi.getSizeOf(a, 'sum')
 if Cmpi.rank == 0: test.testO(s, 2)

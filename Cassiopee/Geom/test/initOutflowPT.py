@@ -12,7 +12,7 @@ for z in Internal.getZones(a):
     Internal._createChild(z, 'IBCD_4_'+z[0] , 'ZoneSubRegion_t', value=z[0])
 
 
-Nlength = numpy.zeros((10),numpy.float64)
+Nlength = numpy.zeros((10),Internal.E_NpyFloat)
 for z in Internal.getZones(a):
     subRegions = Internal.getNodesFromType1(z, 'ZoneSubRegion_t')
     for zsr in subRegions:

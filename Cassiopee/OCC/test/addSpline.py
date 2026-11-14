@@ -1,9 +1,10 @@
 # - addSpline (array) -
 import OCC
 import numpy
+import Converter.Internal as Internal
 
 # control points
-points = numpy.array([[0,0,0],[1,1,0],[2,0,0],[3,0,0],[4,0,0],[5,0,0]], dtype=numpy.float64, order='F')
+points = numpy.array([[0,0,0],[1,1,0],[2,0,0],[3,0,0],[4,0,0],[5,0,0]], dtype=Internal.E_NpyFloat, order='F')
 
 hook = OCC.createEmptyCAD()
 
