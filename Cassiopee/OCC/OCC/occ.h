@@ -23,6 +23,7 @@
 #include "packet.h"
 
 #include "TopoDS_Shape.hxx"
+#include "TopoDS_Face.hxx"
 #include "TopoDS_Compound.hxx" 
 #include "TDocStd_Document.hxx"
 #include <map>
@@ -52,6 +53,12 @@ namespace K_OCC
   void buildOutfaceCompound(TopoDS_Shape& shape, PyObject* listFaces, TopoDS_Compound& compound);
   // sew a shape
   void sewShape(TopoDS_Shape& shape, E_Float tol);
+  // Get tag = 0 or 1 for given list of edges
+  void getEdgeTag(TopoDS_Shape& shape, PyObject* listEdges, std::vector<E_Int>& tag);
+  // Get tag = 0 or 1 for given list of faces
+  void getFaceTag(TopoDS_Shape& shape, PyObject* listFaces, std::vector<E_Int>& tag);
+  // check a face - is it valid, return 0 (valid), 1 (invalid)
+  E_Int checkFace(TopoDS_Face& F);
 
   PyObject* convertCAD2Arrays0(PyObject* self, PyObject* args); // with OCC internal
   PyObject* convertCAD2Arrays1(PyObject* self, PyObject* args); // with T3Mesher
@@ -120,6 +127,7 @@ namespace K_OCC
   PyObject* analyseEdges(PyObject* self, PyObject* args);
   PyObject* getMinMaxEdgeLength(PyObject* self, PyObject* args);
   PyObject* getEdgeLength(PyObject* self, PyObject* args);
+  PyObject* getEdgeVertices(PyObject* self, PyObject* args);
   PyObject* getFaceArea(PyObject* self, PyObject* args);
   PyObject* getFaceVolume(PyObject* self, PyObject* args);
   PyObject* getFaceMassCenter(PyObject* self, PyObject* args);
@@ -127,6 +135,7 @@ namespace K_OCC
   PyObject* getFaceOrientation(PyObject* self, PyObject* args);
   PyObject* areEdgeIdentical(PyObject* self, PyObject* args);
   PyObject* checkFaceOverlap(PyObject* self, PyObject* args);
+  PyObject* queryEdge(PyObject* self, PyObject* args);
 
   PyObject* splitFaces(PyObject* self, PyObject* args);
   PyObject* splitEdge(PyObject* self, PyObject* args);
