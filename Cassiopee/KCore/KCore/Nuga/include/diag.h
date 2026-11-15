@@ -20,6 +20,7 @@
 #define NUGA_DIAG_H
 
 #include "String/kstring.h"
+#include "Nuga/include/defs.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -53,14 +54,14 @@ namespace NUGA
 /**
  * \brief Identity matrix.
  */
-static E_Float Id[3][3] = {
+static nuga_real_t Id[3][3] = {
   {1.0, 0.0, 0.0},
   {0.0, 1.0, 0.0},
   {0.0, 0.0, 1.0} };
 
 
 /**
- * \fn static int newton3(E_Float p[4], E_Float x[3])
+ * \fn static int newton3(nuga_real_t p[4], nuga_real_t x[3])
  * \brief Find root(s) of a polynomial of degree 3.
  * \param p polynomial coefficients (b=p[2], c=p[1], d=p[0]).
  * \param x root(s) of polynomial.
@@ -72,11 +73,11 @@ static E_Float Id[3][3] = {
  * Find root(s) of a polynomial of degree 3: \f$P(x) = x^3+bx^2+cx+d\f$.
  *
  */
-static int newton3(E_Float p[4], E_Float x[3]) 
+static int newton3(nuga_real_t p[4], nuga_real_t x[3]) 
 {
-  E_Float b,c,d,da,db,dc,epsd;
-  E_Float delta,fx,dfx,dxx;
-  E_Float fdx0,fdx1,dx0,dx1,x1,x2;
+  nuga_real_t b,c,d,da,db,dc,epsd;
+  nuga_real_t delta,fx,dfx,dxx;
+  nuga_real_t fdx0,fdx1,dx0,dx1,x1,x2;
   E_Int it, n;
   static char mmgWarn=0;
 
@@ -291,12 +292,12 @@ static int newton3(E_Float p[4], E_Float x[3])
  *
  */
 static
-int check_accuracy(E_Float mat[6], E_Float lambda[3], E_Float v[3][3],
-                    E_Float w1[3], E_Float w2[3], E_Float w3[3],
-                    E_Float maxm, int order, int symmat) 
+int check_accuracy(nuga_real_t mat[6], nuga_real_t lambda[3], nuga_real_t v[3][3],
+                    nuga_real_t w1[3], nuga_real_t w2[3], nuga_real_t w3[3],
+                    nuga_real_t maxm, int order, int symmat) 
 {
-  E_Float err,tmpx,tmpy,tmpz;
-  E_Float m[6];
+  nuga_real_t err,tmpx,tmpy,tmpz;
+  nuga_real_t m[6];
   E_Int i,j,k;
 
   if ( !symmat ) return 1;
@@ -370,15 +371,15 @@ int check_accuracy(E_Float mat[6], E_Float lambda[3], E_Float v[3][3],
  * \remark the i^{th} eigenvector is stored in v[i][.].
  *
  */
-inline E_Int eigenv(E_Int symmat, E_Float* mat, E_Float lambda[3], E_Float v[3][3]) 
+inline E_Int eigenv(E_Int symmat, nuga_real_t* mat, nuga_real_t lambda[3], nuga_real_t v[3][3]) 
 {
-  E_Float a11,a12,a13,a21,a22,a23,a31,a32,a33;
-  E_Float aa,bb,cc,dd,ee,ii,vx1[3],vx2[3],vx3[3],dd1,dd2,dd3;
-  E_Float maxd,maxm,valm,p[4],w1[3],w2[3],w3[3];
+  nuga_real_t a11,a12,a13,a21,a22,a23,a31,a32,a33;
+  nuga_real_t aa,bb,cc,dd,ee,ii,vx1[3],vx2[3],vx3[3],dd1,dd2,dd3;
+  nuga_real_t maxd,maxm,valm,p[4],w1[3],w2[3],w3[3];
   E_Int k,n;
 
   /* default */
-  memcpy(v, Id, 9*sizeof(E_Float));
+  memcpy(v, Id, 9*sizeof(nuga_real_t));
   if ( symmat ) 
   {
     lambda[0] = mat[0];
@@ -668,12 +669,12 @@ inline E_Int eigenv(E_Int symmat, E_Float* mat, E_Float lambda[3], E_Float v[3][
  *
  * \warning not used for now
  */
-inline E_Int eigen2(E_Float* mm, E_Float* lambda, E_Float vp[2][2]) 
+inline E_Int eigen2(nuga_real_t* mm, nuga_real_t* lambda, nuga_real_t vp[2][2]) 
 {
-  E_Float m[3],dd,a1,xn,ddeltb,rr1,rr2,ux,uy;
+  nuga_real_t m[3],dd,a1,xn,ddeltb,rr1,rr2,ux,uy;
 
   /* normalize */
-  memcpy(m, mm, 3*sizeof(E_Float));
+  memcpy(m, mm, 3*sizeof(nuga_real_t));
   xn = fabs(m[0]);
   if ( fabs(m[1]) > xn )  xn = fabs(m[1]);
   if ( fabs(m[2]) > xn )  xn = fabs(m[2]);
@@ -800,9 +801,9 @@ vect:
  * Compute eigenelements of a symetric matrix m. Eigenvectors are orthogonal.
  *
  */
-inline E_Int eigensym(E_Float m[3], E_Float lambda[2], E_Float vp[2][2])
+inline E_Int eigensym(nuga_real_t m[3], nuga_real_t lambda[2], nuga_real_t vp[2][2])
 {
-  E_Float sqDelta,dd,trm,vnorm;
+  nuga_real_t sqDelta,dd,trm,vnorm;
 
   dd  = m[0]-m[2];
   trm = m[0]+m[2];

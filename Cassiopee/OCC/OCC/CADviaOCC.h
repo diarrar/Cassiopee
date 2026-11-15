@@ -42,7 +42,7 @@ public:
 	~CADviaOCC();
     
     ///
-    E_Int import_cad(const char* fname, const char*format, E_Float h=0., E_Float chordal_err=0.,  E_Float gr = 0. /*growth ratio*/);
+    E_Int import_cad(const char* fname, const char*format, nuga_real_t h=0., nuga_real_t chordal_err=0.,  nuga_real_t gr = 0. /*growth ratio*/);
     ///
     E_Int compute_h_sizing(K_FLD::FloatArray& coords, std::vector<E_Int>& Ns);
     ///
@@ -50,14 +50,14 @@ public:
     ///
     E_Int mesh_edges(K_FLD::FloatArray& coords, std::vector<K_FLD::IntArray>& connectEs);
     ///
-    E_Int build_loops (K_FLD::FloatArray& coords, const std::vector<K_FLD::IntArray>& connectEs, std::vector<K_FLD::IntArray>& connectBs, E_Float merge_tol=-1.);
+    E_Int build_loops (K_FLD::FloatArray& coords, const std::vector<K_FLD::IntArray>& connectEs, std::vector<K_FLD::IntArray>& connectBs, nuga_real_t merge_tol=-1.);
     ///
     E_Int mesh_faces(const K_FLD::FloatArray& coords, const std::vector<K_FLD::IntArray>& connectEs, std::vector<K_FLD::FloatArray>& crds, std::vector<K_FLD::IntArray>& connectMs, bool aniso=false, bool do_join = true);
     E_Int mesh_faces2(const K_FLD::FloatArray& coords, const std::vector<K_FLD::IntArray>& connectEs, std::vector<K_FLD::FloatArray>& crds, std::vector<K_FLD::IntArray>& connectMs, bool aniso=false, bool do_join = true);
     
-    E_Int __eval_chordal_error(const BRepAdaptor_Curve& curve, E_Float u0, E_Float u1, E_Float& chordal_error);
-    E_Int __eval_nb_points(const BRepAdaptor_Curve& C, E_Float u0, E_Float u1, E_Float chordal_error, E_Int& nb_points );
-    E_Int __eval_nb_points2(const BRepAdaptor_Curve& C, E_Float u0, E_Float u1, E_Float chordal_error, E_Int& nb_points );
+    E_Int __eval_chordal_error(const BRepAdaptor_Curve& curve, nuga_real_t u0, nuga_real_t u1, nuga_real_t& chordal_error);
+    E_Int __eval_nb_points(const BRepAdaptor_Curve& C, nuga_real_t u0, nuga_real_t u1, nuga_real_t chordal_error, E_Int& nb_points );
+    E_Int __eval_nb_points2(const BRepAdaptor_Curve& C, nuga_real_t u0, nuga_real_t u1, nuga_real_t chordal_error, E_Int& nb_points );
     
 private:
   
@@ -65,10 +65,10 @@ private:
     
     void __traverse_face_edges(const TopoDS_Face& F, TopExp_Explorer& edge_expl, std::vector<E_Int>& edges);
         
-    E_Int __h_sizing(const TopoDS_Edge& E, E_Float& L);
-    E_Int __chord_sizing(const TopoDS_Edge& E, E_Float chordal_err, E_Int& nb_points);
+    E_Int __h_sizing(const TopoDS_Edge& E, nuga_real_t& L);
+    E_Int __chord_sizing(const TopoDS_Edge& E, nuga_real_t chordal_err, E_Int& nb_points);
     
-    E_Int __clean(const K_FLD::ArrayAccessor<K_FLD::FloatArray>& crdA, K_FLD::IntArray& connectB, E_Float& tol2);
+    E_Int __clean(const K_FLD::ArrayAccessor<K_FLD::FloatArray>& crdA, K_FLD::IntArray& connectB, nuga_real_t& tol2);
     
     E_Int __mesh_edge(const TopoDS_Edge& E, E_Int& N, K_FLD::FloatArray& coords, K_FLD::IntArray& connectEs);
     E_Int __remove_degenerated(K_FLD::IntArray& connectE);
@@ -90,7 +90,7 @@ private:
     
     void __add_seam_node2(OCCSurface const *face, K_FLD::FloatArray& pos3D, E_Int N0, std::map<E_Int, std::pair<E_Int, E_Int> >& seam_nodes);
     
-    E_Float _chordal_err, _h, _merge_tol, _Lmin, _Lmax, _Lmean, _gr;
+    nuga_real_t _chordal_err, _h, _merge_tol, _Lmin, _Lmax, _Lmean, _gr;
     bool _hrelative;
     
     TopoDS_Shape _occ_shape;

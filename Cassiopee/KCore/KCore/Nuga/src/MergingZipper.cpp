@@ -92,7 +92,7 @@ MergingZipper::merge
   // Merge the remaining boundary nodes based on the min boundary edge length
   // (e.g. several patches coincident at the same node).
 
-  E_Float tol = __computeTolerance(pos, connectE2, nodes);
+  nuga_real_t tol = __computeTolerance(pos, connectE2, nodes);
 
   K_FLD::ArrayAccessor<K_FLD::FloatArray> posAcc(pos);
   std::sort(nodes.begin(), nodes.end());
@@ -129,12 +129,12 @@ MergingZipper::merge
 }
 
 ///
-E_Float
+nuga_real_t
 MergingZipper::__computeTolerance
 (const K_FLD::FloatArray& pos, K_FLD::IntArray& connect,
  const std::vector<E_Int>& nodes)
 {
-  E_Float           tol = NUGA::FLOAT_MAX, max_d;
+  nuga_real_t           tol = NUGA::FLOAT_MAX, max_d;
   K_FLD::FloatArray L2;
   K_FLD::IntArray   connectA;
 

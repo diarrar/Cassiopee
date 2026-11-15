@@ -46,11 +46,11 @@ public:
 protected:
   
   ///
-  void __set_tolerances(E_Float Lmin, E_Float Lmax, E_Float  user_tolerance);
+  void __set_tolerances(nuga_real_t Lmin, nuga_real_t Lmax, nuga_real_t  user_tolerance);
 
   ///
   E_Int __intersect(K_FLD::FloatArray& pos, const K_FLD::IntArray& connect,
-                     E2& e1, E2& e2, E_Float tol);
+                     E2& e1, E2& e2, nuga_real_t tol);
   ///
   void __update_data(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, const std::vector<E_Int>& newIDs);
   /// Splits the triangles by triangulation.
@@ -76,7 +76,7 @@ protected:
     
 private:
   
-  void __reorder_nodes_on_edge(const K_FLD::FloatArray& pos, std::vector<E_Int>& nodes, const E_Float *P0);
+  void __reorder_nodes_on_edge(const K_FLD::FloatArray& pos, std::vector<E_Int>& nodes, const nuga_real_t *P0);
   
   BAR_Conformizer(const BAR_Conformizer& orig){}
   

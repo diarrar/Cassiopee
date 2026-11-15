@@ -115,7 +115,7 @@ int import_step(const char* fname, TopoDS_Shape& sh)
 }
 
 // Lit le fichier CAD et retourne les entites openscascade
-E_Int K_OCC::CADviaOCC::import_cad(const char* fname, const char* format, E_Float h, E_Float chordal_err, E_Float gr /*groqth ratio*/)
+E_Int K_OCC::CADviaOCC::import_cad(const char* fname, const char* format, nuga_real_t h, nuga_real_t chordal_err, nuga_real_t gr /*groqth ratio*/)
 {
   _chordal_err = chordal_err;
   _h = h;
@@ -136,7 +136,7 @@ E_Int K_OCC::CADviaOCC::compute_h_sizing(K_FLD::FloatArray& coords, std::vector<
   
   Ns.resize(nb_edges+1, 0);
   
-  std::vector<E_Float> Ls;
+  std::vector<nuga_real_t> Ls;
   Ls.resize(nb_edges+1, 0.);
   
   _Lmin = NUGA::FLOAT_MAX;
@@ -198,7 +198,7 @@ E_Int K_OCC::CADviaOCC::update_with_chordal_sizing(std::vector<E_Int>& Ns)
 }
 
 ///
-E_Int K_OCC::CADviaOCC::__h_sizing(const TopoDS_Edge& E, E_Float& L)
+E_Int K_OCC::CADviaOCC::__h_sizing(const TopoDS_Edge& E, nuga_real_t& L)
 {  
   if (BRep_Tool::Degenerated (E))      // Exit if the edge is degenerated.
     return 1;
@@ -208,23 +208,23 @@ E_Int K_OCC::CADviaOCC::__h_sizing(const TopoDS_Edge& E, E_Float& L)
   std::cout << "dir : " << line.Direction().X() << "/" << line.Direction().Y() << "/" << line.Direction().Z() << "/" << std::endl;*/
     
   GeomAdaptor_Curve geom_adap(C0.Curve()); // Geometric Interface <=> access to discretizations tool
-  L = (E_Float) GCPnts_AbscissaPoint::Length(geom_adap, geom_adap.FirstParameter(), geom_adap.LastParameter());
+  L = (nuga_real_t) GCPnts_AbscissaPoint::Length(geom_adap, geom_adap.FirstParameter(), geom_adap.LastParameter());
   
   return 0;
 }
 
 // Retourne le nbre de points pour recuperer le bon chordal_err (fait un max)
-E_Int K_OCC::CADviaOCC::__chord_sizing(const TopoDS_Edge& E, E_Float chordal_err, E_Int& nb_points)
+E_Int K_OCC::CADviaOCC::__chord_sizing(const TopoDS_Edge& E, nuga_real_t chordal_err, E_Int& nb_points)
 {  
   if (BRep_Tool::Degenerated (E))      // Exit if the edge is degenerated.
     return 1;
   
   BRepAdaptor_Curve C0(E);
   GeomAdaptor_Curve geom_adap(C0.Curve()); // Geometric Interface <=> access to discretizations tool
-  E_Float u0 = geom_adap.FirstParameter();
-  E_Float u1 = geom_adap.LastParameter();
+  nuga_real_t u0 = geom_adap.FirstParameter();
+  nuga_real_t u1 = geom_adap.LastParameter();
   
-  //E_Float L = (E_Float) GCPnts_AbscissaPoint::Length(geom_adap, u0, u1);
+  //nuga_real_t L = (nuga_real_t) GCPnts_AbscissaPoint::Length(geom_adap, u0, u1);
   
   E_Int nb_pts_defl = 0;
   __eval_nb_points(C0, u0, u1, chordal_err, nb_pts_defl);
@@ -235,28 +235,28 @@ E_Int K_OCC::CADviaOCC::__chord_sizing(const TopoDS_Edge& E, E_Float chordal_err
 }
 
 // Calcul le nbre de pts pour avoir la bonne erreur de corde sur la courbe C
-E_Int K_OCC::CADviaOCC::__eval_nb_points(const BRepAdaptor_Curve& C, E_Float u0, E_Float u1, E_Float chordal_err, E_Int& nb_points)
+E_Int K_OCC::CADviaOCC::__eval_nb_points(const BRepAdaptor_Curve& C, nuga_real_t u0, nuga_real_t u1, nuga_real_t chordal_err, E_Int& nb_points)
 {
 
   GeomAdaptor_Curve geom_adap(C.Curve()); // Geometric Interface <=> access to discretizations tool
-  E_Float L = (E_Float)GCPnts_AbscissaPoint::Length(geom_adap, u0, u1);
+  nuga_real_t L = (nuga_real_t)GCPnts_AbscissaPoint::Length(geom_adap, u0, u1);
 
-  E_Float dm;
+  nuga_real_t dm;
   __eval_chordal_error(C, u0, u1, dm);
   if (dm < chordal_err * L)
   {
     nb_points = 1; return 0;
   }
   E_Int ns = 1; // nbre de splits
-  E_Float du = u1-u0;
+  nuga_real_t du = u1-u0;
   
   while (ns < 50)
   {
-    E_Float cm1 = 0.;
+    nuga_real_t cm1 = 0.;
     for (E_Int i = 0; i <= ns; i++)
     {
       __eval_chordal_error(C, u0+i*du/(ns+1), u0+(i+1)*du/(ns+1), dm);
-      E_Float Li = (E_Float)GCPnts_AbscissaPoint::Length(geom_adap, u0 + i * du / (ns + 1), u0 + (i + 1)*du / (ns + 1));
+      nuga_real_t Li = (nuga_real_t)GCPnts_AbscissaPoint::Length(geom_adap, u0 + i * du / (ns + 1), u0 + (i + 1)*du / (ns + 1));
       cm1 = std::max(cm1, dm / Li);
     }
     if (cm1 < chordal_err) { nb_points = ns; return 0; }
@@ -267,9 +267,9 @@ E_Int K_OCC::CADviaOCC::__eval_nb_points(const BRepAdaptor_Curve& C, E_Float u0,
 }
 
 // Fonction recursive : parfois boucle a l'infini
-E_Int K_OCC::CADviaOCC::__eval_nb_points2(const BRepAdaptor_Curve& C, E_Float u0, E_Float u1, E_Float dmax, E_Int& nb_points)
+E_Int K_OCC::CADviaOCC::__eval_nb_points2(const BRepAdaptor_Curve& C, nuga_real_t u0, nuga_real_t u1, nuga_real_t dmax, E_Int& nb_points)
 {
-  E_Float dm;
+  nuga_real_t dm;
   __eval_chordal_error(C, u0, u1, dm);
   if (dm <= dmax)
   {
@@ -282,7 +282,7 @@ E_Int K_OCC::CADviaOCC::__eval_nb_points2(const BRepAdaptor_Curve& C, E_Float u0
   return 0;
 }
 
-E_Int K_OCC::CADviaOCC::__eval_chordal_error(const BRepAdaptor_Curve& C, E_Float u0, E_Float u1, E_Float& dmax)
+E_Int K_OCC::CADviaOCC::__eval_chordal_error(const BRepAdaptor_Curve& C, nuga_real_t u0, nuga_real_t u1, nuga_real_t& dmax)
 {
   gp_Pnt pu0;
   C.D0(u0, pu0);
@@ -290,7 +290,7 @@ E_Int K_OCC::CADviaOCC::__eval_chordal_error(const BRepAdaptor_Curve& C, E_Float
   C.D0(u1, pu1);
     
   gp_Pnt pu, P0, P1;
-  E_Float Pu[3], Pm[3];
+  nuga_real_t Pu[3], Pm[3];
   
   C.D0(u0, P0);
   C.D0(u1, P1);
@@ -300,7 +300,7 @@ E_Int K_OCC::CADviaOCC::__eval_chordal_error(const BRepAdaptor_Curve& C, E_Float
   // 4 samples
   for (size_t n=0; n < 3; ++n)
   {
-    E_Float u = u0 + 0.25 * (n+1) * (u1-u0);
+    nuga_real_t u = u0 + 0.25 * (n+1) * (u1-u0);
     
     C.D0(u, pu);
     Pu[0] = pu.X(); Pu[1] = pu.Y(); Pu[2] = pu.Z();
@@ -309,7 +309,7 @@ E_Int K_OCC::CADviaOCC::__eval_chordal_error(const BRepAdaptor_Curve& C, E_Float
     Pm[1] = P0.Y() + 0.25 * (n+1) * (P1.Y() - P0.Y());
     Pm[2] = P0.Z() + 0.25 * (n+1) * (P1.Z() - P0.Z());
     
-    E_Float dm = ::sqrt(NUGA::sqrDistance(Pm, Pu, 3));
+    nuga_real_t dm = ::sqrt(NUGA::sqrDistance(Pm, Pu, 3));
     
     dmax = (dm > dmax) ? dm : dmax;
   }
@@ -388,7 +388,7 @@ E_Int K_OCC::CADviaOCC::__remove_degenerated(K_FLD::IntArray& connectE)
 //
 E_Int K_OCC::CADviaOCC::build_loops
 (K_FLD::FloatArray& coords, const std::vector<K_FLD::IntArray>& connectEs, 
-  std::vector<K_FLD::IntArray>& connectBs, E_Float merge_tol)
+  std::vector<K_FLD::IntArray>& connectBs, nuga_real_t merge_tol)
 {
   E_Int nb_faces(_surfs.Extent());
   
@@ -399,7 +399,7 @@ E_Int K_OCC::CADviaOCC::build_loops
   K_FLD::IntArray tmp;
   K_FLD::ArrayAccessor<K_FLD::FloatArray > crdA(coords);
   std::vector<E_Int> end_nodes;
-  E_Float tol2 = -1.;
+  nuga_real_t tol2 = -1.;
   
 #ifdef DEBUG_CAD_READER
   E_Int faulty_id=69;
@@ -458,7 +458,7 @@ E_Int K_OCC::CADviaOCC::build_loops
   
   // merge tol
   _merge_tol = ::sqrt(tol2); 
-  _merge_tol = std::max(_merge_tol, E_Float(1.e-4*_Lmean));
+  _merge_tol = std::max(_merge_tol, nuga_real_t(1.e-4*_Lmean));
   if (merge_tol > 0.) _merge_tol = merge_tol;
   printf("merge tol = %g\n", _merge_tol);
   
@@ -491,7 +491,7 @@ E_Int K_OCC::CADviaOCC::build_loops
 }
 
 // Ressort aussi la tolerance
-E_Int K_OCC::CADviaOCC::__clean(const K_FLD::ArrayAccessor<K_FLD::FloatArray>& crdA, K_FLD::IntArray& connectB, E_Float& tol2)
+E_Int K_OCC::CADviaOCC::__clean(const K_FLD::ArrayAccessor<K_FLD::FloatArray>& crdA, K_FLD::IntArray& connectB, nuga_real_t& tol2)
 { 
   //
   _end_nodes.clear();
@@ -533,9 +533,9 @@ E_Int K_OCC::CADviaOCC::__clean(const K_FLD::ArrayAccessor<K_FLD::FloatArray>& c
   // build the KdTree.
   K_SEARCH::KdTree<K_FLD::FloatArray> tree(crdA, _end_nodes);
   
-  typedef std::vector<std::pair <E_Float, std::pair <E_Int, E_Int> > > palmares_t;
+  typedef std::vector<std::pair <nuga_real_t, std::pair <E_Int, E_Int> > > palmares_t;
   palmares_t palma;
-  E_Float d2;
+  nuga_real_t d2;
   E_Int N;
   
   for (size_t i = 0; i < _end_nodes.size(); ++i)
@@ -781,15 +781,15 @@ E_Int K_OCC::CADviaOCC::mesh_faces
       }
       else
       {
-        mode.growth_ratio = std::max(_gr, E_Float(1.)); //fixme : values in [1.; 1.25] might cause errors. Anyway do not allow bellow 1. since not useful
+        mode.growth_ratio = std::max(_gr, nuga_real_t(1.)); //fixme : values in [1.; 1.25] might cause errors. Anyway do not allow bellow 1. since not useful
         E_Int MIN_NB = 50;
         if (_gr >= 1. && (connectB.cols() > (MIN_NB * 4))) // check if growth ratio is applicable to this patch, i.e. it is symmetrizable
         {
           // Count the minimum number of edges on a boundary of the param space per direction (U,V)
-          E_Float nu(0), nv(0);
+          nuga_real_t nu(0), nv(0);
           for (E_Int i=0; i < connectB.cols(); ++i)
           {
-            E_Float ds[2];
+            nuga_real_t ds[2];
             const E_Int& Ni = connectB(0,i);
             const E_Int& Nj = connectB(1,i);
             NUGA::diff<2>(UVcontour.col(Ni), UVcontour.col(Nj), ds);
@@ -922,7 +922,7 @@ E_Int K_OCC::CADviaOCC::mesh_faces
 void K_OCC::CADviaOCC::__computeOrient(const K_FLD::FloatArray crd2D, const K_FLD::IntArray& cnt, E_Int&o)
 {
   o=0;
-  E_Float Z=0., z=0.;
+  nuga_real_t Z=0., z=0.;
   for (E_Int i=0; i < cnt.cols(); ++i)
   {
     NUGA::crossProduct<2>(crd2D.col(cnt(0,i)), crd2D.col(cnt(1,i)), &z);
@@ -1032,7 +1032,7 @@ E_Int K_OCC::CADviaOCC::__mesh_edge(const TopoDS_Edge& E, E_Int& nb_points, K_FL
   nb_points = unif_abs.NbPoints(); // just in case the number of constructed points is different from what was asked.
     
   gp_Pnt Pt;
-  E_Float P[3];
+  nuga_real_t P[3];
   E_Int Ei[2], sz(coords.cols());
    
   // Insert new points
@@ -1154,11 +1154,11 @@ E_Int K_OCC::CADviaOCC::__check_for_spikes(const std::vector<K_FLD::IntArray>& c
 
       double Pim1Pi[] = { UVcontour(0, Ni) - UVcontour(0, Nim1) , UVcontour(1, Ni) - UVcontour(1, Nim1) };
       NUGA::normalize<2>(Pim1Pi);
-      E_Float Norm1[] = { -Pim1Pi[1], Pim1Pi[0] , 0.};  // {-b, a}
+      nuga_real_t Norm1[] = { -Pim1Pi[1], Pim1Pi[0] , 0.};  // {-b, a}
 
       double PiPip1[] = { UVcontour(0, Nip1) - UVcontour(0, Ni) , UVcontour(1, Nip1) - UVcontour(1, Ni) };
       NUGA::normalize<2>(PiPip1);
-      E_Float Norm2[] = { -PiPip1[1], PiPip1[0], 0. };  // {-b, a}
+      nuga_real_t Norm2[] = { -PiPip1[1], PiPip1[0], 0. };  // {-b, a}
 
       double spiky = ::fabs(NUGA::normals_angle(Norm1, Norm2) - NUGA::PI);
 
@@ -1215,10 +1215,10 @@ void K_OCC::CADviaOCC::__split_surface_of_revolution(const OCCSurface* face, K_F
       new_connect.pushBack(e.begin(), e.end());
     else if (it0 != seam_nodes.end() && it1 == seam_nodes.end()) // seam-connected edge
     {
-      E_Float u,v;
+      nuga_real_t u,v;
       face->parameters(pos3D.col(N1), u, v);
       
-      E_Float * p = &u;
+      nuga_real_t * p = &u;
       if (face->_isVClosed && !face->_isUClosed) p = &v;
       
       E_Int e[] = {N1, E_IDX_NONE};
@@ -1230,11 +1230,11 @@ void K_OCC::CADviaOCC::__split_surface_of_revolution(const OCCSurface* face, K_F
     }
     else if (it0 == seam_nodes.end() && it1 != seam_nodes.end()) // seam-connected edge
     {
-      E_Float u,v;
+      nuga_real_t u,v;
       //E_Int err = 
       face->parameters(pos3D.col(N0), u, v);
       
-      E_Float *p = &u;
+      nuga_real_t *p = &u;
       if (face->_isVClosed && !face->_isUClosed) p = &v;
       
       E_Int e[] = {N0, E_IDX_NONE};
@@ -1265,17 +1265,17 @@ void K_OCC::CADviaOCC::__add_seam_node
  std::map<E_Int, std::pair<E_Int, E_Int> >& seam_nodes)
 { 
   //create the points
-  E_Float u,v;
+  nuga_real_t u,v;
   //E_Int err = 
   face->parameters(pos3D.col(N0), u, v);
 
-  E_Float Pt[3];
-  E_Float eps = 1.e-12;
+  nuga_real_t Pt[3];
+  nuga_real_t eps = 1.e-12;
 
   if (face->_isUClosed && !face->_isVClosed)
   {
-    E_Float u0 = face->_U0 + eps;
-    E_Float u1 = face->_U1 -eps;
+    nuga_real_t u0 = face->_U0 + eps;
+    nuga_real_t u1 = face->_U1 -eps;
 
     face->point(u0, v, Pt);
     pos3D.pushBack(Pt, Pt+3);
@@ -1289,8 +1289,8 @@ void K_OCC::CADviaOCC::__add_seam_node
   }
   else if (!face->_isUClosed && face->_isVClosed)
   {
-    E_Float v0 = face->_V0 + eps;
-    E_Float v1 = face->_V1 - eps;
+    nuga_real_t v0 = face->_V0 + eps;
+    nuga_real_t v1 = face->_V1 - eps;
     
     face->point(u, v0, Pt);
     pos3D.pushBack(Pt, Pt+3);

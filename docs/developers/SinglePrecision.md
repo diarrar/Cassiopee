@@ -33,7 +33,7 @@ Les bibliothèques tierces et quelques noyaux internes travaillent en double que
 | MPI | `E_PCM_FLOAT`, `XMPI_FLOAT` (XCore), `E_MPI_FLOAT` (Converter.Mpi4py) |
 | Compressor (zfp, sz, fpc) | non traité : décompression en double, sorties float64 |
 | Netgen (Generator), zoltan (XCore) | non traités |
-| Nuga (Delaunay, booléens) | en cours : passage du noyau en double, voir ci-dessous |
+| Nuga (Delaunay, booléens, arbres, intersections) | calcule en double (`nuga_real_t`), `K_FLD::FloatArray` est un conteneur double ; conversions aux interfaces (`FldArrayF`, `E_Float*`) via DynArray, ArrayAccessor, BbTree, KdTree et l'API Dyn de KCore |
 
 ## État par lot
 
@@ -63,7 +63,7 @@ Pour les tests MPI lancés hors `mpirun` (import de `Converter.Mpi` dans un test
 
 ## Écarts r4 restants, par famille
 
-- **Mailleur Delaunay Nuga** (T3mesher2D, gapfixer, fittingPlaster, conformUnstr, splitManifold, booléens, collarMesh, xcelln) : les prédicats géométriques sont réglés pour le double ; en float une arête contrainte non retrouvée fait fuir le coloriage du domaine (`error finalizing`, code 77). Relâcher `ZERO_M`/`EPSILON` aggrave la triangulation. Décision : faire calculer Nuga en double avec conversion aux interfaces.
+- **Mailleur Delaunay Nuga** (T3mesher2D, gapfixer, fittingPlaster, conformUnstr, splitManifold, booléens, collarMesh, xcelln) : les prédicats géométriques sont réglés pour le double ; en float une arête contrainte non retrouvée fait fuir le coloriage du domaine (`error finalizing`, code 77). Relâcher `ZERO_M`/`EPSILON` aggrave la triangulation. Traitement : Nuga calcule en double quelle que soit la précision compilée (`nuga_real_t` dans `Nuga/include/defs.h`, `K_FLD::FloatArray = DynArray<double>`), les modules convertissent à l'entrée et à la sortie. À valider par le prochain run r4.
 - **Écarts numériques entre 1e-5 et 3e-3** sur gradients, divergences, projections, lissages : accumulation d'arrondi float, à couvrir par les tolérances r4 ou à accepter test par test.
 - **Décisions qui basculent** (cellN, indicateurs, intersections de rayons, blanking, P1ConsInterpolation) : écarts qualitatifs à examiner un par un.
 - **Non identifiés** : TIMEOUT octree2Struct, adaptCellsPT_t9 ; segfault connectMatchPT_m3, prepAMRFull_m1 ; tetgen `error no 3` ; `sharpEdges set is empty` ; mapSplit `getDistantIndex`.

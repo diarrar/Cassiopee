@@ -56,12 +56,12 @@ protected:
 public:
 #endif
   ///
-  void __set_tolerances(E_Float Lmin, E_Float Lmax, E_Float  user_tolerance);
+  void __set_tolerances(nuga_real_t Lmin, nuga_real_t Lmax, nuga_real_t  user_tolerance);
   ///
   void __prepare_data(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect);
   ///
   E_Int __intersect(K_FLD::FloatArray& pos, const K_FLD::IntArray& connect,
-                     T3& t1, T3& t2, E_Float tol);
+                     T3& t1, T3& t2, nuga_real_t tol);
   ///
   void __update_data(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, const std::vector<E_Int>& newIDs);
   
@@ -71,10 +71,10 @@ public:
                         NUGA::int_vector_type& ancestors);
   
   ///Hook to do a merge toward the intersection line (TRI)
-  E_Int __simplify_and_clean(const K_FLD::FloatArray& pos, E_Float tolerance, K_FLD::IntArray& connect,
+  E_Int __simplify_and_clean(const K_FLD::FloatArray& pos, nuga_real_t tolerance, K_FLD::IntArray& connect,
                              NUGA::int_vector_type& ancestors, NUGA::bool_vector_type& xc);
   ///Hook to do a merge toward the intersection line (TRI)
-  E_Int __simplify_and_clean2(const K_FLD::FloatArray& pos, E_Float tolerance, K_FLD::IntArray& connect,
+  E_Int __simplify_and_clean2(const K_FLD::FloatArray& pos, nuga_real_t tolerance, K_FLD::IntArray& connect,
     NUGA::int_vector_type& ancestors, NUGA::bool_vector_type& xc);
   /// when duplicates are baffles
   void __process_duplicates(K_FLD::IntArray& connect, std::vector<E_Int>& ancestors, NUGA::bool_vector_type& xc);
@@ -83,7 +83,7 @@ public:
   void __run_correction_beta(const K_FLD::FloatArray& pos, K_FLD::IntArray& connect,
                             NUGA::int_vector_type& ancestors,
                             NUGA::bool_vector_type& xc,
-                            E_Float tolerance);
+                            nuga_real_t tolerance);
 
   void __run_correction_gamma(const std::set<K_MESH::NO_Edge>&xpairs, NUGA::int_vector_type&colors,
                               NUGA::int_vector_type&xr, K_FLD::IntArray& connect,
@@ -109,7 +109,7 @@ E_Int __swap_edges(std::vector<std::pair<E_Int, E_Int> >& sapwE, K_FLD::IntArray
   void drawElements(const char* fname, const char* filefmt, const K_FLD::FloatArray& coord,
                     const K_FLD::IntArray& connect, const std::vector<T3> & elts, bool localid = false, std::vector<E_Int>* colors=0);
   ///
-  void draw(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, E_Float tol, E_Int what, K_FLD::IntArray& out);
+  void draw(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, nuga_real_t tol, E_Int what, K_FLD::IntArray& out);
 
 #endif
   
@@ -122,7 +122,7 @@ public:
 #endif
   
   ///
-  E_Int __iterative_run(DELAUNAY::T3Mesher<E_Float>& mesher, K_FLD::FloatArray& crd, K_FLD::IntArray& cB, 
+  E_Int __iterative_run(DELAUNAY::T3Mesher<nuga_real_t>& mesher, K_FLD::FloatArray& crd, K_FLD::IntArray& cB, 
                         NUGA::int_vector_type& hnodes, DELAUNAY::MeshData& data, std::vector<E_Int>& nids,
                         bool ignore_unforceable_edge, bool silent_last_iter);
   ///
@@ -135,10 +135,10 @@ public:
                                        DELAUNAY::MeshData& data);
   ///
   E_Bool __intersect(K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, T3& t,
-                     edge_container_type& edges, E_Int idxE, E_Float tol, std::vector<E_Int>& nodes, E_Int* pidx, E_Bool& coplanar);
+                     edge_container_type& edges, E_Int idxE, nuga_real_t tol, std::vector<E_Int>& nodes, E_Int* pidx, E_Bool& coplanar);
   
   ///
-  bool __fast_discard(const K_FLD::FloatArray& pos, const E_Int* T1, const E_Int* T2, E_Float tol);
+  bool __fast_discard(const K_FLD::FloatArray& pos, const E_Int* T1, const E_Int* T2, nuga_real_t tol);
   
   ///
   void __tidy_edges(const K_FLD::FloatArray& pos, edge_container_type& edges);
@@ -162,13 +162,13 @@ public:
   ///
   inline void __get_Imprint_edges(const T3& t, std::set<K_MESH::Edge>& hBO, std::set<E_Int>& Nodes0);
   ///
-  E_Bool is_inside(const K_FLD::IntArray& connect, const T3& t, const K_FLD::FloatArray& pos, E_Int Ni, E_Float tol);
+  E_Bool is_inside(const K_FLD::IntArray& connect, const T3& t, const K_FLD::FloatArray& pos, E_Int Ni, nuga_real_t tol);
   ///
   void __compact_to_mesh(const K_FLD::FloatArray& posIn, const K_FLD::IntArray& connectIn, 
                          K_FLD::FloatArray& posOut, K_FLD::IntArray& connectOut, 
                          std::vector<E_Int>& revIDs, std::vector<E_Int> * hard_nodes = 0);
   ///
-  void __transform(const E_Float* P0, const E_Float* P1, const E_Float* P2, K_FLD::FloatArray& pos);
+  void __transform(const nuga_real_t* P0, const nuga_real_t* P1, const nuga_real_t* P2, K_FLD::FloatArray& pos);
   ///
   void __transform(K_FLD::FloatArray& pos, const K_FLD::FloatArray& t);
 
@@ -187,19 +187,19 @@ public:
     void __compute_splitting_points(K_FLD::FloatArray& pos, const K_FLD::IntArray& connect,
                                     const NUGA::bool_vector_type& xc,
                                     const std::set<K_MESH::NO_Edge>& commone_no_edges,
-                                    E_Float tol, std::map<K_MESH::NO_Edge, std::vector<E_Int> >& edge_to_point);
+                                    nuga_real_t tol, std::map<K_MESH::NO_Edge, std::vector<E_Int> >& edge_to_point);
     ///
     void __buildSameSupportSurfacePairs(const K_FLD::FloatArray& pos, 
                                         const std::vector<K_FLD::IntArray >& connectZs, std::vector<std::vector<E_Int> >& grouped_zones);
     ///
-    E_Bool __areOverlapping(const K_FLD::FloatArray& pos, E_Float tolerance, const K_FLD::FloatArray& normals,
+    E_Bool __areOverlapping(const K_FLD::FloatArray& pos, nuga_real_t tolerance, const K_FLD::FloatArray& normals,
                             const K_FLD::IntArray& connectZ1, const K_SEARCH::BbTree3D& treeZ1,
                             const K_FLD::IntArray& connectZ2, const K_SEARCH::BbTree3D& treeZ2);
     ///
     E_Bool __IsNodeFarFromSurface(const K_FLD::FloatArray& pos, const K_FLD::FloatArray& normals,
-                                  E_Int N, const K_FLD::IntArray& connectZ, const K_SEARCH::BbTree3D& treeZ, E_Float tolerance);
+                                  E_Int N, const K_FLD::IntArray& connectZ, const K_SEARCH::BbTree3D& treeZ, nuga_real_t tolerance);
     ///
-    void __computeAveragedNormal(const K_FLD::FloatArray& normals, const std::vector<E_Int>& nodes, E_Float* ni);
+    void __computeAveragedNormal(const K_FLD::FloatArray& normals, const std::vector<E_Int>& nodes, nuga_real_t* ni);
 
 #ifdef DEBUG_TRI_CONFORMIZER
     ///
@@ -219,10 +219,10 @@ private:
   std::set<E_Int>    _wnodes_set;
 
   K_FLD::FloatArray _P,_iP;
-  E_Float _U1[3], _U2[3], _U3[3];
+  nuga_real_t _U1[3], _U2[3], _U3[3];
 
 #ifdef FLAG_STEP
-  E_Float tcomp, ttra, trun, tcon, tcon0, tcon1, tcon2, tnot;
+  nuga_real_t tcomp, ttra, trun, tcon, tcon0, tcon1, tcon2, tnot;
 #endif
 
 };

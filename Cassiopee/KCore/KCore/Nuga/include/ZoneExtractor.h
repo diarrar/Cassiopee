@@ -51,28 +51,28 @@ public:
   
   /// Retrieves any cell in mesh (crd,cnt) inside box(mB,MB).
   template <short DIM, typename ELT_t>
-  void getInBox(const E_Float* mB, const E_Float* MB, E_Float tol, const ACoordinate_t& crd, const AConnectivity_t& cnt, Vector_t<E_Int>& xCells_ids);
+  void getInBox(const nuga_real_t* mB, const nuga_real_t* MB, nuga_real_t tol, const ACoordinate_t& crd, const AConnectivity_t& cnt, Vector_t<E_Int>& xCells_ids);
   template <short DIM>
   void getInBox
-  (const E_Float* mB, const E_Float* MB, E_Float tol, const ACoordinate_t& crd, const ngon_unit& ng, Vector_t<E_Int>& xCells_ids);
+  (const nuga_real_t* mB, const nuga_real_t* MB, nuga_real_t tol, const ACoordinate_t& crd, const ngon_unit& ng, Vector_t<E_Int>& xCells_ids);
   template <short DIM>
-  void getInBox_omp(const E_Float* mB, const E_Float* MB, E_Float tol, const ACoordinate_t& crd, const AConnectivity_t& cnt, Vector_t<E_Int>& xCells_ids);
+  void getInBox_omp(const nuga_real_t* mB, const nuga_real_t* MB, nuga_real_t tol, const ACoordinate_t& crd, const AConnectivity_t& cnt, Vector_t<E_Int>& xCells_ids);
   
   /// Retrieves any point cloud crd inside box(mB,MB).
   template <short DIM>
-  void getInBox(const E_Float* mB, const E_Float* MB, E_Float tol, const ACoordinate_t& crd, Vector_t<E_Int>& xCells_ids);
+  void getInBox(const nuga_real_t* mB, const nuga_real_t* MB, nuga_real_t tol, const ACoordinate_t& crd, Vector_t<E_Int>& xCells_ids);
   template <short DIM>
-  void getInBox_omp(const E_Float* mB, const E_Float* MB, E_Float tol, const ACoordinate_t& crd, Vector_t<E_Int>& xCells_ids);
+  void getInBox_omp(const nuga_real_t* mB, const nuga_real_t* MB, nuga_real_t tol, const ACoordinate_t& crd, Vector_t<E_Int>& xCells_ids);
 
   /// Retrieves any box in boxes inside box(mB,MB).
   template <short DIM>
-  void getInBox(const E_Float* mB, const E_Float* MB, E_Float tol, const Vector_t<K_SEARCH::BoundingBox<DIM>*>& boxes, Vector_t<E_Int>& xnode_ids);
+  void getInBox(const nuga_real_t* mB, const nuga_real_t* MB, nuga_real_t tol, const Vector_t<K_SEARCH::BoundingBox<DIM>*>& boxes, Vector_t<E_Int>& xnode_ids);
   /// same as above but with a flag instead of a list
   template <short DIM>
-  void getInBox(const E_Float* mB, const E_Float* MB, E_Float tol, const Vector_t<K_SEARCH::BoundingBox<DIM>*>& boxes, Vector_t<bool>& is_in);
+  void getInBox(const nuga_real_t* mB, const nuga_real_t* MB, nuga_real_t tol, const Vector_t<K_SEARCH::BoundingBox<DIM>*>& boxes, Vector_t<bool>& is_in);
   //omp version
   template <short DIM>
-  void getInBox_omp(const E_Float* mB, const E_Float* MB, E_Float tol, const Vector_t<K_SEARCH::BoundingBox<DIM>*>& boxes, Vector_t<bool>& is_in);
+  void getInBox_omp(const nuga_real_t* mB, const nuga_real_t* MB, nuga_real_t tol, const Vector_t<K_SEARCH::BoundingBox<DIM>*>& boxes, Vector_t<bool>& is_in);
 };
 
 typedef ZoneExtractor<K_FLD::FldArrayF, K_FLD::FldArrayI> FldZoneExtractor;
@@ -83,7 +83,7 @@ typedef ZoneExtractor<K_FLD::FloatArray, K_FLD::IntArray> DynZoneExtractor;
 TEMPLATE_COORD_CONNECT
 template <short DIM, typename ELT_t>
 void ZoneExtractor<Coordinate_t, Connectivity_t>::getInBox
-(const E_Float* mB, const E_Float* MB, E_Float tol, const ACoordinate_t& crd, const AConnectivity_t& cnt, Vector_t<E_Int>& xCells_ids)
+(const nuga_real_t* mB, const nuga_real_t* MB, nuga_real_t tol, const ACoordinate_t& crd, const AConnectivity_t& cnt, Vector_t<E_Int>& xCells_ids)
 {
   xCells_ids.clear();
   
@@ -105,7 +105,7 @@ void ZoneExtractor<Coordinate_t, Connectivity_t>::getInBox
 TEMPLATE_COORD_CONNECT
 template <short DIM>
 void ZoneExtractor<Coordinate_t, Connectivity_t>::getInBox
-(const E_Float* mB, const E_Float* MB, E_Float tol, const ACoordinate_t& crd, const ngon_unit& PGs, Vector_t<E_Int>& xCells_ids)
+(const nuga_real_t* mB, const nuga_real_t* MB, nuga_real_t tol, const ACoordinate_t& crd, const ngon_unit& PGs, Vector_t<E_Int>& xCells_ids)
 {
   xCells_ids.clear();
   
@@ -131,15 +131,16 @@ void ZoneExtractor<Coordinate_t, Connectivity_t>::getInBox
 TEMPLATE_COORD_CONNECT
 template <short DIM>
 void ZoneExtractor<Coordinate_t, Connectivity_t>::getInBox
-(const E_Float* mB, const E_Float* MB, E_Float tol, const ACoordinate_t& crd, Vector_t<E_Int>& xnode_ids)
+(const nuga_real_t* mB, const nuga_real_t* MB, nuga_real_t tol, const ACoordinate_t& crd, Vector_t<E_Int>& xnode_ids)
 {
   xnode_ids.clear();
   
   size_t sz = crd.size();
   
-  const E_Float* px = crd.array().begin(crd.posX(0));
-  const E_Float* py = crd.array().begin(crd.posX(1));
-  const E_Float* pz = crd.array().begin(crd.posX(2));
+  typedef typename ACoordinate_t::value_type crd_real_t;
+  const crd_real_t* px = crd.array().begin(crd.posX(0));
+  const crd_real_t* py = crd.array().begin(crd.posX(1));
+  const crd_real_t* pz = crd.array().begin(crd.posX(2));
   
   for (size_t i = 0; i < sz; ++i)
   {
@@ -152,7 +153,7 @@ void ZoneExtractor<Coordinate_t, Connectivity_t>::getInBox
 TEMPLATE_COORD_CONNECT
 template <short DIM>
 void ZoneExtractor<Coordinate_t, Connectivity_t>::getInBox
-(const E_Float* mB, const E_Float* MB, E_Float tol, const Vector_t<K_SEARCH::BoundingBox<DIM>*>& boxes, Vector_t<E_Int>& xCells_ids)
+(const nuga_real_t* mB, const nuga_real_t* MB, nuga_real_t tol, const Vector_t<K_SEARCH::BoundingBox<DIM>*>& boxes, Vector_t<E_Int>& xCells_ids)
 {
   xCells_ids.clear();
 
@@ -169,7 +170,7 @@ void ZoneExtractor<Coordinate_t, Connectivity_t>::getInBox
 TEMPLATE_COORD_CONNECT
 template <short DIM>
 void ZoneExtractor<Coordinate_t, Connectivity_t>::getInBox
-(const E_Float* mB, const E_Float* MB, E_Float tol, const Vector_t<K_SEARCH::BoundingBox<DIM>*>& boxes, Vector_t<bool>& is_in)
+(const nuga_real_t* mB, const nuga_real_t* MB, nuga_real_t tol, const Vector_t<K_SEARCH::BoundingBox<DIM>*>& boxes, Vector_t<bool>& is_in)
 {
   is_in.clear();
   is_in.resize(boxes.size());
@@ -186,7 +187,7 @@ void ZoneExtractor<Coordinate_t, Connectivity_t>::getInBox
 TEMPLATE_COORD_CONNECT
 template <short DIM>
 void ZoneExtractor<Coordinate_t, Connectivity_t>::getInBox_omp
-(const E_Float* mB, const E_Float* MB, E_Float tol, const ACoordinate_t& crd, const AConnectivity_t& cnt, Vector_t<E_Int>& is_in)
+(const nuga_real_t* mB, const nuga_real_t* MB, nuga_real_t tol, const ACoordinate_t& crd, const AConnectivity_t& cnt, Vector_t<E_Int>& is_in)
 {
   is_in.clear();
   
@@ -215,7 +216,7 @@ void ZoneExtractor<Coordinate_t, Connectivity_t>::getInBox_omp
 TEMPLATE_COORD_CONNECT
 template <short DIM>
 void ZoneExtractor<Coordinate_t, Connectivity_t>::getInBox_omp
-(const E_Float* mB, const E_Float* MB, E_Float tol, const ACoordinate_t& crd, Vector_t<E_Int>& is_in)
+(const nuga_real_t* mB, const nuga_real_t* MB, nuga_real_t tol, const ACoordinate_t& crd, Vector_t<E_Int>& is_in)
 {
   is_in.clear();
   
@@ -223,9 +224,10 @@ void ZoneExtractor<Coordinate_t, Connectivity_t>::getInBox_omp
   
   is_in.resize(sz);
   
-  const E_Float* px = crd.array().begin(crd.posX(0));
-  const E_Float* py = crd.array().begin(crd.posX(1));
-  const E_Float* pz = crd.array().begin(crd.posX(2));
+  typedef typename ACoordinate_t::value_type crd_real_t;
+  const crd_real_t* px = crd.array().begin(crd.posX(0));
+  const crd_real_t* py = crd.array().begin(crd.posX(1));
+  const crd_real_t* pz = crd.array().begin(crd.posX(2));
 
 #pragma omp parallel for
   for (E_Int i = 0; i < sz; ++i)
@@ -236,7 +238,7 @@ void ZoneExtractor<Coordinate_t, Connectivity_t>::getInBox_omp
 TEMPLATE_COORD_CONNECT
 template <short DIM>
 void ZoneExtractor<Coordinate_t, Connectivity_t>::getInBox_omp
-(const E_Float* mB, const E_Float* MB, E_Float tol, const Vector_t<K_SEARCH::BoundingBox<DIM>*>& boxes, Vector_t<bool>& is_in)
+(const nuga_real_t* mB, const nuga_real_t* MB, nuga_real_t tol, const Vector_t<K_SEARCH::BoundingBox<DIM>*>& boxes, Vector_t<bool>& is_in)
 {
   is_in.clear();
   is_in.resize(boxes.size());

@@ -26,8 +26,8 @@
 namespace NUGA
 {
   static const E_Int INTERP = 2;
-  static const E_Float RESET_VAL = NUGA::FLOAT_MAX;
-  static const E_Float COEF_THRESHOLD2 = EPSILON*EPSILON;
+  static const nuga_real_t RESET_VAL = NUGA::FLOAT_MAX;
+  static const nuga_real_t COEF_THRESHOLD2 = EPSILON*EPSILON;
   
   template <typename crd_t, typename cnt_t>
   class P1_Conservative_Chimera
@@ -55,7 +55,7 @@ namespace NUGA
   (const crd_t& crdR, const cnt_t& cntR,
    const crd_t& crdD, const cnt_t& cntD,
    const Vector_t<E_Int>& cellNR,
-   Vector_t<E_Int>& dindices, Vector_t<E_Float>& dcoeffs,
+   Vector_t<E_Int>& dindices, Vector_t<nuga_real_t>& dcoeffs,
    Vector_t<E_Int>& xr, Vector_t<E_Int>& roids)
   {
     E_Int err = 0;
@@ -135,7 +135,7 @@ namespace NUGA
     
     // III. COMPUTE THE METRICS 
     // volumes
-    Vector_t<E_Float> volumeD, volumeR, volumeS; // donnor, receiver, supermesh
+    Vector_t<nuga_real_t> volumeD, volumeR, volumeS; // donnor, receiver, supermesh
     // donnor surface vectors & centroids
     K_FLD::FloatArray surfaceD, centroidD, centroidS;
 
@@ -186,12 +186,12 @@ namespace NUGA
     
     // V. COMPUTE THE COEFS
     std::map<E_Int, Vector_t<E_Int> >::const_iterator itR, itb(receiver_to_bits.begin()), ite(receiver_to_bits.end());
-    std::map<E_Int, E_Float> molecule;
+    std::map<E_Int, nuga_real_t> molecule;
 
-    E_Float GDkgk[3]; // vector from donnor centroid to bit centroid
+    nuga_real_t GDkgk[3]; // vector from donnor centroid to bit centroid
     
     //Vector_t<E_Int> th_dinds, th_xr,th_oids; FOR OPENMP
-    //Vector_t<E_Float> th_dcoefs;
+    //Vector_t<nuga_real_t> th_dcoefs;
    
 // fixme : parallel not enabled yet because of the variable-stride appending upon exit.. 
 //#pragma omp parallel for private (molecule, GDkgk, th_dinds, th_xr,th_oids, th_dcoefs)
@@ -206,14 +206,14 @@ namespace NUGA
       
       const Vector_t<E_Int>& bits = itR->second;
       
-      E_Float VtildR=0.; // Covered volume
+      nuga_real_t VtildR=0.; // Covered volume
       E_Int nb_bits(bits.size());
       for (E_Int k=0; k < nb_bits; ++k)
       {
         E_Int bit = bits[k];
         E_Int Dk = ngS.PHs._ancEs(1, bit); //direct current donnor
         
-        E_Float vk = volumeS[bit];
+        nuga_real_t vk = volumeS[bit];
         VtildR += vk;
 
         // 1. Coefficient for direct donnor
@@ -224,15 +224,15 @@ namespace NUGA
 
         // 2. Coefficient for cells adjacent to direct donnor   
         // (reflecting that we take into account for gradient)
-        const E_Float* GDk = centroidD.col(Dk);  // centroid of the direct donnor
-        const E_Float* gk = centroidS.col(bit); // centroid of the donnor cell's current piece
+        const nuga_real_t* GDk = centroidD.col(Dk);  // centroid of the direct donnor
+        const nuga_real_t* gk = centroidS.col(bit); // centroid of the donnor cell's current piece
         NUGA::diff<3>(gk, GDk, GDkgk);
 
-        E_Float coef0 = 0.5 * vk;
+        nuga_real_t coef0 = 0.5 * vk;
         if (volumeD[Dk] != 0.) coef0 /= volumeD[Dk];
 
 #ifdef DEBUG_CONS_CHIMERA
-        E_Float cs[] = {0.,0.,0.};
+        nuga_real_t cs[] = {0.,0.,0.};
 #endif
 
         const E_Int* pQ  = ngD.PHs.get_facets_ptr(Dk);     // Dk quads
@@ -262,7 +262,7 @@ namespace NUGA
 //          cs[2] += ori * surfaceD(2,Qj);
 #endif
 
-          E_Float coeff = ori *coef0 * NUGA::dot<3>(GDkgk, surfaceD.col(Qj));
+          nuga_real_t coeff = ori *coef0 * NUGA::dot<3>(GDkgk, surfaceD.col(Qj));
 
           if (molecule.find(Dkj) == molecule.end())
             molecule[Dkj] = coeff;
@@ -279,7 +279,7 @@ namespace NUGA
 
       // final division by VtildR
       VtildR = 1. / VtildR;
-      std::map<E_Int, E_Float>::iterator itC = molecule.begin();
+      std::map<E_Int, nuga_real_t>::iterator itC = molecule.begin();
       for (; itC != molecule.end(); ++itC)
       {
         itC->second *= VtildR;
@@ -288,7 +288,7 @@ namespace NUGA
 
 #ifdef DEBUG_CONS_CHIMERA
 //      std::cout << std::endl;
-      E_Float coefs_sum = 0.;
+      nuga_real_t coefs_sum = 0.;
 #endif
 
       // info is ready for passing upon exit
@@ -299,7 +299,7 @@ namespace NUGA
       for (itC = molecule.begin(); itC != molecule.end(); ++itC)
       {
         
-        const E_Float& val = itC->second;
+        const nuga_real_t& val = itC->second;
         
         if (val*val < COEF_THRESHOLD2) continue; // UNSIGNIFICANT COEFF
 
@@ -329,7 +329,7 @@ namespace NUGA
       xr.push_back(nb_coefs + xr[xr.size()-1]);
       
 #ifdef DEBUG_CONS_CHIMERA
-//      E_Float delta = fabs(coefs_sum-1.);
+//      nuga_real_t delta = fabs(coefs_sum-1.);
 //      E_Int last = xr.size()-1;
 //      E_Int nb_donnor =xr[last] - xr[last-1];
 //      if (delta >= EPSILON)
@@ -355,9 +355,9 @@ namespace NUGA
    const crd_t& crdR, const ngon_type& ngR, 
    const crd_t& crdS, const ngon_type& ngS, 
    const Vector_t<E_Int>& cellNR, 
-   Vector_t<E_Float>& volumeD,
-   Vector_t<E_Float>& volumeR,
-   Vector_t<E_Float>& volumeS,
+   Vector_t<nuga_real_t>& volumeD,
+   Vector_t<nuga_real_t>& volumeR,
+   Vector_t<nuga_real_t>& volumeS,
    K_FLD::FloatArray& centroidD,
    K_FLD::FloatArray& centroidS,
    K_FLD::FloatArray& surfaceD)
@@ -426,7 +426,7 @@ namespace NUGA
         for (E_Int k=0; k < nbF; ++k)
         {
           E_Int PGk = *(pF + k) - 1;
-          E_Float * pS = surfaceD.col(PGk);
+          nuga_real_t * pS = surfaceD.col(PGk);
           
           if (*pS != RESET_VAL) continue; //already computed
           
@@ -447,7 +447,7 @@ namespace NUGA
         // Structured inputs => centroid-star-shaped
         const E_Int* first_pg = ngR.PHs.get_facets_ptr(ancR);
         E_Int nb_pgs = ngR.PHs.stride(ancR);
-        E_Float centroid[3];//unused
+        nuga_real_t centroid[3];//unused
         K_MESH::Polyhedron<STAR_SHAPED>::metrics(dt, crdR, ngR.PGs, first_pg, nb_pgs, volumeR[ancR], centroid);
       }
     }
@@ -465,7 +465,7 @@ namespace NUGA
   DELAUNAY::Triangulator dt;
 
   std::vector<E_Int> rids/*recpetor ids*/, xdon /*delimiter indirection for dids and vcoefs*/, dids, pids;
-  std::vector<E_Float> dcoefs;
+  std::vector<nuga_real_t> dcoefs;
   K_FLD::FloatArray piece_centroids, pcrd;
   
   ngon_type ngr = rcnt;
@@ -498,7 +498,7 @@ namespace NUGA
   std::cout << "transfer " << nb_sols << " PWL fields on " << nb_rphs << " elements..." << std::endl;
 #endif
   
-  //E_Float GcGcp[3];
+  //nuga_real_t GcGcp[3];
   
   // Now tranfer
   for (E_Int i=0; i < rids.size(); ++i)

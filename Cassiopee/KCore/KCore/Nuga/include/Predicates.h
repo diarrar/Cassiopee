@@ -26,8 +26,8 @@
 
 #ifdef DEBUG_COLLIDE_PRED
 #include "meshIO.h"
-inline void fooX(const E_Float* P0, const E_Float* P1, const E_Float* P2,
-                 const E_Float* Q0, const E_Float* Q1, const E_Float* Q2)
+inline void fooX(const nuga_real_t* P0, const nuga_real_t* P1, const nuga_real_t* P2,
+                 const nuga_real_t* Q0, const nuga_real_t* Q1, const nuga_real_t* Q2)
 {
   K_FLD::FloatArray pos;
   pos.pushBack(P0,P0+3);pos.pushBack(P1,P1+3);pos.pushBack(P2,P2+3);
@@ -62,7 +62,7 @@ struct T3T3_XPredicate
   {
     E_Int t1[3], t2[3];
     const short DIM = 3;
-    E_Float P0[DIM], P1[DIM], P2[DIM], Q0[DIM], Q1[DIM], Q2[DIM];
+    nuga_real_t P0[DIM], P1[DIM], P2[DIM], Q0[DIM], Q1[DIM], Q2[DIM];
     
     _connect1->getEntry(N1, t1);    
     _coords1->getEntry(t1[0], P0);
@@ -117,7 +117,7 @@ struct TH4T3_XPredicate
   {
     E_Int t1[4], t2[3];
     const short DIM = 3;
-    E_Float P0[DIM], P1[DIM], P2[DIM], P3[DIM], Q0[DIM], Q1[DIM], Q2[DIM];
+    nuga_real_t P0[DIM], P1[DIM], P2[DIM], P3[DIM], Q0[DIM], Q1[DIM], Q2[DIM];
     
     _connect1->getEntry(N1, t1);
     _connect2->getEntry(N2, t2);
@@ -202,7 +202,7 @@ struct TH4HX6_XPredicate
   {
     E_Int t1[4], t2[8];
     const short DIM = 3;
-    E_Float P0[DIM], P1[DIM], P2[DIM], P3[DIM], Q0[DIM], Q1[DIM], Q2[DIM];
+    nuga_real_t P0[DIM], P1[DIM], P2[DIM], P3[DIM], Q0[DIM], Q1[DIM], Q2[DIM];
     
     _connect1->getEntry(N1, t1);
     _connect2->getEntry(N2, t2);
@@ -300,7 +300,7 @@ struct T3HX6_XPredicate
   {
     E_Int t1[3], t2[8];
     const short DIM = 3;
-    E_Float P0[DIM], P1[DIM], P2[DIM], Q0[DIM], Q1[DIM], Q2[DIM];
+    nuga_real_t P0[DIM], P1[DIM], P2[DIM], Q0[DIM], Q1[DIM], Q2[DIM];
     
  #ifdef DEBUG_COLLIDE_PRED
     bool enable=(N1==6861 && N2==3574);

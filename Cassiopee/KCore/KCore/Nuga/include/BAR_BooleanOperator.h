@@ -38,7 +38,7 @@ public:
   /// Constructor with the 2 input BARs B1 & B2.
   BAR_BooleanOperator(const K_FLD::FloatArray& coord1, const K_FLD::IntArray& cB1,
                       const K_FLD::FloatArray& coord2, const K_FLD::IntArray& cB2,
-                      E_Float tolerance);
+                      nuga_real_t tolerance);
   /// Conformized union of the input surfaces.
   E_Int getSum(K_FLD::FloatArray& pos, K_FLD::IntArray& connect, std::vector<E_Int>& colors);
   ///B1 -  Intersection(B1, B2).
@@ -75,7 +75,7 @@ private:
   ///
   K_FLD::IntArray     _connectUnion;
   ///
-  E_Float _normal[3];
+  nuga_real_t _normal[3];
 
 };
 

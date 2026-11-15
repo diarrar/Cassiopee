@@ -832,19 +832,23 @@ PyObject* K_INTERSECTOR::syncMacthPeriodicFaces(PyObject* self, PyObject* args)
   
   bool is_rot = false;
   double rot_angle = 0.;
-  E_Float * paxis{nullptr}, *ptrans{nullptr};
+  // Nuga works in double
+  nuga_real_t centerd[3] = {center[0], center[1], center[2]};
+  nuga_real_t axisd[3] = {axis[0], axis[1], axis[2]};
+  nuga_real_t transd[3] = {trans[0], trans[1], trans[2]};
+  nuga_real_t * paxis{nullptr}, *ptrans{nullptr};
 
   if (axis[0] != 0. || axis[1] != 0. || axis[2] != 0.)
   {
     is_rot = true;
     rot_angle = ::sqrt(axis[0]*axis[0] + axis[1]*axis[1] + axis[2]*axis[2]);
-    paxis = &axis[0];
+    paxis = &axisd[0];
   }
   bool is_trans = false;
   if (trans[0] != 0. || trans[1] != 0. || trans[2] != 0.)
   {
     is_trans = true;
-    ptrans = &trans[0];
+    ptrans = &transd[0];
   }
 
   if (is_trans && is_rot)
@@ -880,12 +884,12 @@ PyObject* K_INTERSECTOR::syncMacthPeriodicFaces(PyObject* self, PyObject* args)
   do
   {
     std::map<E_Int, std::vector<E_Int>> glob_face_to_bits;
-    detect_async_modified_faces(m, center, paxis, rot_angle, ptrans, artol, glob_face_to_bits);
+    detect_async_modified_faces(m, centerd, paxis, rot_angle, ptrans, artol, glob_face_to_bits);
 
     carry_on = !glob_face_to_bits.empty();
     if (!carry_on) break;
 
-    duplicate_and_move_period_faces(m, center, paxis, rot_angle, ptrans, glob_face_to_bits);
+    duplicate_and_move_period_faces(m, centerd, paxis, rot_angle, ptrans, glob_face_to_bits);
 
     sync_faces(m, glob_face_to_bits, artol);
 

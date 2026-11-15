@@ -124,12 +124,12 @@ NodeAssociator::__make_pairs
   // Fast returns.
   if (posB.cols() == 0) return;
 
-  std::vector<std::pair<E_Float, std::pair<E_Int, E_Int> > > palmares;
+  std::vector<std::pair<nuga_real_t, std::pair<E_Int, E_Int> > > palmares;
   std::vector<E_Int> closest_color;
   E_Int nb_contours = contour_nodes.size();
-  const E_Float* Pi;
+  const nuga_real_t* Pi;
   E_Int Ni, Nj;
-  E_Float d, dmin;
+  nuga_real_t d, dmin;
   //pairs.clear();
   std::vector<E_Int> nodes;
   std::vector<K_SEARCH::KdTree<>* > trees;
@@ -553,8 +553,8 @@ NodeAssociator::__priorize_X_zones2
     xing[s1][c1] = true;
     xing[s2][c2] = true;
 
-    E_Float surf1 = K_MESH::Triangle::surface(pos.col(*pS1), pos.col(*(pS1+1)), pos.col(*(pS1+2)), 3);
-    E_Float surf2 = K_MESH::Triangle::surface(pos.col(*pS2), pos.col(*(pS2+1)), pos.col(*(pS2+2)), 3);
+    nuga_real_t surf1 = K_MESH::Triangle::surface(pos.col(*pS1), pos.col(*(pS1+1)), pos.col(*(pS1+2)), 3);
+    nuga_real_t surf2 = K_MESH::Triangle::surface(pos.col(*pS2), pos.col(*(pS2+1)), pos.col(*(pS2+2)), 3);
 
     remains[s1][c1] = (surf1 < surf2);
     remains[s2][c2] = !remains[s1][c1];
@@ -814,7 +814,7 @@ NodeAssociator::__getRelativeOrient
   K_MESH::NO_Edge cont_pair;
   K_FLD::IntArray::const_iterator pS1, pS2;
   std::map<K_MESH::NO_Edge, E_Int>::const_iterator it;
-  E_Float Norm1[3], Norm2[3];
+  nuga_real_t Norm1[3], Norm2[3];
   E_Int c0, c1, s0, s1;
   for (size_t xp = 0; xp <  pairs.size(); ++xp)
   {

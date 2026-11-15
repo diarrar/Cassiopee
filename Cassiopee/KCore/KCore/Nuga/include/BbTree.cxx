@@ -29,7 +29,7 @@ using ngon_type = ngon_t<K_FLD::IntArray>;
 /// Builds a tree and inserts the boxes (externally built) from begin to end.
 template <short DIM, typename BBoxType>
 K_SEARCH::BbTree<DIM, BBoxType>::BbTree
-(const std::vector<BBoxType*> & boxes, E_Float tolerance)
+(const std::vector<BBoxType*> & boxes, nuga_real_t tolerance)
 :_boxes(boxes), _tolerance(tolerance), _owes_boxes(false), _pool(NULL)
 {
 
@@ -57,7 +57,7 @@ namespace K_SEARCH
 template <>
 template <typename array_t>
 BbTree<3>::BbTree
-(const K_FLD::FloatArray& crd, const array_t& ng, E_Float tolerance)
+(const K_FLD::FloatArray& crd, const array_t& ng, nuga_real_t tolerance)
 : _tolerance(tolerance), _owes_boxes(true), _pool(NULL)
 {
   E_Int nb_elts = ng.PHs.size();
@@ -91,7 +91,7 @@ BbTree<3>::BbTree
 
 template <> inline
 BbTree<3>::BbTree
-(const K_FLD::FloatArray& crd, const ngon_unit& PGs, E_Float tolerance)
+(const K_FLD::FloatArray& crd, const ngon_unit& PGs, nuga_real_t tolerance)
 : _tolerance(tolerance), _owes_boxes(true), _pool(NULL)
 {
     
@@ -164,7 +164,7 @@ BbTree<3>::BbTree
 template <short DIM, typename BBoxType>
 void
 K_SEARCH::BbTree<DIM, BBoxType>::getOverlappingBoxes
-(const E_Float* minB, const E_Float* maxB, std::vector<size_type>& out) const
+(const nuga_real_t* minB, const nuga_real_t* maxB, std::vector<size_type>& out) const
 {
   BBoxType box(minB, maxB);
   __getOverlappingBoxes(&box, _root_id, out);
@@ -199,7 +199,7 @@ K_SEARCH::BbTree<DIM, BBoxType>::__getOverlappingBoxes
 template <short DIM, typename BBoxType>
 bool
 K_SEARCH::BbTree<DIM, BBoxType>::hasAnOverlappingBox
-(const E_Float* minB, const E_Float* maxB) const
+(const nuga_real_t* minB, const nuga_real_t* maxB) const
 {
   BBoxType box(minB, maxB);
   return __hasAnOverlappingBox(&box, _root_id);
@@ -233,7 +233,7 @@ K_SEARCH::BbTree<DIM, BBoxType>::__hasAnOverlappingBox
 template <short DIM, typename BBoxType>
 void
 K_SEARCH::BbTree<DIM, BBoxType>::getIntersectingBoxes
-(const E_Float* P0, const E_Float* P1, std::vector<size_type>& out, E_Float tolerance, bool strict) const
+(const nuga_real_t* P0, const nuga_real_t* P1, std::vector<size_type>& out, nuga_real_t tolerance, bool strict) const
 {
   if (!strict)
     __getIntersectingBoxes(P0, P1, _root_id, tolerance, out);
@@ -253,7 +253,7 @@ K_SEARCH::BbTree<DIM, BBoxType>::getIntersectingBoxes
 template <short DIM, typename BBoxType>
 void
 K_SEARCH::BbTree<DIM, BBoxType>::__getIntersectingBoxes
-(const E_Float* P0, const E_Float* P1, E_Int node, const E_Float& abstol, std::vector<size_type>& out) const
+(const nuga_real_t* P0, const nuga_real_t* P1, E_Int node, const nuga_real_t& abstol, std::vector<size_type>& out) const
 {
   E_Int leftc(_tree(0, node)), rightc(_tree(1, node));
 
@@ -278,7 +278,7 @@ K_SEARCH::BbTree<DIM, BBoxType>::__getIntersectingBoxes
 template <short DIM, typename BBoxType>
 void
 K_SEARCH::BbTree<DIM, BBoxType>::__getIntersectingBoxesStrict
-(const E_Float* P0, const E_Float* P1, E_Int node, const E_Float& abstol, std::vector<size_type>& out, const BBoxType & boxSeg) const
+(const nuga_real_t* P0, const nuga_real_t* P1, E_Int node, const nuga_real_t& abstol, std::vector<size_type>& out, const BBoxType & boxSeg) const
 {
   E_Int leftc(_tree(0, node)), rightc(_tree(1, node));
 
@@ -352,7 +352,7 @@ E_Int K_SEARCH::BbTree<DIM, BBoxType>::__insert
   _get_longest_axis += c1.elapsed();
 #endif
 
-  E_Float      x = (box->getMinB(axis) + box->getMaxB(axis));
+  nuga_real_t      x = (box->getMinB(axis) + box->getMaxB(axis));
 
 #ifdef E_TIME1
   c1.start();
@@ -434,7 +434,7 @@ K_SEARCH::BbTree<DIM, BBoxType>::__getLongestSideAxis
 (const BBoxType& box) const
 {
   E_Int axis(0);
-  E_Float L = -NUGA::FLOAT_MAX, Li;
+  nuga_real_t L = -NUGA::FLOAT_MAX, Li;
   for (E_Int i = 0; i < DIM; ++i)
   {
     Li = box.maxB[i] - box.minB[i];
@@ -449,7 +449,7 @@ K_SEARCH::BbTree<DIM, BBoxType>::__getLongestSideAxis
 
 template <short DIM, typename BBoxType>
 E_Bool
-K_SEARCH::BbTree<DIM, BBoxType>::boxesAreOverlapping (const BBoxType * bb1, const BBoxType * bb2, const E_Float& tol) 
+K_SEARCH::BbTree<DIM, BBoxType>::boxesAreOverlapping (const BBoxType * bb1, const BBoxType * bb2, const nuga_real_t& tol) 
 {
   if (bb1 == bb2) return true;
 
@@ -463,7 +463,7 @@ K_SEARCH::BbTree<DIM, BBoxType>::boxesAreOverlapping (const BBoxType * bb1, cons
 
 template <short DIM, typename BBoxType>
 E_Bool
-K_SEARCH::BbTree<DIM, BBoxType>::box1IsIncludedinbox2 (const BBoxType * bb1, const BBoxType * bb2, const E_Float& tol) 
+K_SEARCH::BbTree<DIM, BBoxType>::box1IsIncludedinbox2 (const BBoxType * bb1, const BBoxType * bb2, const nuga_real_t& tol) 
 {
   if (bb1 == bb2) return false;
 
@@ -481,13 +481,13 @@ namespace K_SEARCH
 template <> inline
 E_Bool
 BbTree<2>::__boxIntersectRay
-(const BBox2D & box, const E_Float* P0, const E_Float* P1, const E_Float& abstol) const
+(const BBox2D & box, const nuga_real_t* P0, const nuga_real_t* P1, const nuga_real_t& abstol) const
 {
   return false;//fixme
 }
 
 ///
-inline void __compute_x0_x1(const E_Float* P0, const E_Float* P0P1, const E_Float* mB, E_Int ind1, E_Int ind2, E_Float lambda, E_Float& x0, E_Float& x1)
+inline void __compute_x0_x1(const nuga_real_t* P0, const nuga_real_t* P0P1, const nuga_real_t* mB, E_Int ind1, E_Int ind2, nuga_real_t lambda, nuga_real_t& x0, nuga_real_t& x1)
 {
   x0 = (P0[ind1] + lambda * P0P1[ind1]) - mB[ind1];
   x1 = (P0[ind2] + lambda * P0P1[ind2]) - mB[ind2];
@@ -497,13 +497,13 @@ inline void __compute_x0_x1(const E_Float* P0, const E_Float* P0P1, const E_Floa
 template <> inline
 E_Bool
 BbTree<3>::__boxIntersectRay
-(const BBox3D & box, const E_Float* P0, const E_Float* P1, const E_Float& abstol) const
+(const BBox3D & box, const nuga_real_t* P0, const nuga_real_t* P1, const nuga_real_t& abstol) const
 {
-  E_Float P0P1[3];
+  nuga_real_t P0P1[3];
   NUGA::diff<3>(P1, P0, P0P1);
   
-  E_Float denom, lambda, x0, x1;
-  E_Float dx(box.maxB[0] - box.minB[0]), dy(box.maxB[1] - box.minB[1]), dz(box.maxB[2] - box.minB[2]);
+  nuga_real_t denom, lambda, x0, x1;
+  nuga_real_t dx(box.maxB[0] - box.minB[0]), dy(box.maxB[1] - box.minB[1]), dz(box.maxB[2] - box.minB[2]);
 
   // Front and back faces
   denom = P0P1[1];
@@ -570,7 +570,7 @@ BbTree<3>::__boxIntersectRay
 template <> inline
 E_Bool/*fixme*/
 BbTree<3>::__boxIntersectSeg
-(const BBox3D & box, const E_Float* P0, const E_Float* P1, const E_Float& abstol, const BBox3D & boxSeg) const
+(const BBox3D & box, const nuga_real_t* P0, const nuga_real_t* P1, const nuga_real_t& abstol, const BBox3D & boxSeg) const
 {
   // Fast return : box are not overlapping
   if (!boxesAreOverlapping(&box, &boxSeg, abstol))
@@ -586,11 +586,11 @@ BbTree<3>::__boxIntersectSeg
   if (ins)
     return 1;
   
-  E_Float P0P1[3];
+  nuga_real_t P0P1[3];
   NUGA::diff<3>(P1, P0, P0P1);
   
-  E_Float denom, lambda, x0, x1;
-  E_Float dx(box.maxB[0] - box.minB[0]), dy(box.maxB[1] - box.minB[1]), dz(box.maxB[2] - box.minB[2]);
+  nuga_real_t denom, lambda, x0, x1;
+  nuga_real_t dx(box.maxB[0] - box.minB[0]), dy(box.maxB[1] - box.minB[1]), dz(box.maxB[2] - box.minB[2]);
 
   // Front and back faces
   denom = P0P1[1];

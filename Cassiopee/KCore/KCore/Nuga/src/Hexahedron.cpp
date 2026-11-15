@@ -50,7 +50,7 @@ void Hexahedron::get_edges(const E_Int* nodes, Vector_t<K_MESH::NO_Edge>& edges)
   }
 }
 
-bool Hexahedron::cross(const ngon_type& ng, const K_FLD::FloatArray& crd, const E_Int* face, E_Int nb_faces, K_FLD::FloatArray& data, E_Float* P0, E_Float* P1, E_Float& lambda0, E_Float& lambda1, E_Float tolerance)
+bool Hexahedron::cross(const ngon_type& ng, const K_FLD::FloatArray& crd, const E_Int* face, E_Int nb_faces, K_FLD::FloatArray& data, nuga_real_t* P0, nuga_real_t* P1, nuga_real_t& lambda0, nuga_real_t& lambda1, nuga_real_t tolerance)
 {
   // crossing points are defined by lambda coefficients, initialize them
   lambda0 = NUGA::FLOAT_MAX;
@@ -62,14 +62,14 @@ bool Hexahedron::cross(const ngon_type& ng, const K_FLD::FloatArray& crd, const 
 	
 	// 3 points of the PGi
 	const E_Int* node = ng.PGs.get_facets_ptr(PGi);
-	const E_Float* q0 = crd.col(node[0]-1);
-	const E_Float* q1 = crd.col(node[1]-1);
-	const E_Float* q2 = crd.col(node[2]-1);
+	const nuga_real_t* q0 = crd.col(node[0]-1);
+	const nuga_real_t* q1 = crd.col(node[1]-1);
+	const nuga_real_t* q2 = crd.col(node[2]-1);
 	
 	// intersect
 	E_Bool overlap = false;
 	E_Int tx = 0;
-	E_Float l0, l1;
+	nuga_real_t l0, l1;
 	bool x = K_MESH::Triangle::intersect<3>(q0, q1, q2, P0, P1, EPSILON, true, l0, l1, tx, overlap);
 	
 	if (!x) continue; // doesn't intersect

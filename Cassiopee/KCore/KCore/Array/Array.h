@@ -335,14 +335,14 @@ namespace K_ARRAY
      eventuellement de c. */
   E_Int getFromArray(PyObject* o,
                      char*& varString,
-                     K_FLD::DynArray<E_Float>*& f,
+                     K_FLD::DynArray<nuga_real_t>*& f,
                      E_Int& ni, E_Int& nj, E_Int& nk,
                      K_FLD::DynArray<E_Int>*& c,
                      char*& eltType);
   //idem sans allocation interne des DynArrays
   E_Int getFromArray(PyObject* o,
                      char*& varString,
-                     K_FLD::DynArray<E_Float>& f,
+                     K_FLD::DynArray<nuga_real_t>& f,
                      E_Int& ni, E_Int& nj, E_Int& nk,
                      K_FLD::DynArray<E_Int>& c,
                      char*& eltType);
@@ -556,7 +556,7 @@ namespace K_ARRAY
      IN: varString: variable string
      IN: ni,nj,nk: nombre de points dans field
      OUT: PyObject cree. */
-  PyObject* buildArray(const K_FLD::DynArray<E_Float>& field, const char* varString,
+  PyObject* buildArray(const K_FLD::DynArray<nuga_real_t>& field, const char* varString,
                        E_Int ni, E_Int nj, E_Int nk);
   
   /* Construit un array non structure a partir d'un DynArray
@@ -569,7 +569,7 @@ namespace K_ARRAY
      IN: center: mis a true si field est localise sur les centres,
      sinon false.
      OUT: PyObject cree. */
-  PyObject* buildArray(const K_FLD::DynArray<E_Float>& field, const char* varString,
+  PyObject* buildArray(const K_FLD::DynArray<nuga_real_t>& field, const char* varString,
                        const K_FLD::DynArray<E_Int>& c, E_Int et, 
                        const char* etString=NULL,
                        E_Bool center=false);

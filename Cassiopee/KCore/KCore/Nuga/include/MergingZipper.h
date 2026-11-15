@@ -19,6 +19,7 @@
 
 #pragma once
 #include "Zipper.h"
+#include "Nuga/include/defs.h"
 
 class MergingZipper : public Zipper
 {
@@ -40,7 +41,7 @@ public:
                      K_FLD::IntArray& connectE2, std::vector<E_Int>& nmates);
 
 private:
-  E_Float __computeTolerance(const K_FLD::FloatArray& pos, K_FLD::IntArray& connect,
+  nuga_real_t __computeTolerance(const K_FLD::FloatArray& pos, K_FLD::IntArray& connect,
                              const std::vector<E_Int>& nodes);
 
   E_Int __removeDuplicates(K_FLD::IntArray& connect);

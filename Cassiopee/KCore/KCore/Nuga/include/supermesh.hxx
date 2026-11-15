@@ -34,8 +34,8 @@ namespace NUGA
 
 struct field
 {
-  E_Float* f;
-  E_Float* gradf[3];
+  nuga_real_t* f;
+  nuga_real_t* gradf[3];
   field() :f(nullptr) { gradf[0] = gradf[1] = gradf[2] = nullptr; }
 };
 
@@ -79,7 +79,7 @@ inline void __manage_x_points(aPolygon& bit, E_Int n0,
       {
         // nouveau point a creer et a stocker : xpt aura new_ptid comme id dans xm.crd
         E_Int new_ptid = xmcrd.cols();
-        E_Float* xpt = bit.m_crd.col(p);
+        nuga_real_t* xpt = bit.m_crd.col(p);
 
         xmcrd.pushBack(xpt, xpt + 3); // stockage du point
         key_to_ptxid[key] = new_ptid; // association de la paire d'arete a ce point
@@ -95,31 +95,31 @@ inline void __manage_x_points(aPolygon& bit, E_Int n0,
 
 inline void __impact_ae0(aPolygon& ae0, const std::set<std::pair<E_Int, E_Int>>& edge_to_xnodes, const K_FLD::FloatArray& xmcrd)
 {
-  std::vector<std::pair<E_Float, E_Int>> lambda_to_node;
+  std::vector<std::pair<nuga_real_t, E_Int>> lambda_to_node;
 
   E_Int nnodes = ae0.nb_nodes();
 
   for (E_Int n = 0; n < nnodes; ++n)
-    lambda_to_node.push_back(std::make_pair(E_Float(n), ae0.m_poids[n]));
+    lambda_to_node.push_back(std::make_pair(nuga_real_t(n), ae0.m_poids[n]));
 
-  E_Float P0PX[3], P0P1[3];
+  nuga_real_t P0PX[3], P0P1[3];
   for (auto& e2n : edge_to_xnodes)
   {
     int n0 = e2n.first;
 
-    const E_Float* P0 = xmcrd.col(ae0.m_poids[n0]);
-    const E_Float* PX = xmcrd.col(e2n.second);
-    const E_Float* P1 = xmcrd.col(ae0.m_poids[(n0 + 1) % nnodes]);
+    const nuga_real_t* P0 = xmcrd.col(ae0.m_poids[n0]);
+    const nuga_real_t* PX = xmcrd.col(e2n.second);
+    const nuga_real_t* P1 = xmcrd.col(ae0.m_poids[(n0 + 1) % nnodes]);
 
     NUGA::diff<3>(P1, P0, P0P1);
     NUGA::diff<3>(PX, P0, P0PX);
 
-    E_Float Lx = sqrt(NUGA::sqrNorm<3>(P0PX));
-    E_Float L = sqrt(NUGA::sqrNorm<3>(P0P1));
+    nuga_real_t Lx = sqrt(NUGA::sqrNorm<3>(P0PX));
+    nuga_real_t L = sqrt(NUGA::sqrNorm<3>(P0P1));
 
     assert(Lx <= L);
 
-    E_Float lambda = (Lx / L) + E_Float(n0);
+    nuga_real_t lambda = (Lx / L) + nuga_real_t(n0);
 
     lambda_to_node.push_back(std::make_pair(lambda, e2n.second));
   }
@@ -130,10 +130,10 @@ inline void __impact_ae0(aPolygon& ae0, const std::set<std::pair<E_Int, E_Int>>&
   K_FLD::FloatArray impact_crd;;
   std::vector<long> poids;
 
-  E_Float lambda_prev = -1.;
+  nuga_real_t lambda_prev = -1.;
   for (auto& l2n : lambda_to_node)
   {
-    E_Float& lambda = l2n.first;
+    nuga_real_t& lambda = l2n.first;
     if (lambda - lambda_prev > ZERO_M)
     {
       impact_crd.pushBack(xmcrd.col(l2n.second), xmcrd.col(l2n.second) + 3);
@@ -154,7 +154,7 @@ inline void __impact_ae0(aPolygon& ae0, const std::set<std::pair<E_Int, E_Int>>&
 }
 
 template <typename zmesh_t> inline
-void xmatch(const zmesh_t& m0, const zmesh_t& m1, E_Float ARTOL, std::vector<E_Int>& anc0, std::vector<E_Int>& anc1, zmesh_t& xm, bool proj_on_first)
+void xmatch(const zmesh_t& m0, const zmesh_t& m1, nuga_real_t ARTOL, std::vector<E_Int>& anc0, std::vector<E_Int>& anc1, zmesh_t& xm, bool proj_on_first)
 {
   using aelt_t = typename zmesh_t::aelt_t;
 
@@ -212,8 +212,8 @@ void xmatch(const zmesh_t& m0, const zmesh_t& m1, E_Float ARTOL, std::vector<E_I
     auto ae0 = m0.aelement(i);
     //int nnodes = ae0.nb_nodes();
 
-    E_Float surf0 = ae0.metrics();
-    const E_Float* norm0 = ae0.get_normal();
+    nuga_real_t surf0 = ae0.metrics();
+    const nuga_real_t* norm0 = ae0.get_normal();
 
     // on recupere tous les candidats : ceux dans la bounding box colisionne celle de ae0 
     cands.clear();
@@ -238,10 +238,10 @@ void xmatch(const zmesh_t& m0, const zmesh_t& m1, E_Float ARTOL, std::vector<E_I
 
       K_CONNECT::IdTool::shift(ae1.m_poids, nbpts0); //pour faire reference aux points de xm plutot que de m1
 
-      E_Float surfc = ae1.metrics();
-      const E_Float* normc = ae1.get_normal();
+      nuga_real_t surfc = ae1.metrics();
+      const nuga_real_t* normc = ae1.get_normal();
 
-      E_Float ps = NUGA::dot<3>(norm0, normc);
+      nuga_real_t ps = NUGA::dot<3>(norm0, normc);
       if (fabs(ps) < 0.9) continue; // doivent �tre colineaire
 
       bool ae1_reversed = false;
@@ -289,8 +289,8 @@ void xmatch(const zmesh_t& m0, const zmesh_t& m1, E_Float ARTOL, std::vector<E_I
 
       for (size_t b = 0; b < bits.size(); ++b)
       {
-        const E_Float* normb = bits[b].get_normal();
-        E_Float ps = NUGA::dot<3>(norm0, normb);
+        const nuga_real_t* normb = bits[b].get_normal();
+        nuga_real_t ps = NUGA::dot<3>(norm0, normb);
         if (fabs(ps) < 0.9) // must be nearly colinear
         {
           bits.clear(); 
@@ -357,8 +357,8 @@ void xmatch(const zmesh_t& m0, const zmesh_t& m1, E_Float ARTOL, std::vector<E_I
       if (ae1_reversed) // on fait subir le meme sort a la version 2D
         ae1_2D.reverse_orient();
 
-      E_Float Lref2 = ae0.Lref2(); //ae0_2D ???
-      E_Float ABSTOL = sqrt(Lref2) * 1.e-2;
+      nuga_real_t Lref2 = ae0.Lref2(); //ae0_2D ???
+      nuga_real_t ABSTOL = sqrt(Lref2) * 1.e-2;
 
       NUGA::eClassify c = NUGA::CLASSIFY::classify2D(ae0_2D, ae1_2D, ABSTOL);
       assert(c != AMBIGUOUS);
@@ -388,7 +388,7 @@ void xmatch(const zmesh_t& m0, const zmesh_t& m1, E_Float ARTOL, std::vector<E_I
         if (proj_on_first)
         {
           // project ae1 on ae0
-          E_Float zmean = 0;
+          nuga_real_t zmean = 0;
           for (E_Int u = 0; u < ae0_2D.m_crd.cols(); ++u) zmean += ae0_2D.m_crd(2, u);
           zmean /= ae0_2D.m_crd.cols();
           for (E_Int u = 0; u < ae1_2D.m_crd.cols(); ++u) ae1_2D.m_crd(2, u) = zmean;
@@ -520,9 +520,9 @@ template <typename zmesh_t>
 void interpol_coeffs_for_first(
   const zmesh_t& m0,
   const zmesh_t& m1, 
-  E_Float RTOL,
+  nuga_real_t RTOL,
   std::vector<int>& dindices,
-  std::vector<E_Float>& dcoeffs,
+  std::vector<nuga_real_t>& dcoeffs,
   std::vector<int>& xr, bool do_omp=false)
 {
   dindices.clear();
@@ -542,7 +542,7 @@ void interpol_coeffs_for_first(
   std::vector<aelt_t> bits;
 
   std::vector<std::vector<int>>    dindices_per_cell(nbcells0);
-  std::vector<std::vector<E_Float>> dcoeffs_per_cell(nbcells0);
+  std::vector<std::vector<nuga_real_t>> dcoeffs_per_cell(nbcells0);
   
   size_t n, k;
   E_Int i, i2;
@@ -566,7 +566,7 @@ void interpol_coeffs_for_first(
 
       if (bits.empty()) continue;
 
-      E_Float si2 = 0.;
+      nuga_real_t si2 = 0.;
       for (k = 0; k < bits.size(); ++k)
         si2 += bits[k].extent();
 
@@ -578,11 +578,11 @@ void interpol_coeffs_for_first(
   // normalize coeffs with total covered surface
   for (size_t i = 0; i < nbcells0; ++i)
   {
-    E_Float stot = 0.;
+    nuga_real_t stot = 0.;
     for (size_t k = 0; k < dcoeffs_per_cell[i].size(); ++k)
       stot += dcoeffs_per_cell[i][k];
 
-    //E_Float s0 = m0.aelement(i).extent();
+    //nuga_real_t s0 = m0.aelement(i).extent();
     //if (stot / s0 < 0.99) std::cout << "cell " << i << " has " << stot / s0 << std::endl;
 
     for (size_t k = 0; k < dcoeffs_per_cell[i].size(); ++k)
@@ -599,18 +599,18 @@ void interpol_coeffs_for_first(
   }
 }
 
-inline E_Float transfer_mass(aPolyhedron<0>& pbit, aPolyhedron<0>& pdon, E_Float Vbit, E_Float rho, 
-                             E_Float* gradx=nullptr, E_Float* grady=nullptr, E_Float* gradz = nullptr)
+inline nuga_real_t transfer_mass(aPolyhedron<0>& pbit, aPolyhedron<0>& pdon, nuga_real_t Vbit, nuga_real_t rho, 
+                             nuga_real_t* gradx=nullptr, nuga_real_t* grady=nullptr, nuga_real_t* gradz = nullptr)
 {
-  E_Float m = Vbit * rho;
+  nuga_real_t m = Vbit * rho;
 
   if (gradx == nullptr) // order1
     return m;
 
-  E_Float gradf[] = { *gradx, *grady, *gradz};
-  const E_Float* Gbit = pbit.get_centroid();
-  const E_Float* Gdon = pdon.get_centroid();
-  E_Float GdonGbit[3];
+  nuga_real_t gradf[] = { *gradx, *grady, *gradz};
+  const nuga_real_t* Gbit = pbit.get_centroid();
+  const nuga_real_t* Gdon = pdon.get_centroid();
+  nuga_real_t GdonGbit[3];
   NUGA::diff<3>(Gbit, Gdon, GdonGbit);
   m += NUGA::dot<3>(GdonGbit, gradf) * Vbit;
   return m;
@@ -620,9 +620,9 @@ template <typename zmesh_t>
 int interpolate(
   const zmesh_t& mrec,
   const zmesh_t& mdon,
-  E_Float RTOL,
+  nuga_real_t RTOL,
   const std::vector<field> & don_fields,
-  std::vector<std::vector<E_Float>>& rec_fields,
+  std::vector<std::vector<nuga_real_t>>& rec_fields,
   bool do_omp = false)
 {
   rec_fields.clear();
@@ -633,7 +633,7 @@ int interpolate(
   for (size_t i = 0; i < don_fields.size(); ++i)
     rec_fields[i].resize(mrec.ncells(), 0.);
 
-  std::vector<E_Float> covered_vol(mrec.ncells(), 0.);
+  std::vector<nuga_real_t> covered_vol(mrec.ncells(), 0.);
 
   //if (mrec.oriented == 0) return;
   //if (mdon.oriented == 0) return;
@@ -688,11 +688,11 @@ int interpolate(
         
         if (wher == IN) // ae0 is fully inside ae1
         {
-          E_Float Vbit = ae0.extent();
+          nuga_real_t Vbit = ae0.extent();
           // transfer fields
           for (f = 0; f < nfields; ++f)
           {
-            E_Float* gradf[] = { nullptr, nullptr, nullptr };
+            nuga_real_t* gradf[] = { nullptr, nullptr, nullptr };
             if (don_fields[f].gradf[0] != nullptr)//this field has gradients
             {
               gradf[0] = &don_fields[f].gradf[0][i2];
@@ -708,7 +708,7 @@ int interpolate(
         else // IN_1 : ae1 is fully inside ae0
         {
           //gradients doesnt matter here since Vbit = Vdonnor
-          E_Float Vbit = ae1.extent();
+          nuga_real_t Vbit = ae1.extent();
           // transfer fields
           for (f = 0; f < nfields; ++f)
           {
@@ -721,11 +721,11 @@ int interpolate(
       {
         for (b = 0; b < bits.size(); ++b)
         {
-          E_Float Vbit = bits[b].extent();
+          nuga_real_t Vbit = bits[b].extent();
           // transfer fields
           for (f = 0; f < nfields; ++f)
           {
-            E_Float* gradf[] = { nullptr, nullptr, nullptr };
+            nuga_real_t* gradf[] = { nullptr, nullptr, nullptr };
             if (don_fields[f].gradf[0] != nullptr)//this field has gradients
             {
               gradf[0] = &don_fields[f].gradf[0][i2];

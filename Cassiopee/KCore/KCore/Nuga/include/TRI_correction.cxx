@@ -61,7 +61,7 @@ void
 TRI_Conformizer<DIM>::__run_correction_beta
 (const K_FLD::FloatArray& pos, K_FLD::IntArray& connect,
  NUGA::int_vector_type& ancestors, NUGA::bool_vector_type& xc,
- E_Float tolerance)
+ nuga_real_t tolerance)
 {
   K_FLD::FloatArray                   normals;
   K_FLD::IntArray::const_iterator     pS;
@@ -164,7 +164,7 @@ TRI_Conformizer<DIM>::__run_correction_beta
 
     // Now find the one with the greatest number of nodes and duplicate it.
     E_Int Zt(IDX_NONE);
-    E_Float nt[DIM], ni[DIM];
+    nuga_real_t nt[DIM], ni[DIM];
     std::vector<std::vector<E_Int> > nodesZs(nb_zones);
     bool same_orient;
     size_t nb_elts(0);
@@ -407,7 +407,7 @@ TRI_Conformizer<DIM>::__buildSameSupportSurfacePairs
 template <short DIM>
 E_Bool
 TRI_Conformizer<DIM>::__areOverlapping
-(const K_FLD::FloatArray& pos, E_Float tolerance, const K_FLD::FloatArray& normals,
+(const K_FLD::FloatArray& pos, nuga_real_t tolerance, const K_FLD::FloatArray& normals,
  const K_FLD::IntArray& connectZ1, const K_SEARCH::BbTree3D& treeZ1,
  const K_FLD::IntArray& connectZ2, const K_SEARCH::BbTree3D& treeZ2)
 {
@@ -460,9 +460,9 @@ template <short DIM>
 E_Bool
 TRI_Conformizer<DIM>::__IsNodeFarFromSurface
 (const K_FLD::FloatArray& pos, const K_FLD::FloatArray& normals,
- E_Int N, const K_FLD::IntArray& connectZ, const K_SEARCH::BbTree3D& treeZ, E_Float tolerance)
+ E_Int N, const K_FLD::IntArray& connectZ, const K_SEARCH::BbTree3D& treeZ, nuga_real_t tolerance)
 {
-  E_Float                           P[3], dMax(-1.), d, UV[2];
+  nuga_real_t                           P[3], dMax(-1.), d, UV[2];
   std::vector<E_Int>                boxes;
   K_FLD::IntArray::const_iterator   pS;
   bool                              inside;
@@ -489,7 +489,7 @@ TRI_Conformizer<DIM>::__IsNodeFarFromSurface
 template <short DIM>
 void
 TRI_Conformizer<DIM>::__computeAveragedNormal
-(const K_FLD::FloatArray& normals, const std::vector<E_Int>& nodes, E_Float* ni)
+(const K_FLD::FloatArray& normals, const std::vector<E_Int>& nodes, nuga_real_t* ni)
 {
   ni[0] = ni[1] = ni[2] = 0.;
 
@@ -809,11 +809,11 @@ TRI_Conformizer<DIM>::__compute_splitting_points
 (K_FLD::FloatArray& pos, const K_FLD::IntArray& connect,
  const NUGA::bool_vector_type& xc,
  const std::set<K_MESH::NO_Edge>& commone_no_edges,
- E_Float tol, std::map<K_MESH::NO_Edge, std::vector<E_Int> >& edge_to_point)
+ nuga_real_t tol, std::map<K_MESH::NO_Edge, std::vector<E_Int> >& edge_to_point)
 {
   K_FLD::IntArray::const_iterator   pS;
   E_Int                             Si, nb_tris(connect.cols()), n, N0, Ni, Nj, NB_NODES(3);
-  E_Float                           d2, l0, d0, lambda, eps(EPSILON), *Pi, *Pj, Pk[DIM], dMax, tol2(tol*tol);
+  nuga_real_t                           d2, l0, d0, lambda, eps(EPSILON), *Pi, *Pj, Pk[DIM], dMax, tol2(tol*tol);
   K_MESH::NO_Edge                   Ei;
   
   for (Si = 0; Si < nb_tris; ++Si)
@@ -874,18 +874,18 @@ TRI_Conformizer<DIM>::__compute_splitting_points
 /*template <short DIM>
 E_Int
 TRI_Conformizer<DIM>::__fix_bad_triangles
-(K_FLD::FloatArray& coord, E_Float tol, K_FLD::IntArray& connect,
+(K_FLD::FloatArray& coord, nuga_real_t tol, K_FLD::IntArray& connect,
  NUGA::int_vector_type& ancestors, NUGA::bool_vector_type& xc)
 {
   K_FLD::IntArray::const_iterator   pS;
   E_Int                             Si, nb_tris0(connect.cols()), n, N0, N1, N2, Ni, NB_NODES(3);
-  E_Float                           d2, l0, d0, lambda, eps(EPSILON), *Pi, *Pj, Pk[DIM], dMax, tol2(tol*tol);
+  nuga_real_t                           d2, l0, d0, lambda, eps(EPSILON), *Pi, *Pj, Pk[DIM], dMax, tol2(tol*tol);
   K_MESH::NO_Edge                   Ei;
   
   typedef std::map<K_MESH::NO_Edge, std::vector<E_Int> > e_to_pts_t;
   e_to_pts_t E_to_Pts;
   e_to_pts_t::iterator itE;
-  E_Float tolx = -1.;
+  nuga_real_t tolx = -1.;
   
 #ifdef DEBUG_TRI_CONFORMIZER
   K_FLD::IntArray connectBad;

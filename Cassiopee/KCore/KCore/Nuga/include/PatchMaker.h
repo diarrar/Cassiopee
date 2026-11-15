@@ -29,7 +29,7 @@ class PatchMaker
 public:
   ///
   static void run (const K_FLD::FloatArray& pos, const K_FLD::IntArray& connectS, 
-                   const NUGA::int_vector_type & pairs, E_Float angle_tolerance,
+                   const NUGA::int_vector_type & pairs, nuga_real_t angle_tolerance,
                    std::vector<K_FLD::IntArray> & connectBout);
 
 private:
@@ -40,7 +40,7 @@ private:
 
   ///
   static void
-    __flag_critical_nodes(const K_FLD::FloatArray& normals, E_Float critical_angle,
+    __flag_critical_nodes(const K_FLD::FloatArray& normals, nuga_real_t critical_angle,
                           const std::vector<E_Int> & pairs, const std::vector<E_Int> & colors,
                           std::vector< std::vector<E_Int> > & sorted_nodes,
                           std::vector<E_Int> & critical_nodes);
@@ -48,10 +48,10 @@ private:
   ///
   static E_Int
     __flag_critical_nodes_on_contour(const std::vector<E_Int>& nodes, E_Int N0, const K_FLD::FloatArray& normals,
-                                     E_Float critical_angle, const std::vector<E_Int> & pairs,
+                                     nuga_real_t critical_angle, const std::vector<E_Int> & pairs,
                                      const std::vector<E_Int>& colors, std::vector<E_Int> & critical_nodes);
 
-  static E_Float __getAngle(const E_Float* n1, const E_Float* n2);
+  static nuga_real_t __getAngle(const nuga_real_t* n1, const nuga_real_t* n2);
 
   static void __build_cutting_edges(const std::vector<E_Int>& pairs,
                                     const std::vector<E_Int>& colors,

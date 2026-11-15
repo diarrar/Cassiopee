@@ -67,7 +67,7 @@ private:
   E_Int _iter_max, _iter;
   bool _done;
   std::map<E_Int, std::vector<E_Int>> _candidates;
-  static constexpr E_Float RTOL = 1.e-15;
+  static constexpr nuga_real_t RTOL = 1.e-15;
   //static constexpr NUGA::eMetricType MTYPE = NUGA::ISO_MIN;
 };
 
@@ -120,7 +120,7 @@ bool xsensor2<mesh_t>::fill_adap_incr(output_t& adap_incr, bool do_agglo)
       if (!parent_t::_hmesh._PHtree.is_enabled(i)) continue;
 
       auto ae1 = m1.aelement(i);
-      //E_Float Lref21 = ae1.Lref2(ae1.m_crd, MTYPE);
+      //nuga_real_t Lref21 = ae1.Lref2(ae1.m_crd, MTYPE);
 
       cands.clear();
       loc2->get_candidates(ae1, ae1.m_crd, cands, 0, RTOL); //return as 0-based (fixme for volumic, was 1-based)
@@ -136,7 +136,7 @@ bool xsensor2<mesh_t>::fill_adap_incr(output_t& adap_incr, bool do_agglo)
   }
 
   pg_smesh_t& src_mesh = parent_t::_data;
-  E_Float K = 2.;
+  nuga_real_t K = 2.;
 
   for (auto it : _candidates)
   {
@@ -148,12 +148,12 @@ bool xsensor2<mesh_t>::fill_adap_incr(output_t& adap_incr, bool do_agglo)
     // criterion based on ISO MIN
     if ( (_metric_policy == NUGA::MIN) || (_metric_policy == NUGA::MIN_OR_MAX) )
     {
-      E_Float phlr2 = ph.Lref2(m1.crd, NUGA::ISO_MIN); //evaluated on this element
-      E_Float LREF2_AMBIANT = NUGA::FLOAT_MAX;
+      nuga_real_t phlr2 = ph.Lref2(m1.crd, NUGA::ISO_MIN); //evaluated on this element
+      nuga_real_t LREF2_AMBIANT = NUGA::FLOAT_MAX;
       for (auto c : cands)
       {
         auto pg = src_mesh.element(c);
-        E_Float lr2 = pg.Lref2(src_mesh.crd, NUGA::ISO_MIN); //evaluated on this element
+        nuga_real_t lr2 = pg.Lref2(src_mesh.crd, NUGA::ISO_MIN); //evaluated on this element
         LREF2_AMBIANT = K_FUNC::E_min(LREF2_AMBIANT, lr2);
       }
       if (phlr2 > K* LREF2_AMBIANT)
@@ -167,12 +167,12 @@ bool xsensor2<mesh_t>::fill_adap_incr(output_t& adap_incr, bool do_agglo)
     // criterion based on ISO MAX
     if ((_metric_policy == NUGA::MAX) || (_metric_policy == NUGA::MIN_OR_MAX))
     {
-      E_Float phlr2 = ph.Lref2(m1.crd, NUGA::ISO_MAX); //evaluated on this element
-      E_Float LREF2_AMBIANT = -1.;
+      nuga_real_t phlr2 = ph.Lref2(m1.crd, NUGA::ISO_MAX); //evaluated on this element
+      nuga_real_t LREF2_AMBIANT = -1.;
       for (auto c : cands)
       {
         auto pg = src_mesh.element(c);
-        E_Float lr2 = pg.Lref2(src_mesh.crd, NUGA::ISO_MAX); //evaluated on this element
+        nuga_real_t lr2 = pg.Lref2(src_mesh.crd, NUGA::ISO_MAX); //evaluated on this element
         LREF2_AMBIANT = std::max(LREF2_AMBIANT, lr2);
       }
       if (phlr2 > K* LREF2_AMBIANT) {
@@ -185,12 +185,12 @@ bool xsensor2<mesh_t>::fill_adap_incr(output_t& adap_incr, bool do_agglo)
     // criterion based on ISO MEAN
     if (_metric_policy == NUGA::MEAN)
     {
-      E_Float phlr2 = ph.Lref2(m1.crd, NUGA::ISO_MEAN); //evaluated on this element
-      E_Float LREF2_AMBIANT = -1.;
+      nuga_real_t phlr2 = ph.Lref2(m1.crd, NUGA::ISO_MEAN); //evaluated on this element
+      nuga_real_t LREF2_AMBIANT = -1.;
       for (auto c : cands)
       {
         auto pg = src_mesh.element(c);
-        E_Float lr2 = pg.Lref2(src_mesh.crd, NUGA::ISO_MEAN); //evaluated on this element
+        nuga_real_t lr2 = pg.Lref2(src_mesh.crd, NUGA::ISO_MEAN); //evaluated on this element
         LREF2_AMBIANT = std::max(LREF2_AMBIANT, lr2);
       }
       if (phlr2 > K* LREF2_AMBIANT) {

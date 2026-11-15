@@ -255,8 +255,10 @@ E_Int K_LINEAR::eigen2(E_Float a00, E_Float a11, E_Float a10,
                        E_Float& lambda0, E_Float& lambda1, 
                        E_Float* v0, E_Float* v1)
 {
-  DelaunayMath::eigen_vectors(a00, a11, a10, lambda0, lambda1,
-                              v0, v1);
+  nuga_real_t l0, l1, V0[2], V1[2]; // Nuga works in double
+  DelaunayMath::eigen_vectors(a00, a11, a10, l0, l1, V0, V1);
+  lambda0 = l0; lambda1 = l1;
+  v0[0] = V0[0]; v0[1] = V0[1]; v1[0] = V1[0]; v1[1] = V1[1];
   return 1;
 }
 

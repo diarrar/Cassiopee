@@ -56,47 +56,47 @@ UBSSurface::~UBSSurface(void)
 {
 }
 
-void UBSSurface::point (E_Float u, E_Float v, E_Float* P) const
+void UBSSurface::point (nuga_real_t u, nuga_real_t v, nuga_real_t* P) const
 {
   __eval (u, _base, v, _base, P);
 }
 
-void UBSSurface::DU1(E_Float u, E_Float v, E_Float* P) const
+void UBSSurface::DU1(nuga_real_t u, nuga_real_t v, nuga_real_t* P) const
 {
   __eval (u, _baseD1, v, _base, P);
 }
 
 
-void UBSSurface::DU2(E_Float u, E_Float v, E_Float* P) const
+void UBSSurface::DU2(nuga_real_t u, nuga_real_t v, nuga_real_t* P) const
 {
   __eval (u, _baseD2, v, _base, P);
 }
 
 
-void UBSSurface::DV1(E_Float u, E_Float v, E_Float* P) const
+void UBSSurface::DV1(nuga_real_t u, nuga_real_t v, nuga_real_t* P) const
 {
   __eval (u, _base, v, _baseD1, P);
 }
 
 
-void UBSSurface::DV2(E_Float u, E_Float v, E_Float* P) const
+void UBSSurface::DV2(nuga_real_t u, nuga_real_t v, nuga_real_t* P) const
 {
   __eval (u, _base, v, _baseD2, P);
 }
 
 
-void UBSSurface::DUV(E_Float u, E_Float v, E_Float* P) const
+void UBSSurface::DUV(nuga_real_t u, nuga_real_t v, nuga_real_t* P) const
 {
   __eval (u, _baseD1, v, _baseD1, P);
 }
 
-void UBSSurface::DAUV1(E_Float u, E_Float v, E_Float* P) const
+void UBSSurface::DAUV1(nuga_real_t u, nuga_real_t v, nuga_real_t* P) const
 {
   __eval (u, _baseD1, v, _base, P); // DU1
   __eval (u, _base, v, _baseD1, P+3); // DV1
 }
 
-void UBSSurface::DAUV2(E_Float u, E_Float v, E_Float* P) const
+void UBSSurface::DAUV2(nuga_real_t u, nuga_real_t v, nuga_real_t* P) const
 {
   __eval (u, _baseD1, v, _base,   P); // DU1
   __eval (u,  _base,  v, _baseD1, P+3); // DV1
@@ -105,9 +105,9 @@ void UBSSurface::DAUV2(E_Float u, E_Float v, E_Float* P) const
   __eval (u, _baseD1, v, _baseD1, P+12); // DUV
 }
 
-void UBSSurface::__eval (E_Float u, const std::vector<pBaseFunc>& FUs, 
-                         E_Float v, const std::vector<pBaseFunc>& FVs, 
-                         E_Float* P) const
+void UBSSurface::__eval (nuga_real_t u, const std::vector<pBaseFunc>& FUs, 
+                         nuga_real_t v, const std::vector<pBaseFunc>& FVs, 
+                         nuga_real_t* P) const
 {
   P[0] = P[1] = P[2] = 0.;
 
@@ -133,14 +133,14 @@ void UBSSurface::__eval (E_Float u, const std::vector<pBaseFunc>& FUs,
   for (E_Int k = j; k < j+4; ++k)
   {
     pBaseFunc Nku = FUs[k-j];
-    E_Float xu = Nku(u);
+    nuga_real_t xu = Nku(u);
 
     if (fabs(xu) < EPSILON) continue;
 
     for (E_Int l = i; l < i+4; ++l)
     {
       pBaseFunc Nlv = FVs[l-i];
-      E_Float yv = Nlv(v);
+      nuga_real_t yv = Nlv(v);
 
       if (fabs(yv) < EPSILON) continue;
 
@@ -227,7 +227,7 @@ void UBSSurface::__setControlPoints(const K_FLD::FloatArray& pos, E_Int nj)
 void UBSSurface::triangulate(K_FLD::FloatArray& pos, 
                              K_FLD::IntArray& connectT3)
 {
-  E_Float P0[3];
+  nuga_real_t P0[3];
   E_Int   Ti[3];
 
   connectT3.clear();
@@ -277,7 +277,7 @@ void
 UBSSurface::quadrangulate
 (K_FLD::FloatArray& pos, K_FLD::IntArray& connectQ4)
 {
-  E_Float P0[3];
+  nuga_real_t P0[3];
   E_Int   Ti[3];
 
   connectT3.clear();

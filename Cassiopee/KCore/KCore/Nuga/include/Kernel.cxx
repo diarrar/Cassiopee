@@ -318,7 +318,7 @@ void Kernel<T>::__appendCavity
 // Specialization : unconstrained iso.
 template <> 
 template <> inline
-void Kernel<E_Float>::__appendCavity<UNCONSTRAINED>
+void Kernel<nuga_real_t>::__appendCavity<UNCONSTRAINED>
 (const K_FLD::IntArray& neighbors, const int_set_type& base,
  int_set_type& cavity, int_pair_set_type& cboundary)
 {
@@ -600,7 +600,7 @@ E_Int Kernel<T>::__ensureStarShape
   bool carry_on;
   size_type S,b, Ni, Nj;
   K_FLD::IntArray::const_iterator pS;
-  E_Float tolerance(_tool->getTolerance()), q;
+  nuga_real_t tolerance(_tool->getTolerance()), q;
 
   do 
   {

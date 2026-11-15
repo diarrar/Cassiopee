@@ -88,11 +88,11 @@ public: /* Set and Get methods */
     box = box_t(crd, _nodes, NB_NODES);
   }
 
-  E_Float Lref2(const K_FLD::FloatArray& crd) const
+  nuga_real_t Lref2(const K_FLD::FloatArray& crd) const
   {
     return NUGA::sqrDistance(crd.col(_nodes[0]), crd.col(_nodes[1]), 3);
   }
-  E_Float Lref2(const std::vector<E_Float>& nodal_tol2) const
+  nuga_real_t Lref2(const std::vector<nuga_real_t>& nodal_tol2) const
   {
     return std::min(nodal_tol2[_nodes[0]], nodal_tol2[_nodes[1]]);
   }
@@ -111,41 +111,41 @@ public: /* Static functions related to edges */
       in case of intersection both parameters allow to compute the intersection point and min_distance = 0.*/
   template <short DIM>
   static void lineLineMinDistance
-              (const E_Float* P0, const E_Float* P1, const E_Float* Q0, const E_Float* Q1,
-               E_Float& u0, E_Float& u1,
-               E_Float tolerance, E_Bool& parallel, E_Bool& coincident, E_Float& min_distance);
+              (const nuga_real_t* P0, const nuga_real_t* P1, const nuga_real_t* Q0, const nuga_real_t* Q1,
+               nuga_real_t& u0, nuga_real_t& u1,
+               nuga_real_t tolerance, E_Bool& parallel, E_Bool& coincident, nuga_real_t& min_distance);
                                
   ///
   template <short DIM>
-  static bool intersect (const E_Float* P0, const E_Float* P1, const E_Float* Q0, const E_Float* Q1,
-                         E_Float tol, E_Bool tol_is_absolute,
-                         E_Float& u00, E_Float& u01, E_Float& u10, E_Float& u11, E_Bool& overlap);
+  static bool intersect (const nuga_real_t* P0, const nuga_real_t* P1, const nuga_real_t* Q0, const nuga_real_t* Q1,
+                         nuga_real_t tol, E_Bool tol_is_absolute,
+                         nuga_real_t& u00, nuga_real_t& u01, nuga_real_t& u10, nuga_real_t& u11, E_Bool& overlap);
 
   ///
   template <short DIM>
   static bool intersect 
-    (const K_FLD::FloatArray& pos, E_Int N0, E_Int N1, E_Int M0, E_Int M1, E_Float tol, E_Bool tol_is_absolute,
-    E_Float& u00, E_Float& u01, E_Float& u10, E_Float& u11, E_Bool& overlap, bool enforceCoplanarity=false);
+    (const K_FLD::FloatArray& pos, E_Int N0, E_Int N1, E_Int M0, E_Int M1, nuga_real_t tol, E_Bool tol_is_absolute,
+    nuga_real_t& u00, nuga_real_t& u01, nuga_real_t& u10, nuga_real_t& u11, E_Bool& overlap, bool enforceCoplanarity=false);
   
   ///
   template <short DIM>
-  static E_Float
-  linePointMinDistance(const E_Float* P0, const E_Float* P1, const E_Float* P, E_Float& lambda) ;
+  static nuga_real_t
+  linePointMinDistance(const nuga_real_t* P0, const nuga_real_t* P1, const nuga_real_t* P, nuga_real_t& lambda) ;
   
   ///
   template <short DIM>
-  static E_Float
-  linePointMinDistance2(const E_Float* P0, const E_Float* P1, const E_Float* P, E_Float& lambda) ;
+  static nuga_real_t
+  linePointMinDistance2(const nuga_real_t* P0, const nuga_real_t* P1, const nuga_real_t* P, nuga_real_t& lambda) ;
 
   ///
   template <short DIM>
-  static E_Float
-  edgePointMinDistance (const E_Float* P0, const E_Float* P1, const E_Float* P, E_Float& lambda);
+  static nuga_real_t
+  edgePointMinDistance (const nuga_real_t* P0, const nuga_real_t* P1, const nuga_real_t* P, nuga_real_t& lambda);
   
   ///
   template <short DIM>
-  inline static E_Float
-  edgePointMinDistance2 (const E_Float* P0, const E_Float* P1, const E_Float* P, E_Float& lambda);
+  inline static nuga_real_t
+  edgePointMinDistance2 (const nuga_real_t* P0, const nuga_real_t* P1, const nuga_real_t* P, nuga_real_t& lambda);
 
 public : 
   static bool _enforce_coplanarity;
@@ -170,7 +170,7 @@ public:
 ////////////////
 struct aEdge : public Edge
 {
-  E_Float m_Lref2;
+  nuga_real_t m_Lref2;
   
   aEdge(const Edge& e, const K_FLD::FloatArray& crd):m_Lref2(-1.)
   {
@@ -183,12 +183,12 @@ struct aEdge : public Edge
     v2[2] = crd(2, e.node(1));
   } // from "mesh" to autonmous
   
-  aEdge(const Edge& e, const K_FLD::FloatArray& crd, E_Float L2r):aEdge(e, crd){m_Lref2 = L2r;}
+  aEdge(const Edge& e, const K_FLD::FloatArray& crd, nuga_real_t L2r):aEdge(e, crd){m_Lref2 = L2r;}
 
   aEdge(const K_FLD::IntArray& cnt, E_Int i, const K_FLD::FloatArray& crd)
   {
-    const E_Float* pt1 = crd.col(cnt(0, i));
-    const E_Float* pt2 = crd.col(cnt(1, i));
+    const nuga_real_t* pt1 = crd.col(cnt(0, i));
+    const nuga_real_t* pt2 = crd.col(cnt(1, i));
 
     v1[0] = pt1[0];
     v1[1] = pt1[1];
@@ -201,9 +201,9 @@ struct aEdge : public Edge
     m_Lref2 = Lref2();
   }
 
-  E_Float Lref2() const { return (m_Lref2 > 0.) ? m_Lref2 : NUGA::sqrDistance(v1, v2, 3);}
+  nuga_real_t Lref2() const { return (m_Lref2 > 0.) ? m_Lref2 : NUGA::sqrDistance(v1, v2, 3);}
  
-  E_Float v1[3], v2[3];
+  nuga_real_t v1[3], v2[3];
 };
 
 } // End namespace K_MESH
@@ -212,11 +212,11 @@ struct aEdge : public Edge
 template <short DIM>
 bool
 K_MESH::Edge::intersect 
-(const E_Float* P0, const E_Float* P1, const E_Float* Q0, const E_Float* Q1,
- E_Float tol, E_Bool tol_is_absolute,
- E_Float& u00, E_Float& u01, E_Float& u10, E_Float& u11, E_Bool& overlap) 
+(const nuga_real_t* P0, const nuga_real_t* P1, const nuga_real_t* Q0, const nuga_real_t* Q1,
+ nuga_real_t tol, E_Bool tol_is_absolute,
+ nuga_real_t& u00, nuga_real_t& u01, nuga_real_t& u10, nuga_real_t& u11, E_Bool& overlap) 
 {
-  E_Float u0, u1, min_d, tol0(tol), tol1(tol);
+  nuga_real_t u0, u1, min_d, tol0(tol), tol1(tol);
   E_Bool  parallel, coincident;
   
   overlap = false;
@@ -224,15 +224,15 @@ K_MESH::Edge::intersect
 
   lineLineMinDistance<DIM>(P0, P1, Q0, Q1, u0, u1, tol, parallel, coincident, min_d);
 
-  E_Float E0[DIM], E1[DIM];
+  nuga_real_t E0[DIM], E1[DIM];
   NUGA::diff<DIM>(P1, P0, E0);
-  E_Float L0 = NUGA::sqrNorm<DIM>(E0);
+  nuga_real_t L0 = NUGA::sqrNorm<DIM>(E0);
   L0 = 1. / L0;
   NUGA::diff<DIM>(Q1, Q0, E1);
-  E_Float L1 = NUGA::sqrNorm<DIM>(E1);
+  nuga_real_t L1 = NUGA::sqrNorm<DIM>(E1);
   L1 = 1. / L1;
-  E_Float l0 = sqrt(L0);
-  E_Float l1 = sqrt(L1);
+  nuga_real_t l0 = sqrt(L0);
+  nuga_real_t l1 = sqrt(L1);
 
   if (tol_is_absolute)
   {
@@ -252,13 +252,13 @@ K_MESH::Edge::intersect
   }
   else                  // The support line is the same for the 2 edges : up to 2 point of intersection.
   {
-   E_Float V00[DIM], V01[DIM];   
+   nuga_real_t V00[DIM], V01[DIM];   
    
    NUGA::diff<DIM>(Q0, P0, V00);
    NUGA::diff<DIM>(Q1, P0, V01);
 
-   E_Float s00 = NUGA::dot<DIM>(E0, V00) * L0; // fixme FIXME FIXME a revoir
-   E_Float s01 = NUGA::dot<DIM>(E0, V01) * L0;
+   nuga_real_t s00 = NUGA::dot<DIM>(E0, V00) * L0; // fixme FIXME FIXME a revoir
+   nuga_real_t s01 = NUGA::dot<DIM>(E0, V01) * L0;
    if (s01 < s00)
      std::swap(s00, s01);
 
@@ -267,8 +267,8 @@ K_MESH::Edge::intersect
    
    NUGA::diff<DIM>(P1, Q0, V01);
 
-   E_Float s10 = - NUGA::dot<DIM>(E1, V00) * L1;
-   E_Float s11 = NUGA::dot<DIM>(E1, V01) * L1;
+   nuga_real_t s10 = - NUGA::dot<DIM>(E1, V00) * L1;
+   nuga_real_t s11 = NUGA::dot<DIM>(E1, V01) * L1;
    if (s11 < s10)
      std::swap(s10, s11);
 
@@ -299,18 +299,18 @@ K_MESH::Edge::intersect
 template <short DIM>
 bool
 K_MESH::Edge::intersect 
-(const K_FLD::FloatArray& pos, E_Int N0, E_Int N1, E_Int M0, E_Int M1, E_Float tol, E_Bool tol_is_absolute,
- E_Float& u00, E_Float& u01, E_Float& u10, E_Float& u11, E_Bool& overlap, bool enforceCoplanarity) 
+(const K_FLD::FloatArray& pos, E_Int N0, E_Int N1, E_Int M0, E_Int M1, nuga_real_t tol, E_Bool tol_is_absolute,
+ nuga_real_t& u00, nuga_real_t& u01, nuga_real_t& u10, nuga_real_t& u11, E_Bool& overlap, bool enforceCoplanarity) 
 {
-  E_Float u0, u1, min_d, tol0(tol), tol1(tol);
+  nuga_real_t u0, u1, min_d, tol0(tol), tol1(tol);
   E_Bool  parallel, coincident, sharing_a_node;
 
   enforceCoplanarity |= (DIM == 2); // 2D => true
 
-  const E_Float* P0 = pos.col(N0);
-  const E_Float* P1 = pos.col(N1);
-  const E_Float* Q0 = pos.col(M0);
-  const E_Float* Q1 = pos.col(M1);
+  const nuga_real_t* P0 = pos.col(N0);
+  const nuga_real_t* P1 = pos.col(N1);
+  const nuga_real_t* Q0 = pos.col(M0);
+  const nuga_real_t* Q1 = pos.col(M1);
   
   overlap = false;
   u00 = u01 = u10 = u11 = NUGA::FLOAT_MAX;
@@ -331,15 +331,15 @@ K_MESH::Edge::intersect
   if (enforceCoplanarity && !parallel)
     min_d=0.;
 
-  E_Float E0[DIM], E1[DIM];
+  nuga_real_t E0[DIM], E1[DIM];
   NUGA::diff<DIM>(P1, P0, E0);
-  E_Float L0 = NUGA::sqrNorm<DIM>(E0);
+  nuga_real_t L0 = NUGA::sqrNorm<DIM>(E0);
   L0 = 1. / L0;
   NUGA::diff<DIM>(Q1, Q0, E1);
-  E_Float L1 = NUGA::sqrNorm<DIM>(E1);
+  nuga_real_t L1 = NUGA::sqrNorm<DIM>(E1);
   L1 = 1. / L1;
-  E_Float l0 = sqrt(L0);
-  E_Float l1 = sqrt(L1);
+  nuga_real_t l0 = sqrt(L0);
+  nuga_real_t l1 = sqrt(L1);
 
   if (tol_is_absolute)
   {
@@ -381,13 +381,13 @@ K_MESH::Edge::intersect
   }
   else                  // The support line is the same for the 2 edges : up to 2 point of intersection.
   {
-    E_Float V00[DIM], V01[DIM];   
+    nuga_real_t V00[DIM], V01[DIM];   
    
     NUGA::diff<DIM>(Q0, P0, V00);
     NUGA::diff<DIM>(Q1, P0, V01);
 
-    E_Float s00 = NUGA::dot<DIM>(E0, V00) * L0; //pos de Q0 sur E0
-    E_Float s01 = NUGA::dot<DIM>(E0, V01) * L0; //pos de Q1 sur E0
+    nuga_real_t s00 = NUGA::dot<DIM>(E0, V00) * L0; //pos de Q0 sur E0
+    nuga_real_t s01 = NUGA::dot<DIM>(E0, V01) * L0; //pos de Q1 sur E0
     if (s01 < s00)
       std::swap(s00, s01);
 
@@ -396,8 +396,8 @@ K_MESH::Edge::intersect
 
     NUGA::diff<DIM>(P1, Q0, V01);
 
-    E_Float s10 = -NUGA::dot<DIM>(E1, V00) * L1; //pos de P0 sur E1
-    E_Float s11 = NUGA::dot<DIM>(E1, V01) * L1;  //pos de P1 sur E1
+    nuga_real_t s10 = -NUGA::dot<DIM>(E1, V00) * L1; //pos de P0 sur E1
+    nuga_real_t s11 = NUGA::dot<DIM>(E1, V01) * L1;  //pos de P1 sur E1
     if (s11 < s10)
       std::swap(s10, s11);
 
@@ -430,12 +430,12 @@ K_MESH::Edge::intersect
 template <short DIM>
 void
 K_MESH::Edge::lineLineMinDistance
-(const E_Float* P0, const E_Float* P1, const E_Float* Q0, const E_Float* Q1,
- E_Float& u0, E_Float& u1,
- E_Float abstol, E_Bool& parallel, E_Bool& coincident, E_Float& min_distance)
+(const nuga_real_t* P0, const nuga_real_t* P1, const nuga_real_t* Q0, const nuga_real_t* Q1,
+ nuga_real_t& u0, nuga_real_t& u1,
+ nuga_real_t abstol, E_Bool& parallel, E_Bool& coincident, nuga_real_t& min_distance)
 {
-  E_Float E0[DIM], E1[DIM], V01[DIM];
-  E_Float L02, L12, tol2(abstol*abstol);
+  nuga_real_t E0[DIM], E1[DIM], V01[DIM];
+  nuga_real_t L02, L12, tol2(abstol*abstol);
   
   u0 = u1 = min_distance = NUGA::FLOAT_MAX;
   coincident = parallel = false;
@@ -449,11 +449,11 @@ K_MESH::Edge::lineLineMinDistance
   if ((L02 < tol2) || (L12 < tol2)) // skip degen
     return;
 
-  E_Float l1, l2;
-  E_Float d1 = linePointMinDistance2<DIM>(P0,P1, Q0, l1);
-  E_Float d2 = linePointMinDistance2<DIM>(P0,P1, Q1, l2);
-  E_Float dmax12 = MAX(d1, d2);
-  //E_Float dmin12 = MIN(d1, d2);
+  nuga_real_t l1, l2;
+  nuga_real_t d1 = linePointMinDistance2<DIM>(P0,P1, Q0, l1);
+  nuga_real_t d2 = linePointMinDistance2<DIM>(P0,P1, Q1, l2);
+  nuga_real_t dmax12 = MAX(d1, d2);
+  //nuga_real_t dmin12 = MIN(d1, d2);
     
   if (dmax12 < tol2)
   {
@@ -464,8 +464,8 @@ K_MESH::Edge::lineLineMinDistance
     
   d1 = linePointMinDistance2<DIM>(Q0,Q1, P0, l1);
   d2 = linePointMinDistance2<DIM>(Q0,Q1, P1, l2);
-  E_Float dmax22 = MAX(d1, d2);
-  //E_Float dmin22 = MIN(d1, d2);
+  nuga_real_t dmax22 = MAX(d1, d2);
+  //nuga_real_t dmin22 = MIN(d1, d2);
   
   if (dmax22 < tol2)
   {
@@ -475,7 +475,7 @@ K_MESH::Edge::lineLineMinDistance
   }
       
   //At this stage, computing the determinant should be safe, ie. no parallelism
-  E_Float a, b, c, det2, u,v=0; //u,v are internal temporaries
+  nuga_real_t a, b, c, det2, u,v=0; //u,v are internal temporaries
   
   det2 = NUGA::sqrCross<DIM>(E0, E1);
   c = NUGA::dot<DIM>(E1, V01); 
@@ -483,12 +483,12 @@ K_MESH::Edge::lineLineMinDistance
   
   if (DIM == 2) // more testing for robsutness
   {
-  	E_Float normal_Q0Q1[] = { -E1[1], E1[0] };
-    E_Float pow2D_P0_Q0Q1 = NUGA::dot<2>(V01, normal_Q0Q1);
+  	nuga_real_t normal_Q0Q1[] = { -E1[1], E1[0] };
+    nuga_real_t pow2D_P0_Q0Q1 = NUGA::dot<2>(V01, normal_Q0Q1);
   
-    E_Float V02[DIM];
+    nuga_real_t V02[DIM];
     NUGA::diff<DIM>(P1, Q0, V02);
-    E_Float pow2D_P1_Q0Q1 = NUGA::dot<2>(V02, normal_Q0Q1);
+    nuga_real_t pow2D_P1_Q0Q1 = NUGA::dot<2>(V02, normal_Q0Q1);
 
     parallel &= ((pow2D_P0_Q0Q1 * pow2D_P1_Q0Q1) > 0.);
   }
@@ -503,7 +503,7 @@ K_MESH::Edge::lineLineMinDistance
       det2 = 1. / det2;
       u = det2 * (a*c - L12 * b);
       v = det2 * (L02*c - a * b);
-      E_Float IJ[DIM];
+      nuga_real_t IJ[DIM];
       for (E_Int i = 0; i < DIM; ++i)
         IJ[i] = V01[i] + u * E0[i] - v * E1[i];
       min_distance = NUGA::sqrNorm<DIM>(IJ);
@@ -521,13 +521,13 @@ K_MESH::Edge::lineLineMinDistance
     }
     else // 2D
     {
-      E_Float normal_Q0Q1[] = { -E1[1], E1[0] };
+      nuga_real_t normal_Q0Q1[] = { -E1[1], E1[0] };
       NUGA::normalize<2>(normal_Q0Q1);
-      E_Float a = -NUGA::dot<2>(E0, normal_Q0Q1);
-      E_Float pow2D_P0_Q0Q1 = NUGA::dot<2>(V01, normal_Q0Q1);
-      E_Float K = pow2D_P0_Q0Q1 / a;
+      nuga_real_t a = -NUGA::dot<2>(E0, normal_Q0Q1);
+      nuga_real_t pow2D_P0_Q0Q1 = NUGA::dot<2>(V01, normal_Q0Q1);
+      nuga_real_t K = pow2D_P0_Q0Q1 / a;
 
-      E_Float X[2];
+      nuga_real_t X[2];
       for (E_Int i = 0; i < 2; ++i)
         X[i] = P0[i] + K * E0[i];
 
@@ -543,7 +543,7 @@ K_MESH::Edge::lineLineMinDistance
 
   if (parallel || (DIM != 2))
   {
-    E_Float IJ[DIM];
+    nuga_real_t IJ[DIM];
     for (E_Int i = 0; i < DIM; ++i)
       IJ[i] = V01[i] + u * E0[i] - v * E1[i];
     min_distance = sqrt(NUGA::sqrNorm<DIM>(IJ));
@@ -556,11 +556,11 @@ K_MESH::Edge::lineLineMinDistance
 
 //=============================================================================
 template <short DIM>
-E_Float
+nuga_real_t
 K_MESH::Edge::linePointMinDistance2
-(const E_Float* P0, const E_Float* P1, const E_Float* P, E_Float& lambda)
+(const nuga_real_t* P0, const nuga_real_t* P1, const nuga_real_t* P, nuga_real_t& lambda)
 {
-  E_Float V0[DIM], V1[DIM], L;
+  nuga_real_t V0[DIM], V1[DIM], L;
  
   NUGA::diff<DIM> (P1, P0, V0);
   NUGA::diff<DIM> (P, P0, V1);
@@ -573,29 +573,29 @@ K_MESH::Edge::linePointMinDistance2
 
 //=============================================================================
 template <short DIM>
-E_Float
+nuga_real_t
 K_MESH::Edge::linePointMinDistance
-(const E_Float* P0, const E_Float* P1, const E_Float* P, E_Float& lambda) 
+(const nuga_real_t* P0, const nuga_real_t* P1, const nuga_real_t* P, nuga_real_t& lambda) 
 {
   return sqrt(linePointMinDistance2<DIM>(P0,P1,P,lambda));
 }
 
 //=============================================================================
 template <short DIM>
-E_Float
+nuga_real_t
 K_MESH::Edge::edgePointMinDistance
-(const E_Float* P0, const E_Float* P1, const E_Float* P, E_Float& lambda) 
+(const nuga_real_t* P0, const nuga_real_t* P1, const nuga_real_t* P, nuga_real_t& lambda) 
 {
   return sqrt(edgePointMinDistance2<DIM>(P0,P1,P,lambda));
 }
 
 //=============================================================================
 template <short DIM>
-E_Float
+nuga_real_t
 K_MESH::Edge::edgePointMinDistance2
-(const E_Float* P0, const E_Float* P1, const E_Float* P, E_Float& lambda) 
+(const nuga_real_t* P0, const nuga_real_t* P1, const nuga_real_t* P, nuga_real_t& lambda) 
 {
-  E_Float V0[DIM], V1[DIM], L, d2;
+  nuga_real_t V0[DIM], V1[DIM], L, d2;
  
   NUGA::diff<DIM> (P1, P0, V0);
   NUGA::diff<DIM> (P, P0, V1);

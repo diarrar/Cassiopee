@@ -35,14 +35,16 @@ namespace K_FLD
     typedef          ArrayType             array_type;
     typedef typename ArrayType::value_type value_type;
 
+    // a point copied out of the array, in Nuga's real type (double)
     struct pt_t
     {
-      value_type e[3];
+      nuga_real_t e[3];
       pt_t() {};
-      pt_t(value_type* p) {e[0]=p[0]; e[1]=p[1]; e[2]=p[2];}
+      template <typename U> pt_t(const U* p) {e[0]=p[0]; e[1]=p[1]; e[2]=p[2];}
       pt_t& operator=(pt_t const& r) {e[0]=r.e[0]; e[1]=r.e[1]; e[2]=r.e[2]; return *this;}
       pt_t(pt_t const & r){*this = r;}
-      operator value_type*() { return e;}
+      operator nuga_real_t*() { return e;}
+      operator const nuga_real_t*() const { return e;}
     };
 
   public:
@@ -110,17 +112,18 @@ namespace K_FLD
       return *getValPtr(j,i) + _shift;
     }
 
-    /// Returns the j-th entry.
-    inline void getEntry(const E_Int& j, value_type* entry) const
+    /// Returns the j-th entry (in any arithmetic type).
+    template <typename U, typename std::enable_if<std::is_arithmetic<U>::value, int>::type = 0>
+    inline void getEntry(const E_Int& j, U* entry) const
     {
-      for (E_Int k = 0; k < _stride; ++k) entry[k] = getVal(j,k);
+      for (E_Int k = 0; k < _stride; ++k) entry[k] = (U)getVal(j,k);
     }
     
     /// Returns the j-th entry's pointer to the first field.
     inline const value_type* getEntry(const E_Int& j) const {return getValPtr(j,0);}
     
     /// Returns the j-th entry : MUST BE A FIXED STRIDE (i.e E2N element)
-    template <typename ELT>
+    template <typename ELT, typename std::enable_if<!std::is_arithmetic<ELT>::value, int>::type = 0>
     inline void getEntry(const E_Int& j, ELT& PHj) const
     {
       E_Int* p = PHj.nodes();
@@ -129,7 +132,7 @@ namespace K_FLD
 
     pt_t col(E_Int j) const 
     { 
-      value_type e[3]; 
+      nuga_real_t e[3]; 
       e[0] = 0; e[1] = 0; e[2] = 0;
       getEntry(j, e);
       return pt_t(e);
@@ -139,25 +142,25 @@ namespace K_FLD
     inline E_Bool isOutOfRange(const E_Int& j) const {return (j >= _arr->getSize());}
 
     /// square of the distance between two nodes.
-    inline E_Float dist2(E_Int n, E_Int m) const
+    inline nuga_real_t dist2(E_Int n, E_Int m) const
     {
-      E_Float d2 = 0.;
+      nuga_real_t d2 = 0.;
       for (E_Int k = 0; k < _stride; ++k)
       {
-        const E_Float* X = getValPtr(0,k);
-        d2 += (*(X+n) - *(X+m))*(*(X+n) - *(X+m));
+        const value_type* X = getValPtr(0,k);
+        d2 += ((nuga_real_t)*(X+n) - (nuga_real_t)*(X+m))*((nuga_real_t)*(X+n) - (nuga_real_t)*(X+m));
       }
       return d2;
     }
 
     /// square of the distance between a point and a node.
-    inline E_Float dist2(const E_Float* pt, E_Int j) const
+    inline nuga_real_t dist2(const nuga_real_t* pt, E_Int j) const
     {
-      E_Float d2 = 0.;
+      nuga_real_t d2 = 0.;
       for (E_Int k = 0; k < _stride; ++k)
       {
-        const E_Float* X = getValPtr(j,k);
-        d2 += (*X - pt[k])*(*X - pt[k]);
+        const value_type* X = getValPtr(j,k);
+        d2 += ((nuga_real_t)*X - pt[k])*((nuga_real_t)*X - pt[k]);
       }
       return d2;
     }
@@ -231,9 +234,9 @@ namespace K_FLD
     inline E_Bool isOutOfRange(const E_Int& j) const {return (j >= _arr->cols());}
 
     /// square of the distance between two nodes.
-    inline E_Float dist2(E_Int n, E_Int m) const
+    inline nuga_real_t dist2(E_Int n, E_Int m) const
     {
-      const E_Float *pn(_arr->begin() + _arr->_rowsMax*n), *pm(_arr->begin() + _arr->_rowsMax*m);
+      const nuga_real_t *pn(_arr->begin() + _arr->_rowsMax*n), *pm(_arr->begin() + _arr->_rowsMax*m);
       if (_stride == 3)
         return (pn[0] - pm[0])*(pn[0] - pm[0]) + (pn[1] - pm[1])*(pn[1] - pm[1]) + (pn[2] - pm[2])*(pn[2] - pm[2]);
       else
@@ -241,9 +244,9 @@ namespace K_FLD
     }
 
     /// square of the distance between a point and a node.
-    inline E_Float dist2(const E_Float* pt, E_Int j) const
+    inline nuga_real_t dist2(const nuga_real_t* pt, E_Int j) const
     {
-      const E_Float *xj(_arr->begin() + _arr->_rowsMax*j);
+      const nuga_real_t *xj(_arr->begin() + _arr->_rowsMax*j);
       if (_stride == 3)
         return (pt[0] - xj[0])*(pt[0] - xj[0]) + (pt[1] - xj[1])*(pt[1] - xj[1]) + (pt[2] - xj[2])*(pt[2] - xj[2]);
       else

@@ -35,8 +35,8 @@ namespace DELAUNAY
                  metric_interpol_type(LINEAR), growth_ratio(1.2), nb_smooth_iter(0), symmetrize(false){}
 
     eMeshMode     mesh_mode;
-    E_Float       hmin;
-    E_Float       hmax;
+    nuga_real_t       hmin;
+    nuga_real_t       hmax;
 
     E_Bool        do_not_shuffle;
     E_Bool        remove_holes;
@@ -45,7 +45,7 @@ namespace DELAUNAY
     E_Bool        ignore_unforceable_edges;
     
     eInterpolType metric_interpol_type;
-    E_Float       growth_ratio;
+    nuga_real_t       growth_ratio;
     E_Int         nb_smooth_iter;
     E_Bool        symmetrize;
     
@@ -87,7 +87,7 @@ namespace DELAUNAY
 
     SurfaceMesherMode():MesherMode(), chordal_error(0.01), metric_mode(ISO_RHO){}
 
-    E_Float chordal_error;
+    nuga_real_t chordal_error;
     GMmode metric_mode;
   };
 }

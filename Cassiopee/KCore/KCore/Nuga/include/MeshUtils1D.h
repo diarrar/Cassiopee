@@ -37,32 +37,32 @@ public:
   ~MeshUtils1D(void);
 
   template <short DIM>
-  static void mesh_line (const E_Float* P0, const E_Float* P1, E_Int N,
+  static void mesh_line (const nuga_real_t* P0, const nuga_real_t* P1, E_Int N,
     K_FLD::FloatArray& pos, K_FLD::IntArray& connect);
 
   template <short DIM>
-  static void mesh_arc (E_Float* C, E_Float* axis, E_Float* P0, E_Float alpha, E_Int N,
+  static void mesh_arc (nuga_real_t* C, nuga_real_t* axis, nuga_real_t* P0, nuga_real_t alpha, E_Int N,
     K_FLD::FloatArray& pos, K_FLD::IntArray& connect);
 
   static void
     compute_iso_metric(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect,
     const std::vector<E_Int>& hard_nodes,
-    std::vector<E_Float> & metric, E_Float &hmax, E_Float& hmin);
+    std::vector<nuga_real_t> & metric, nuga_real_t &hmax, nuga_real_t& hmin);
 };
 
 template <short DIM>
 void
 MeshUtils1D::mesh_line
-(const E_Float* P0, const E_Float* P1, E_Int N,
+(const nuga_real_t* P0, const nuga_real_t* P1, E_Int N,
  K_FLD::FloatArray& pos, K_FLD::IntArray& connect)
 {
-  E_Float E[DIM];
-  E_Float Pi[DIM];
+  nuga_real_t E[DIM];
+  nuga_real_t Pi[DIM];
   E_Int   Ei[2];
 
   NUGA::diff<DIM>(P1, P0, E);
-  E_Float L = NUGA::normalize<DIM>(E);
-  E_Float ti = L/N;
+  nuga_real_t L = NUGA::normalize<DIM>(E);
+  nuga_real_t ti = L/N;
 
   pos.pushBack(P0, P0+DIM);
   E_Int I = pos.cols()-1;
@@ -81,13 +81,13 @@ MeshUtils1D::mesh_line
 
 template <short DIM>
 void
-MeshUtils1D::mesh_arc (E_Float* C, E_Float* axis, E_Float* P0, E_Float alpha, E_Int N,
+MeshUtils1D::mesh_arc (nuga_real_t* C, nuga_real_t* axis, nuga_real_t* P0, nuga_real_t alpha, E_Int N,
                        K_FLD::FloatArray& pos, K_FLD::IntArray& connect)
 {
-  E_Float R = sqrt(NUGA::sqrDistance(C, P0, DIM));
-  E_Float ai = alpha*R/N;
-  E_Float Pj[DIM], CPi[DIM], PiPj[DIM];
-  const E_Float* Pi;
+  nuga_real_t R = sqrt(NUGA::sqrDistance(C, P0, DIM));
+  nuga_real_t ai = alpha*R/N;
+  nuga_real_t Pj[DIM], CPi[DIM], PiPj[DIM];
+  const nuga_real_t* Pi;
   E_Int Ei[2], I;
 
   pos.pushBack(P0, P0+DIM);

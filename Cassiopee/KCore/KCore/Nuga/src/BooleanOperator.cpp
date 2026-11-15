@@ -30,7 +30,7 @@ namespace NUGA
 //
 BooleanOperator::BooleanOperator
 (const K_FLD::FloatArray& coord1, const K_FLD::IntArray& connect1,
- const K_FLD::FloatArray& coord2, const K_FLD::IntArray& connect2, E_Float tolerance,
+ const K_FLD::FloatArray& coord2, const K_FLD::IntArray& connect2, nuga_real_t tolerance,
  ConformizerRoot* c, int itermax):_conformizer(c), _initialized(false)
 {
   E_Int                             ret(1), ROWS(connect1.rows());
@@ -74,7 +74,7 @@ BooleanOperator::BooleanOperator
 
   coord.pushBack(coord2);
   
-  //E_Float zero = 0.;
+  //nuga_real_t zero = 0.;
   //coord.resize(DIM, coord.cols(), &zero);
     
   std::vector<E_Int> nids;

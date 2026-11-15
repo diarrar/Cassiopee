@@ -30,12 +30,12 @@ namespace NUGA
 template <typename OutputIterator>
 E_Int
 MeshTool::getContainingElements
-(const E_Float* point, const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, const K_FLD::IntArray& neighbors,
+(const nuga_real_t* point, const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, const K_FLD::IntArray& neighbors,
  const int_vector_type& ancestors, const bool_vector_type& mask, const tree_type& tree, OutputIterator out, size_type & N0) const
 {
   size_type         K(IDX_NONE), b, count(0), Ni, Nj, Kneigh(IDX_NONE), A0;
   int_vector_type   anc;
-  E_Float           q;
+  nuga_real_t           q;
 
   // Fast search
   N0 = tree.getClose(point);
@@ -243,9 +243,9 @@ MeshTool::getConnexSet2
 template <E_Int DIM>
 void
 MeshTool::computeMinMaxEdgeSqrLength
-(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, E_Float& min_d, E_Float& max_d)
+(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, nuga_real_t& min_d, nuga_real_t& max_d)
 {
-  E_Float d;
+  nuga_real_t d;
   E_Int                           COLS(connect.cols()), NB_NODES(connect.rows()), seg, c, n;//, Ni, Nj;
   K_FLD::IntArray::const_iterator pS;
 
@@ -283,7 +283,7 @@ MeshTool::computeEdgesSqrLengths
 {
   E_Int COLS(connect.cols()), NB_NODES(connect.rows()), seg, c, n;
   K_FLD::IntArray::const_iterator pS;
-  E_Float minL, maxL, l;
+  nuga_real_t minL, maxL, l;
 
   seg = (NB_NODES > 2) ? NB_NODES : 1; 
 
@@ -402,7 +402,7 @@ void MeshTool::refine_T3s(const K_FLD::FloatArray& coord, K_FLD::IntArray& conne
   K_FLD::IntArray new_cnt;
   
   //first sort the points
-  std::vector<std::pair<E_Float, E_Int> > sorted_nodes;
+  std::vector<std::pair<nuga_real_t, E_Int> > sorted_nodes;
   std::vector<E_Int> usorted_nodes;
   for (auto& i : edge_to_refined_edge)
   {
@@ -413,23 +413,23 @@ void MeshTool::refine_T3s(const K_FLD::FloatArray& coord, K_FLD::IntArray& conne
     sorted_nodes.push_back(std::make_pair(-NUGA::FLOAT_MAX,N1));
     sorted_nodes.push_back(std::make_pair(NUGA::FLOAT_MAX, N2));
 
-    E_Float dN1N22 = NUGA::sqrDistance(coord.col(N1), coord.col(N2), 3);
+    nuga_real_t dN1N22 = NUGA::sqrDistance(coord.col(N1), coord.col(N2), 3);
 
     for (auto& N : i.second)
     {
       if (N == N1 || N == N2) continue;
       
-      E_Float dN1n2 = NUGA::sqrDistance(coord.col(N1), coord.col(N), 3);
+      nuga_real_t dN1n2 = NUGA::sqrDistance(coord.col(N1), coord.col(N), 3);
       sorted_nodes.push_back(std::make_pair(dN1n2/dN1N22, N));
     }
 
     std::sort(sorted_nodes.begin(), sorted_nodes.end());
     usorted_nodes.clear();
     
-    E_Float prev_d = 0.;
+    nuga_real_t prev_d = 0.;
     for (size_t n = 0; n < sorted_nodes.size(); ++n)
     {
-      E_Float d = sorted_nodes[n].first;
+      nuga_real_t d = sorted_nodes[n].first;
       if (d != prev_d)
       {
         usorted_nodes.push_back(sorted_nodes[n].second);
@@ -598,7 +598,7 @@ void MeshTool::append_all_topo_paths
 
 template <typename IntCONT>
 inline void MeshTool::get_farthest_point_to_edge 
-(const K_FLD::FloatArray& crd, E_Int Ni, E_Int Nj, const IntCONT& list, E_Int& Nf, E_Float& d2)
+(const K_FLD::FloatArray& crd, E_Int Ni, E_Int Nj, const IntCONT& list, E_Int& Nf, nuga_real_t& d2)
 {
   d2 = 0.;
   Nf = IDX_NONE;
@@ -606,7 +606,7 @@ inline void MeshTool::get_farthest_point_to_edge
   //std::cout << "Edge : " << Ni << "/" << Nj << std::endl;
   //std::cout << "dim : " << crd.rows() << std::endl;
   
-  E_Float d22 = 0., lambda;
+  nuga_real_t d22 = 0., lambda;
   for (size_t k = 0; k < list.size(); ++k)
   {
     //std::cout << "checked point : " << list[k] << std::endl;
@@ -636,14 +636,14 @@ inline void MeshTool::get_farthest_point_to_edge
 template <typename IntCont, short DIM >
 inline void
 NUGA::MeshTool::reorder_nodes_on_edge
-(const K_FLD::FloatArray& pos, IntCont& nodes, E_Int idx_start, std::vector<std::pair<E_Float, E_Int> >& sorter)
+(const K_FLD::FloatArray& pos, IntCont& nodes, E_Int idx_start, std::vector<std::pair<nuga_real_t, E_Int> >& sorter)
 {
-  E_Float L;
+  nuga_real_t L;
   E_Int   E[2];
 
   size_t nb_nodes = nodes.size();
 
-  const E_Float *P0 = pos.col(nodes[0] - idx_start);
+  const nuga_real_t *P0 = pos.col(nodes[0] - idx_start);
   L = NUGA::sqrDistance(pos.col(nodes[1] - idx_start), P0, DIM);
 
   sorter.clear();

@@ -42,9 +42,9 @@ namespace DELAUNAY
 
     ~BgmMetric(void){}
 
-    E_Float length (size_type Ni, size_type Nj);
+    nuga_real_t length (size_type Ni, size_type Nj);
 
-    inline void computeMetric(size_type N, size_type Ni, size_type Nj, E_Float r);
+    inline void computeMetric(size_type N, size_type Ni, size_type Nj, nuga_real_t r);
 
     inline void setMetric(E_Int N, const T& m);
 
@@ -62,7 +62,7 @@ namespace DELAUNAY
   };
 
   template <typename T>
-  E_Float
+  nuga_real_t
     BgmMetric<T>::length (size_type Ni, size_type Nj){
 
       int_vector_type        Qs;
@@ -74,7 +74,7 @@ namespace DELAUNAY
 
       __setMetrics(Qs, Ms);
 
-      E_Float d = 0;
+      nuga_real_t d = 0;
       size_type sz = (size_type)Qs.size() - 1;
       for (size_type i = 0; i < sz; ++i)
         d += parent_type::length(Qs[i], Qs[i+1]);

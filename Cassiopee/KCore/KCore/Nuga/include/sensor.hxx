@@ -110,18 +110,18 @@ static void fix_adap_incr(mesh_t& hmesh, adap_incr_type<DIR>& adap_incr)
 
 inline NUGA::eDIR get_dir(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nnodes)
 {
-  E_Float Z[] = { 0., 0., 1. };
-  E_Float n[3];
+  nuga_real_t Z[] = { 0., 0., 1. };
+  nuga_real_t n[3];
 
   K_MESH::Polygon::normal<K_FLD::FloatArray, 3>(crd, nodes, nnodes, 1, n);
 
-  E_Float ps = fabs(NUGA::dot<3>(Z, n));
+  nuga_real_t ps = fabs(NUGA::dot<3>(Z, n));
 
   if (ps > 0.1) return XY; // face is ortho to Z => XY
 
   // X or Y ?
 
-  E_Float E[3];
+  nuga_real_t E[3];
   NUGA::diff<3>(crd.col(nodes[1] - 1), crd.col(nodes[0] - 1), E);
   NUGA::normalize<3>(E);
 

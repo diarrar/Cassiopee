@@ -39,9 +39,9 @@ namespace NUGA
 
     transfo_t() :convexity_tol(CONVEXITY_TOL){}
 
-    E_Float concavity_threshold; //between faces
-    E_Float convexity_threshold; //between faces
-    E_Float convexity_tol;       //between edges
+    nuga_real_t concavity_threshold; //between faces
+    nuga_real_t convexity_threshold; //between faces
+    nuga_real_t convexity_tol;       //between edges
 
     bool improve_qual;
 
@@ -69,7 +69,7 @@ namespace NUGA
     typedef std::map<E_Int, iset_t >                id_to_ids_t;
     typedef std::map<E_Int, E_Int>                  id_to_id_t;
     typedef std::vector<std::deque<E_Int> >         idlists_t;
-    typedef std::map<K_MESH::NO_Edge, E_Float>      edge_angle_t;
+    typedef std::map<K_MESH::NO_Edge, nuga_real_t>      edge_angle_t;
   
   public: //PG SPLITTING
 
@@ -78,7 +78,7 @@ namespace NUGA
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///
     inline static E_Int split_pgs
-      (transfo_func func, const K_FLD::FloatArray& crd, const ngon_type& ngi, E_Float convexity_tol, ngon_type& ngo, const Vector_t<E_Int>* PHlist = 0);
+      (transfo_func func, const K_FLD::FloatArray& crd, const ngon_type& ngi, nuga_real_t convexity_tol, ngon_type& ngo, const Vector_t<E_Int>* PHlist = 0);
     ///
     template <typename TriangulatorType>
     inline static E_Int triangulate_external_pgs(const K_FLD::FloatArray& crd, ngon_type& ngi, E_Int in_or_out, const transfo_t& qual_param, ngon_type& ngo); //in_or_out : 0(internal only), 1(extrnal only), 2(both)
@@ -88,12 +88,12 @@ namespace NUGA
     ///
     template <typename TriangulatorType>
     inline static E_Int starify_pgs_at_chain_nodes
-      (const K_FLD::FloatArray& crd, const ngon_type& ngi, const ngon_unit& orient, E_Float concave_threshold, E_Float convex_threshold, E_Float convexity_tol, ngon_type& ngo, const Vector_t<E_Int>* PHlist = 0);
+      (const K_FLD::FloatArray& crd, const ngon_type& ngi, const ngon_unit& orient, nuga_real_t concave_threshold, nuga_real_t convex_threshold, nuga_real_t convexity_tol, ngon_type& ngo, const Vector_t<E_Int>* PHlist = 0);
     ///
     template <typename TriangulatorType>
     inline static E_Int prepareCellsSplit(const K_FLD::FloatArray& crd, ngon_type& ngi,
-      transfo_t::ePHset phset, transfo_t::eSplitPolicy policy, E_Float PH_conc_threshold, E_Float PH_cvx_threshold,
-      E_Float PG_cvx_threshold, ngon_type& ngo);
+      transfo_t::ePHset phset, transfo_t::eSplitPolicy policy, nuga_real_t PH_conc_threshold, nuga_real_t PH_cvx_threshold,
+      nuga_real_t PG_cvx_threshold, ngon_type& ngo);
  
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // SPLIT ACTIVE FUNCTIONS (fitting expected signature for split_pgs) ////////////////////////////////////////////////////////
@@ -122,7 +122,7 @@ namespace NUGA
      //
     template<typename TriangulatorType>
     inline static E_Int split_non_star_phs
-    (K_FLD::FloatArray& crd, ngon_type& ngi, E_Float concave_threshold, E_Float convex_threshold, E_Float RTOL, E_Float GRmin, E_Float Fluxmax, ngon_type& ngo)
+    (K_FLD::FloatArray& crd, ngon_type& ngi, nuga_real_t concave_threshold, nuga_real_t convex_threshold, nuga_real_t RTOL, nuga_real_t GRmin, nuga_real_t Fluxmax, ngon_type& ngo)
     {
       // Create orientation info
       ngon_unit orient;
@@ -142,7 +142,7 @@ namespace NUGA
     //
     template<typename TriangulatorType>
     inline static E_Int split_phs
-    (K_FLD::FloatArray& crd, const ngon_type& ngi, const ngon_unit& orient, E_Float concave_threshold, E_Float convex_threshold, E_Float RTOL, E_Float GRmin, E_Float Fluxmax, ngon_type& ngo, const Vector_t<E_Int>& PHlist)
+    (K_FLD::FloatArray& crd, const ngon_type& ngi, const ngon_unit& orient, nuga_real_t concave_threshold, nuga_real_t convex_threshold, nuga_real_t RTOL, nuga_real_t GRmin, nuga_real_t Fluxmax, ngon_type& ngo, const Vector_t<E_Int>& PHlist)
     {
       ngo.clear();//important
       
@@ -257,8 +257,8 @@ namespace NUGA
     template<typename TriangulatorType>
     inline static E_Int single_concave_split(const K_FLD::FloatArray& crd, E_Int index_start,
                                              const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, const E_Int* orient,
-                                             E_Float alpha_conc, E_Float alpha_cvx, E_Float rtol, E_Float GRmin, E_Float Fluxmax, ngon_type& twoPHs,
-                                             const E_Float** normals = 0);
+                                             nuga_real_t alpha_conc, nuga_real_t alpha_cvx, nuga_real_t rtol, nuga_real_t GRmin, nuga_real_t Fluxmax, ngon_type& twoPHs,
+                                             const nuga_real_t** normals = 0);
 
   
     ///
@@ -279,7 +279,7 @@ namespace NUGA
 
     inline static E_Int __append_chain_nodes(const K_FLD::FloatArray& crd, E_Int index_start,
                                              const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, const E_Int* orient,
-                                             E_Float alpha_conc, E_Float alpha_cvx, iset_t& chain_nodes, const E_Float** normals = 0);
+                                             nuga_real_t alpha_conc, nuga_real_t alpha_cvx, iset_t& chain_nodes, const nuga_real_t** normals = 0);
 
     // valid = with no node of arity more than 2 (with current strategy)
     inline static void __get_valid_concave_chains(const eset_t& reflex_edges, idlists_t& chains, ivec_t& chains_type);
@@ -287,7 +287,7 @@ namespace NUGA
     inline static void __append_all_topo_paths(const K_FLD::FloatArray& crd, const std::deque<E_Int>& chain, E_Int index_start, const id_to_ids_t& nodes_graph, const iset_t& bad_nodes, idlists_t& paths);
     //
     inline static void __append_all_geom_paths(const K_FLD::FloatArray& crd, const std::deque<E_Int>& chain, E_Int index_start, const id_to_ids_t& nodes_graph, const iset_t& bad_nodes, 
-                                               const eset_t all_edges, E_Float abstol, idlists_t& paths);
+                                               const eset_t all_edges, nuga_real_t abstol, idlists_t& paths);
     //
     inline static void __get_nodes_graph(const eset_t& edges, id_to_ids_t& nodes_graph);
     //
@@ -295,10 +295,10 @@ namespace NUGA
     //
     template <typename TriangulatorType>
     inline static bool __valid_split(const K_FLD::FloatArray& crd, const std::vector<E_Int>& chain, E_Int index_start,
-                              const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, E_Float v, E_Float GRmin, E_Float Fluxmax,
-                              const ivec_t& simple_colors, const eset_t& reflex_edges, E_Float angle_max, E_Float chain_angle, E_Float & angle, E_Float minA, E_Float maxA, ngon_type& twoPHs);
+                              const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, nuga_real_t v, nuga_real_t GRmin, nuga_real_t Fluxmax,
+                              const ivec_t& simple_colors, const eset_t& reflex_edges, nuga_real_t angle_max, nuga_real_t chain_angle, nuga_real_t & angle, nuga_real_t minA, nuga_real_t maxA, ngon_type& twoPHs);
 
-    inline static E_Float __get_abs_tol(const K_FLD::FloatArray& crd, E_Float rtol, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs);
+    inline static nuga_real_t __get_abs_tol(const K_FLD::FloatArray& crd, nuga_real_t rtol, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs);
     
     Splitter(){}
     ~Splitter(){}
@@ -349,7 +349,7 @@ namespace NUGA
 
     K_FLD::IntArray connectT3;
     ngon_unit cvx_pgs;
-    E_Float normal[3];
+    nuga_real_t normal[3];
     TriangulatorType dt;
 
     oids.clear();
@@ -413,7 +413,7 @@ namespace NUGA
 
     K_FLD::IntArray connectT3, neighbors;
     ngon_unit ngstar;
-    E_Float normal[3];
+    nuga_real_t normal[3];
     TriangulatorType dt;
 
     oids.clear();
@@ -478,7 +478,7 @@ namespace NUGA
     TriangulatorType dt;
 
     ngon_unit ngstar;
-    E_Float normal[3];
+    nuga_real_t normal[3];
 
     K_FLD::IntArray connectT3, neighbors;
 
@@ -576,7 +576,7 @@ E_Int NUGA::Splitter::triangulate_external_pgs(const K_FLD::FloatArray& crd, ngo
 
 ///
 E_Int NUGA::Splitter::split_pgs
-(transfo_func func, const K_FLD::FloatArray& crd, const ngon_type& ngi, E_Float convexity_tol, ngon_type& ngo, const Vector_t<E_Int>* PHlist)
+(transfo_func func, const K_FLD::FloatArray& crd, const ngon_type& ngi, nuga_real_t convexity_tol, ngon_type& ngo, const Vector_t<E_Int>* PHlist)
 {
   //
   transfo_t p;
@@ -599,7 +599,7 @@ E_Int NUGA::Splitter::split_pgs
 ///
 template <typename TriangulatorType>
 E_Int NUGA::Splitter::starify_pgs_at_chain_nodes
-(const K_FLD::FloatArray& crd, const ngon_type& ngi, const ngon_unit& orient, E_Float concave_threshold, E_Float convex_threshold, E_Float convexity_tol, ngon_type& ngo, const Vector_t<E_Int>* PHlist)
+(const K_FLD::FloatArray& crd, const ngon_type& ngi, const ngon_unit& orient, nuga_real_t concave_threshold, nuga_real_t convex_threshold, nuga_real_t convexity_tol, ngon_type& ngo, const Vector_t<E_Int>* PHlist)
 {
   // 
   transfo_t p;
@@ -626,8 +626,8 @@ E_Int NUGA::Splitter::starify_pgs_at_chain_nodes
 
 template <typename TriangulatorType>
 E_Int NUGA::Splitter::prepareCellsSplit(const K_FLD::FloatArray& crd, ngon_type& ngi,
-  transfo_t::ePHset phset, transfo_t::eSplitPolicy policy, E_Float PH_conc_threshold, E_Float PH_cvx_threshold,
-  E_Float PG_cvx_threshold, ngon_type& ngo)
+  transfo_t::ePHset phset, transfo_t::eSplitPolicy policy, nuga_real_t PH_conc_threshold, nuga_real_t PH_cvx_threshold,
+  nuga_real_t PG_cvx_threshold, ngon_type& ngo)
 {
   // Create orientation info
   ngon_unit orient;
@@ -662,7 +662,7 @@ E_Int NUGA::Splitter::prepareCellsSplit(const K_FLD::FloatArray& crd, ngon_type&
 template<typename TriangulatorType>
 E_Int NUGA::Splitter::single_concave_split
 (const K_FLD::FloatArray& crd, E_Int index_start, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, const E_Int* orient,
-E_Float concave_threshold, E_Float convex_threshold, E_Float rtol, E_Float GRmin, E_Float Fluxmax, ngon_type& twoPHs, const E_Float** normals)
+nuga_real_t concave_threshold, nuga_real_t convex_threshold, nuga_real_t rtol, nuga_real_t GRmin, nuga_real_t Fluxmax, ngon_type& twoPHs, const nuga_real_t** normals)
 {
 
   // 1. DETECT CONCAVITIES /////////////////////////////////////////////////////////////////
@@ -674,7 +674,7 @@ E_Float concave_threshold, E_Float convex_threshold, E_Float rtol, E_Float GRmin
   if (err /*|| !concave*/)
     return err;
   
-  E_Float minA, maxA;
+  nuga_real_t minA, maxA;
   E_Int maxAPG1, maxAPG2;
   err = K_MESH::Polyhedron<UNKNOWN>::min_max_angles(crd, PGS, first_pg, nb_pgs, false, orient, minA, maxA, maxAPG1, maxAPG2);
   
@@ -728,17 +728,17 @@ E_Float concave_threshold, E_Float convex_threshold, E_Float rtol, E_Float GRmin
   if (chains.empty()) // not handled with the current strategy
     return 1;
 
-  E_Float abstol = __get_abs_tol(crd, rtol, PGS, first_pg, nb_pgs);
-  E_Float angle_max = K_FUNC::E_max/*min*/(concave_threshold, convex_threshold) * NUGA::PI;
+  nuga_real_t abstol = __get_abs_tol(crd, rtol, PGS, first_pg, nb_pgs);
+  nuga_real_t angle_max = K_FUNC::E_max/*min*/(concave_threshold, convex_threshold) * NUGA::PI;
 
   size_t nb_chains = chains.size();
 
-  E_Float v, G[3];
+  nuga_real_t v, G[3];
   TriangulatorType dt;
   K_MESH::Polyhedron<UNKNOWN>::metrics<TriangulatorType>(dt, crd, PGS, first_pg, nb_pgs, v, G);
 
   // get worst chain's angle : should create a cut better than that
-  std::vector<E_Float> chain_angle(nb_chains, 0.);
+  std::vector<nuga_real_t> chain_angle(nb_chains, 0.);
   for (size_t c = 0; c < nb_chains; ++c)
   {
     size_t sz = chains[c].size();
@@ -747,13 +747,13 @@ E_Float concave_threshold, E_Float convex_threshold, E_Float rtol, E_Float GRmin
       K_MESH::NO_Edge E(chains[c][n], chains[c][n + 1]);
       edge_angle_t::const_iterator it = reflex_edges.find(E);
       assert(it != reflex_edges.end());
-      E_Float a = it->second;
+      nuga_real_t a = it->second;
       chain_angle[c] = K_FUNC::E_max(chain_angle[c], fabs(NUGA::PI - a));//max deviation in the chain
     }
   }
 
   //4. IF VALID CLOSED PATH EXIST, DONE
-  typedef std::vector< std::pair<E_Float, ngon_type> > palmares_t;
+  typedef std::vector< std::pair<nuga_real_t, ngon_type> > palmares_t;
   palmares_t palma_split;
   ivec_t chain;
   for (size_t c = 0; c < nb_chains; ++c)
@@ -763,7 +763,7 @@ E_Float concave_threshold, E_Float convex_threshold, E_Float rtol, E_Float GRmin
     chain.clear();
     chain.insert(chain.end(), chains[c].begin(), chains[c].end()); //using &a[0] whan a is a deque is coorupted
     
-    E_Float angle;
+    nuga_real_t angle;
     if (!__valid_split<TriangulatorType>(crd, chain, index_start,
                        PGS, first_pg, nb_pgs, v, GRmin, Fluxmax, simple_colors, rflx_edges, angle_max, chain_angle[c], angle, minA, maxA, twoPHs))
       continue;
@@ -816,7 +816,7 @@ E_Float concave_threshold, E_Float convex_threshold, E_Float rtol, E_Float GRmin
     {
       //for (size_t k = 0; k < paths[p].size(); ++k)
         //std::cout << paths[p][k] << std::endl;
-      E_Float angle;
+      nuga_real_t angle;
 
       chain.clear();
       chain.insert(chain.end(), paths[p].begin(), paths[p].end());//using &a[0] whan a is a deque is coorupted
@@ -838,7 +838,7 @@ E_Float concave_threshold, E_Float convex_threshold, E_Float rtol, E_Float GRmin
   // 7. CHOOSE THE BEST (MOST PLANAR)
   //std::sort(palma_split.begin(), palma_split.end());
   E_Int bestc = IDX_NONE;
-  E_Float besta = NUGA::FLOAT_MAX;
+  nuga_real_t besta = NUGA::FLOAT_MAX;
   for (size_t i = 0; i < palma_split.size(); ++i)
   {
     if (palma_split[i].first < besta)
@@ -1220,7 +1220,7 @@ void NUGA::Splitter::__append_all_topo_paths
 void NUGA::Splitter::__append_all_geom_paths
 (const K_FLD::FloatArray& crd, const std::deque<E_Int>& chain, E_Int index_start, 
  const id_to_ids_t& nodes_graph, const iset_t& bad_nodes, 
- const eset_t all_edges, E_Float abstol,
+ const eset_t all_edges, nuga_real_t abstol,
  idlists_t& paths)
 {
   E_Int sz = chain.size();
@@ -1244,7 +1244,7 @@ void NUGA::Splitter::__append_all_geom_paths
       continue;
 
     //cutting direction
-    E_Float cutDir[3];
+    nuga_real_t cutDir[3];
     K_MESH::Triangle::normal(crd.col(nprev - 1), crd.col(nbegin - 1), crd.col(N - 1), cutDir);
 
     // Get lying edges
@@ -1322,10 +1322,10 @@ void NUGA::Splitter::__append_all_geom_paths
 }
 
 ///
-E_Float NUGA::Splitter::__get_abs_tol
-(const K_FLD::FloatArray& crd, E_Float rtol, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs)
+nuga_real_t NUGA::Splitter::__get_abs_tol
+(const K_FLD::FloatArray& crd, nuga_real_t rtol, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs)
 {
-  E_Float LRef = 1.;
+  nuga_real_t LRef = 1.;
   ivec_t nodes;
   K_MESH::Polyhedron<UNKNOWN>::unique_nodes(PGS, first_pg, nb_pgs, nodes);
   K_CONNECT::IdTool::shift(nodes, -1);
@@ -1405,7 +1405,7 @@ void NUGA::Splitter::__get_bad_nodes
 ///
 E_Int NUGA::Splitter::__append_chain_nodes
 (const K_FLD::FloatArray& crd, E_Int index_start, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, const E_Int* orient,
- E_Float concave_threshold, E_Float convex_threshold, iset_t& chain_nodes, const E_Float** normals)
+ nuga_real_t concave_threshold, nuga_real_t convex_threshold, iset_t& chain_nodes, const nuga_real_t** normals)
 {
 
   // 1. DETECT CONCAVITIES /////////////////////////////////////////////////////////////////
@@ -1439,8 +1439,8 @@ E_Int NUGA::Splitter::__append_chain_nodes
 template <typename TriangulatorType>
 bool NUGA::Splitter::__valid_split
 (const K_FLD::FloatArray& crd, const std::vector<E_Int>& chain, E_Int index_start,
-const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, E_Float V, E_Float GRmin, E_Float Fluxmax,
-const ivec_t& simple_colors, const eset_t& reflex_edges, E_Float angle_max, E_Float chain_angle, E_Float & angle, E_Float minA, E_Float maxA, ngon_type& twoPH)
+const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, nuga_real_t V, nuga_real_t GRmin, nuga_real_t Fluxmax,
+const ivec_t& simple_colors, const eset_t& reflex_edges, nuga_real_t angle_max, nuga_real_t chain_angle, nuga_real_t & angle, nuga_real_t minA, nuga_real_t maxA, ngon_type& twoPH)
 {
   angle = 0;
   twoPH.clear();
@@ -1495,21 +1495,21 @@ if (PHi == faultyPH)
       std::set_intersection(ALL(common_faces1), ALL(node_to_faces[N3]), std::back_inserter(common_faces));
       if (common_faces.empty()) continue;
 
-      const E_Float* P0 = crd.col(N1-1);
-      const E_Float* P1 = crd.col(N2-1);
-      const E_Float* P2 = crd.col(N3-1);
+      const nuga_real_t* P0 = crd.col(N1-1);
+      const nuga_real_t* P1 = crd.col(N2-1);
+      const nuga_real_t* P2 = crd.col(N3-1);
 
-      E_Float N[3];
+      nuga_real_t N[3];
       K_MESH::Triangle::normal(P0, P1, P2, N);
 
-      E_Float nPGi[3];
+      nuga_real_t nPGi[3];
       for (auto PGi : common_faces)
       {
         const E_Int* pn = PGS.get_facets_ptr(PGi);
         E_Int nnodes = PGS.stride(PGi);
 
         K_MESH::Polygon::normal<K_FLD::FloatArray, 3>(crd, pn, nnodes, 1, nPGi);
-        E_Float ps = fabs(NUGA::dot<3>(N, nPGi));
+        nuga_real_t ps = fabs(NUGA::dot<3>(N, nPGi));
         if (ps > 0.99) return false;
       }
     }
@@ -1644,7 +1644,7 @@ if (PHi == faultyPH)
 #endif
 
   // check the the 2 bits have non-null volume (relative to input)
-  E_Float G[3], v1, v2;
+  nuga_real_t G[3], v1, v2;
   E_Int nb_pgs0 = twoPH.PHs.stride(0);
   E_Int nb_pgs1 = twoPH.PHs.stride(1);
   const E_Int * pgs0 = twoPH.PHs.get_facets_ptr(0);
@@ -1669,16 +1669,16 @@ if (PHi == faultyPH)
   if (res != dCONCAVITY_TO_SPLIT && res != dPATHO_PH_NONE)
     return false;
 
-  E_Float THRESHOLD = 5.e-2;
+  nuga_real_t THRESHOLD = 5.e-2;
   
-  E_Float minA1, maxA1;
+  nuga_real_t minA1, maxA1;
   E_Int maxAPG11, maxAPG12;
   err = K_MESH::Polyhedron<UNKNOWN>::min_max_angles(crd, twoPH.PGs, pgs0, nb_pgs0, false/*i.e open cell is error*/, orient.get_facets_ptr(0), minA1, maxA1, maxAPG11, maxAPG12);
   if (err) return false; //open cell
   if ((minA1 < minA) && fabs(minA1) < THRESHOLD) return false; // degen (first cond is there to allow splitting cells that have bad minA upon entry
   if ((maxA1 > maxA) && fabs(2.*NUGA::PI - maxA1) < THRESHOLD) return false; // same comment
   
-  E_Float minA2, maxA2;
+  nuga_real_t minA2, maxA2;
   E_Int maxAPG21, maxAPG22;
   err = K_MESH::Polyhedron<UNKNOWN>::min_max_angles(crd, twoPH.PGs, pgs1, nb_pgs1, false/*i.e open cell is error*/, orient.get_facets_ptr(1), minA2, maxA2, maxAPG21, maxAPG22);
   if (err) return false; //open cell
@@ -1686,10 +1686,10 @@ if (PHi == faultyPH)
   if ((maxA2 > maxA) && fabs(2.*NUGA::PI - maxA2) < THRESHOLD) return false; // same comment
 
   K_MESH::Polyhedron<0> PH0(twoPH, 0);
-  E_Float fluxvec[3];
+  nuga_real_t fluxvec[3];
   PH0.flux(crd, orient.get_facets_ptr(0), fluxvec);
-  E_Float f = sqrt(NUGA::sqrNorm<3>(fluxvec));
-  E_Float s = PH0.surface(crd);
+  nuga_real_t f = sqrt(NUGA::sqrNorm<3>(fluxvec));
+  nuga_real_t s = PH0.surface(crd);
   f /= s;
   if (f > Fluxmax) 
   {

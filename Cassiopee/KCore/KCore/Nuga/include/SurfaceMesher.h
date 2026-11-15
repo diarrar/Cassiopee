@@ -21,6 +21,7 @@
 #define __SURFACE_MESHER_H__
 
 #include "MeshData.h"
+#include "Nuga/include/defs.h"
 #include "MesherMode.h"
 #include "Mesher.h"
 #include "GeomMetric.h"
@@ -108,7 +109,7 @@ template <typename SurfaceType>
 void SurfaceMesher<SurfaceType>::__mapToSurface
 (const SurfaceType& surface, const K_FLD::FloatArray& pos2D, K_FLD::FloatArray& pos3D, E_Bool exportUV)
 {
-  E_Float pt[3];
+  nuga_real_t pt[3];
   size_type COLS = pos2D.cols(), col0 = pos3D.cols();
 
   //pos3D.clear();

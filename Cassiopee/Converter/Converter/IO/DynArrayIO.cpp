@@ -278,7 +278,7 @@ const std::vector<K_FLD::IntArray>& connects,
   char varString[128]; strcpy(varString, "x,y,z");
   if (coordz[0].rows() == 2)
   {
-    E_Float zero = 0.;
+    nuga_real_t zero = 0.;
     coordz[0].resize(3, coordz[0].cols(), &zero);
   }
   std::vector<K_FLD::FldArrayI*> c;

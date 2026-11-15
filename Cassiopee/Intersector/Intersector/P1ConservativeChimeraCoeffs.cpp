@@ -80,9 +80,14 @@ PyObject* K_INTERSECTOR::P1ConservativeInterpolation(PyObject* self, PyObject* a
   E_Int nfields = fldsC->getNfld();
   
   std::vector<field> don_fields(nfields);
-
+  // Nuga works in double: copy the donor fields
+  std::vector<std::vector<nuga_real_t>> don_buf(nfields);
   for (E_Int j = 0; j < nfields; ++j)
-    don_fields[j].f = fldsC->begin(j+1);
+  {
+    E_Float* pf = fldsC->begin(j+1);
+    don_buf[j].assign(pf, pf + fldsC->getSize());
+    don_fields[j].f = &don_buf[j][0];
+  }
   //fixme : get gradients 
 
   /*std::cout << "res : " << res << std::endl;
@@ -94,7 +99,7 @@ PyObject* K_INTERSECTOR::P1ConservativeInterpolation(PyObject* self, PyObject* a
   zmesh_t mR(crdR, cntR), mD(crdD, cntD);
   E_Float RTOL{1.e-12};
   
-  std::vector<std::vector<E_Float>> rec_fields;
+  std::vector<std::vector<nuga_real_t>> rec_fields;
   bool do_omp = true;
 
   NUGA::interpolate(mR, mD, RTOL, don_fields, rec_fields, do_omp);
@@ -103,7 +108,7 @@ PyObject* K_INTERSECTOR::P1ConservativeInterpolation(PyObject* self, PyObject* a
   K_FLD::FloatArray farr(nfields, rec_fields[0].size());
   for (size_t i=0; i < rec_fields.size(); ++i)
   {
-    std::vector<E_Float>& fld = rec_fields[i];
+    std::vector<nuga_real_t>& fld = rec_fields[i];
     for (size_t j = 0; j < fld.size(); ++j)farr(i, j) = fld[j];
   }
 
@@ -210,7 +215,7 @@ PyObject* K_INTERSECTOR::P1ConservativeChimeraCoeffs(PyObject* self, PyObject* a
   for (size_t i = 0; i < sz; ++i) cN[i]=(*fCelln)[i];
 
   Vector_t<E_Int> dindices, xr, roids;
-  Vector_t<E_Float> dcoeffs;
+  Vector_t<nuga_real_t> dcoeffs; // Nuga works in double
 
   /*std::cout << "nb points donnor : " << fldD->getSize() << std::endl;
   std::cout << "nb points receiver : " << fldR->getSize() << std::endl;
@@ -239,7 +244,8 @@ PyObject* K_INTERSECTOR::P1ConservativeChimeraCoeffs(PyObject* self, PyObject* a
   PyList_Append(l, tpl);
   Py_DECREF(tpl);
 
-  tpl = K_NUMPY::buildNumpyArray(&dcoeffs[0], dcoeffs.size(), 1, 0);
+  std::vector<E_Float> dcoeffsF(dcoeffs.begin(), dcoeffs.end()); // to the compiled precision
+  tpl = K_NUMPY::buildNumpyArray(&dcoeffsF[0], dcoeffsF.size(), 1, 0);
   PyList_Append(l, tpl);
   Py_DECREF(tpl);
 

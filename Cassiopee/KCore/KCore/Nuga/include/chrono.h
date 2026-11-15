@@ -30,7 +30,7 @@ namespace NUGA
     public:
       chrono():_t0(0){}    
       void start(){_t0 = ::clock();}
-      E_Float elapsed(){return E_Float(::clock() - _t0) / CLOCKS_PER_SEC;}
+      nuga_real_t elapsed(){return nuga_real_t(::clock() - _t0) / CLOCKS_PER_SEC;}
       
     private:
       clock_t _t0;

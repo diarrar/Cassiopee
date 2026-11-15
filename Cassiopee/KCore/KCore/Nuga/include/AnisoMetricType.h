@@ -38,15 +38,15 @@ public:
 public:
 
   explicit AnisoMetricType(void)               {for (E_Int k = 0; k < DIMANISO; ++k)_mij[k] = 0.;}
-  explicit AnisoMetricType(E_Float h){ _mij[0] = _mij[2] = 1./(h*h);_mij[1] = 0.;} // fixme : 2D only
-  explicit AnisoMetricType(const E_Float* m) { _mij[0] = m[0]; _mij[1] = m[1]; _mij[2] = m[2];} // fixme : 2D only
+  explicit AnisoMetricType(nuga_real_t h){ _mij[0] = _mij[2] = 1./(h*h);_mij[1] = 0.;} // fixme : 2D only
+  explicit AnisoMetricType(const nuga_real_t* m) { _mij[0] = m[0]; _mij[1] = m[1]; _mij[2] = m[2];} // fixme : 2D only
 
   ~AnisoMetricType(void){}
 
-  inline E_Float operator[](size_type i) const {assert (i < DIMANISO); return _mij[i];}
-  inline E_Float& operator[](size_type i) {assert (i < DIMANISO); return _mij[i];}
+  inline nuga_real_t operator[](size_type i) const {assert (i < DIMANISO); return _mij[i];}
+  inline nuga_real_t& operator[](size_type i) {assert (i < DIMANISO); return _mij[i];}
   inline self_type& operator=(const self_type& m){for (E_Int k = 0; k < DIMANISO; ++k)_mij[k] = m[k]; return *this;}
-  inline self_type& operator=(const E_Float* mvals){for (E_Int k = 0; k < DIMANISO; ++k)_mij[k] = mvals[k]; return *this;}
+  inline self_type& operator=(const nuga_real_t* mvals){for (E_Int k = 0; k < DIMANISO; ++k)_mij[k] = mvals[k]; return *this;}
 
   //fixme imad : not great to have a hard coded test value (should be passed as an argument so not appropriate for operator==)
   inline bool operator==(const self_type& other) const
@@ -63,22 +63,22 @@ public:
     return !(*this == other);
   }
 
-  inline self_type operator*(const E_Float& a) const;
-  //inline self_type operator*(E_Float* v) const;
+  inline self_type operator*(const nuga_real_t& a) const;
+  //inline self_type operator*(nuga_real_t* v) const;
 
   // product of 2 metrics is a 3x3 matrix
-  inline std::array<E_Float, 9> operator*(const self_type& N); 
+  inline std::array<nuga_real_t, 9> operator*(const self_type& N); 
 
 
-  inline self_type operator/(const E_Float& a) const;
+  inline self_type operator/(const nuga_real_t& a) const;
   
   AnisoMetricType operator+(const AnisoMetricType&) const;
 
- void eigen_values(E_Float &lmax, E_Float & lmin) const;
+ void eigen_values(nuga_real_t &lmax, nuga_real_t & lmin) const;
 
   inline self_type inverse() const;
 
-  inline E_Float det() const;
+  inline nuga_real_t det() const;
 
 #ifndef DEBUG_METRIC
   private:
@@ -86,7 +86,7 @@ public:
   public:
 #endif
 	public:
-  E_Float                 _mij[DIM*(DIM+1) / 2]; // 2D -> 3, 3D -> 6
+  nuga_real_t                 _mij[DIM*(DIM+1) / 2]; // 2D -> 3, 3D -> 6
 
 };
 
@@ -97,7 +97,7 @@ using Aniso3D = AnisoMetricType<3>;
 ///
 template <short DIM>
 AnisoMetricType<DIM>
-AnisoMetricType<DIM>::operator*(const E_Float& a) const {
+AnisoMetricType<DIM>::operator*(const nuga_real_t& a) const {
 
   self_type res(*this);
   for (E_Int i = 0; i < DIMANISO; ++i)
@@ -107,24 +107,24 @@ AnisoMetricType<DIM>::operator*(const E_Float& a) const {
 }
 
 template <> inline
-std::array<E_Float, 9>
+std::array<nuga_real_t, 9>
 AnisoMetricType<3>::operator*(const self_type& N)
 {
-  std::array<E_Float, 9> RES;
+  std::array<nuga_real_t, 9> RES;
 
-  const E_Float& a11 = _mij[0];
-  const E_Float& a12 = _mij[1];
-  const E_Float& a13 = _mij[2];
-  const E_Float& a22 = _mij[3];
-  const E_Float& a23 = _mij[4];
-  const E_Float& a33 = _mij[5];
+  const nuga_real_t& a11 = _mij[0];
+  const nuga_real_t& a12 = _mij[1];
+  const nuga_real_t& a13 = _mij[2];
+  const nuga_real_t& a22 = _mij[3];
+  const nuga_real_t& a23 = _mij[4];
+  const nuga_real_t& a33 = _mij[5];
 
-  const E_Float& b11 = N[0];
-  const E_Float& b12 = N[1];
-  const E_Float& b13 = N[2];
-  const E_Float& b22 = N[3];
-  const E_Float& b23 = N[4];
-  const E_Float& b33 = N[5];
+  const nuga_real_t& b11 = N[0];
+  const nuga_real_t& b12 = N[1];
+  const nuga_real_t& b13 = N[2];
+  const nuga_real_t& b22 = N[3];
+  const nuga_real_t& b23 = N[4];
+  const nuga_real_t& b33 = N[5];
 	
   RES[0] = a11*b11 + a12*b12 + a13*b13; RES[1] = a11*b12 + a12*b22 + a13*b23; RES[2] = a11*b13 + a12*b23 + a13*b33;
   RES[3] = a12*b11 + a22*b12 + a23*b13; RES[4] = a12*b12 + a22*b22 + a23*b23; RES[5] = a12*b13 + a22*b23 + a23*b33;
@@ -138,7 +138,7 @@ AnisoMetricType<3>::operator*(const self_type& N)
 // doesn't check if a != 0
 template <short DIM>
 AnisoMetricType<DIM>
-AnisoMetricType<DIM>::operator/(const E_Float& a) const
+AnisoMetricType<DIM>::operator/(const nuga_real_t& a) const
 {
   self_type res(*this);
   for (E_Int i = 0; i < DIMANISO; ++i)
@@ -160,11 +160,11 @@ AnisoMetricType<DIM>::operator+(const AnisoMetricType& rhs) const
 }
 
 template <> inline
-void AnisoMetricType<2>::eigen_values(E_Float &lmax, E_Float & lmin) const
+void AnisoMetricType<2>::eigen_values(nuga_real_t &lmax, nuga_real_t & lmin) const
 {
-  E_Float a = _mij[0] + _mij[2];                 //trace
-  E_Float b = _mij[0]*_mij[2] - _mij[1]*_mij[1]; //det
-  E_Float d = a*a - 4.*b;
+  nuga_real_t a = _mij[0] + _mij[2];                 //trace
+  nuga_real_t b = _mij[0]*_mij[2] - _mij[1]*_mij[1]; //det
+  nuga_real_t d = a*a - 4.*b;
 
   if (d > 0.) d = sqrt(d);
   else d = 0.;
@@ -173,7 +173,7 @@ void AnisoMetricType<2>::eigen_values(E_Float &lmax, E_Float & lmin) const
 }
 
 template <> inline
-void AnisoMetricType<3>::eigen_values(E_Float &lmax, E_Float & lmin) const
+void AnisoMetricType<3>::eigen_values(nuga_real_t &lmax, nuga_real_t & lmin) const
 {
   //todo Imad : fixme : asssume here a diagonal matrix!
   lmin = K_FUNC::E_min(_mij[0], K_FUNC::E_min(_mij[3], _mij[5]));
@@ -198,7 +198,7 @@ inline std::ostream&
 }  
 
 template <> inline
-E_Float AnisoMetricType<2>::det() const
+nuga_real_t AnisoMetricType<2>::det() const
 {
   return _mij[0]*_mij[2] - _mij[1]*_mij[1];
 }
@@ -216,14 +216,14 @@ AnisoMetricType<2> AnisoMetricType<2>::inverse() const
 }
 
 template <> inline
-E_Float AnisoMetricType<3>::det() const
+nuga_real_t AnisoMetricType<3>::det() const
 {
-  const E_Float& a = _mij[0];
-  const E_Float& b = _mij[1];
-  const E_Float& c = _mij[2];
-  const E_Float& d = _mij[3];
-  const E_Float& e = _mij[4];
-  const E_Float& f = _mij[5];
+  const nuga_real_t& a = _mij[0];
+  const nuga_real_t& b = _mij[1];
+  const nuga_real_t& c = _mij[2];
+  const nuga_real_t& d = _mij[3];
+  const nuga_real_t& e = _mij[4];
+  const nuga_real_t& f = _mij[5];
 
   return a*d*f - (a*e*e + d*c*c + f*b*b) + 2.*b*c*e;
 }
@@ -233,12 +233,12 @@ AnisoMetricType<3> AnisoMetricType<3>::inverse() const
 {
   AnisoMetricType<3> INV;
 
-  const E_Float& a11 = _mij[0];
-  const E_Float& a12 = _mij[1];
-  const E_Float& a13 = _mij[2];
-  const E_Float& a22 = _mij[3];
-  const E_Float& a23 = _mij[4];
-  const E_Float& a33 = _mij[5];
+  const nuga_real_t& a11 = _mij[0];
+  const nuga_real_t& a12 = _mij[1];
+  const nuga_real_t& a13 = _mij[2];
+  const nuga_real_t& a22 = _mij[3];
+  const nuga_real_t& a23 = _mij[4];
+  const nuga_real_t& a33 = _mij[5];
 	
   INV[0] = a33*a22 - a23*a23;
   INV[1] = a23*a13 - a33*a12;  

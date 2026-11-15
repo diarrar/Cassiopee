@@ -83,7 +83,7 @@ class Pentahedron {
 
     ///
     template <typename CoordAcc> inline
-    void iso_barycenter(const CoordAcc& coord, E_Float* G)
+    void iso_barycenter(const CoordAcc& coord, nuga_real_t* G)
     { 
       //
       for (size_t d=0; d < 3; ++d) G[d]=0.;
@@ -97,7 +97,7 @@ class Pentahedron {
         }
       }
     
-      E_Float k = 1./(E_Float)NB_NODES;
+      nuga_real_t k = 1./(nuga_real_t)NB_NODES;
     
       for (size_t i = 0; i < 3; ++i) G[i] *= k;
       //std::cout << "G : " << G[0] << "/" << G[1] << "/" << G[2] << std::endl;

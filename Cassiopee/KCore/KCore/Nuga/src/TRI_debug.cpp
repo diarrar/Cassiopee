@@ -174,7 +174,7 @@ void TRI_debug::connected_to_T3
     coordCpy = coord;
     pC=&coordCpy;
     
-    E_Float L = 0., Lmax=0.;
+    nuga_real_t L = 0., Lmax=0.;
     K_MESH::NO_Edge Emax;
     for (std::set<K_MESH::NO_Edge>::const_iterator it = edges.begin(); it != edges.end(); ++it)
     {
@@ -213,13 +213,13 @@ void TRI_debug::connected_to_T3
       const E_Int& N1 = E.node(1);
       const E_Int& N2 = tmp((j+2)%3, i);
       
-      E_Float N0N1[3];
+      nuga_real_t N0N1[3];
       NUGA::diff<3>(coordCpy.col(N1), coordCpy.col(N0), N0N1);
-      //E_Float l=sqrt(NUGA::sqrNorm<3>(N0N1));
-      E_Float Ph[3];
+      //nuga_real_t l=sqrt(NUGA::sqrNorm<3>(N0N1));
+      nuga_real_t Ph[3];
       NUGA::sum<3>(0.5, N0N1, coordCpy.col(N0), Ph);
       
-      E_Float PhN2[3];
+      nuga_real_t PhN2[3];
       NUGA::diff<3>(coordCpy.col(N2), Ph, PhN2);
       NUGA::normalize<3>(PhN2);
       
@@ -399,7 +399,7 @@ void TRI_debug::write_wired(const char* fname, const K_FLD::FloatArray& coord, c
   K_FLD::IntArray connectE;
   K_MESH::Edge E;
   E_Int n0, n1;
-  E_Float Ni[3], P0[3], P1[3], FACTOR, Lmin, L2;
+  nuga_real_t Ni[3], P0[3], P1[3], FACTOR, Lmin, L2;
   std::vector<E_Int> E2colors;
   for (size_t i = 0; i < connectT3.cols(); ++i)
   {
@@ -453,8 +453,8 @@ void TRI_debug::write_wired(const char* fname, const K_FLD::FloatArray& coord, c
   K_FLD::IntArray connectE;
   K_MESH::Edge E;
   E_Int n0, n1;
-  E_Float P0[3], P1[3];
-  const E_Float* Ni;
+  nuga_real_t P0[3], P1[3];
+  const nuga_real_t* Ni;
   std::vector<E_Int> E2colors;
   for (size_t i = 0; i < connectT3.cols(); ++i)
   {

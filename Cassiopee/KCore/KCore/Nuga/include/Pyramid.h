@@ -54,9 +54,9 @@ class Pyramid {
     //void setNodes(E_Int* nodes){for (size_t i = 0; i< 4; ++i)_nodes[i]=*(nodes++);}
     
     template <typename CoordAcc> inline
-    void iso_barycenter(const CoordAcc& coord, E_Float* G);
+    void iso_barycenter(const CoordAcc& coord, nuga_real_t* G);
     template <typename ngunit_t> inline
-    static void iso_barycenter(const K_FLD::FloatArray& crd, const ngunit_t & PGs, const E_Int* first_pg, E_Int nb_pgs, E_Int index_start, E_Float* G);
+    static void iso_barycenter(const K_FLD::FloatArray& crd, const ngunit_t & PGs, const E_Int* first_pg, E_Int nb_pgs, E_Int index_start, nuga_real_t* G);
     
     template< typename ngo_t>
     static void reorder_pgs(ngo_t& ng, const K_FLD::IntArray& F2E, E_Int i);
@@ -119,7 +119,7 @@ private:
 
 ///  
 template <typename CoordAcc> inline
-void Pyramid::iso_barycenter(const CoordAcc& coord, E_Float* G)
+void Pyramid::iso_barycenter(const CoordAcc& coord, nuga_real_t* G)
 { 
   //
   for (size_t d=0; d < 3; ++d) G[d]=0.;
@@ -133,7 +133,7 @@ void Pyramid::iso_barycenter(const CoordAcc& coord, E_Float* G)
     }
   }
 
-  E_Float k = 1./(E_Float)NB_NODES;
+  nuga_real_t k = 1./(nuga_real_t)NB_NODES;
 
   for (size_t i = 0; i < 3; ++i) G[i] *= k;
   //std::cout << "G : " << G[0] << "/" << G[1] << "/" << G[2] << std::endl;
@@ -142,7 +142,7 @@ void Pyramid::iso_barycenter(const CoordAcc& coord, E_Float* G)
 
 ///
 template <typename ngunit_t>
-inline void Pyramid::iso_barycenter(const K_FLD::FloatArray& crd, const ngunit_t & PGs, const E_Int* first_pg, E_Int nb_pgs, E_Int index_start, E_Float* G)
+inline void Pyramid::iso_barycenter(const K_FLD::FloatArray& crd, const ngunit_t & PGs, const E_Int* first_pg, E_Int nb_pgs, E_Int index_start, nuga_real_t* G)
 {
   //WARNING : assuming reodrederd pgs : first is bottom, second is top
 

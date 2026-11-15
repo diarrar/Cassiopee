@@ -254,7 +254,7 @@ E_Int __get_connectivity(PyObject*o, PyArrayObject*& a,
 //=============================================================================
 E_Int K_ARRAY::getFromArray(PyObject* o,
                             char*& varString,
-                            DynArray<E_Float>*& f,
+                            DynArray<nuga_real_t>*& f,
                             E_Int& ni, E_Int& nj, E_Int& nk,
                             DynArray<E_Int>*& c,
                             char*& eltType)
@@ -277,9 +277,9 @@ E_Int K_ARRAY::getFromArray(PyObject* o,
     return -4;
   }
   
-  f = new DynArray<E_Float>(nfld, s);
+  f = new DynArray<nuga_real_t>(nfld, s);
   E_Float* d = (E_Float*)PyArray_DATA(a);
-  DynArray<E_Float>::iterator it = f->begin();
+  DynArray<nuga_real_t>::iterator it = f->begin();
   for (E_Int i = 0; i < s; i++)
     for (E_Int n = 0; n < nfld; n++)
     {
@@ -293,7 +293,7 @@ E_Int K_ARRAY::getFromArray(PyObject* o,
 // same as above ignoring fields other than coordinates
 E_Int K_ARRAY::getFromArray(PyObject* o,
                                 char*& varString,
-                                DynArray<E_Float>& f,
+                                DynArray<nuga_real_t>& f,
                                 E_Int& ni, E_Int& nj, E_Int& nk,
                                 DynArray<E_Int>& c,
                                 char*& eltType)
@@ -319,7 +319,7 @@ E_Int K_ARRAY::getFromArray(PyObject* o,
   f.resize(nfld, s);
   
   E_Float* d = (E_Float*)PyArray_DATA(a);
-  DynArray<E_Float>::iterator it = f.begin();
+  DynArray<nuga_real_t>::iterator it = f.begin();
   for (E_Int i = 0; i < s; i++)
     for (E_Int n = 0; n < nfld; n++)
     {

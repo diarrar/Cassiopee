@@ -33,7 +33,7 @@ namespace NUGA
     using wdata_t = typename parent_t::wdata_t;
     using outdata_t = typename parent_t::outdata_t;
 
-    masker(E_Float RTOL) : parent_t(RTOL), _col_X(0.5) {}
+    masker(nuga_real_t RTOL) : parent_t(RTOL), _col_X(0.5) {}
     
     outdata_t __process_X_cells(zmesh_t const & z_mesh, std::vector< bound_mesh_t*> const & mask_bits, wdata_t & wdata)
     {
@@ -44,7 +44,7 @@ namespace NUGA
     };
 
   private:
-    E_Float _col_X;
+    nuga_real_t _col_X;
 
   };
 }

@@ -57,12 +57,12 @@ public:
     
   /// For FldArrays
   Collider(const K_FLD::FldArrayF& coords,  E_Int px, E_Int py, E_Int pz,
-             const K_FLD::FldArrayI& connect, E_Float tolerance = EPSILON)
+             const K_FLD::FldArrayI& connect, nuga_real_t tolerance = EPSILON)
             :_aCoords(coords, px, py, pz), _aConnect(0),_connect(0),
              _predicate(new Pred_t),  _tree(0), _tolerance(tolerance), _own_tree(true){__init(connect, -1);}
   
   Collider(const K_FLD::ArrayAccessor<K_FLD::FldArrayF>& aCoord, K_FLD::ArrayAccessor<K_FLD::FldArrayI>& aConnect,
-           Tree_t* tree, E_Float tolerance = EPSILON)
+           Tree_t* tree, nuga_real_t tolerance = EPSILON)
             :_aCoords(aCoord), _aConnect(&aConnect), _connect(0),
              _predicate(new Pred_t),  _tree(tree), _tolerance(tolerance), _own_tree(false)
   {
@@ -70,7 +70,7 @@ public:
   }
       
   /// For DynArrays
-  Collider(const K_FLD::FloatArray& coords, const K_FLD::IntArray& connect, E_Float tolerance =EPSILON)
+  Collider(const K_FLD::FloatArray& coords, const K_FLD::IntArray& connect, nuga_real_t tolerance =EPSILON)
             :_aCoords(coords), _aConnect(0),_connect(0),
              _predicate(new Pred_t), _tree(0), _tolerance(tolerance){__init(connect);}
    
@@ -111,7 +111,7 @@ protected:
   Pred_t*          _predicate;
   BoxVector_t      _boxes;
   Tree_t          *_tree;
-  E_Float          _tolerance;
+  nuga_real_t          _tolerance;
   bool             _own_tree;
   
 };
@@ -123,7 +123,7 @@ class FldT3T3Collider3D : public Collider<K_FLD::FldArrayF, K_FLD::FldArrayI, 3,
     typedef Collider<K_FLD::FldArrayF, K_FLD::FldArrayI, 3, Element_t, T3T3_XPredicate > parent_t;
     ///
     FldT3T3Collider3D(const K_FLD::FldArrayF& coords,  E_Int px, E_Int py, E_Int pz,
-                      const K_FLD::FldArrayI& connect, E_Float tolerance = EPSILON)
+                      const K_FLD::FldArrayI& connect, nuga_real_t tolerance = EPSILON)
             :Collider<K_FLD::FldArrayF, K_FLD::FldArrayI, 3, Element_t, T3T3_XPredicate >(coords, px, py, pz, connect, tolerance)
              {}
     ///
@@ -138,7 +138,7 @@ class FldTH4T3Collider3D : public Collider<K_FLD::FldArrayF, K_FLD::FldArrayI, 3
     typedef Collider<K_FLD::FldArrayF, K_FLD::FldArrayI, 3, Element_t, TH4T3_XPredicate > parent_t;
     ///
     FldTH4T3Collider3D(const K_FLD::FldArrayF& coords,  E_Int px, E_Int py, E_Int pz,
-                      const K_FLD::FldArrayI& connect, E_Float tolerance = EPSILON, typename parent_t::Tree_t* tree = 0)
+                      const K_FLD::FldArrayI& connect, nuga_real_t tolerance = EPSILON, typename parent_t::Tree_t* tree = 0)
             :Collider<K_FLD::FldArrayF, K_FLD::FldArrayI, 3, Element_t, TH4T3_XPredicate >(coords, px, py, pz, connect, tolerance, tree)
              {}
     ///
@@ -153,11 +153,11 @@ class FldTH4HX6Collider3D : public Collider<K_FLD::FldArrayF, K_FLD::FldArrayI, 
     typedef Collider<K_FLD::FldArrayF, K_FLD::FldArrayI, 3, Element_t, TH4HX6_XPredicate > parent_t;
     ///
     FldTH4HX6Collider3D(const K_FLD::FldArrayF& coords,  E_Int px, E_Int py, E_Int pz,
-                      const K_FLD::FldArrayI& connect, E_Float tolerance = EPSILON)
+                      const K_FLD::FldArrayI& connect, nuga_real_t tolerance = EPSILON)
             :Collider<K_FLD::FldArrayF, K_FLD::FldArrayI, 3, Element_t, TH4HX6_XPredicate >(coords, px, py, pz, connect, tolerance)
              {}
     FldTH4HX6Collider3D(const K_FLD::ArrayAccessor<K_FLD::FldArrayF>& coords,
-                      K_FLD::ArrayAccessor<K_FLD::FldArrayI>& connect, typename parent_t::Tree_t* tree, E_Float tolerance = EPSILON)
+                      K_FLD::ArrayAccessor<K_FLD::FldArrayI>& connect, typename parent_t::Tree_t* tree, nuga_real_t tolerance = EPSILON)
             :Collider<K_FLD::FldArrayF, K_FLD::FldArrayI, 3, Element_t, TH4HX6_XPredicate >(coords, connect, tree, tolerance)
              {}
     ///
@@ -171,7 +171,7 @@ class DynT3T3Collider3D : public Collider<K_FLD::FloatArray, K_FLD::IntArray, 3,
   public:
     typedef Collider<K_FLD::FloatArray, K_FLD::IntArray, 3, Element_t, T3T3_XPredicate > parent_t;
     ///
-    DynT3T3Collider3D(const K_FLD::FloatArray& coords, const K_FLD::IntArray& connect, E_Float tolerance =EPSILON)
+    DynT3T3Collider3D(const K_FLD::FloatArray& coords, const K_FLD::IntArray& connect, nuga_real_t tolerance =EPSILON)
             : Collider<K_FLD::FloatArray, K_FLD::IntArray, 3, Element_t, T3T3_XPredicate >(coords, connect, tolerance)
             {}
     ///
@@ -388,7 +388,7 @@ void COLLIDER::__destroy_tree()
     Vector_t<size_t> elts_to_reorient;
     size_t nb_elts(connT4->size());
     const E_Int NB_NODES = connT4->stride();
-    E_Float Ni[3], Nj[3], Nk[3], Nl[3];
+    nuga_real_t Ni[3], Nj[3], Nk[3], Nl[3];
     E_Int t4[NB_NODES];
     
     for (size_t i = 0; i < nb_elts; ++i)

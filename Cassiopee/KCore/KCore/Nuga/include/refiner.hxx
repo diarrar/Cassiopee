@@ -48,7 +48,7 @@ namespace NUGA
       e.setNodes(n1, n2);
       auto it = ecenter.find(e);
       if (it == ecenter.end()) {
-        E_Float mid[3];
+        nuga_real_t mid[3];
         NUGA::sum<3>(0.5, crd.col(n1 - 1), 0.5, crd.col(n2 - 1), mid);
         crd.pushBack(mid, mid + 3);
         ecenter[e] = crd.cols();

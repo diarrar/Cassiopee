@@ -79,10 +79,10 @@ K_OCC::OCCSurface::OCCSurface(const OCCSurface& rhs)
 K_OCC::OCCSurface::~OCCSurface() {}
 
 // homothetie par rapport au centre
-void K_OCC::OCCSurface::shrink(K_FLD::FloatArray& coord3D, E_Float factor)
+void K_OCC::OCCSurface::shrink(K_FLD::FloatArray& coord3D, nuga_real_t factor)
 {
-  E_Float xc=0.,yc=0.,zc=0.;
-  E_Float x,y,z;
+  nuga_real_t xc=0.,yc=0.,zc=0.;
+  nuga_real_t x,y,z;
   E_Int npts = coord3D.getSize();
   for (E_Int i = 0; i < npts; i++)
   {  
@@ -142,7 +142,7 @@ K_OCC::OCCSurface::parameters
 
 // version originale
 E_Int
-K_OCC::OCCSurface::parameters(const E_Float* pt, E_Float& u, E_Float& v, E_Int index) const 
+K_OCC::OCCSurface::parameters(const nuga_real_t* pt, nuga_real_t& u, nuga_real_t& v, E_Int index) const 
 {
   u=v=-1;
     
@@ -182,11 +182,11 @@ K_OCC::OCCSurface::parametersSample(const K_FLD::FloatArray&coord3D, K_FLD::Floa
   K_SEARCH::KdTree<K_FLD::FloatArray> tree(crdA);
   size_t szSmpl(pos3D.cols());
   E_Int Nc, N[2]; // N[0] its predecessor, N[1] its successor
-  E_Float d2[2], lambda[2]; //d2[0] for predecessor, d2[1] for successor
+  nuga_real_t d2[2], lambda[2]; //d2[0] for predecessor, d2[1] for successor
   
   for (E_Int i = 0; i < sz; ++i)
   {
-    const E_Float* Pt = coord3D.col(i);
+    const nuga_real_t* Pt = coord3D.col(i);
     Nc = tree.getClosest(Pt);
     
     //init
@@ -209,7 +209,7 @@ K_OCC::OCCSurface::parametersSample(const K_FLD::FloatArray&coord3D, K_FLD::Floa
 
 E_Int K_OCC::OCCSurface::__sample_contour(E_Int Nsample, K_FLD::FloatArray& pos3D, K_FLD::FloatArray& pos2D)
 {
-  E_Float V0n(0.), V1n(1.), U0n(0.), U1n(1.);
+  nuga_real_t V0n(0.), V1n(1.), U0n(0.), U1n(1.);
   
   if (!_normalize_domain)
   {
@@ -219,12 +219,12 @@ E_Int K_OCC::OCCSurface::__sample_contour(E_Int Nsample, K_FLD::FloatArray& pos3
     U1n = _U1;
   }
   
-  E_Float U[2], Pt[3];
+  nuga_real_t U[2], Pt[3];
   // edge 1
   U[1] = V0n;
   for (E_Int a=0; a < Nsample-1; ++a) // up to Nsample-1 to avoid to create duplicates
   {
-    U[0]=U0n + (U1n-U0n)*E_Float(a)/E_Float(Nsample-1);
+    U[0]=U0n + (U1n-U0n)*nuga_real_t(a)/nuga_real_t(Nsample-1);
     point(U[0], V0n, Pt);
     
     pos2D.pushBack(U, U+2);
@@ -235,7 +235,7 @@ E_Int K_OCC::OCCSurface::__sample_contour(E_Int Nsample, K_FLD::FloatArray& pos3
   U[0]=U1n;
   for (E_Int a=0; a < Nsample-1; ++a)
   {
-    U[1]=V0n + (V1n-V0n)*E_Float(a)/E_Float(Nsample-1);
+    U[1]=V0n + (V1n-V0n)*nuga_real_t(a)/nuga_real_t(Nsample-1);
     point(U1n, U[1], Pt);
     
     pos2D.pushBack(U, U+2);
@@ -246,7 +246,7 @@ E_Int K_OCC::OCCSurface::__sample_contour(E_Int Nsample, K_FLD::FloatArray& pos3
   U[1]=V1n;
   for (E_Int a=0; a < Nsample-1; ++a)
   {
-    U[0]=U1n - (U1n-U0n)*E_Float(a)/E_Float(Nsample-1);
+    U[0]=U1n - (U1n-U0n)*nuga_real_t(a)/nuga_real_t(Nsample-1);
     point(U[0], V1n, Pt);
     
     pos2D.pushBack(U, U+2);
@@ -257,7 +257,7 @@ E_Int K_OCC::OCCSurface::__sample_contour(E_Int Nsample, K_FLD::FloatArray& pos3
   U[0]=U0n;
   for (E_Int a=0; a < Nsample-1; ++a)
   {
-    U[1]=V1n - (V1n-V0n)*E_Float(a)/E_Float(Nsample-1);
+    U[1]=V1n - (V1n-V0n)*nuga_real_t(a)/nuga_real_t(Nsample-1);
     point(U0n, U[1], Pt);
     
     pos2D.pushBack(U, U+2);
@@ -281,7 +281,7 @@ E_Int K_OCC::OCCSurface::__sample_contour(E_Int Nsample, K_FLD::FloatArray& pos3
 }
 
 /// Computes the surface point P for the input (u,v) parameters.
-void K_OCC::OCCSurface::point(E_Float u, E_Float v, E_Float* P) const
+void K_OCC::OCCSurface::point(nuga_real_t u, nuga_real_t v, nuga_real_t* P) const
 {
   gp_Pnt Pt;
   
@@ -295,7 +295,7 @@ void K_OCC::OCCSurface::point(E_Float u, E_Float v, E_Float* P) const
 }
 
 /// Computes the first U-derivative at P(u,v) on the surface.
-void K_OCC::OCCSurface::DU1(E_Float u, E_Float v, E_Float* P) const
+void K_OCC::OCCSurface::DU1(nuga_real_t u, nuga_real_t v, nuga_real_t* P) const
 {
   gp_Pnt Pt;
   gp_Vec DU1, DV1;
@@ -314,7 +314,7 @@ void K_OCC::OCCSurface::DU1(E_Float u, E_Float v, E_Float* P) const
 }
 
 /// Computes the second U-derivative at P(u,v) on the surface.
-void K_OCC::OCCSurface::DU2(E_Float u, E_Float v, E_Float* P) const
+void K_OCC::OCCSurface::DU2(nuga_real_t u, nuga_real_t v, nuga_real_t* P) const
 {
   gp_Pnt  Pt;
   gp_Vec  DU1, DV1, DU2, DV2, DUV;
@@ -334,7 +334,7 @@ void K_OCC::OCCSurface::DU2(E_Float u, E_Float v, E_Float* P) const
 }
 
 /// Computes the first V-derivative at P(u,v) on the surface.
-void K_OCC::OCCSurface::DV1(E_Float u, E_Float v, E_Float* P) const
+void K_OCC::OCCSurface::DV1(nuga_real_t u, nuga_real_t v, nuga_real_t* P) const
 {
   gp_Pnt Pt;
   gp_Vec DU1, DV1;
@@ -353,7 +353,7 @@ void K_OCC::OCCSurface::DV1(E_Float u, E_Float v, E_Float* P) const
 }
 
 /// Computes the second U-derivative at P(u,v) on the surface.
-void K_OCC::OCCSurface::DV2(E_Float u, E_Float v, E_Float* P) const
+void K_OCC::OCCSurface::DV2(nuga_real_t u, nuga_real_t v, nuga_real_t* P) const
 {
   gp_Pnt Pt;
   gp_Vec DU1, DV1, DU2, DV2, DUV;
@@ -373,7 +373,7 @@ void K_OCC::OCCSurface::DV2(E_Float u, E_Float v, E_Float* P) const
 }
 
 /// Computes the first crossed UV-derivative at P(u,v) on the surface.
-void K_OCC::OCCSurface::DUV(E_Float u, E_Float v, E_Float* P) const
+void K_OCC::OCCSurface::DUV(nuga_real_t u, nuga_real_t v, nuga_real_t* P) const
 {
   gp_Pnt Pt;
   gp_Vec DU1, DV1, DU2, DV2, DUV;
@@ -391,7 +391,7 @@ void K_OCC::OCCSurface::DUV(E_Float u, E_Float v, E_Float* P) const
   P[2] *= (_U1 - _U0)*(_V1 - _V0);
 }
 
-void K_OCC::OCCSurface::DAUV1(E_Float u, E_Float v, E_Float* P) const
+void K_OCC::OCCSurface::DAUV1(nuga_real_t u, nuga_real_t v, nuga_real_t* P) const
 {
   gp_Pnt Pt;
   gp_Vec DU1, DV1;
@@ -413,7 +413,7 @@ void K_OCC::OCCSurface::DAUV1(E_Float u, E_Float v, E_Float* P) const
   P[5] *= (_V1 - _V0);
 }
 
-void K_OCC::OCCSurface::DAUV2(E_Float u, E_Float v, E_Float* P) const
+void K_OCC::OCCSurface::DAUV2(nuga_real_t u, nuga_real_t v, nuga_real_t* P) const
 {
   gp_Pnt Pt;
   gp_Vec DU1, DV1, DU2, DV2, DUV;
@@ -449,7 +449,7 @@ void K_OCC::OCCSurface::DAUV2(E_Float u, E_Float v, E_Float* P) const
 }
 
 /// Checks whether input parameters are in the bounds for this surface
-bool K_OCC::OCCSurface::in_bounds(E_Float u, E_Float v) const
+bool K_OCC::OCCSurface::in_bounds(nuga_real_t u, nuga_real_t v) const
 {
   if (u < _U0) return false;
   if (u > _U1) return false;
@@ -459,7 +459,7 @@ bool K_OCC::OCCSurface::in_bounds(E_Float u, E_Float v) const
   return true;
 }
 
-void K_OCC::OCCSurface::__normalize(E_Float& u, E_Float& v) const 
+void K_OCC::OCCSurface::__normalize(nuga_real_t& u, nuga_real_t& v) const 
 {
   if (!_normalize_domain) return;
   
@@ -468,7 +468,7 @@ void K_OCC::OCCSurface::__normalize(E_Float& u, E_Float& v) const
   v = (v - _V0) / (_V1 - _V0);
 }
 
-void K_OCC::OCCSurface::__denormalize(E_Float& u, E_Float& v) const 
+void K_OCC::OCCSurface::__denormalize(nuga_real_t& u, nuga_real_t& v) const 
 {
   if (!_normalize_domain) return;
   
@@ -512,9 +512,9 @@ void K_OCC::OCCSurface::__traverse_face_edges(const TopoDS_Face& F, TopExp_Explo
 }
 
 void K_OCC::OCCSurface::__get_params_and_type
-(const TopoDS_Face& F, E_Float& U0, E_Float& U1, E_Float& V0, E_Float& V1, bool& isUClosed, bool& isVClosed)
+(const TopoDS_Face& F, nuga_real_t& U0, nuga_real_t& U1, nuga_real_t& V0, nuga_real_t& V1, bool& isUClosed, bool& isVClosed)
 {
-  E_Float paramtol = 1.e-6;
+  nuga_real_t paramtol = 1.e-6;
   
   { // OCC works in Standard_Real (double)
     Standard_Real u0, u1, v0, v1;
@@ -528,7 +528,7 @@ void K_OCC::OCCSurface::__get_params_and_type
   U0 = (::fabs(U0) < paramtol ) ? paramtol : U0;
   V0 = (::fabs(V0) < paramtol ) ? paramtol : V0;
   
-  E_Float twoPI = 2.*NUGA::PI;
+  nuga_real_t twoPI = 2.*NUGA::PI;
   
   // if max is 2Pi (revolution) , we similarily put a value smaller to avoid the seam issu
   U1 = (::fabs(U1 - twoPI) < paramtol ) ? twoPI - paramtol : U1;

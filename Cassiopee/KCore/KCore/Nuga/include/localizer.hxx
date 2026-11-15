@@ -39,20 +39,20 @@ class localizer
   localizer() = delete;
   localizer(const localizer&) = delete; // to avoid to copy a loc owned by mesh_t that will destroy it
   
-  localizer(Tree_t& tree, E_Float tolerance):_tree(&tree), _owner(false), _tolerance(tolerance){_tree->_tolerance = _tolerance;}
+  localizer(Tree_t& tree, nuga_real_t tolerance):_tree(&tree), _owner(false), _tolerance(tolerance){_tree->_tolerance = _tolerance;}
 
   // tree owner version
-  localizer(Tree_t* tree, E_Float tolerance):_tree(tree), _owner(true), _tolerance(tolerance){_tree->_tolerance = _tolerance;}
+  localizer(Tree_t* tree, nuga_real_t tolerance):_tree(tree), _owner(true), _tolerance(tolerance){_tree->_tolerance = _tolerance;}
   
   template <typename acrd_t, typename acnt_t>
-  localizer(const acrd_t& coords, const acnt_t& connect, E_Float tolerance):_owner(true), _tolerance(tolerance){__create_tree(coords, connect);}
+  localizer(const acrd_t& coords, const acnt_t& connect, nuga_real_t tolerance):_owner(true), _tolerance(tolerance){__create_tree(coords, connect);}
   
   ~localizer() { if (_owner) __destroy_tree(); }
   
   template<typename ELT, typename crd_t>
-  void get_candidates(const ELT& e, const crd_t& crde, std::vector<E_Int>& candidates, int idx_start = 0, E_Float RTOL = 0.) const ;
+  void get_candidates(const ELT& e, const crd_t& crde, std::vector<E_Int>& candidates, int idx_start = 0, nuga_real_t RTOL = 0.) const ;
 
-  void get_candidates(const box_t& bb, std::vector<E_Int>& candidates, int idx_start = 0, E_Float RTOL = 0.) const ;
+  void get_candidates(const box_t& bb, std::vector<E_Int>& candidates, int idx_start = 0, nuga_real_t RTOL = 0.) const ;
   
   const Tree_t* get_tree() const { return _tree;}
   
@@ -66,13 +66,13 @@ class localizer
     Tree_t* _tree;
     std::vector<box_t> _boxes;
     bool _owner;
-    E_Float _tolerance;
+    nuga_real_t _tolerance;
 };
 
 ///
 template <typename Tree_t>
 template<typename ELT, typename crd_t>
-void localizer<Tree_t>::get_candidates(const ELT& e, const crd_t& crde, std::vector<E_Int>& candidates, int idx_start, E_Float RTOL) const {
+void localizer<Tree_t>::get_candidates(const ELT& e, const crd_t& crde, std::vector<E_Int>& candidates, int idx_start, nuga_real_t RTOL) const {
   
   box_t bb;
   e.bbox(crde, bb);
@@ -92,7 +92,7 @@ void localizer<Tree_t>::get_candidates(const ELT& e, const crd_t& crde, std::vec
 
 ///
 template <typename Tree_t>
-void localizer<Tree_t>::get_candidates(const box_t& bb, std::vector<E_Int>& candidates, int idx_start, E_Float RTOL) const {
+void localizer<Tree_t>::get_candidates(const box_t& bb, std::vector<E_Int>& candidates, int idx_start, nuga_real_t RTOL) const {
 
   candidates.clear();
   _tree->getOverlappingBoxes(bb.minB, bb.maxB, candidates);

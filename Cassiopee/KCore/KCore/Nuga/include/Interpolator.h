@@ -38,7 +38,7 @@ public:
   {
   }
 
-  virtual T interpolate(const T& H0, const T& H1, E_Float u) const = 0;
+  virtual T interpolate(const T& H0, const T& H1, nuga_real_t u) const = 0;
 };
 
 template <typename T>
@@ -53,7 +53,7 @@ public:
   {
   }
 
-  inline T interpolate(const T& H0, const T& H1, E_Float u) const {return H0*(1-u) + H1*u;}
+  inline T interpolate(const T& H0, const T& H1, nuga_real_t u) const {return H0*(1-u) + H1*u;}
 
 };
 
@@ -69,7 +69,7 @@ public:
   {
   }
 
-  inline T interpolate(const T& H0, const T& H1, E_Float u) const {return H0 * pow(H1/H0, u);} //iso
+  inline T interpolate(const T& H0, const T& H1, nuga_real_t u) const {return H0 * pow(H1/H0, u);} //iso
 
 };
 
@@ -77,7 +77,7 @@ public:
 template<> inline
 DELAUNAY::Aniso2D
 GeometricInterpolator<DELAUNAY::Aniso2D>::interpolate
-(const DELAUNAY::Aniso2D& H0, const DELAUNAY::Aniso2D& H1, E_Float u) const
+(const DELAUNAY::Aniso2D& H0, const DELAUNAY::Aniso2D& H1, nuga_real_t u) const
 {
   //fixme : in fact Linear currently
   return H0*(1-u) + H1*u;
@@ -87,7 +87,7 @@ GeometricInterpolator<DELAUNAY::Aniso2D>::interpolate
 template<> inline
 DELAUNAY::Aniso3D
 GeometricInterpolator<DELAUNAY::Aniso3D>::interpolate
-(const DELAUNAY::Aniso3D& H0, const DELAUNAY::Aniso3D& H1, E_Float u) const
+(const DELAUNAY::Aniso3D& H0, const DELAUNAY::Aniso3D& H1, nuga_real_t u) const
 {
   //fixme : in fact Linear currently
   return H0 * (1 - u) + H1 * u;

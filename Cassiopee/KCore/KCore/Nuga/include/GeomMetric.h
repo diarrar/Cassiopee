@@ -21,6 +21,7 @@
 #define __GENERATOR_GEOM_METRIC_H__
 
 #include "Metric.h"
+#include "Nuga/include/defs.h"
 
 namespace DELAUNAY
 {
@@ -43,7 +44,7 @@ namespace DELAUNAY
   public:
 
     /// Constructor for ISO mode : mesh size is specified.
-    GeomMetric(K_FLD::FloatArray& pos, const SurfaceType& surface, E_Float h0, E_Float gr)
+    GeomMetric(K_FLD::FloatArray& pos, const SurfaceType& surface, nuga_real_t h0, nuga_real_t gr)
       : parent_type (pos, h0, h0),
       _mode(ISO_CST), _surface(surface), _hmax2(h0*h0), _unbounded_h(false),
       _h0(h0), _chordal_error(1.), _gr(gr)
@@ -51,7 +52,7 @@ namespace DELAUNAY
 
     /// Constructor for adaptive mode (ISO_RHO, ANISO) : mode and relative chordal error is specified.
     GeomMetric(K_FLD::FloatArray& pos, const SurfaceType& surface, GMmode mode, 
-               E_Float chordal_error, E_Float hmin, E_Float hmax, E_Float gr)
+               nuga_real_t chordal_error, nuga_real_t hmin, nuga_real_t hmax, nuga_real_t gr)
       : parent_type (pos, hmin, hmax), _mode(mode), _surface(surface),
       _h0(NUGA::FLOAT_MAX), _chordal_error(chordal_error),
       _alpha2(4. * chordal_error*(2. - chordal_error)), 
@@ -62,7 +63,7 @@ namespace DELAUNAY
 
     ~GeomMetric(void){}
 
-    inline virtual void computeMetric(size_type N, size_type Ni, size_type Nj, E_Float /*dummy*/);
+    inline virtual void computeMetric(size_type N, size_type Ni, size_type Nj, nuga_real_t /*dummy*/);
 
     void init_metric
       (const K_FLD::FloatArray& metric, K_FLD::FloatArray& pos, const K_FLD::IntArray& connectB,
@@ -73,22 +74,22 @@ namespace DELAUNAY
   private:
     void __update_boundary_metric_with_surface(const K_FLD::IntArray& connectB);
 
-    void __compute_1st_fundamental_form(size_type N0, E_Float& E, E_Float& F, E_Float& G);
+    void __compute_1st_fundamental_form(size_type N0, nuga_real_t& E, nuga_real_t& F, nuga_real_t& G);
 
-    void __computeMetric(size_type N, K_FLD::FloatArray& Mout, E_Float hmax2);
+    void __computeMetric(size_type N, K_FLD::FloatArray& Mout, nuga_real_t hmax2);
 
   private:
     GMmode _mode;
     const SurfaceType& _surface;
-    E_Float _hmax2;
-    E_Float _h0;
-    E_Float _chordal_error;
-    E_Float _alpha2;
-    E_Float _gr;
+    nuga_real_t _hmax2;
+    nuga_real_t _h0;
+    nuga_real_t _chordal_error;
+    nuga_real_t _alpha2;
+    nuga_real_t _gr;
     const K_FLD::FloatArray* _pos2D; //hack to avoid to pass a dummy argument for Metric::init_metric as pos2D is only required for GeomMetric
     
     //T _boundary_metric_max;
-    //E_Float _humax2, _hvmax2;
+    //nuga_real_t _humax2, _hvmax2;
     bool _unbounded_h;
   };
 
@@ -123,8 +124,8 @@ namespace DELAUNAY
     }   
 
     // Compute the isometric metric based on the boundary.
-    std::vector<E_Float> m_iso;
-    E_Float hmin1, hmax1;
+    std::vector<nuga_real_t> m_iso;
+    nuga_real_t hmin1, hmax1;
     MeshUtils1D::compute_iso_metric(pos3D, connectB, hard_nodes, m_iso, hmin1, hmax1);
 
     // Set _hmin and _hmax if not done nor correct.
@@ -154,7 +155,7 @@ namespace DELAUNAY
     this->convertIsoToAniso(m_iso, parent_type::_field);
     
     // Transform the metric in the parameter space.
-    E_Float E,F,G;
+    nuga_real_t E,F,G;
     for (size_t Ni = 0; Ni < parent_type::_field.size(); ++Ni)
     {
       __compute_1st_fundamental_form(Ni, E, F, G);
@@ -179,25 +180,25 @@ namespace DELAUNAY
 //    // LIMITERS
 //    
 //    // 1. compute the max ellipse base on the max du and dv over the boundary
-//    E_Float hu_max(0.), hv_max(0.);
+//    nuga_real_t hu_max(0.), hv_max(0.);
 //    E_Int nbe = connectB.cols();
 //    const K_FLD::FloatArray &crd = *_pos2D;
 //    for (E_Int i=0; i < nbe; ++i)
 //    {
-//      E_Float du = fabs(crd(0,connectB(0,i)) - crd(0,connectB(1,i)));
-//      E_Float dv = fabs(crd(1,connectB(0,i)) - crd(1,connectB(1,i)));
+//      nuga_real_t du = fabs(crd(0,connectB(0,i)) - crd(0,connectB(1,i)));
+//      nuga_real_t dv = fabs(crd(1,connectB(0,i)) - crd(1,connectB(1,i)));
 //      
 //      hu_max = K_FUNC::E_max(hu_max, du);
 //      hv_max = K_FUNC::E_max(hv_max, dv);
 //    }
 //    
-////    E_Float huvmax = K_FUNC::E_max(hu_max, hv_max);
+////    nuga_real_t huvmax = K_FUNC::E_max(hu_max, hv_max);
 ////
 ////    _boundary_metric_max[1] = 0.;
 //    _humax2 = hu_max*hu_max;
 //    _hvmax2 = hv_max*hv_max;
-//    E_Float mu_min  =  1./ _humax2;
-//    E_Float mv_min = 1./ _hvmax2;
+//    nuga_real_t mu_min  =  1./ _humax2;
+//    nuga_real_t mv_min = 1./ _hvmax2;
 //    
 //    for (size_t Ni = 0; Ni < parent_type::_field.size(); ++Ni)
 //    {
@@ -216,17 +217,17 @@ namespace DELAUNAY
 //      const E_Int& Ni = connectB(0,i);
 //      const E_Int& Nj = connectB(1,i);
 //      
-//      E_Float NiNj[2];
+//      nuga_real_t NiNj[2];
 //      NUGA::diff<2>(crd.col(Nj),crd.col(Ni), NiNj);
-//      E_Float dij2 = NUGA::normalize<2>(NiNj);
+//      nuga_real_t dij2 = NUGA::normalize<2>(NiNj);
 //      dij2 *= dij2;
 //      
-//      E_Float hi02 = parent_type::get_h2_along_dir(Ni, NiNj); // trace on NiNj of the ellipse centered at Ni
+//      nuga_real_t hi02 = parent_type::get_h2_along_dir(Ni, NiNj); // trace on NiNj of the ellipse centered at Ni
 //      
 //      if (hi02> dij2) //need to be reduced along that direction : the ellipse will pass through Nj after transfo
 //        parent_type::metric_reduce(Ni, NiNj, hi02, dij2);
 //
-//      E_Float hj02 = parent_type::get_h2_along_dir(Nj, NiNj); // trace on NiNj of the ellipse centered at Nj
+//      nuga_real_t hj02 = parent_type::get_h2_along_dir(Nj, NiNj); // trace on NiNj of the ellipse centered at Nj
 //      
 //      if (hj02 > dij2) //need to be reduced along that direction
 //        parent_type::metric_reduce(Nj, NiNj, hj02, dij2);
@@ -263,23 +264,23 @@ namespace DELAUNAY
   }
 
   template <typename T, typename SurfaceType>
-  void GeomMetric<T, SurfaceType>::__computeMetric(size_type N0, K_FLD::FloatArray& Mout, E_Float hmax2)
+  void GeomMetric<T, SurfaceType>::__computeMetric(size_type N0, K_FLD::FloatArray& Mout, nuga_real_t hmax2)
   {
     Mout.resize(2,2);
     Mout(0,0) = Mout(1,1) = 1./(parent_type::_hmin*parent_type::_hmin);
     Mout(0,1) = Mout(1,0) = 0.; // Iso by default.
 
-    E_Float* Q = parent_type::_pos->col(N0);
-    E_Float  u = Q[0];
-    E_Float  v = Q[1];
-    E_Float  E, F, G; // Tangential plane's first fundamental form coefficients.
-    E_Float  L, M, N; // Tangential plane's second fundamental form coefficients.
-    //E_Float  dU1[3], dU2[3], dV1[3], dV2[3], dUV[3];
-    E_Float dA[15];
-    E_Float* dU1 = dA; E_Float* dV1 = dA+3;
-    E_Float* dU2 = dA+6; E_Float* dV2 = dA+9; E_Float* dUV = dA+12;
-    E_Float n[3];
-    E_Float hmin2 = parent_type::_hmin*parent_type::_hmin;
+    nuga_real_t* Q = parent_type::_pos->col(N0);
+    nuga_real_t  u = Q[0];
+    nuga_real_t  v = Q[1];
+    nuga_real_t  E, F, G; // Tangential plane's first fundamental form coefficients.
+    nuga_real_t  L, M, N; // Tangential plane's second fundamental form coefficients.
+    //nuga_real_t  dU1[3], dU2[3], dV1[3], dV2[3], dUV[3];
+    nuga_real_t dA[15];
+    nuga_real_t* dU1 = dA; nuga_real_t* dV1 = dA+3;
+    nuga_real_t* dU2 = dA+6; nuga_real_t* dV2 = dA+9; nuga_real_t* dUV = dA+12;
+    nuga_real_t n[3];
+    nuga_real_t hmin2 = parent_type::_hmin*parent_type::_hmin;
     
     // Ask the surface.
     //_surface.DU1(u, v, dU1); // First base vector of the tangential plane.
@@ -290,7 +291,7 @@ namespace DELAUNAY
     _surface.DAUV2(u, v, dA);
     
     NUGA::crossProduct<3> (dU1, dV1, n); // Normal to the tangential plane.
-    E_Float ln = NUGA::normalize<3>(n);
+    nuga_real_t ln = NUGA::normalize<3>(n);
     
     bool singular = (fabs(ln) < EPSILON); //undefined plane : dU1 and dV2 are colinear !
 
@@ -325,8 +326,8 @@ namespace DELAUNAY
 
     if (locally_iso)
     {
-      E_Float R2 = E/L; // pourquoi cette valeur ? 
-      E_Float h2 = K_FUNC::E_min(hmax2, (2.*K_FUNC::E_abs(R2)-_chordal_error)*4.*_chordal_error); // alpha2 prend en compte hausd
+      nuga_real_t R2 = E/L; // pourquoi cette valeur ? 
+      nuga_real_t h2 = K_FUNC::E_min(hmax2, (2.*K_FUNC::E_abs(R2)-_chordal_error)*4.*_chordal_error); // alpha2 prend en compte hausd
       //printf("in: rho=%g, hmin=%g, hmax=%g\n", R2, sqrt(hmin2), sqrt(hmax2));
       h2 = K_FUNC::E_max(h2, hmin2);
       h2 = 1./h2;
@@ -350,18 +351,18 @@ namespace DELAUNAY
     M2(1,1) = N;
 
     // vecteurs propres de inv(M1) * M2
-    E_Float V1[2], V2[2];
+    nuga_real_t V1[2], V2[2];
     
     // Simultaneous reduction. NN = inv(M1) * M2
     K_LINEAR::DelaunayMath::simultaneous_reduction(M1, M2, V1, V2);
 
     // CB : gaussian curvature pour verification (K = K1*K2)
-    //E_Float K = (L*N - M*M) / (E*G - M*M);
+    //nuga_real_t K = (L*N - M*M) / (E*G - M*M);
 
     // principal curvatures
-    E_Float rho1 = (E*V1[0]*V1[0] + 2*F*V1[0]*V1[1] + G*V1[1]*V1[1]) /
+    nuga_real_t rho1 = (E*V1[0]*V1[0] + 2*F*V1[0]*V1[1] + G*V1[1]*V1[1]) /
       (L*V1[0]*V1[0] + 2*M*V1[0]*V1[1] + N*V1[1]*V1[1]);
-    E_Float rho2 = (E*V2[0]*V2[0] + 2*F*V2[0]*V2[1] + G*V2[1]*V2[1]) /
+    nuga_real_t rho2 = (E*V2[0]*V2[0] + 2*F*V2[0]*V2[1] + G*V2[1]*V2[1]) /
       (L*V2[0]*V2[0] + 2*M*V2[0]*V2[1] + N*V2[1]*V2[1]);
 
     rho1 = (rho1 < 0.) ? -rho1 : rho1; // valeur absolue
@@ -374,11 +375,11 @@ namespace DELAUNAY
     }
     // rho1, V1 est maintenant le plus petit rayon de courbure
 
-    E_Float rho1_2 = rho1 * rho1;
+    nuga_real_t rho1_2 = rho1 * rho1;
 
     if (_mode == ISO_RHO) // use min curvature in all directions + impose hmin
     {
-      E_Float h2 = K_FUNC::E_min(hmax2, (2.*K_FUNC::E_abs(rho1)-_chordal_error)*4.*_chordal_error);
+      nuga_real_t h2 = K_FUNC::E_min(hmax2, (2.*K_FUNC::E_abs(rho1)-_chordal_error)*4.*_chordal_error);
       
       h2 = K_FUNC::E_max(h2, hmin2);
       h2 = 1./h2;
@@ -391,10 +392,10 @@ namespace DELAUNAY
       {
       //assert (parent_type::isValidMetric(Mout));
       
-      const E_Float& a11 = Mout(0,0);
-      const E_Float& a12 = Mout(0,1);
-      const E_Float& a22 = Mout(1,1);
-      E_Float det = (a11*a22) - (a12*a12);
+      const nuga_real_t& a11 = Mout(0,0);
+      const nuga_real_t& a12 = Mout(0,1);
+      const nuga_real_t& a22 = Mout(1,1);
+      nuga_real_t det = (a11*a22) - (a12*a12);
       assert ((a11 > 0.) && (a22 > 0.) && (det > 0.)); //i.e. isValidMetric
       }
 #endif
@@ -402,29 +403,29 @@ namespace DELAUNAY
       return;
     }
 
-    E_Float rho2_2 = rho2 * rho2; // plus grand rayon de courbure
+    nuga_real_t rho2_2 = rho2 * rho2; // plus grand rayon de courbure
 
-    E_Float rhol = (hmax2+4.*_chordal_error*_chordal_error)/(8.*_chordal_error);
+    nuga_real_t rhol = (hmax2+4.*_chordal_error*_chordal_error)/(8.*_chordal_error);
     rho1_2 = K_FUNC::E_min(rhol*rhol, rho1_2);
     rho2_2 = K_FUNC::E_min(rhol*rhol, rho2_2);
     rhol = (hmin2+4.*_chordal_error*_chordal_error)/(8.*_chordal_error);
     rho1_2 = K_FUNC::E_max(rhol*rhol, rho1_2);
     rho2_2 = K_FUNC::E_max(rhol*rhol, rho2_2);
     
-    E_Float q = 1. - sqrt(rho1_2/rho2_2);
-    E_Float rho2_2c = rho2_2*(1.-q*q); // reduce the largest according to q
+    nuga_real_t q = 1. - sqrt(rho1_2/rho2_2);
+    nuga_real_t rho2_2c = rho2_2*(1.-q*q); // reduce the largest according to q
 
-    E_Float h1_2 = (2.*rho1-_chordal_error)*4.*_chordal_error;
-    E_Float h2_2 = (2.*sqrt(rho2_2c)-_chordal_error)*4.*_chordal_error;
+    nuga_real_t h1_2 = (2.*rho1-_chordal_error)*4.*_chordal_error;
+    nuga_real_t h2_2 = (2.*sqrt(rho2_2c)-_chordal_error)*4.*_chordal_error;
 
     // Use an interpolation for the third metric
-    //  E_Float k = 0.;
-    //  E_Float maxh = K_FUNC::E_max(h1_2, h2_2);
-    E_Float minh = K_FUNC::E_min(h1_2, h2_2);
-    E_Float h3_2 = minh;//(((1.-k)*minh) + (k * maxh));
+    //  nuga_real_t k = 0.;
+    //  nuga_real_t maxh = K_FUNC::E_max(h1_2, h2_2);
+    nuga_real_t minh = K_FUNC::E_min(h1_2, h2_2);
+    nuga_real_t h3_2 = minh;//(((1.-k)*minh) + (k * maxh));
 
     K_FLD::FloatArray Base(3,3, 0.);
-    E_Float zero = 0.;
+    nuga_real_t zero = 0.;
     Mout.resize(3,3,&zero);
 
     Base(0,0) = V1[0];
@@ -460,7 +461,7 @@ namespace DELAUNAY
   // Ni, Nj: points interpolants
   template <typename T, typename SurfaceType>
   void GeomMetric<T, SurfaceType>::computeMetric
-    (size_type N0, size_type /*dummy*/Ni, size_type /*dummy*/Nj, E_Float /*dummy*/r)
+    (size_type N0, size_type /*dummy*/Ni, size_type /*dummy*/Nj, nuga_real_t /*dummy*/r)
   {
     
     if ((E_Int)parent_type::_field.size() > N0)//fixme : work around to avoid to set more than once
@@ -498,14 +499,14 @@ namespace DELAUNAY
 
   template <typename T, typename SurfaceType>
   void
-  GeomMetric<T, SurfaceType>::__compute_1st_fundamental_form(size_type N0, E_Float& E, E_Float& F, E_Float& G)
+  GeomMetric<T, SurfaceType>::__compute_1st_fundamental_form(size_type N0, nuga_real_t& E, nuga_real_t& F, nuga_real_t& G)
   {
-    E_Float* Q = parent_type::_pos->col(N0);
-    E_Float  u = Q[0];
-    E_Float  v = Q[1];
-    //E_Float  dU1[3], dV1[3];
-    E_Float dA[6];
-    E_Float* dU1 = dA; E_Float* dV1 = dA+3;
+    nuga_real_t* Q = parent_type::_pos->col(N0);
+    nuga_real_t  u = Q[0];
+    nuga_real_t  v = Q[1];
+    //nuga_real_t  dU1[3], dV1[3];
+    nuga_real_t dA[6];
+    nuga_real_t* dU1 = dA; nuga_real_t* dV1 = dA+3;
     
     // Ask the surface.
     //_surface.DU1(u,v, dU1); // First base vector of the tangential plane.
@@ -528,7 +529,7 @@ namespace DELAUNAY
 
     K_FLD::FloatArray M1(2,2), M2(2,2), ID(2,2);
     E_Int Ni;
-    std::vector<E_Float> s(3);
+    std::vector<nuga_real_t> s(3);
     
     for (size_t i = 0; i < Bnodes.size(); ++i)
     {
@@ -557,7 +558,7 @@ namespace DELAUNAY
     if (_hmax2 == NUGA::FLOAT_MAX || _hmax2 <= 0.) return;
     
     // Diagonalization
-    E_Float lambda0, lambda1, v0[2], v1[2];
+    nuga_real_t lambda0, lambda1, v0[2], v1[2];
     K_LINEAR::DelaunayMath::eigen_vectors(parent_type::_field[Ni][0], parent_type::_field[Ni][2], parent_type::_field[Ni][1], lambda0, lambda1, v0, v1);
     K_FLD::FloatArray D(2,2, 0.);
     D(0,0) = lambda0;
@@ -574,12 +575,12 @@ namespace DELAUNAY
     tP(1,1) = P(1,1) = v1[1];
     
     
-    E_Float P0[2], P1[2];
+    nuga_real_t P0[2], P1[2];
     
-    E_Float h0 = sqrt(1./lambda0);
-    E_Float h1 = sqrt(1./lambda1);
-    //E_Float Pix = parent_type::_pos(0,Ni);
-    //E_Float Piy = parent_type::_pos(1,Ni);
+    nuga_real_t h0 = sqrt(1./lambda0);
+    nuga_real_t h1 = sqrt(1./lambda1);
+    //nuga_real_t Pix = parent_type::_pos(0,Ni);
+    //nuga_real_t Piy = parent_type::_pos(1,Ni);
 
     // P0 = Pi +/- h0*v0
     NUGA::sum<3>(1., parent_type::_pos->col(Ni), h0, v0, P0);
@@ -602,28 +603,28 @@ namespace DELAUNAY
     if (!P0_is_inside && !P1_is_inside) return; 
     
     // Transform in the real space
-    E_Float P0r[3], Pi[3], P1r[3];
+    nuga_real_t P0r[3], Pi[3], P1r[3];
     _surface.point(parent_type::_pos(0,Ni), parent_type::_pos(1,Ni), Pi); //center of the ellipse
     
-    E_Float k02 = 1.;
+    nuga_real_t k02 = 1.;
     if (P0_is_inside)
     {
       _surface.point(P0[0], P0[1], P0r);
-      E_Float dPiP02 = NUGA::sqrDistance(Pi, P0r, 3);
+      nuga_real_t dPiP02 = NUGA::sqrDistance(Pi, P0r, 3);
       k02 = dPiP02 / _hmax2;
     }
     
-    E_Float k12 = 1.;
+    nuga_real_t k12 = 1.;
     if (P1_is_inside)
     {
       _surface.point(P1[0], P1[1], P1r);
-      E_Float dPiP12 = NUGA::sqrDistance(Pi, P1r, 3);
+      nuga_real_t dPiP12 = NUGA::sqrDistance(Pi, P1r, 3);
       k12 =  dPiP12 / _hmax2;
     }
 
     if (k02 <= 1. && k12 <= 1.) return; //smaller than hmax
     
-    E_Float KMAX2 = (1. + sqrt(2.));
+    nuga_real_t KMAX2 = (1. + sqrt(2.));
     KMAX2 *= KMAX2;
         
     if (k02 > 1.1 && k02 < KMAX2) D(0,0) *= k02;

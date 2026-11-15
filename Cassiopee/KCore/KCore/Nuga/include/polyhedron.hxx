@@ -35,17 +35,17 @@ struct aPolyhedron : public K_MESH::Polyhedron<TopoShape>
   ngon_unit          m_pgs;
   std::vector<E_Int> m_faces;
   K_FLD::FloatArray  m_crd;
-  E_Float            m_Lref2;
+  nuga_real_t            m_Lref2;
   E_Int              m_oriented;
-  mutable E_Float    m_normal[3];
-  mutable E_Float    m_centroid[3];
+  mutable nuga_real_t    m_normal[3];
+  mutable nuga_real_t    m_centroid[3];
   
   aPolyhedron();
   aPolyhedron(const ngon_unit* pgs, const E_Int* faces, E_Int nb_faces, const K_FLD::FloatArray& crd); // from "mesh" to autonmous
   aPolyhedron(const parent_type& ph, const K_FLD::FloatArray& crd); // from "mesh" to autonmous
   aPolyhedron(const ngon_unit& lpgs, const K_FLD::FloatArray& crd);
 
-  aPolyhedron(const parent_type& ph, const K_FLD::FloatArray& crd, E_Float L2r);
+  aPolyhedron(const parent_type& ph, const K_FLD::FloatArray& crd, nuga_real_t L2r);
  
   aPolyhedron(const aPolyhedron& r);
 
@@ -65,10 +65,10 @@ struct aPolyhedron : public K_MESH::Polyhedron<TopoShape>
   void clear() {m_pgs.clear(); m_faces.clear(); m_crd.clear();}
   bool empty() { return m_faces.empty(); }
   
-  template<typename TriangulatorType> E_Int volume(E_Float& v, bool need_reorient) const;
+  template<typename TriangulatorType> E_Int volume(nuga_real_t& v, bool need_reorient) const;
   
-  E_Float extent() const; //wrapper to volume, to be generic surf/vol
-  E_Float metrics() ; //same as extent : no normal computation as in surfacic
+  nuga_real_t extent() const; //wrapper to volume, to be generic surf/vol
+  nuga_real_t metrics() ; //same as extent : no normal computation as in surfacic
 
   using parent_type::triangulate; //to make it visible (!!)
   using parent_type::Lref2;       //to make it visible (!!)
@@ -78,11 +78,11 @@ struct aPolyhedron : public K_MESH::Polyhedron<TopoShape>
 
   E_Int cvx_triangulate(const K_FLD::FloatArray& dummy) const;
 
-  const E_Float* get_centroid() const; // WARNING : currently implemented as iso_bary
+  const nuga_real_t* get_centroid() const; // WARNING : currently implemented as iso_bary
 
-  E_Float Lref2() const { return (m_Lref2 > 0. && m_Lref2 != NUGA::FLOAT_MAX) ? m_Lref2 : parent_type::Lref2(m_crd); } // if passed by mesh_t, return it, otherwise compute it first
+  nuga_real_t Lref2() const { return (m_Lref2 > 0. && m_Lref2 != NUGA::FLOAT_MAX) ? m_Lref2 : parent_type::Lref2(m_crd); } // if passed by mesh_t, return it, otherwise compute it first
 
-  bool join(E_Float TOL, std::vector<E_Int>& lnids);
+  bool join(nuga_real_t TOL, std::vector<E_Int>& lnids);
 
   void plug() { parent_type::_pgs = &m_pgs; parent_type::_faces = &m_faces[0]; parent_type::_nb_faces = m_faces.size(); }
 };
@@ -129,7 +129,7 @@ aPolyhedron<TopoShape>::aPolyhedron(const ngon_unit& lpgs, const K_FLD::FloatArr
 
 ///
 template <int TopoShape>
-aPolyhedron<TopoShape>::aPolyhedron(const parent_type& ph, const K_FLD::FloatArray& crd, E_Float L2r) :aPolyhedron(ph, crd)
+aPolyhedron<TopoShape>::aPolyhedron(const parent_type& ph, const K_FLD::FloatArray& crd, nuga_real_t L2r) :aPolyhedron(ph, crd)
 {
   m_Lref2 = L2r;
   m_oriented = 0;
@@ -266,7 +266,7 @@ void aPolyhedron<TopoShape>::reorient(bool outward)
     }
   }
 
-  E_Float v;
+  nuga_real_t v;
   volume<DELAUNAY::Triangulator>(v, false);
 
   bool need_reverse = (v < 0. && outward) || (v > 0. && !outward);
@@ -292,17 +292,17 @@ E_Int aPolyhedron<TopoShape>::cvx_triangulate(const K_FLD::FloatArray& dummy) co
 
 
 template <int TopoShape>
-const E_Float* aPolyhedron<TopoShape>::get_centroid() const 
+const nuga_real_t* aPolyhedron<TopoShape>::get_centroid() const 
 { 
   if (m_centroid[0] == NUGA::FLOAT_MAX)
   {
     for (size_t d = 0; d < 3; ++d) m_centroid[d] = 0.;
     for (E_Int i = 0; i < m_crd.cols(); ++i)
     {
-      const E_Float* p = m_crd.col(i);
+      const nuga_real_t* p = m_crd.col(i);
       for (size_t d = 0; d < 3; ++d) m_centroid[d] += p[d];
     }
-    E_Float k = 1. / (E_Float)m_crd.cols();
+    nuga_real_t k = 1. / (nuga_real_t)m_crd.cols();
     for (size_t i = 0; i < 3; ++i) m_centroid[i] *= k;
   }
   return m_centroid;
@@ -310,27 +310,27 @@ const E_Float* aPolyhedron<TopoShape>::get_centroid() const
 
 template <int TopoShape>
 template<typename TriangulatorType>
-E_Int aPolyhedron<TopoShape>::volume(E_Float& v, bool need_reorient) const
+E_Int aPolyhedron<TopoShape>::volume(nuga_real_t& v, bool need_reorient) const
 {
   return parent_type::template volume<TriangulatorType>(m_crd, v, need_reorient);
 }
 
 template <int TopoShape>
-E_Float aPolyhedron<TopoShape>::extent() const
+nuga_real_t aPolyhedron<TopoShape>::extent() const
 {
-  E_Float v(0.);
+  nuga_real_t v(0.);
   volume<DELAUNAY::Triangulator>(v, true/*reorient*/);//fixme : avoid systematic reorient
   return fabs(v);
 }
 
 template <int TopoShape>
-E_Float aPolyhedron<TopoShape>::metrics()
+nuga_real_t aPolyhedron<TopoShape>::metrics()
 {
   return extent();
 }
 
 template <int TopoShape>
-bool aPolyhedron<TopoShape>::join(E_Float TOL, std::vector<E_Int>& lnids)
+bool aPolyhedron<TopoShape>::join(nuga_real_t TOL, std::vector<E_Int>& lnids)
 {
   bool has_join{ false };
   lnids.clear();
@@ -339,10 +339,10 @@ bool aPolyhedron<TopoShape>::join(E_Float TOL, std::vector<E_Int>& lnids)
   using acrd_t = K_FLD::ArrayAccessor<K_FLD::FloatArray> ;
   acrd_t acrd(m_crd);
   K_SEARCH::KdTree<> kdt(acrd);
-  E_Float TOL2{0.1*Lref2()};
+  nuga_real_t TOL2{0.1*Lref2()};
   for (E_Int n = 0; n < m_crd.cols(); ++n)
   {
-    E_Float dij2{ TOL };
+    nuga_real_t dij2{ TOL };
     E_Int Nj = kdt.getClosest(n, dij2);
     if ((Nj != IDX_NONE) && (dij2 < TOL2)) 
     {

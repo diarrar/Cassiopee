@@ -38,14 +38,14 @@ void
 MeshUtils1D::compute_iso_metric
 (const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect,
  const std::vector<E_Int>& hard_nodes,
- std::vector<E_Float>& metric, E_Float& hmin, E_Float& hmax)
+ std::vector<nuga_real_t>& metric, nuga_real_t& hmin, nuga_real_t& hmax)
 {
   /// Compute the metric at connect nodes and assign the mean to other hard nodes.
   std::vector<E_Int> nodes;
   std::vector<E_Int> count;
   K_FLD::IntArray::const_iterator pS;
   E_Int Ni, Nj, DIM(pos.rows()), NBOUND(connect.cols()), bnods;
-  E_Float L;
+  nuga_real_t L;
 
   hmin = NUGA::FLOAT_MAX;
   hmax = -hmin;
@@ -85,7 +85,7 @@ MeshUtils1D::compute_iso_metric
   //hmax = *std::max_element(ALL(metric));
 
   // Fixme : set the mean value at hard nodes that are not boundary nodes.
-  E_Float hmean = 0.5*(hmin+hmax);
+  nuga_real_t hmean = 0.5*(hmin+hmax);
   for (size_t i = 0; i < metric.size(); ++i)
     metric[i] = (metric[i] == 0. ) ? hmean : metric[i];
 

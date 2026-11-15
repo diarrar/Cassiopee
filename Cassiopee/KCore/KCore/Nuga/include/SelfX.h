@@ -1,3 +1,4 @@
+#include "Nuga/include/defs.h"
 /*    
     Copyright 2013-2026 ONERA.
 
@@ -55,7 +56,7 @@ inline bool getBoundary(const E_Int* t0, const E_Int* t1, E_Int& i, E_Int& j)
 ///
 template <short DIM>
 bool __fast_discard
-(const K_FLD::FloatArray& pos, const E_Int* t0, const E_Int* t1, E_Float tol)
+(const K_FLD::FloatArray& pos, const E_Int* t0, const E_Int* t1, nuga_real_t tol)
 {
   const E_Int& T0 = *t0;
   const E_Int& T1 = *(t0+1);
@@ -63,22 +64,22 @@ bool __fast_discard
   const E_Int& p0 = *t1;
   const E_Int& p1 = *(t1+1);
   const E_Int& p2 = *(t1+2);
-  const E_Float* Q0 = pos.col(T0);
-  const E_Float* Q1 = pos.col(T1);
-  const E_Float* Q2 = pos.col(T2);
-  const E_Float* P0 = pos.col(p0);
-  const E_Float* P1 = pos.col(p1);
-  const E_Float* P2 = pos.col(p2);
+  const nuga_real_t* Q0 = pos.col(T0);
+  const nuga_real_t* Q1 = pos.col(T1);
+  const nuga_real_t* Q2 = pos.col(T2);
+  const nuga_real_t* P0 = pos.col(p0);
+  const nuga_real_t* P1 = pos.col(p1);
+  const nuga_real_t* P2 = pos.col(p2);
   
   // 1. Check if points are on the same side of the t's plane
-  E_Float _U1[DIM],_U2[DIM], _U3[DIM];
+  nuga_real_t _U1[DIM],_U2[DIM], _U3[DIM];
   NUGA::diff<DIM>(P1, P0, _U1);
   NUGA::diff<DIM>(P2, P0, _U2);
   NUGA::crossProduct<DIM>(_U1,_U2,_U3);
   NUGA::normalize<DIM>(_U3);
         
   bool is_far[] = {false,false, false};
-  E_Float h0(0.), h1(0.), h2(0.);
+  nuga_real_t h0(0.), h1(0.), h2(0.);
   NUGA::diff<DIM>(Q0, P0, _U1);
   h0 = NUGA::dot<DIM>(_U3, _U1);
   is_far[0] = (h0 >= tol) || (h0 <= -tol);
@@ -129,7 +130,7 @@ bool __fast_discard
       E_Int i,j;    
       if (getBoundary(t0,t1, i,j)) //true if an edge is shared and therefore i,j are valued
       {
-        E_Float shE[3], U[3], n0[3], n1[3];
+        nuga_real_t shE[3], U[3], n0[3], n1[3];
         E_Int n0op = *(t0+(i+2)%3);
         E_Int n1op = *(t1+(j+2)%3);
         
@@ -153,10 +154,10 @@ bool __fast_discard
 ///
 template <short DIM>
 E_Bool __intersect
-(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, E_Int t, E_Int e0, E_Int e1, E_Float tol, E_Bool& coplanar)
+(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, E_Int t, E_Int e0, E_Int e1, nuga_real_t tol, E_Bool& coplanar)
 {
   
-  E_Float u0[2], E[DIM], eps(/*100.*EPSILON*/tol);
+  nuga_real_t u0[2], E[DIM], eps(/*100.*EPSILON*/tol);
   E_Bool  overlap, intersect;
   E_Int tx[2];  
   K_FLD::IntArray::const_iterator pS = connect.col(t);
@@ -217,7 +218,7 @@ E_Bool __intersect
 ///
 template <short DIM>
 E_Int intersect_from_Conformizer_wo_trace
-(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, E_Int t1, E_Int t2, E_Float tol)
+(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, E_Int t1, E_Int t2, nuga_real_t tol)
 {
   E_Int  i, r(0);
   E_Int ret(0);
@@ -228,12 +229,12 @@ E_Int intersect_from_Conformizer_wo_trace
 //  }
   
 //  //////////////////////////////////////////////////////////////////////////////////
-//  const E_Float* P1 = pos.col(connect(0,t1.Si));
-//  const E_Float* Q1 = pos.col(connect(1,t1.Si)); 
-//  const E_Float* R1 = pos.col(connect(2,t1.Si));
-//  const E_Float* P2 = pos.col(connect(0,t2.Si));
-//  const E_Float* Q2 = pos.col(connect(1,t2.Si));
-//  const E_Float* R2 = pos.col(connect(2,t2.Si));
+//  const nuga_real_t* P1 = pos.col(connect(0,t1.Si));
+//  const nuga_real_t* Q1 = pos.col(connect(1,t1.Si)); 
+//  const nuga_real_t* R1 = pos.col(connect(2,t1.Si));
+//  const nuga_real_t* P2 = pos.col(connect(0,t2.Si));
+//  const nuga_real_t* Q2 = pos.col(connect(1,t2.Si));
+//  const nuga_real_t* R2 = pos.col(connect(2,t2.Si));
 //  
 //  if (!K_MESH::Triangle::fast_intersectT3<3>(P1, Q1, R1, P2, Q2, R2))
 //  {
@@ -412,13 +413,13 @@ void selfX(const K_FLD::FloatArray& crd, const ngon_t<cnt_t>& ng, std::vector<E_
               E_Int I = pgi_T3s[i1];
               E_Int J = pgj_T3s[i2];
           
-              const E_Float* P1 = crd.col(cntT3(0,I));
-              const E_Float* P2 = crd.col(cntT3(1,I));
-              const E_Float* P3 = crd.col(cntT3(2,I));
+              const nuga_real_t* P1 = crd.col(cntT3(0,I));
+              const nuga_real_t* P2 = crd.col(cntT3(1,I));
+              const nuga_real_t* P3 = crd.col(cntT3(2,I));
           
-              const E_Float* Q1 = crd.col(cntT3(0,J));
-              const E_Float* Q2 = crd.col(cntT3(1,J));
-              const E_Float* Q3 = crd.col(cntT3(2,J));
+              const nuga_real_t* Q1 = crd.col(cntT3(0,J));
+              const nuga_real_t* Q2 = crd.col(cntT3(1,J));
+              const nuga_real_t* Q3 = crd.col(cntT3(2,J));
           
               is_x = K_MESH::Triangle::fast_intersectT3<3>(P1, P2, P3, Q1, Q2, Q3, EPSILON/*dummy tol*/);
               if (is_x)
@@ -457,9 +458,9 @@ void selfX(const K_FLD::FloatArray& crd, const ngon_t<cnt_t>& ng, std::vector<E_
   delete [] pool;
 }
 
-typedef E_Int(*xfunc)(const K_FLD::FloatArray& crd, const K_FLD::IntArray &cT3, E_Int i, E_Int j, E_Float TOL);
+typedef E_Int(*xfunc)(const K_FLD::FloatArray& crd, const K_FLD::IntArray &cT3, E_Int i, E_Int j, nuga_real_t TOL);
 
-static bool T3intersect(xfunc func, const K_FLD::FloatArray& crd, const K_FLD::IntArray &cT3, E_Float TOL, const E_Int* first_t31, E_Int nb_t31, const E_Int* first_t32, E_Int nb_t32)
+static bool T3intersect(xfunc func, const K_FLD::FloatArray& crd, const K_FLD::IntArray &cT3, nuga_real_t TOL, const E_Int* first_t31, E_Int nb_t31, const E_Int* first_t32, E_Int nb_t32)
 {
   //
   for (E_Int i = 0; i < nb_t31; ++i)
@@ -480,7 +481,7 @@ static E_Int PGintersect( xfunc func,
   K_FLD::IntArray& cT3, E_Int* xT31, E_Int* nb_T31, E_Int* xT32, E_Int* nb_T32, 
   bool &is_x)
 {
-  E_Float TOL = EPSILON;
+  nuga_real_t TOL = EPSILON;
 
   is_x = false;
 

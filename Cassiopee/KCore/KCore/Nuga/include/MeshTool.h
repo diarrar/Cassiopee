@@ -54,13 +54,13 @@ class MeshTool
   public:
 
     ///
-    MeshTool(const tree_type& tree, E_Float tolerance = EPSILON);
+    MeshTool(const tree_type& tree, nuga_real_t tolerance = EPSILON);
 
     //
     MeshTool();
 
     ///
-    void set(const tree_type& tree, E_Float tolerance = EPSILON);
+    void set(const tree_type& tree, nuga_real_t tolerance = EPSILON);
     void clear();
     ///
     ~MeshTool(void);
@@ -68,7 +68,7 @@ class MeshTool
     /// Returns the elements containing the input point.
     template <typename OutputIterator>
     E_Int getContainingElements
-      (const E_Float* point, const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect,
+      (const nuga_real_t* point, const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect,
        const K_FLD::IntArray& neighbors, const int_vector_type& ancestors, const bool_vector_type& mask, 
        const tree_type& tree, OutputIterator out, size_type & N0) const;
 
@@ -130,7 +130,7 @@ class MeshTool
 
     ///
     template <E_Int DIM>
-    static void computeMinMaxEdgeSqrLength(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, E_Float& min_d, E_Float& max_d);
+    static void computeMinMaxEdgeSqrLength(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, nuga_real_t& min_d, nuga_real_t& max_d);
 
     /// L stores the min, and the max incident edge's length for each node (column-wise). The first row is for mins.
     template <typename cnt_t>
@@ -141,20 +141,20 @@ class MeshTool
 
     /// compute mimimal nodal distance bases on faces
     template <typename arr_t, typename cnt_t>
-    static void computeNodalDistance2(const arr_t& crd, const ngon_unit& cnt, std::vector<E_Float> & Lmin2);
+    static void computeNodalDistance2(const arr_t& crd, const ngon_unit& cnt, std::vector<nuga_real_t> & Lmin2);
     
     static void computeMinMaxIndices (const K_FLD::IntArray& connect, E_Int& min_i, E_Int& max_i);
 
     ///
     static void boundingBox (const K_FLD::FloatArray& pos, const K_FLD::IntArray& connectE2, 
-                             E_Float* minB, E_Float* maxB);
+                             nuga_real_t* minB, nuga_real_t* maxB);
     ///
     static void boundingBox (const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, 
                              E_Int* minB, E_Int* maxB);
 
     static void flipT3(K_FLD::IntArray& connectT3);
 
-    static void metricAnisoE22D(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connectE2, E_Float kn, K_FLD::FloatArray& metric);
+    static void metricAnisoE22D(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connectE2, nuga_real_t kn, K_FLD::FloatArray& metric);
     ///
     static bool detectDuplicated(const K_FLD::IntArray& connect, std::vector<E_Int>& dupIds, bool strict_orient = true);
     ///
@@ -167,25 +167,25 @@ class MeshTool
     /** accessors*/
     inline const tree_type& getTree() const {return *_tree;} 
 
-    inline E_Float getTolerance() const { return _tolerance;}
+    inline nuga_real_t getTolerance() const { return _tolerance;}
 
-    static E_Int aggregate_convex(const K_FLD::FloatArray&crd, const K_FLD::IntArray& connectT3, const E_Float* normal, ngon_unit& agg_pgs, E_Float convexity_tol = CONVEXITY_TOL);
+    static E_Int aggregate_convex(const K_FLD::FloatArray&crd, const K_FLD::IntArray& connectT3, const nuga_real_t* normal, ngon_unit& agg_pgs, nuga_real_t convexity_tol = CONVEXITY_TOL);
 
     static E_Int get_polygonal_boundary
       (const K_FLD::IntArray& cT3, const std::vector<E_Int>& ids, std::deque<E_Int>& PGi,
       std::set<K_MESH::Edge>& w_oe_set, std::map<E_Int, E_Int>& w_n_map);
-    static E_Int starify_from_node(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, E_Int istar, K_FLD::IntArray& connectT3, K_FLD::IntArray& neighbors, const E_Float* normal, E_Float convexity_tol);
+    static E_Int starify_from_node(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, E_Int istar, K_FLD::IntArray& connectT3, K_FLD::IntArray& neighbors, const nuga_real_t* normal, nuga_real_t convexity_tol);
     
     static E_Int cut_mesh_convex_line
-      (const K_FLD::FloatArray& crd, const K_FLD::IntArray& connectT3, const E_Float* normal, const K_FLD::IntArray& connectB,
+      (const K_FLD::FloatArray& crd, const K_FLD::IntArray& connectT3, const nuga_real_t* normal, const K_FLD::IntArray& connectB,
       E_Int K0, E_Int n0, K_FLD::IntArray& neighbors,
       K_FLD::IntArray& connectT31, K_FLD::IntArray& connectT32);
 
-    static E_Int get_edges_lying_on_plane(const K_FLD::FloatArray& crd, E_Int index_start, const std::set<K_MESH::NO_Edge>& edges, E_Int Np, const E_Float* normal, E_Float tol_rel, std::set<K_MESH::NO_Edge>& lyingEs);
+    static E_Int get_edges_lying_on_plane(const K_FLD::FloatArray& crd, E_Int index_start, const std::set<K_MESH::NO_Edge>& edges, E_Int Np, const nuga_real_t* normal, nuga_real_t tol_rel, std::set<K_MESH::NO_Edge>& lyingEs);
     static void burn_free_branches(std::set<K_MESH::NO_Edge>& edges, std::map<E_Int, E_Int>& node_to_count);
     static void burn_free_branches(K_FLD::IntArray& cntE2, std::map<E_Int, E_Int>& node_to_count, std::vector<bool> & keep);
     
-    static E_Float get_max_deviation (const K_FLD::FloatArray& crd, const K_FLD::IntArray& cT3, const K_FLD::IntArray& neighT3);
+    static nuga_real_t get_max_deviation (const K_FLD::FloatArray& crd, const K_FLD::IntArray& cT3, const K_FLD::IntArray& neighT3);
     
     template <typename Triangulator>
   static void refine_T3s(const K_FLD::FloatArray& coord, K_FLD::IntArray& connectT3, 
@@ -194,21 +194,21 @@ class MeshTool
     static inline void append_all_topo_paths (const K_FLD::FloatArray& crd, E_Int Nstart, E_Int Nend, const id_to_ids_t& nodes_graph, idlists_t& paths);
     
     template <typename IntCONT>
-    static inline void get_farthest_point_to_edge (const K_FLD::FloatArray& crd, E_Int Ni, E_Int Nj, const IntCONT& list, E_Int& Nf, E_Float& d2);
+    static inline void get_farthest_point_to_edge (const K_FLD::FloatArray& crd, E_Int Ni, E_Int Nj, const IntCONT& list, E_Int& Nf, nuga_real_t& d2);
     
-    static void extrude_line (K_FLD::FloatArray& crd, const K_FLD::IntArray& cntE, const E_Float* dir, E_Float H, K_FLD::IntArray& cntQ4);
-    static E_Int computeNodeRadiusAndAngles(K_FLD::FloatArray& coord, const ngon_unit& pgs, E_Float x0, E_Float y0, 
-                                            std::vector<E_Float>& radius, std::vector<E_Float>& angles);
+    static void extrude_line (K_FLD::FloatArray& crd, const K_FLD::IntArray& cntE, const nuga_real_t* dir, nuga_real_t H, K_FLD::IntArray& cntQ4);
+    static E_Int computeNodeRadiusAndAngles(K_FLD::FloatArray& coord, const ngon_unit& pgs, nuga_real_t x0, nuga_real_t y0, 
+                                            std::vector<nuga_real_t>& radius, std::vector<nuga_real_t>& angles);
 
     template <typename IntCont, short DIM>
-    static void reorder_nodes_on_edge(const K_FLD::FloatArray& pos, IntCont& nodes, E_Int idx_start, std::vector<std::pair<E_Float, E_Int> >& sorter);
+    static void reorder_nodes_on_edge(const K_FLD::FloatArray& pos, IntCont& nodes, E_Int idx_start, std::vector<std::pair<nuga_real_t, E_Int> >& sorter);
 
 private:
 
-  E_Int __getContainingElement(const E_Float* point, const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect,
+  E_Int __getContainingElement(const nuga_real_t* point, const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect,
                                const K_FLD::IntArray& neighbors, const bool_vector_type& mask, size_type Kseed = IDX_NONE) const;
 
-  E_Int __searchDirection(size_type K, const E_Float* point, const K_FLD::FloatArray& pos,
+  E_Int __searchDirection(size_type K, const nuga_real_t* point, const K_FLD::FloatArray& pos,
                           const K_FLD::IntArray& connect, E_Bool random) const;
 
   ///
@@ -222,7 +222,7 @@ private:
 private:
 
   const tree_type*                  _tree;
-  E_Float                           _tolerance;
+  nuga_real_t                           _tolerance;
   mutable std::deque<size_type>     _pool;
   mutable NUGA::random              _random;
 public://fixme
@@ -237,7 +237,7 @@ void MeshTool::computeIncidentEdgesSqrLengths<K_FLD::IntArray>
 {
   E_Int                           DIM(3), COLS(connect.cols()), NB_NODES(connect.rows());
   K_FLD::IntArray::const_iterator pS;
-  E_Float                         min(-NUGA::FLOAT_MAX), max(NUGA::FLOAT_MAX);
+  nuga_real_t                         min(-NUGA::FLOAT_MAX), max(NUGA::FLOAT_MAX);
 
   E_Int seg = (NB_NODES > 2) ? NB_NODES : 1; 
 
@@ -252,7 +252,7 @@ void MeshTool::computeIncidentEdgesSqrLengths<K_FLD::IntArray>
     {
       E_Int Ni = *(pS+n);
       E_Int Nj = *(pS+(n+1)%NB_NODES);
-      E_Float l = NUGA::sqrDistance(pos.col(Ni), pos.col(Nj), DIM);
+      nuga_real_t l = NUGA::sqrDistance(pos.col(Ni), pos.col(Nj), DIM);
       
       // update Ni.
       min = L(0, Ni);
@@ -275,7 +275,7 @@ void MeshTool::computeIncidentEdgesSqrLengths<ngon_unit>
 {
   E_Int nb_pgs(cnt.size());
   short DIM(3);
-  E_Float min(-NUGA::FLOAT_MAX), max(NUGA::FLOAT_MAX);
+  nuga_real_t min(-NUGA::FLOAT_MAX), max(NUGA::FLOAT_MAX);
   
   L.clear();
   
@@ -295,7 +295,7 @@ void MeshTool::computeIncidentEdgesSqrLengths<ngon_unit>
     {
       E_Int Ni = *(nodes + n) - 1;
       E_Int Nj = *(nodes + (n+1) % nb_nodes) - 1;
-      E_Float l = NUGA::sqrDistance(crd.col(Ni), crd.col(Nj), DIM);
+      nuga_real_t l = NUGA::sqrDistance(crd.col(Ni), crd.col(Nj), DIM);
       
       // update Ni.
       min = L(0, Ni);
@@ -314,10 +314,10 @@ void MeshTool::computeIncidentEdgesSqrLengths<ngon_unit>
 ///
 template <> inline
 void MeshTool::computeNodalDistance2<K_FLD::FloatArray,ngon_unit>
-(const K_FLD::FloatArray& crd, const ngon_unit& cnt, std::vector<E_Float> & Lmin2)
+(const K_FLD::FloatArray& crd, const ngon_unit& cnt, std::vector<nuga_real_t> & Lmin2)
 {
   E_Int DIM(3), nb_pgs(cnt.size());
-  //E_Float min(-NUGA::FLOAT_MAX), max(NUGA::FLOAT_MAX);
+  //nuga_real_t min(-NUGA::FLOAT_MAX), max(NUGA::FLOAT_MAX);
 
   Lmin2.clear();
 
@@ -336,7 +336,7 @@ void MeshTool::computeNodalDistance2<K_FLD::FloatArray,ngon_unit>
       E_Int Ni = *(nodes + n) - 1;
       E_Int Nj = *(nodes + (n + 1) % nb_nodes) - 1;
 
-      E_Float l = NUGA::sqrDistance(crd.col(Ni), crd.col(Nj), DIM);
+      nuga_real_t l = NUGA::sqrDistance(crd.col(Ni), crd.col(Nj), DIM);
 
       Lmin2[Ni] = (l < Lmin2[Ni]) ? l : Lmin2[Ni];
       Lmin2[Nj] = (l < Lmin2[Nj]) ? l : Lmin2[Nj];
@@ -365,7 +365,7 @@ void MeshTool::computeIncidentEdgesSqrLengths<K_FLD::FldArrayF, ngon_unit>
 )
 {
   E_Int DIM(3), nb_pgs(cnt.size());
-  E_Float min(-NUGA::FLOAT_MAX), max(NUGA::FLOAT_MAX);
+  nuga_real_t min(-NUGA::FLOAT_MAX), max(NUGA::FLOAT_MAX);
   
   L.clear();
   
@@ -376,7 +376,7 @@ void MeshTool::computeIncidentEdgesSqrLengths<K_FLD::FldArrayF, ngon_unit>
   L.resize(1, idmaxp1, NUGA::FLOAT_MAX);  //mins
   L.resize(2, idmaxp1, -NUGA::FLOAT_MAX); // maxs
 
-  E_Float pi[3], pj[3];
+  nuga_real_t pi[3], pj[3];
   
   for (E_Int i = 0; i < nb_pgs; ++i)
   {
@@ -391,7 +391,7 @@ void MeshTool::computeIncidentEdgesSqrLengths<K_FLD::FldArrayF, ngon_unit>
       acrd.getEntry(Ni, pi);
       acrd.getEntry(Nj, pj);
 
-      E_Float l = NUGA::sqrDistance(pi, pj, DIM);
+      nuga_real_t l = NUGA::sqrDistance(pi, pj, DIM);
 
       // update Ni.
       min = L(0, Ni);
@@ -410,7 +410,7 @@ void MeshTool::computeIncidentEdgesSqrLengths<K_FLD::FldArrayF, ngon_unit>
 ///
 template <> inline
 void MeshTool::computeNodalDistance2<K_FLD::ArrayAccessor<K_FLD::FldArrayF>,ngon_unit>
-(const K_FLD::ArrayAccessor<K_FLD::FldArrayF>& acrd, const ngon_unit& cnt, std::vector<E_Float> & Lmin2)
+(const K_FLD::ArrayAccessor<K_FLD::FldArrayF>& acrd, const ngon_unit& cnt, std::vector<nuga_real_t> & Lmin2)
 {
 
   E_Int DIM(3), nb_pgs(cnt.size());
@@ -422,7 +422,7 @@ void MeshTool::computeNodalDistance2<K_FLD::ArrayAccessor<K_FLD::FldArrayF>,ngon
   E_Int idmaxp1 = cnt.get_facets_max_id();
   Lmin2.resize(idmaxp1, NUGA::FLOAT_MAX);
 
-  E_Float pi[3], pj[3], pk[3];
+  nuga_real_t pi[3], pj[3], pk[3];
 
   for (E_Int i = 0; i < nb_pgs; ++i)
   {
@@ -437,7 +437,7 @@ void MeshTool::computeNodalDistance2<K_FLD::ArrayAccessor<K_FLD::FldArrayF>,ngon
       acrd.getEntry(Ni, pi);
       acrd.getEntry(Nj, pj);
 
-      E_Float l = NUGA::sqrDistance(pi, pj, DIM);
+      nuga_real_t l = NUGA::sqrDistance(pi, pj, DIM);
 
       Lmin2[Ni] = (l < Lmin2[Ni]) ? l : Lmin2[Ni];
       Lmin2[Nj] = (l < Lmin2[Nj]) ? l : Lmin2[Nj];

@@ -32,9 +32,9 @@ struct aPolygon : public K_MESH::Polygon
   std::vector<E_Int> m_nodes;
   K_FLD::FloatArray  m_crd;
   std::vector<long>  m_poids;
-  E_Float            m_Lref2;
-  mutable E_Float    m_normal[3];
-  mutable E_Float    m_centroid[3];
+  nuga_real_t            m_Lref2;
+  mutable nuga_real_t    m_normal[3];
+  mutable nuga_real_t    m_centroid[3];
     
   aPolygon():parent_type(nullptr, 0)
   {
@@ -98,7 +98,7 @@ struct aPolygon : public K_MESH::Polygon
     m_normal[0] = m_centroid[0] = NUGA::FLOAT_MAX;
   }
   
-  aPolygon(const parent_type& pg, const K_FLD::FloatArray& crd, E_Float L2r) :aPolygon(pg, crd) { m_Lref2 = L2r; m_normal[0] = m_centroid[0] = NUGA::FLOAT_MAX; }
+  aPolygon(const parent_type& pg, const K_FLD::FloatArray& crd, nuga_real_t L2r) :aPolygon(pg, crd) { m_Lref2 = L2r; m_normal[0] = m_centroid[0] = NUGA::FLOAT_MAX; }
 
   aPolygon(K_FLD::FloatArray && crd):parent_type(nullptr, 0), m_crd(std::move(crd))
   {
@@ -234,14 +234,14 @@ struct aPolygon : public K_MESH::Polygon
     }
 
     // check for vertices coincidence
-    const E_Float* pt0 = m_crd.col(0);
+    const nuga_real_t* pt0 = m_crd.col(0);
     E_Int n0 = IDX_NONE;
-    E_Float dmin2 = NUGA::FLOAT_MAX;
+    nuga_real_t dmin2 = NUGA::FLOAT_MAX;
     for (E_Int n = 0; n < nnodes; ++n)
     {
-      const E_Float* rptn = rhs.m_crd.col(n);
+      const nuga_real_t* rptn = rhs.m_crd.col(n);
 
-      E_Float d2 = (pt0[0] - rptn[0])*(pt0[0] - rptn[0]) + (pt0[1] - rptn[1])*(pt0[1] - rptn[1]) + (pt0[2] - rptn[2])*(pt0[2] - rptn[2]);
+      nuga_real_t d2 = (pt0[0] - rptn[0])*(pt0[0] - rptn[0]) + (pt0[1] - rptn[1])*(pt0[1] - rptn[1]) + (pt0[2] - rptn[2])*(pt0[2] - rptn[2]);
       if (d2 < dmin2)
       {
         n0 = n;
@@ -253,10 +253,10 @@ struct aPolygon : public K_MESH::Polygon
 
     for (E_Int n = 1; n < nnodes; ++n)
     {
-      const E_Float* pt  = m_crd.col(n);
-      const E_Float* rpt = rhs.m_crd.col((n0 + n) % nnodes);
+      const nuga_real_t* pt  = m_crd.col(n);
+      const nuga_real_t* rpt = rhs.m_crd.col((n0 + n) % nnodes);
 
-      E_Float d2 = (pt[0] - rpt[0])*(pt[0] - rpt[0]) + (pt[1] - rpt[1])*(pt[1] - rpt[1]) + (pt[2] - rpt[2])*(pt[2] - rpt[2]);
+      nuga_real_t d2 = (pt[0] - rpt[0])*(pt[0] - rpt[0]) + (pt[1] - rpt[1])*(pt[1] - rpt[1]) + (pt[2] - rpt[2])*(pt[2] - rpt[2]);
       if (d2 > EPSILON*EPSILON) return false;
     }
 
@@ -275,12 +275,12 @@ struct aPolygon : public K_MESH::Polygon
     }
   }
   
-  template <short DIM> void normal(E_Float* norm) const 
+  template <short DIM> void normal(nuga_real_t* norm) const 
   {
     parent_type::normal<K_FLD::FloatArray, DIM>(m_crd, norm);
   }
 
-  template <short DIM> void centroid(E_Float* G) const
+  template <short DIM> void centroid(nuga_real_t* G) const
   {
     parent_type::centroid<DIM>(m_crd, _nodes, _nb_nodes, 0, G);
   }
@@ -291,32 +291,32 @@ struct aPolygon : public K_MESH::Polygon
     return parent_type::triangulate(dt, m_crd);
   }
 
-  E_Float extent() const
+  nuga_real_t extent() const
   {
     return parent_type::surface<K_FLD::FloatArray, 3>(m_crd, parent_type::_nodes, parent_type::_nb_nodes, parent_type::_shift);
   }
 
-  E_Float metrics() const
+  nuga_real_t metrics() const
   {
     normal<3>(m_normal);
     return extent();
   }
 
-  const E_Float* get_normal() const 
+  const nuga_real_t* get_normal() const 
   { 
     if (m_normal[0] == NUGA::FLOAT_MAX)
       normal<3>(m_normal);
     return m_normal;
   }
 
-  const E_Float* get_centroid() const 
+  const nuga_real_t* get_centroid() const 
   {
     if (m_centroid[0] == NUGA::FLOAT_MAX)
       parent_type::centroid<3>(m_crd, parent_type::_nodes, parent_type::_nb_nodes, parent_type::_shift, m_centroid);
     return m_centroid;
   }
 
-  E_Float Lref2() const { return (m_Lref2 > 0.) ? m_Lref2 : parent_type::Lref2(m_crd);} // if passed by mesh_t, return it, otherwise compute it first
+  nuga_real_t Lref2() const { return (m_Lref2 > 0.) ? m_Lref2 : parent_type::Lref2(m_crd);} // if passed by mesh_t, return it, otherwise compute it first
 };
 
 }

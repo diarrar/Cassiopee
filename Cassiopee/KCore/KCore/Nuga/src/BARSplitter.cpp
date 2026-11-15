@@ -32,7 +32,7 @@ void BARSplitter::split(const K_FLD::FloatArray& pos, E_Int dim,
                         const K_FLD::IntArray& BAR, 
                         E_Int N0, E_Int N1,
                         std::vector<K_FLD::IntArray>& connectBout, 
-                        E_Bool enclose, E_Float tolerance)
+                        E_Bool enclose, nuga_real_t tolerance)
 {
   connectBout.clear();
 
@@ -53,7 +53,7 @@ void BARSplitter::split(
   const K_FLD::IntArray& connectBin, E_Int N0, E_Int N1,
   std::vector<K_FLD::FloatArray> & posOut, 
   std::vector<K_FLD::IntArray> & connectBout,
-  E_Bool enclose, E_Float tolerance)
+  E_Bool enclose, nuga_real_t tolerance)
 {
   split(pos, dim, connectBin, N0, N1, connectBout, enclose, tolerance);
 
@@ -64,7 +64,7 @@ void BARSplitter::split(
 void 
 BARSplitter::split
 (const K_FLD::FloatArray& pos, E_Int dim, const K_FLD::IntArray& connectBin, const K_FLD::IntArray& cuttingEdges,
- std::vector<K_FLD::IntArray> & connectBout, E_Float tolerance)
+ std::vector<K_FLD::IntArray> & connectBout, nuga_real_t tolerance)
 {
   E_Int nb_edges = cuttingEdges.cols(), N0, N1;
   std::vector<K_FLD::IntArray> cOut;
@@ -95,7 +95,7 @@ BARSplitter::split
 void 
 BARSplitter::split
 (const K_FLD::FloatArray& pos, E_Int dim, const std::vector<K_FLD::IntArray>& connectIns, const K_FLD::IntArray& cuttingEdges,
- std::vector<K_FLD::IntArray> & connectBout, E_Float tolerance)
+ std::vector<K_FLD::IntArray> & connectBout, nuga_real_t tolerance)
 {
   std::vector<K_FLD::IntArray> cOut;
   for (size_t i = 0; i < connectIns.size(); ++i)
@@ -108,7 +108,7 @@ BARSplitter::split
 //=============================================================================
 void BARSplitter::__split
 (const K_FLD::FloatArray& pos, E_Int dim, const K_FLD::IntArray& BAR, E_Int N0, E_Int N1,
- std::vector<K_FLD::IntArray> & connectBout, E_Bool enclose, E_Float tolerance)
+ std::vector<K_FLD::IntArray> & connectBout, E_Bool enclose, nuga_real_t tolerance)
 {
   connectBout.clear();
 
@@ -182,19 +182,19 @@ BARSplitter::__isBAREdge(const K_FLD::IntArray& connectB, E_Int N0, E_Int N1)
 //=============================================================================
 E_Bool
 BARSplitter::__canBeClosed
-(const K_FLD::FloatArray& pos, E_Int dim, const K_FLD::IntArray& connectBin, E_Int N0, E_Int N1, E_Float tolerance)
+(const K_FLD::FloatArray& pos, E_Int dim, const K_FLD::IntArray& connectBin, E_Int N0, E_Int N1, nuga_real_t tolerance)
 {
   bool                              doable(true);
   E_Bool                            overlap;
   K_FLD::FloatArray::const_iterator P0 = pos.col(N0);
   K_FLD::FloatArray::const_iterator P1 = pos.col(N1);
   E_Int                             Ni, Nj, NBOUND(connectBin.cols());
-  E_Float                           u00, u01, u10, u11;
+  nuga_real_t                           u00, u01, u10, u11;
 
-  typedef bool (*pInterFunc)(const E_Float* P0, const E_Float* P1, const E_Float* Q0, const E_Float* Q1,
-                             E_Float tolerance, E_Bool tol_is_abolute, 
-                             E_Float& u00, E_Float& u01, E_Float& u10,
-                             E_Float& u11, E_Bool& overlap);
+  typedef bool (*pInterFunc)(const nuga_real_t* P0, const nuga_real_t* P1, const nuga_real_t* Q0, const nuga_real_t* Q1,
+                             nuga_real_t tolerance, E_Bool tol_is_abolute, 
+                             nuga_real_t& u00, nuga_real_t& u01, nuga_real_t& u10,
+                             nuga_real_t& u11, E_Bool& overlap);
 
   pInterFunc intersect;
 
@@ -530,10 +530,10 @@ BARSplitter::split_periodic
 }
 
 //=============================================================================
-E_Float BARSplitter::__getAngle(const E_Float* n1, const E_Float* n2)
+nuga_real_t BARSplitter::__getAngle(const nuga_real_t* n1, const nuga_real_t* n2)
 {
   //WARNING : n1 and n2 are asummed to be unitary
-  E_Float n[3], c, s;
+  nuga_real_t n[3], c, s;
   NUGA::crossProduct<3>(n1, n2, n);
   s = NUGA::normalize<3>(n);
   c = NUGA::dot<3>(n1, n2);
@@ -575,7 +575,7 @@ void BARSplitter::split_loops
   std::set<K_MESH::NO_Edge>::iterator itE;
   K_MESH::Edge E;
   K_MESH::NO_Edge noE;
-  E_Float n1[3], n2[3], mina, alpha;
+  nuga_real_t n1[3], n2[3], mina, alpha;
   
   while (!edges.empty())
   {
@@ -637,7 +637,7 @@ E_Int BARSplitter::min_angle_node(const std::vector<E_Int>& sorted_nodes, const 
   E_Int Nmin(IDX_NONE);
   E_Int sz(sorted_nodes.size());
   E_Int iprev = sz-1;
-  E_Float n1[3], n2[3], mina(NUGA::FLOAT_MAX), alpha;
+  nuga_real_t n1[3], n2[3], mina(NUGA::FLOAT_MAX), alpha;
   
   for (E_Int i = 0; i < sz; ++i)
   {

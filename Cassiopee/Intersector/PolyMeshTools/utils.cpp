@@ -1077,7 +1077,7 @@ PyObject* K_INTERSECTOR::checkCellsFlux(PyObject* self, PyObject* args)
 
     //std::cout << "computing flux for PH : " << i << std::endl;
     K_MESH::Polyhedron<0> PH(ngi, i);
-    E_Float flxVec[3];
+    nuga_real_t flxVec[3];
     PH.flux(crd, &orient[0], flxVec);
 
     E_Float flux = ::sqrt(K_FUNC::sqrNorm<3>(flxVec));
@@ -1193,7 +1193,7 @@ PyObject* K_INTERSECTOR::checkAngularExtrema(PyObject* self, PyObject* args)
       assert (((*cFE)(PGi, 1) == i+1) || ((*cFE)(PGi, 2) == i+1) );
     }
 
-    E_Float mA, MA;
+    nuga_real_t mA, MA;
     E_Int maxAPG1 = -1, maxAPG2 = -1;
     err = K_MESH::Polyhedron<UNKNOWN>::min_max_angles(crd, ngi.PGs, pF, nbf, false, &orient[0], mA, MA, maxAPG1, maxAPG2);
 
@@ -1254,7 +1254,7 @@ PyObject* K_INTERSECTOR::checkAngularExtrema(PyObject* self, PyObject* args)
   return l;
 }
 
-int comp_vol(const K_FLD::FloatArray& crd, const ngon_type& ngi, const FldArrayI* cFE, std::vector<E_Int>& orient, E_Int i, DELAUNAY::Triangulator & dt, E_Float &v)
+int comp_vol(const K_FLD::FloatArray& crd, const ngon_type& ngi, const FldArrayI* cFE, std::vector<E_Int>& orient, E_Int i, DELAUNAY::Triangulator & dt, nuga_real_t &v)
 {
   //std::cout << "PH : " << i << std::endl;
   orient.clear();
@@ -1312,7 +1312,7 @@ PyObject* K_INTERSECTOR::checkCellsVolume(PyObject* self, PyObject* args)
   }
 
   E_Int imin=-1;
-  E_Float vmin = NUGA::FLOAT_MAX;
+  nuga_real_t vmin = NUGA::FLOAT_MAX;
   E_Int imax=-1;
   E_Float vmax = 0;
 
@@ -1336,7 +1336,7 @@ PyObject* K_INTERSECTOR::checkCellsVolume(PyObject* self, PyObject* args)
 #pragma omp for //schedule(dynamic)
   for (i=0; i < ngi.PHs.size(); ++i)
   {
-    E_Float v;
+    nuga_real_t v;
     E_Int err = comp_vol(crd, ngi, cFE, orient[id], i, dt, v);
     if (!err && v < vm[id]) // min for current thread
     {
@@ -1425,7 +1425,7 @@ PyObject* K_INTERSECTOR::checkCellsVolumeAndGrowthRatio(PyObject* self, PyObject
 
   E_Int nphs = ngi.PHs.size();
 
-  std::vector<E_Float> vols(nphs, NUGA::FLOAT_MAX);
+  std::vector<nuga_real_t> vols(nphs, NUGA::FLOAT_MAX);
 
   E_Int nb_max_threads = __NUMTHREADS__;
   //std::cout << "nb threads max : " << nb_max_threads << std::endl;
@@ -1442,7 +1442,7 @@ PyObject* K_INTERSECTOR::checkCellsVolumeAndGrowthRatio(PyObject* self, PyObject
 #pragma omp for //schedule(dynamic)
     for (i=0; i < ngi.PHs.size(); ++i)
     {
-      E_Float v;
+      nuga_real_t v;
       E_Int err = comp_vol(crd, ngi, cFE, orient[id], i, dt, v);
       if (!err)
         vols[i] = v;
@@ -1453,11 +1453,11 @@ PyObject* K_INTERSECTOR::checkCellsVolumeAndGrowthRatio(PyObject* self, PyObject
   ngon_unit neighborsi;
   ngi.build_ph_neighborhood(neighborsi);
 
-  Vector_t<E_Float> growth_ratio;
+  Vector_t<nuga_real_t> growth_ratio;
   ngon_type::stats_bad_volumes<DELAUNAY::Triangulator>(crd, ngi, neighborsi, vols, -1., growth_ratio);
 
   E_Int ivolmin = -1,igrmin = -1;
-  E_Float volmin{NUGA::FLOAT_MAX}, grmin{NUGA::FLOAT_MAX};
+  nuga_real_t volmin{NUGA::FLOAT_MAX}, grmin{NUGA::FLOAT_MAX};
 
   for (size_t i=0; i < vols.size(); ++i)
   {
@@ -1554,7 +1554,7 @@ PyObject* K_INTERSECTOR::extractBadVolCells(PyObject* self, PyObject* args)
   E_Int nphs = ngi.PHs.size();
 
   std::vector<E_Int> orient;
-  std::vector<E_Float> vols(nphs, NUGA::FLOAT_MAX);
+  std::vector<nuga_real_t> vols(nphs, NUGA::FLOAT_MAX);
   
   //compute volumes using input orientation 
   for (E_Int i=0; i < ngi.PHs.size(); ++i)
@@ -1575,7 +1575,7 @@ PyObject* K_INTERSECTOR::extractBadVolCells(PyObject* self, PyObject* args)
 
     //std::cout << "computing flux for PH : " << i << std::endl;
     K_MESH::Polyhedron<0> PH(ngi, i);
-    E_Float v;
+    nuga_real_t v;
     DELAUNAY::Triangulator dt;
     E_Int err = PH.volume<DELAUNAY::Triangulator>(crd, &orient[0], v, dt);
 
@@ -1592,7 +1592,7 @@ PyObject* K_INTERSECTOR::extractBadVolCells(PyObject* self, PyObject* args)
   ngon_unit neighborsi;
   ngi.build_ph_neighborhood(neighborsi);
 
-  Vector_t<E_Float> growth_ratio;
+  Vector_t<nuga_real_t> growth_ratio;
   ngon_type::stats_bad_volumes<DELAUNAY::Triangulator>(crd, ngi, neighborsi, vols, -1., growth_ratio);
 
   std::vector<bool> keep(nphs, false);
@@ -1749,7 +1749,7 @@ PyObject* K_INTERSECTOR::volume(PyObject* self, PyObject* args)
     use_xcelln = false;
   }
 
-  std::vector<E_Float> vols;
+  std::vector<nuga_real_t> vols;
   ngon_type::volumes<DELAUNAY::Triangulator>(crd, ngi, vols, false/*not all cvx*/, true/*new algo*/);
 
   //std::cout << "use_xcelln ?" << use_xcelln << std::endl;
@@ -1958,7 +1958,7 @@ PyObject* K_INTERSECTOR::edgeLengthExtrema(PyObject* self, PyObject* args)
 
   typedef ngon_t<K_FLD::IntArray> ngon_type;
   ngon_type ngi(cnt);
-  E_Float Lmin,Lmax;
+  nuga_real_t Lmin,Lmax;
   E_Int imin, imax;
 
   ngon_type::edge_length_extrema(ngi.PGs, crd, Lmin, imin, Lmax, imax);
@@ -1995,7 +1995,7 @@ PyObject* K_INTERSECTOR::edgeLengthMax(PyObject* self, PyObject* args)
 
   typedef ngon_t<K_FLD::IntArray> ngon_type;
   ngon_type ngi(cnt);
-  E_Float Lmin,Lmax;
+  nuga_real_t Lmin,Lmax;
   E_Int imin, imax;
 
   ngon_type::edge_length_extrema(ngi.PGs, crd, Lmin, imin, Lmax, imax);
@@ -2019,7 +2019,7 @@ PyObject* K_INTERSECTOR::computeGrowthRatio(PyObject* self, PyObject* args)
 {
 
   PyObject *arr;
-  E_Float vmin(0.);
+  nuga_real_t vmin(0.);
 
   if (!PYPARSETUPLE_(args, O_ R_, &arr, &vmin)) return NULL;
 
@@ -2042,11 +2042,11 @@ PyObject* K_INTERSECTOR::computeGrowthRatio(PyObject* self, PyObject* args)
   ngon_unit neighborsi;
   ngi.build_ph_neighborhood(neighborsi);
 
-  std::vector<E_Float> vols;
+  std::vector<nuga_real_t> vols;
   ngon_type::volumes<DELAUNAY::Triangulator>(crd, ngi, vols, false/*not all cvx*/, false/* ! new algo*/);
 
 
-  Vector_t<E_Float> growth_ratio;
+  Vector_t<nuga_real_t> growth_ratio;
   ngon_type::stats_bad_volumes<DELAUNAY::Triangulator>(crd, ngi, neighborsi, vols, vmin, growth_ratio);
   
   size_t sz = growth_ratio.size();
@@ -2247,7 +2247,8 @@ PyObject* K_INTERSECTOR::extrudeRevolSurf(PyObject* self, PyObject* args)
   {
     //std::cout << "extrudeRevolSurf : layer : " << l << std::endl;
     tops.clear();
-    ngon_type::extrude_revol_faces(crd, ngio, pglist, dir, pt, angle, &tops);
+    nuga_real_t dird[3] = {dir[0], dir[1], dir[2]}, ptd[3] = {pt[0], pt[1], pt[2]}; // Nuga works in double
+    ngon_type::extrude_revol_faces(crd, ngio, pglist, dird, ptd, angle, &tops);
 
     pglist.clear();
     pglist.insert(pglist.end(), tops.begin(), tops.end());
@@ -2732,13 +2733,13 @@ PyObject* K_INTERSECTOR::statsSize(PyObject* self, PyObject* args)
   K_FLD::ArrayAccessor<K_FLD::FloatArray> acrd(crd);
   box.compute(acrd);
   // Box center and deltas
-  E_Float dMax=0.;
+  nuga_real_t dMax=0.; // Nuga works in double
   for (int i=0; i < 3; ++i)
    dMax = std::max(dMax, box.maxB[i] - box.minB[i]);
   //std::cout << "the span is : " << dMax << std::endl;
 
-  E_Float smin(0.), smax(0.);
-  E_Float vmin, vmax(-1.);
+  nuga_real_t smin(0.), smax(0.);
+  nuga_real_t vmin, vmax(-1.);
 
   if (comp_metrics == 1)
   {
@@ -3074,7 +3075,7 @@ PyObject* K_INTERSECTOR::closeCells(PyObject* self, PyObject* args)
   // 5. CLOSE
 #ifdef _MPI
   // CB:  close cells is removed from compilation without mpi
-  using para_algo_t = NUGA::omp_algo<NUGA::ph_mesh_t, E_Float>; // SEQ or multi-SEQ
+  using para_algo_t = NUGA::omp_algo<NUGA::ph_mesh_t, nuga_real_t>; // SEQ or multi-SEQ
   using closecell_t = NUGA::close_cells< para_algo_t, NUGA::ph_mesh_t>;
 
   closecell_t cc;
@@ -3347,7 +3348,7 @@ PyObject* K_INTERSECTOR::volumes(PyObject* self, PyObject* args)
   typedef ngon_t<K_FLD::IntArray> ngon_type;
   ngon_type ngi(cnt);
 
-  std::vector<E_Float> vols;
+  std::vector<nuga_real_t> vols;
   ngon_type::volumes<DELAUNAY::Triangulator>(crd, ngi, vols, (all_pgs_cvx == 1), (algo == 1));
 
   size_t sz = vols.size();
@@ -3372,8 +3373,10 @@ PyObject* K_INTERSECTOR::getOverlappingFaces(PyObject* self, PyObject* args)
 
   if (!PYPARSETUPLE_(args, OO_ RR_ TRRR_, &arr1, &arr2, &RTOL, &AMAX, &d2[0], &d2[1], &d2[2])) return NULL;
 
+  nuga_real_t d2d[3] = {d2[0], d2[1], d2[2]}; // Nuga works in double
+  const nuga_real_t* pdir2d = nullptr;
   if (d2[0] != 0. || d2[1] != 0. || d2[2] != 0.)
-    pdir2 = d2;
+  { pdir2 = d2; pdir2d = d2d; }
 
   K_FLD::FloatArray *f1(0), *f2(0);
   K_FLD::IntArray *cn1(0), *cn2(0);
@@ -3405,7 +3408,7 @@ PyObject* K_INTERSECTOR::getOverlappingFaces(PyObject* self, PyObject* args)
   tree_t tree(crd2, ng2.PGs);
 
   // compute a tolerance for the Tree
-  E_Float tol,Lmax;
+  nuga_real_t tol,Lmax; // Nuga works in double
   E_Int imin, imax;
   ngon_type::edge_length_extrema(ng1.PGs, crd1, tol, imin, Lmax, imax);
 
@@ -3422,7 +3425,7 @@ PyObject* K_INTERSECTOR::getOverlappingFaces(PyObject* self, PyObject* args)
   AMAX = std::min(K_CONST::E_PI, AMAX);
   double PS_MIN = ::cos(AMAX);
 
-  NUGA::COLLIDE::compute_overlap<K_MESH::Polygon, K_MESH::Polygon>(crd1, ng1.PGs, crd2, ng2.PGs, localiz, isx1, isx2, RTOL, PS_MIN, true/*shuffle triangulation*/, pdir2);
+  NUGA::COLLIDE::compute_overlap<K_MESH::Polygon, K_MESH::Polygon>(crd1, ng1.PGs, crd2, ng2.PGs, localiz, isx1, isx2, RTOL, PS_MIN, true/*shuffle triangulation*/, pdir2d);
 
 #ifdef FLAG_STEP
   std::cout << "v0 : " << c.elapsed() << std::endl;
@@ -4132,7 +4135,7 @@ PyObject* K_INTERSECTOR::concatenate(PyObject* self, PyObject* args)
   
   ngon_type ng;
   K_FLD::FloatArray crd; 
-  std::vector<E_Float> Lmin2, *pLmin2(nullptr);
+  std::vector<nuga_real_t> Lmin2, *pLmin2(nullptr);
   bool tol_is_relative = (tol < 0.);
   
   for (size_t i=0; i < cnts.size(); ++i)
@@ -4263,7 +4266,7 @@ PyObject* K_INTERSECTOR::drawOrientation(PyObject* self, PyObject* args)
     const E_Int* nodes = ngi.PGs.get_facets_ptr(i);
     E_Int nb_nodes = ngi.PGs.stride(i);
 
-    E_Float c[3], n[3], top[3];
+    nuga_real_t c[3], n[3], top[3]; // Nuga works in double
     K_MESH::Polygon::centroid<3>(crd, nodes, nb_nodes, 1, c);
     K_MESH::Polygon::normal<K_FLD::FloatArray, 3>(crd, nodes, nb_nodes, 1, n);
 

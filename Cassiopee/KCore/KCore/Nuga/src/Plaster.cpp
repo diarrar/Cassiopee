@@ -54,7 +54,7 @@ Plaster::~Plaster(void)
 E_Int 
 Plaster::make
 (const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect,
- K_FLD::FloatArray& plaster, E_Int & ni, E_Float bump_factor)
+ K_FLD::FloatArray& plaster, E_Int & ni, nuga_real_t bump_factor)
 {
   K_FLD::FloatArray       P(3,3), iP(3,3);// Transform matrix from fitting space to real space and inverse.
   K_FLD::FloatArray       posE2(pos), pos2D, plaster2D;
@@ -62,7 +62,7 @@ Plaster::make
   int_vector_type         nodesE2, /*hN(hard_nodes),*/ new_IDs;
   //size_t                  nb_nodes;
   E_Int                   nj, err, NIJMAX(1000);
-  E_Float                 minB[3], maxB[3], z0;
+  nuga_real_t                 minB[3], maxB[3], z0;
 
   // hack
   bool refine = true;
@@ -111,11 +111,11 @@ Plaster::make
   // Project along Z(0,0,1) the contour nodes on the box' top side (z = maxB[2])
   // i.e where the point of view of the contour is maximum. 
   z0 = maxB[2];
-  std::vector<E_Float> zE2(*std::max_element(nodesE2.begin(), nodesE2.end())+1, 0.);
+  std::vector<nuga_real_t> zE2(*std::max_element(nodesE2.begin(), nodesE2.end())+1, 0.);
   pos2D = posE2;
   pos2D.resize(2, pos2D.cols());
-  E_Float devmin(NUGA::FLOAT_MAX);
-  E_Float devmax(0.);        // pos2D is the projection on any plane normal to z.
+  nuga_real_t devmin(NUGA::FLOAT_MAX);
+  nuga_real_t devmax(0.);        // pos2D is the projection on any plane normal to z.
   for (E_Int i = 0; i < posE2.cols(); ++i){ // Set the z for the contour nodes.
     zE2[i] = z0 - posE2(2,i);
     devmax = ( devmax < zE2[i] )? zE2[i] : devmax;
@@ -128,7 +128,7 @@ Plaster::make
   //std::cout << "is planar ? " << is_planar << std::endl;
   
   // if the contour is planar no need for a fine patch
-  E_Float dx = 0.2 *K_FUNC::E_min((maxB[0] - minB[0]), (maxB[1] - minB[1]));
+  nuga_real_t dx = 0.2 *K_FUNC::E_min((maxB[0] - minB[0]), (maxB[1] - minB[1]));
   //std::cout << "refine : " << refine << std::endl;
   //std::cout << "bump_factor : " << bump_factor << std::endl;
   //std::cout << "is_planar : " << is_planar << std::endl;
@@ -147,8 +147,8 @@ Plaster::make
   minB[0] -= 2. * dx;
   minB[1] -= 2. * dx;  
   
-  E_Float nif = 1. + (maxB[0] - minB[0]) / dx;
-  E_Float njf = 1. + (maxB[1] - minB[1]) / dx;
+  nuga_real_t nif = 1. + (maxB[0] - minB[0]) / dx;
+  nuga_real_t njf = 1. + (maxB[1] - minB[1]) / dx;
   nif *= fabs(bump_factor) + 1.; // 2 times more if factor is 1 or -1.
   njf *= fabs(bump_factor) + 1.;
 #ifdef E_ADOUBLE
@@ -171,7 +171,7 @@ Plaster::make
   // Triangulate the projected contour.
   DELAUNAY::MesherMode mode;
   mode.mesh_mode = mode.TRIANGULATION_MODE;
-  DELAUNAY::T3Mesher<E_Float> mesher(mode);
+  DELAUNAY::T3Mesher<nuga_real_t> mesher(mode);
   //K_FLD::IntArray connectT3;
   DELAUNAY::MeshData dataTmp(pos2D, connectE2);
   //data.hardNodes = hN;
@@ -180,7 +180,7 @@ Plaster::make
   if (err) return err;
 
   // Initialize the plaster field.
-  std::vector<E_Float> z(ni*nj, -NUGA::FLOAT_MAX);
+  std::vector<nuga_real_t> z(ni*nj, -NUGA::FLOAT_MAX);
   __initializePlaster(plaster2D, ni, pos2D, connectE2, /*hN,*/ zE2, dataTmp.connectM, z, bump_factor);
 
   //std::cout << "plaster 10 : z field " << z.size() << std::endl;
@@ -231,10 +231,10 @@ Plaster::make
 ///
 void
 Plaster::__cartesian
-(const E_Float* minB, const E_Float* maxB, E_Int ni, E_Int nj, K_FLD::FloatArray& cart)
+(const nuga_real_t* minB, const nuga_real_t* maxB, E_Int ni, E_Int nj, K_FLD::FloatArray& cart)
 {
-  E_Float I[] = {1.,0.,0.} , J[] = {0.,1.,0.}, K[] = {0., 0., 1.};
-  E_Float* Xi, *Xj, dx, dy, Pi[3];
+  nuga_real_t I[] = {1.,0.,0.} , J[] = {0.,1.,0.}, K[] = {0., 0., 1.};
+  nuga_real_t* Xi, *Xj, dx, dy, Pi[3];
 
   cart.clear();
 
@@ -291,7 +291,7 @@ Plaster::__cartesian
 ///
 void
 Plaster::__smooth
-(std::vector<E_Float>& z, E_Int ni, E_Float bump_factor, E_Float tol)
+(std::vector<nuga_real_t>& z, E_Int ni, nuga_real_t bump_factor, nuga_real_t tol)
 {
   if (K_FUNC::fEqualZero(bump_factor))
     __smooth_1(z, ni, tol);
@@ -302,12 +302,12 @@ Plaster::__smooth
 ///
 void
 Plaster::__smooth_1
-(std::vector<E_Float>& z, E_Int ni, E_Float tol)
+(std::vector<nuga_real_t>& z, E_Int ni, nuga_real_t tol)
 {
   E_Int iter(0), iterMax(5000);
   E_Int indH, indB, indD, indG;
   E_Int NBPOINTS(E_Int(z.size())), ind, J;
-  E_Float threshold(tol), dMax, d, q;
+  nuga_real_t threshold(tol), dMax, d, q;
   bool carry_on(true);
   bool_vector_type processed(NBPOINTS, false);
   
@@ -348,16 +348,16 @@ Plaster::__smooth_1
 ///
 void
 Plaster::__smooth_2
-(std::vector<E_Float>& z, E_Int ni, E_Float tol)
+(std::vector<nuga_real_t>& z, E_Int ni, nuga_real_t tol)
 {
   E_Int iter(0), iterMax(5000);
   E_Int indH, indB, indD, indG, indH2, indB2, indD2, indG2;
   E_Int NBPOINTS(E_Int(z.size())), ind, J;
-  E_Float threshold(tol), dMax, d, q;
+  nuga_real_t threshold(tol), dMax, d, q;
   bool carry_on(true);
   bool_vector_type processed(NBPOINTS, false);
 
-   E_Float zh, zb, zg, zd, k(0.333333), k1(1.+k);
+   nuga_real_t zh, zb, zg, zd, k(0.333333), k1(1.+k);
   
   // Reset nodes to be computed to 0.
   for (E_Int i = 0; i < NBPOINTS; ++i)
@@ -408,8 +408,8 @@ Plaster::__smooth_2
 void
 Plaster::__initializePlaster
 (const K_FLD::FloatArray& plaster2D, E_Int ni, const K_FLD::FloatArray& pos2D,
- const K_FLD::IntArray& connectE2/*, const std::vector<E_Int>& hard_nodes*/, const std::vector<E_Float>& zE2,
- const K_FLD::IntArray& connectT3, std::vector<E_Float>& z, E_Float bump_factor)
+ const K_FLD::IntArray& connectE2/*, const std::vector<E_Int>& hard_nodes*/, const std::vector<nuga_real_t>& zE2,
+ const K_FLD::IntArray& connectT3, std::vector<nuga_real_t>& z, nuga_real_t bump_factor)
 {
   //Fast return
   if (plaster2D.cols() == 0) return;
@@ -441,8 +441,8 @@ Plaster::__blockSurroundingNodes
 (const K_FLD::FloatArray& plaster2D, E_Int ni, 
  const NUGA::bool_vector_type& mask,
  const K_FLD::FloatArray& pos2D,
- const K_FLD::IntArray& connectE2, const std::vector<E_Float>& zE2,
- std::vector<E_Float>& z, NUGA::int_set_type& onodes)
+ const K_FLD::IntArray& connectE2, const std::vector<nuga_real_t>& zE2,
+ std::vector<nuga_real_t>& z, NUGA::int_set_type& onodes)
 {
   // Get the plaster nodes that are immediately surrounding the domain.
   __getPlasterBoundary(mask, ni, /*outside*/true, onodes);
@@ -465,7 +465,7 @@ void
 Plaster::__blockInsideNodes
 (const K_FLD::FloatArray& plaster2D, E_Int ni, 
  const K_FLD::FloatArray& pos2D, const std::vector<E_Int>& hard_nodes,
- const std::vector<E_Float>& zE2, std::vector<E_Float>& z)
+ const std::vector<nuga_real_t>& zE2, std::vector<nuga_real_t>& z)
 {
   if (hard_nodes.empty())
     return;
@@ -485,16 +485,16 @@ void
 Plaster::__bumpPlaster
 (const K_FLD::FloatArray& plaster2D, E_Int ni,
  const NUGA::bool_vector_type& mask,
- E_Float bump_factor, const NUGA::int_set_type& onodes,
- std::vector<E_Float>& z)
+ nuga_real_t bump_factor, const NUGA::int_set_type& onodes,
+ std::vector<nuga_real_t>& z)
 {
   bump_factor = K_FUNC::E_max(bump_factor, -1.); // factor must be in [-1., 1.]
   bump_factor = K_FUNC::E_min(bump_factor, 1.);
 
   if (K_FUNC::fEqualZero(bump_factor)) return;
 
-  const E_Float BUMP_ANGLE_MAX = 1.5 * NUGA::PI_4; //3PI/8
-  E_Float ta = tan(bump_factor * BUMP_ANGLE_MAX);
+  const nuga_real_t BUMP_ANGLE_MAX = 1.5 * NUGA::PI_4; //3PI/8
+  nuga_real_t ta = tan(bump_factor * BUMP_ANGLE_MAX);
 
   std::vector<E_Int> oonodes;
   oonodes.insert(oonodes.end(), onodes.begin(), onodes.end());
@@ -508,7 +508,7 @@ Plaster::__bumpPlaster
   for (int_set_type::iterator it = inodes.begin(); it != inodes.end(); ++it)
   {
     E_Int N = tree.getClosest(plaster2D.col(*it));
-    E_Float dx = sqrt(NUGA::sqrDistance(plaster2D.col(N), plaster2D.col(*it), 2));
+    nuga_real_t dx = sqrt(NUGA::sqrDistance(plaster2D.col(N), plaster2D.col(*it), 2));
     z[*it] = z[N] + (ta * dx);
   }
 }
@@ -516,9 +516,9 @@ Plaster::__bumpPlaster
 
 ///
 bool Plaster::__IsStrictlyInT3
-(const E_Float* P, const E_Float* P0, const E_Float* P1, const E_Float* P2)
+(const nuga_real_t* P, const nuga_real_t* P0, const nuga_real_t* P1, const nuga_real_t* P2)
 {
-  E_Float s;
+  nuga_real_t s;
   
   s = K_MESH::Triangle::surface(P0, P1, P, 2);
   if (s < -EPSILON) return false;
@@ -541,7 +541,7 @@ Plaster::__mask
   const E_Int NB_POINTS(plaster2D.cols());
   E_Int S;
   std::vector<E_Int> T3s;
-  const E_Float *P, *P0, *P1, *P2;
+  const nuga_real_t *P, *P0, *P1, *P2;
   K_FLD::IntArray::const_iterator pS;
 
   typedef K_SEARCH::BoundingBox<2> BBox2DType;
@@ -626,8 +626,8 @@ Plaster::__getPlasterBoundary
 void
 Plaster::__blockNodes
 (const K_FLD::FloatArray& pos2D, const K_FLD::FloatArray& plaster2D,
- const K_FLD::IntArray& connectE2, const std::vector<E_Float>& zE2,
- const NUGA::int_set_type& nodes, std::vector<E_Float>& z)
+ const K_FLD::IntArray& connectE2, const std::vector<nuga_real_t>& zE2,
+ const NUGA::int_set_type& nodes, std::vector<nuga_real_t>& z)
 {
   typedef K_SEARCH::BoundingBox<2>  BBox2DType;
   
@@ -638,11 +638,11 @@ Plaster::__blockNodes
   // Build the box tree.
   K_SEARCH::BbTree2D E2tree(E2boxes);
 
-  E_Float dx = sqrt(2. * NUGA::sqrDistance(plaster2D.col(0), plaster2D.col(1), 2));
+  nuga_real_t dx = sqrt(2. * NUGA::sqrDistance(plaster2D.col(0), plaster2D.col(1), 2));
   std::vector<E_Int> E2s;
-  E_Float mB[2], MB[2], min_d, de, lambda;
+  nuga_real_t mB[2], MB[2], min_d, de, lambda;
   E_Int N;
-  const E_Float* P;
+  const nuga_real_t* P;
   for (std::set<E_Int>::const_iterator i = nodes.begin(); i != nodes.end(); ++i)
   {
     E2s.clear();
@@ -676,11 +676,11 @@ Plaster::__blockNodes
     delete E2boxes[i];
 }
 
-E_Float
+nuga_real_t
 Plaster::__computeCharacteristicLength
 (const K_FLD::FloatArray& pos2D, const K_FLD::IntArray& connectE2)
 {
-  E_Float min_d = NUGA::FLOAT_MAX, max_d = -NUGA::FLOAT_MAX, L,perimeter(0.);
+  nuga_real_t min_d = NUGA::FLOAT_MAX, max_d = -NUGA::FLOAT_MAX, L,perimeter(0.);
   K_FLD::FloatArray Lengths;
   NUGA::MeshTool::computeEdgesSqrLengths<2>(pos2D, connectE2, Lengths);
   for (E_Int l = 0; l < Lengths.cols(); ++l)
@@ -696,7 +696,7 @@ Plaster::__computeCharacteristicLength
 #ifdef WIN32
 #ifdef E_DEBUG
 
-void Plaster::make_box(const E_Float* minB, const E_Float* maxB, K_FLD::FloatArray& boxPs, K_FLD::IntArray& boxC)
+void Plaster::make_box(const nuga_real_t* minB, const nuga_real_t* maxB, K_FLD::FloatArray& boxPs, K_FLD::IntArray& boxC)
 {
   boxPs.resize(3, 8);
   boxC.resize(2, 12);
@@ -727,7 +727,7 @@ void Plaster::make_box(const E_Float* minB, const E_Float* maxB, K_FLD::FloatArr
   boxC(0,11) = 3;boxC(1,11) = 7;
 }
 
-void Plaster::drawBox(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, const E_Float* mB, const E_Float* MB)
+void Plaster::drawBox(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, const nuga_real_t* mB, const nuga_real_t* MB)
 {
   K_FLD::FloatArray pp1(pos), pp;
   K_FLD::IntArray cc1(connect), cc;

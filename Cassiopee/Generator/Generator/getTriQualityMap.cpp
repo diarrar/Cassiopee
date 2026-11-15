@@ -86,7 +86,7 @@ PyObject* K_GENERATOR::getTriQualityMap(PyObject* self, PyObject* args)
 
   FldArrayI& cnp = *(cn->getConnect(0));
   E_Int ind1, ind2, ind3;
-  E_Float P0[3], P1[3], P2[3];
+  nuga_real_t P0[3], P1[3], P2[3];
   for (E_Int et = 0; et < nelts; et++)
   {
     ind1 = cnp(et,1)-1;

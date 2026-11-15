@@ -206,7 +206,7 @@ Zipper::__computeVirtualEdges
 
   K_FLD::IntArray::const_iterator pE2, pBot;
   E_Int Bi, Bj, ve[2];
-  E_Float Vi[3], Vj[3], Pi[3], Pj[3];
+  nuga_real_t Vi[3], Vj[3], Pi[3], Pj[3];
 
   E_Int Ni, Nj, nbE2(connectE2.cols());
   for (E_Int i = 0; i < nbE2; ++i)
@@ -268,7 +268,7 @@ Zipper::__setNodeMates
   if (vE2.cols() == 0)
     return;
   // Compute the radius for each node to detect mates.
-  //std::vector<E_Float> R2;
+  //std::vector<nuga_real_t> R2;
   //__computeRadius(vpos, vE2, posT3, realID, R2);
 
   // Get the nodes neighbouring.
@@ -408,7 +408,7 @@ Zipper::zip
 void
 Zipper::__computeRadius
 (const K_FLD::FloatArray& vpos, const K_FLD::IntArray& vE2, const K_FLD::FloatArray& pos,
- const std::vector<E_Int>& realID, std::vector<E_Float>& R2)
+ const std::vector<E_Int>& realID, std::vector<nuga_real_t>& R2)
 {
   R2.clear();
   R2.resize(vpos.cols(), NUGA::FLOAT_MAX);
@@ -416,7 +416,7 @@ Zipper::__computeRadius
   K_FLD::FloatArray L2;
   NUGA::MeshTool::computeEdgesSqrLengths<3>(vpos, vE2, L2);
 
-  E_Float d2;
+  nuga_real_t d2;
   E_Int   n, Ni, Nj, NBPOINTS(vpos.cols()), NBEDGE(vE2.cols());
   K_FLD::IntArray::const_iterator pB;
 

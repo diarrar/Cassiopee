@@ -95,7 +95,7 @@ PyObject* K_GENERATOR::T3mesher2D(PyObject* self, PyObject* args)
 
   // User metric
   E_Int posm11 = K_ARRAY::isNamePresent("m11", varString);
-  E_Float zero = 0., sz = POS.cols();
+  nuga_real_t zero = 0.; E_Int sz = POS.cols();
   
   if (posm11 != -1) // Isotropic metric (so far).
   {  
@@ -134,7 +134,7 @@ PyObject* K_GENERATOR::T3mesher2D(PyObject* self, PyObject* args)
   E_Int err = 0;
   if (dT3.metrics.rows() < 3) // Isotropic
   {
-    DELAUNAY::T3Mesher<E_Float> mesher(mode);
+    DELAUNAY::T3Mesher<nuga_real_t> mesher(mode);
     err = mesher.run(dT3);
   }
   else // Anisotropic

@@ -91,7 +91,7 @@ E_Int Triangulator::run
   {
     // Computes the fitting box coordinate system optimizing the view over the contour
     K_FLD::FloatArray P(3, 3), iP(3, 3);
-    E_Float W[3];
+    nuga_real_t W[3];
     FittingBox::computeNormalToContour(Wpos, connectE2b, W);
     NUGA::computeAFrame(W, P);
     iP = P;
@@ -137,7 +137,7 @@ E_Int Triangulator::run
   // In case we need to improve the output quality by swapping.
   if (improve_quality) // fixme : means specified (what to do for relative tol is given as negative ?)
   {
-    E_Float quality_tol = 1.e-4;// EPSILON;
+    nuga_real_t quality_tol = 1.e-4;// EPSILON;
     E_Int railing =_data.connectM.cols();
     while (--railing)
     {

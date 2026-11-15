@@ -2131,7 +2131,7 @@ E_Int metric_sensor<mesh_t>::assign_data(const sensor_input_t& data)
 template <typename mesh_t>
 void metric_sensor<mesh_t>::Q4_adap_compute(E_Int PGi, output_t& adap_incr)
 {
-    E_Float h[4];
+    nuga_real_t h[4];
     E_Int n1, n2;
     auto& metric = parent_t::_data;
     const E_Int* pN = parent_t::_hmesh._ng.PGs.get_facets_ptr(PGi);

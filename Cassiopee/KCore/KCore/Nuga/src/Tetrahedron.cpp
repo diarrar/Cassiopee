@@ -25,7 +25,7 @@ namespace K_MESH
 
 ///
 bool Tetrahedron::is_inside
-(const E_Float* Ni, const E_Float* Nj, const E_Float* Nk, const E_Float* Nl, const E_Float* pt)
+(const nuga_real_t* Ni, const nuga_real_t* Nj, const nuga_real_t* Nk, const nuga_real_t* Nl, const nuga_real_t* pt)
 {
   if (NUGA::zzdet4(Ni, Nj, Nl, pt) > EPSILON)
     return false;
@@ -46,12 +46,12 @@ void Tetrahedron::triangulate(E_Int* target)
   target[9]=_nodes[1]; target[10]=_nodes[2]; target[11]=_nodes[3];
 }
 
-E_Float Tetrahedron::quality(const K_FLD::FloatArray& crd, E_Float* Vol)
+nuga_real_t Tetrahedron::quality(const K_FLD::FloatArray& crd, nuga_real_t* Vol)
 {
-  E_Float S(.0), V;
+  nuga_real_t S(.0), V;
   E_Int i0, i1, i2;
-  const E_Float *p0, *p1, *p2, *p3;
-  E_Float Q=12.*sqrt(1.5);
+  const nuga_real_t *p0, *p1, *p2, *p3;
+  nuga_real_t Q=12.*sqrt(1.5);
     
   for (int i=0; i<4; i++)
   {
@@ -65,7 +65,7 @@ E_Float Tetrahedron::quality(const K_FLD::FloatArray& crd, E_Float* Vol)
     S += K_MESH::Triangle::surface<3>(p0,p1,p2); 
   }
   
-  E_Float Lmin2,Lmax2;
+  nuga_real_t Lmin2,Lmax2;
   edge_length_extrema(crd, Lmin2, Lmax2);
     
   p0= crd.col(node(0));    
@@ -79,20 +79,20 @@ E_Float Tetrahedron::quality(const K_FLD::FloatArray& crd, E_Float* Vol)
 }
 
 ///
-void Tetrahedron::edge_length_extrema(const K_FLD::FloatArray& crd, E_Float& Lmin2, E_Float& Lmax2)
+void Tetrahedron::edge_length_extrema(const K_FLD::FloatArray& crd, nuga_real_t& Lmin2, nuga_real_t& Lmax2)
 {
   Lmin2 = NUGA::FLOAT_MAX;
   Lmax2 = -1.;
   
   for (size_t i=0; i < 4; ++i)
   {
-    const E_Float* Pi = crd.col(node(i));
+    const nuga_real_t* Pi = crd.col(node(i));
     
     for (size_t j=i+1; j < 4; ++j)
     {
-      const E_Float* Pj = crd.col(node(j));
+      const nuga_real_t* Pj = crd.col(node(j));
       
-      E_Float L2 = NUGA::sqrDistance(Pi,Pj, 3);
+      nuga_real_t L2 = NUGA::sqrDistance(Pi,Pj, 3);
       
       Lmin2 = MIN(Lmin2, L2);
       Lmax2 = MAX(Lmax2, L2);

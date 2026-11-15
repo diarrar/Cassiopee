@@ -33,25 +33,25 @@ public:
   // Splits the connectivity (only) with the edge N0N1 and stores the bits into separate containers.
   /* WARNING: it is the responsibility of the caller to destroy connectBout.*/
   static void split (const K_FLD::FloatArray& pos, E_Int dim, const K_FLD::IntArray& connectBin, E_Int N0, E_Int N1,
-                     std::vector<K_FLD::IntArray> & connectBout, E_Bool enclose = 1, E_Float tolerance = EPSILON);
+                     std::vector<K_FLD::IntArray> & connectBout, E_Bool enclose = 1, nuga_real_t tolerance = EPSILON);
 
   /* Splits the connectivity with the edge N0N1 and stores the connectivity bits and corresponding coordinates
       into separate containers.*/
    /* WARNING: it is the responsibility of the caller to destroy posOut and connectBout.*/
   static void split (const K_FLD::FloatArray& pos, E_Int dim, const K_FLD::IntArray& connectBin, E_Int N0, E_Int N1,
                      std::vector<K_FLD::FloatArray> & posOut, std::vector<K_FLD::IntArray> & connectBout,
-                     E_Bool enclose = 1, E_Float tolerance = EPSILON);
+                     E_Bool enclose = 1, nuga_real_t tolerance = EPSILON);
 
   // Splits the connectivity with the input edges list and stores the bits into separate containers.
   /* WARNING: it is the responsibility of the caller to destroy connectBout. */
   static void split (const K_FLD::FloatArray& pos, E_Int dim, const K_FLD::IntArray& connectBin, const K_FLD::IntArray& cuttingEdges,
-                     std::vector<K_FLD::IntArray> & connectBout, E_Float tolerance = EPSILON);
+                     std::vector<K_FLD::IntArray> & connectBout, nuga_real_t tolerance = EPSILON);
 
   // Splits the connectivity with the input edges list and stores the bits into separate containers.
   /* WARNING: it is the responsibility of the caller to destroy connectBout. */
   static void split (const K_FLD::FloatArray& pos, E_Int dim, const std::vector<K_FLD::IntArray>& connectBin,
                      const K_FLD::IntArray& cuttingEdges, std::vector<K_FLD::IntArray> & connectBout,
-                     E_Float tolerance = EPSILON);
+                     nuga_real_t tolerance = EPSILON);
   // Separate single loops (TOPO algo)
   static void split_loops (const K_FLD::IntArray& connectBin, const K_FLD::FloatArray& coord, std::vector<K_FLD::IntArray> & connectBout);
 
@@ -98,7 +98,7 @@ private:
   ///
 public://fixme!!!
   static void __split (const K_FLD::FloatArray& pos, E_Int dim, const K_FLD::IntArray& BAR, E_Int N0, E_Int N1,
-                       std::vector<K_FLD::IntArray> & connectBout, E_Bool enclose, E_Float tolerance = EPSILON);
+                       std::vector<K_FLD::IntArray> & connectBout, E_Bool enclose, nuga_real_t tolerance = EPSILON);
 private:
   static E_Bool __fastReturn(const K_FLD::IntArray& connectBin, E_Int N0, E_Int N1);
 
@@ -107,11 +107,11 @@ private:
   static E_Bool __isBAREdge(const K_FLD::IntArray& connectB, E_Int N0, E_Int N1);
 
   static E_Bool __canBeClosed(const K_FLD::FloatArray& pos, E_Int dim, const K_FLD::IntArray& connectB,
-                              E_Int N0, E_Int N1, E_Float tolerance);
+                              E_Int N0, E_Int N1, nuga_real_t tolerance);
 
   static E_Int __getOrientation(const K_FLD::IntArray& connectB, E_Int N0);
   
-  static E_Float __getAngle(const E_Float* n1, const E_Float* n2);
+  static nuga_real_t __getAngle(const nuga_real_t* n1, const nuga_real_t* n2);
   
   
   

@@ -73,16 +73,16 @@ TRI_Conformizer<DIM>::TRI_Conformizer(bool wnh) : Conformizer<DIM, K_MESH::Trian
 
 ///
 template<short DIM>
-void TRI_Conformizer<DIM>::__set_tolerances(E_Float Lmin, E_Float Lmax, E_Float  user_tolerance)
+void TRI_Conformizer<DIM>::__set_tolerances(nuga_real_t Lmin, nuga_real_t Lmax, nuga_real_t  user_tolerance)
 {
   // min edge length (MEL)
   // We the previous code, passing inputol=EPSILON was in fact like passing 0.5e-3*mel;
   
   //  the following are chosen :
   // - max allowed is 5% of MEL
-  E_Float tol_max = K_FUNC::E_max(MAX_PERCENT*Lmin, ZERO_MACHINE);
+  nuga_real_t tol_max = K_FUNC::E_max(MAX_PERCENT*Lmin, ZERO_MACHINE);
   // - min allowed is ZERO MACHINE
-  E_Float tol_min = K_FUNC::E_max(ZERO_MACHINE*Lmax, ZERO_MACHINE);
+  nuga_real_t tol_min = K_FUNC::E_max(ZERO_MACHINE*Lmax, ZERO_MACHINE);
 
 #ifdef DEBUG_TRI_CONFORMIZER
   if (tol_min > tol_max)
@@ -133,7 +133,7 @@ TRI_Conformizer<DIM>::__split_Elements
   mode.remove_holes = false;  // option to speed up.
   mode.ignore_coincident_nodes = true;
   
-  DELAUNAY::T3Mesher<E_Float> mesher(mode);
+  DELAUNAY::T3Mesher<nuga_real_t> mesher(mode);
   
   NUGA::int_vector_type gnids, lnids;
   if (mode.ignore_coincident_nodes) K_CONNECT::IdTool::init_inc(gnids, pos.cols());
@@ -325,8 +325,8 @@ TRI_Conformizer<DIM>::__split_Elements
         //try again with a normalized contour
         K_SEARCH::BBox2D box;
         box.compute(pi);
-        E_Float dX = box.maxB[0] - box.minB[0];
-        E_Float dY = box.maxB[1] - box.minB[1];
+        nuga_real_t dX = box.maxB[0] - box.minB[0];
+        nuga_real_t dY = box.maxB[1] - box.minB[1];
 
         for (E_Int u = 0; u < pi.cols(); ++u)
         {
@@ -484,8 +484,8 @@ TRI_Conformizer<DIM>::__split_Elements
 //    std::cout << "pepare contour (compact) : " << tcomp << std::endl;
 //    std::cout << "pepare contour (transform) : " << ttra << std::endl;
 #ifdef E_TIME
-    typedef DELAUNAY::Mesher<E_Float, DELAUNAY::VarMetric<E_Float> > mesher_t;
-    typedef DELAUNAY::Kernel<E_Float> kernel_t;
+    typedef DELAUNAY::Mesher<nuga_real_t, DELAUNAY::VarMetric<nuga_real_t> > mesher_t;
+    typedef DELAUNAY::Kernel<nuga_real_t> kernel_t;
     std::cout << "mesher : init                           : " << mesher_t::tinit << std::endl;
     std::cout << "mesher : tria : cav time                : " << kernel_t::cavity_time << std::endl;
     std::cout << "mesher : tria :     init cav time       : " << kernel_t::init_cavity_time << std::endl;
@@ -512,7 +512,7 @@ TRI_Conformizer<DIM>::__split_Elements
 template <short DIM>
 E_Int
 TRI_Conformizer<DIM>::__iterative_run
-(DELAUNAY::T3Mesher<E_Float>& mesher, K_FLD::FloatArray& crd, K_FLD::IntArray& cB, 
+(DELAUNAY::T3Mesher<nuga_real_t>& mesher, K_FLD::FloatArray& crd, K_FLD::IntArray& cB, 
  NUGA::int_vector_type& hnodes, DELAUNAY::MeshData& data, std::vector<E_Int>& lnids,
  bool ignore_unforceable_edge, bool silent_last_iter)
 {
@@ -533,7 +533,7 @@ TRI_Conformizer<DIM>::__iterative_run
   while (railing++ < nb_attemps)
   {
     k = std::max((E_Int)3, k-1);
-    E_Float RTOL2 = pow(10., -k);
+    nuga_real_t RTOL2 = pow(10., -k);
     
     data.clear(); //reset containers
     mesher.clear();
@@ -567,16 +567,16 @@ TRI_Conformizer<DIM>::__iterative_run
           E_Int& Nj = edge_err.Nj;
           std::set<E_Int>& nodes = edge_err.nodes;
           
-          E_Float L2 = NUGA::sqrDistance(crd.col(Ni), crd.col(Nj), 2);
+          nuga_real_t L2 = NUGA::sqrDistance(crd.col(Ni), crd.col(Nj), 2);
         
-          std::vector<std::pair<E_Float, E_Int>> sNodes;
+          std::vector<std::pair<nuga_real_t, E_Int>> sNodes;
           
           for (auto& N : nodes)
           {
             if (N >= crd.cols()) continue; // box nodes
             
-            E_Float dNNi2 = NUGA::sqrDistance(crd.col(N), crd.col(Ni), 2);
-            E_Float dNNj2 = NUGA::sqrDistance(crd.col(N), crd.col(Nj), 2);
+            nuga_real_t dNNi2 = NUGA::sqrDistance(crd.col(N), crd.col(Ni), 2);
+            nuga_real_t dNNj2 = NUGA::sqrDistance(crd.col(N), crd.col(Nj), 2);
             //std::cout <<data.hnids.size() << std::endl;
             if (dNNi2 < RTOL2*L2)
             {
@@ -588,8 +588,8 @@ TRI_Conformizer<DIM>::__iterative_run
             }
             else // do we split NiNj ?
             {
-              E_Float lambda;
-              E_Float h2 = K_MESH::Edge::linePointMinDistance2<DIM>(crd.col(Ni),crd.col(Nj), crd.col(N), lambda);
+              nuga_real_t lambda;
+              nuga_real_t h2 = K_MESH::Edge::linePointMinDistance2<DIM>(crd.col(Ni),crd.col(Nj), crd.col(N), lambda);
               if (h2 >= RTOL2*L2 || lambda < 0. || lambda > 1.) continue;
               sNodes.push_back(std::make_pair(lambda, N));
             }
@@ -718,7 +718,7 @@ TRI_Conformizer<DIM>::__improve_triangulation_quality(const T3& tri, const std::
 template <short DIM>
 E_Int
 TRI_Conformizer<DIM>::__intersect
-(K_FLD::FloatArray& pos, const K_FLD::IntArray & connect, T3& t1, T3& t2, E_Float tol)
+(K_FLD::FloatArray& pos, const K_FLD::IntArray & connect, T3& t1, T3& t2, nuga_real_t tol)
 {
   E_Int  i, r(0);
   E_Int ret(0);
@@ -729,12 +729,12 @@ TRI_Conformizer<DIM>::__intersect
 //  }
   
 //  //////////////////////////////////////////////////////////////////////////////////
-//  const E_Float* P1 = pos.col(connect(0,t1.Si));
-//  const E_Float* Q1 = pos.col(connect(1,t1.Si)); 
-//  const E_Float* R1 = pos.col(connect(2,t1.Si));
-//  const E_Float* P2 = pos.col(connect(0,t2.Si));
-//  const E_Float* Q2 = pos.col(connect(1,t2.Si));
-//  const E_Float* R2 = pos.col(connect(2,t2.Si));
+//  const nuga_real_t* P1 = pos.col(connect(0,t1.Si));
+//  const nuga_real_t* Q1 = pos.col(connect(1,t1.Si)); 
+//  const nuga_real_t* R1 = pos.col(connect(2,t1.Si));
+//  const nuga_real_t* P2 = pos.col(connect(0,t2.Si));
+//  const nuga_real_t* Q2 = pos.col(connect(1,t2.Si));
+//  const nuga_real_t* R2 = pos.col(connect(2,t2.Si));
 //  
 //  if (!K_MESH::Triangle::fast_intersectT3<3>(P1, Q1, R1, P2, Q2, R2))
 //  {
@@ -845,9 +845,9 @@ TRI_Conformizer<DIM>::__intersect
 #endif     
     parent_type::_sorterFI.clear();
     parent_type::_sorterFI.reserve(sz);
-    E_Float P0P1[DIM], P0Pi[DIM], d;
-    const E_Float* P0 = pos.col(_wnodes_vec[0]);
-    const E_Float* P1 = pos.col(_wnodes_vec[1]);
+    nuga_real_t P0P1[DIM], P0Pi[DIM], d;
+    const nuga_real_t* P0 = pos.col(_wnodes_vec[0]);
+    const nuga_real_t* P1 = pos.col(_wnodes_vec[1]);
     NUGA::diff<DIM>(P1, P0, P0P1);
 
     parent_type::_sorterFI.push_back(std::make_pair(0., _wnodes_vec[0]));
@@ -855,7 +855,7 @@ TRI_Conformizer<DIM>::__intersect
 
     for (size_t i = 2; i < sz; ++i)
     {
-      const E_Float* Pi = pos.col(_wnodes_vec[i]);
+      const nuga_real_t* Pi = pos.col(_wnodes_vec[i]);
       NUGA::diff<DIM>(Pi, P0, P0Pi);
       d = NUGA::dot<DIM>(P0Pi, P0P1);
       parent_type::_sorterFI.push_back(std::make_pair(d, _wnodes_vec[i]));
@@ -945,15 +945,15 @@ inline bool getBoundary(const E_Int* t0, const E_Int* t1, E_Int& i, E_Int& j)
 template <short DIM>
 bool
 TRI_Conformizer<DIM>::__fast_discard
-(const K_FLD::FloatArray& pos, const E_Int* T0, const E_Int* T1, E_Float tol)
+(const K_FLD::FloatArray& pos, const E_Int* T0, const E_Int* T1, nuga_real_t tol)
 {
   
-  const E_Float* P0 = pos.col(T1[0]);
-  const E_Float* P1 = pos.col(T1[1]);
-  const E_Float* P2 = pos.col(T1[2]);
-  const E_Float* Q0 = pos.col(T0[0]);
-  const E_Float* Q1 = pos.col(T0[1]);
-  const E_Float* Q2 = pos.col(T0[2]);
+  const nuga_real_t* P0 = pos.col(T1[0]);
+  const nuga_real_t* P1 = pos.col(T1[1]);
+  const nuga_real_t* P2 = pos.col(T1[2]);
+  const nuga_real_t* Q0 = pos.col(T0[0]);
+  const nuga_real_t* Q1 = pos.col(T0[1]);
+  const nuga_real_t* Q2 = pos.col(T0[2]);
   
   // 1. Check if points are on the same side of the t's plane
   
@@ -963,7 +963,7 @@ TRI_Conformizer<DIM>::__fast_discard
   NUGA::normalize<DIM>(_U3);
         
   bool is_far[] = {false,false, false};
-  E_Float h0(0.), h1(0.), h2(0.);
+  nuga_real_t h0(0.), h1(0.), h2(0.);
   NUGA::diff<DIM>(Q0, P0, _U1);
   h0 = NUGA::dot<DIM>(_U3, _U1);
   is_far[0] = (h0 >= tol) || (h0 <= -tol);
@@ -1014,8 +1014,8 @@ TRI_Conformizer<DIM>::__fast_discard
       
       // 4. Check if they share a node S, another one is on the plane P => check if SP intersects T1
 // WARNING : COMMENTED BECAUSE NOT CONSISTENT WITH REAL ALGO : some X are missed here whereas they exist and the real algo do the job correctly
-//      const E_Float* Pplane=0;
-//      E_Float tmp[3];
+//      const nuga_real_t* Pplane=0;
+//      nuga_real_t tmp[3];
 //      if (!is_far[(shn+1)%3]) // one node shared and one node on the plane
 //        Pplane=pos.col(T0[(shn+1)%3]);
 //      else if (!is_far[(shn+2)%3]) // one node shared and one node on the plane
@@ -1023,12 +1023,12 @@ TRI_Conformizer<DIM>::__fast_discard
 //      else if (s[(shn+1)%3] == -s[(shn+2)%3])
 //      {
 //        // Compute X between Line E0E1 and Plane (Shared, n)== (T0[shn], _U3)
-//        const E_Float* E0=pos.col(T0[(shn+1)%3]);
-//        const E_Float* E1=pos.col(T0[(shn+2)%3]);
+//        const nuga_real_t* E0=pos.col(T0[(shn+1)%3]);
+//        const nuga_real_t* E1=pos.col(T0[(shn+2)%3]);
 //        NUGA::diff<DIM>(E1, E0, _U1); // Line
 //        NUGA::diff<DIM>(pos.col(T0[shn]), E0, _U2); // vector : shared node to one edge vertex
 //        
-//        E_Float s=NUGA::dot<DIM>(_U3, _U1);
+//        nuga_real_t s=NUGA::dot<DIM>(_U3, _U1);
 //        if (SIGN(s)==0)
 //          return false;
 //        s=1./s;
@@ -1063,7 +1063,7 @@ TRI_Conformizer<DIM>::__fast_discard
       E_Int i,j;    
       if (getBoundary(T0,T1, i,j)) //true if an edge is shared and therefore i,j are valued
       {
-        E_Float shE[3], U[3], n0[3], n1[3];
+        nuga_real_t shE[3], U[3], n0[3], n1[3];
         E_Int n0op = T0[(i+2)%3];
         E_Int n1op = T1[(j+2)%3];
         
@@ -1089,10 +1089,10 @@ template <short DIM>
 E_Bool
 TRI_Conformizer<DIM>::__intersect
 (K_FLD::FloatArray& pos, const K_FLD::IntArray & connect, T3& t, edge_container_type& edges, E_Int idxE,
- E_Float tol, std::vector<E_Int>& nodes, E_Int* pidx, E_Bool& coplanar)
+ nuga_real_t tol, std::vector<E_Int>& nodes, E_Int* pidx, E_Bool& coplanar)
 {
   std::vector<E_Int>& e = edges[idxE];
-  E_Float u0[2], E[DIM], eps(/*100.*EPSILON*/tol), IP[DIM];
+  nuga_real_t u0[2], E[DIM], eps(/*100.*EPSILON*/tol), IP[DIM];
   E_Bool  overlap, intersect;
   E_Int e0(e[0]), e1(e[1]), Ni, k, tx[2];  
   K_FLD::IntArray::const_iterator pS = connect.col(t.id);
@@ -1351,7 +1351,7 @@ TRI_Conformizer<DIM>::__get_mesh_data
   
     //std::cout << crdT3 << std::endl;
   
-    E_Float h0(crdT3(2,0)), h;
+    nuga_real_t h0(crdT3(2,0)), h;
     for (size_t i=0; i < crd.cols(); ++i) //reject any node not falling on the triangle's plane
     {
       if (keep[i] != -1) continue;
@@ -1369,7 +1369,7 @@ TRI_Conformizer<DIM>::__get_mesh_data
       keep[i]=1;
       for(size_t n=0; (n<3) && keep[i]; ++n)
       {
-        E_Float s = K_MESH::Triangle::surface<2>(crd.col(i), crdT3.col(n), crdT3.col((n+1)%3));
+        nuga_real_t s = K_MESH::Triangle::surface<2>(crd.col(i), crdT3.col(n), crdT3.col((n+1)%3));
         keep[i] &= (s >= -EPSILON);
       }
     }
@@ -1596,12 +1596,12 @@ TRI_Conformizer<DIM>::__get_Imprint_edges
 template <short DIM>
 E_Bool
 TRI_Conformizer<DIM>::is_inside
-(const K_FLD::IntArray& connect, const T3& t, const K_FLD::FloatArray& pos, E_Int Ni, E_Float tol)
+(const K_FLD::IntArray& connect, const T3& t, const K_FLD::FloatArray& pos, E_Int Ni, nuga_real_t tol)
 {
   E_Bool inside = true;
   K_FLD::IntArray::const_iterator pS = connect.col(t.id);
-  E_Float s0 = K_MESH::Triangle::surface<DIM>(pos.col(*pS), pos.col(*(pS+1)), pos.col(*(pS+2)));
-  E_Float s = 0.;
+  nuga_real_t s0 = K_MESH::Triangle::surface<DIM>(pos.col(*pS), pos.col(*(pS+1)), pos.col(*(pS+2)));
+  nuga_real_t s = 0.;
   for (E_Int n = 0; (n < K_MESH::Triangle::NB_NODES) && inside; ++n)
   {
     s += K_MESH::Triangle::surface<DIM>(pos.col(Ni), pos.col(*(pS+n)), pos.col(*(pS+(n+1)%K_MESH::Triangle::NB_NODES)));
@@ -1647,7 +1647,7 @@ TRI_Conformizer<DIM>::__tidy_edge (const K_FLD::FloatArray& coord, std::vector<E
 template <short DIM>
 E_Int
 TRI_Conformizer<DIM>::__simplify_and_clean
-(const K_FLD::FloatArray& pos, E_Float tolerance,
+(const K_FLD::FloatArray& pos, nuga_real_t tolerance,
  K_FLD::IntArray& connect, NUGA::int_vector_type& ancestors, NUGA::bool_vector_type& xc)
 {
   // Merge with priorization : Existing common nodes (ECN) > X common nodes (XCN) > Other intersected elements nodes (OXEN)
@@ -1729,14 +1729,14 @@ TRI_Conformizer<DIM>::__simplify_and_clean
 #ifdef DEBUG_TRI_CONFORMIZER
 template <short DIM>
 void
-TRI_Conformizer<DIM>::draw(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, E_Float tol, E_Int what, K_FLD::IntArray& out)
+TRI_Conformizer<DIM>::draw(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, nuga_real_t tol, E_Int what, K_FLD::IntArray& out)
 {
   // OK=0, HAT = 1, SPIKE = 2, SMALL = 4, BADQUAL = 5
   
   out.clear();
 
-  E_Float MINQUAL{ 1.e-3 };
-  E_Float tol2 = tol * tol;
+  nuga_real_t MINQUAL{ 1.e-3 };
+  nuga_real_t tol2 = tol * tol;
 
   for (E_Int i = 0; i < connect.cols(); ++i)
   {
@@ -1753,7 +1753,7 @@ TRI_Conformizer<DIM>::draw(const K_FLD::FloatArray& pos, const K_FLD::IntArray& 
 
     if (what == 5)
     {
-      E_Float q = K_MESH::Triangle::qualityG<3>(pos.col(connect(0, i)), pos.col(connect(1, i)), pos.col(connect(2, i)));
+      nuga_real_t q = K_MESH::Triangle::qualityG<3>(pos.col(connect(0, i)), pos.col(connect(1, i)), pos.col(connect(2, i)));
       if (q < MINQUAL)
         skip = false;
     }
@@ -1774,7 +1774,7 @@ TRI_Conformizer<DIM>::draw(const K_FLD::FloatArray& pos, const K_FLD::IntArray& 
 template <short DIM>
 E_Int
 TRI_Conformizer<DIM>::__simplify_and_clean2
-(const K_FLD::FloatArray& pos, E_Float tolerance,
+(const K_FLD::FloatArray& pos, nuga_real_t tolerance,
 K_FLD::IntArray& connect, NUGA::int_vector_type& ancestors, NUGA::bool_vector_type& xc)
 {
   //std::cout << "FIXING SPIKES" << std::endl;
@@ -1943,10 +1943,10 @@ TRI_Conformizer<DIM>::__compact_to_mesh
 template <short DIM>
 void
 TRI_Conformizer<DIM>::__transform
-(const E_Float* P0, const E_Float* P1, const E_Float* P2, K_FLD::FloatArray& pos)
+(const nuga_real_t* P0, const nuga_real_t* P1, const nuga_real_t* P2, K_FLD::FloatArray& pos)
 {
   // Compute a orthonormal frame having U along P0P1 and W along the normal.
-  E_Float U[3], V[3], W[3];
+  nuga_real_t U[3], V[3], W[3];
   K_MESH::Triangle::normal(P0, P1, P2, W);
   NUGA::diff<3>(P1, P0, U);
   NUGA::normalize<3>(U);
@@ -1972,7 +1972,7 @@ TRI_Conformizer<DIM>::__transform
 (K_FLD::FloatArray& pos, const K_FLD::FloatArray& t)
 {
   K_FLD::FloatArray::iterator pN;
-  E_Float Q[3];
+  nuga_real_t Q[3];
   E_Int i, j, n;
   for (i = 0; i < pos.cols(); ++i)
   {
@@ -2054,9 +2054,9 @@ TRI_Conformizer<DIM>::__process_duplicates
 #ifdef DEBUG_TRI_CONFORMIZER
 ///
 
-inline E_Float dist2(const E_Float* pt, const E_Float* pt2)
+inline nuga_real_t dist2(const nuga_real_t* pt, const nuga_real_t* pt2)
 {
-  E_Float d2 = 0.;
+  nuga_real_t d2 = 0.;
   for (E_Int k = 0; k < 3; ++k)
     d2 += (pt2[k] - pt[k])*(pt2[k] - pt[k]);
   return d2;
@@ -2087,9 +2087,9 @@ TRI_Conformizer<DIM>::drawElements
   if (localid)
     NUGA::MeshTool::compact_to_mesh(coord1, cOut, newIDs);
   
-  //E_Float d01 = sqrt(dist2(coord1.col(0), coord1.col(1)));
-  //E_Float d03 = sqrt(dist2(coord1.col(0), coord1.col(3)));
-  //E_Float d13 = sqrt(dist2(coord1.col(1), coord1.col(3)));
+  //nuga_real_t d01 = sqrt(dist2(coord1.col(0), coord1.col(1)));
+  //nuga_real_t d03 = sqrt(dist2(coord1.col(0), coord1.col(3)));
+  //nuga_real_t d13 = sqrt(dist2(coord1.col(1), coord1.col(3)));
   //std::cout << "distances : " << d01 << " " << d03 << " " << d13 << std::endl;
       
   medith::write(fname, coord1, cOut, "TRI", 0, colors);

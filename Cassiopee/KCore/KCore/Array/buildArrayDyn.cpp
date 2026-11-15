@@ -31,7 +31,7 @@ using namespace std;
    IN: ni,nj,nk: number of points in field
    OUT: PyObject created. */
 //=============================================================================
-PyObject* K_ARRAY::buildArray(const DynArray<E_Float>& field, const char* varString, 
+PyObject* K_ARRAY::buildArray(const DynArray<nuga_real_t>& field, const char* varString, 
                               E_Int ni, E_Int nj, E_Int nk)
 {
   npy_intp dim[2];
@@ -43,7 +43,7 @@ PyObject* K_ARRAY::buildArray(const DynArray<E_Float>& field, const char* varStr
   dim[0] = field.rows();
   a = (PyArrayObject*)PyArray_SimpleNew(2, dim, E_NPY_FLOAT);
   E_Float* d = (E_Float*)PyArray_DATA(a);
-  DynArray<E_Float>::const_iterator it = field.begin();
+  DynArray<nuga_real_t>::const_iterator it = field.begin();
   E_Int dim0 = dim[0]; E_Int dim1 = dim[1];
   for (E_Int i = 0; i < dim1; i++)
     for (E_Int n = 0; n < dim0; n++)
@@ -70,7 +70,7 @@ PyObject* K_ARRAY::buildArray(const DynArray<E_Float>& field, const char* varStr
    
    OUT: PyObject created. */
 //=============================================================================
-PyObject* K_ARRAY::buildArray(const DynArray<E_Float>& field, const char* varString,
+PyObject* K_ARRAY::buildArray(const DynArray<nuga_real_t>& field, const char* varString,
                               const DynArray<E_Int>& c, E_Int et, const char* etString,
 			                        E_Bool center)
 {
@@ -166,7 +166,7 @@ PyObject* K_ARRAY::buildArray(const DynArray<E_Float>& field, const char* varStr
   E_Int dim1 = dim[1];
   a = (PyArrayObject*)PyArray_SimpleNew(2, dim, E_NPY_FLOAT);
   E_Float* d = (E_Float*)PyArray_DATA(a);
-  DynArray<E_Float>::const_iterator it = field.begin();
+  DynArray<nuga_real_t>::const_iterator it = field.begin();
   for (E_Int i = 0; i < dim1; i++)
     for (E_Int n = 0; n < dim[0]; n++)
     {
