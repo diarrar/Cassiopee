@@ -1,4 +1,5 @@
 #include "eikonalFIMSolver.h"
+#include "eikonalEps.h"
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -144,7 +145,7 @@ namespace {
                                                        m_dimensions.k, m_dimensions.ind, 1, m_dimensions.i, ninj, sol,
                                                        ( speed == NULL ? 1. : speed[L[i].ind] ) );
                 sol[L[i].ind] = std::min(q,p);
-                if ( std::abs( p - q ) < eps ) {
+                if ( std::abs( p - q ) < EIKONAL_CONV_EPS( p ) * ( eps / 1.E-6 ) ) {
                     // Indices du point courant et nombre de points courants :
                     indice_t neighbours_ind[6];
                     size_t   nb_neighbours = 0;

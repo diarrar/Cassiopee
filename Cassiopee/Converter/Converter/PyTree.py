@@ -1195,7 +1195,7 @@ def convertFile2PyTree(fileName, format=None, nptsCurve=20, nptsLine=2,
             elif Internal.E_NpyInt == numpy.int64: Internal._adaptTypes(a, convertR42R8=False, convertI82I4=False, convertI42I8=True)
             # modify r4/r8 types
             if Internal.E_NpyFloat == numpy.float64: Internal._adaptTypes(a, convertR42R8=True, convertI82I4=False, convertR82R4=False)
-            elif Internal.E_NpyFloat == numpy.float32: Internal._adaptTypes(a, convertR42R8=False, convertI82I4=False, convertR82R4=True)
+            elif Internal.E_NpyFloat == numpy.float32: Internal._adaptFloatTypes(a, numpy.float32)
             print('done.')
 
         if Internal.isTopTree(a): # top tree

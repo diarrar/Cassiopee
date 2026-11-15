@@ -208,6 +208,18 @@ def getNCells__(a):
             else: ncells = a[2].shape[1]
     return ncells
 
+# Convert the field numpys of an array to the compiled real precision
+# (pickled arrays may have been written by a build of another precision)
+def _adaptArrayFloatType__(a):
+    if not isinstance(a, list) or len(a) < 4: return
+    if isinstance(a[1], list): # array2/3
+        for c, k in enumerate(a[1]):
+            if isinstance(k, numpy.ndarray) and k.dtype != E_NpyFloat and k.dtype.kind == 'f':
+                a[1][c] = k.astype(E_NpyFloat, order='K')
+    elif isinstance(a[1], numpy.ndarray):
+        if a[1].dtype != E_NpyFloat and a[1].dtype.kind == 'f':
+            a[1] = a[1].astype(E_NpyFloat, order='K')
+
 # -- Copy an array --
 def copy(array):
     """Copy  an  array.
@@ -812,6 +824,7 @@ def convertFile2Arrays(fileName, format=None, nptsCurve=20, nptsLine=2,
                         else: # array1
                             if i[2].dtype != E_NpyInt:
                                 i[2] = i[2].astype(E_NpyInt, order='K')
+                    _adaptArrayFloatType__(i)
             else:
                 if len(a) == 4:
                     if isinstance(a[2], list): # array2/3
@@ -819,6 +832,7 @@ def convertFile2Arrays(fileName, format=None, nptsCurve=20, nptsLine=2,
                             if k.dtype != E_NpyInt: a[2][c] = k.astype(E_NpyInt, order='K')
                     else: # array1
                         if a[2].dtype != E_NpyInt: a[2] = a[2].astype(E_NpyInt, order='K')
+                _adaptArrayFloatType__(a)
 
             print('done.')
             return a

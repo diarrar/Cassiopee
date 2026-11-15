@@ -1,6 +1,7 @@
 // Solveur Eikonal sur une grille cartesienne
 
 #include "eikonalSolver.h"
+#include "eikonalEps.h"
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -169,7 +170,7 @@ void solveEikonalOnIsotropGrid( unsigned ni, unsigned nj, unsigned nk, E_Float l
             E_Float  p = sol[ind];
             E_Float  q = updateSolOn( i, j, k, stride_i, stride_j, stride_k, ni, nj, nk, cx, cy, cz, speed, sol );
             sol[ind]   = std::min( q, p );
-            if ( std::fabs( p - q ) < 1.E-6 ) {  // Valeurs d'epsilon a changer en parametre ( externe ? ) )
+            if ( std::fabs( p - q ) < EIKONAL_CONV_EPS( p ) ) {  // Valeurs d'epsilon a changer en parametre ( externe ? ) )
                 // Pour chaque voisin xnb de x:
                 if ( ( i > 0 ) &&
                      ( Lmask[ind - stride_i] == 0 ) ) {  // Si i-1 existe et n'est pas dans la liste active :
@@ -279,7 +280,7 @@ static void solveBlock( unsigned iBlk, unsigned jBlk, unsigned kBlk, unsigned nb
                     E_Float q =
                         updateSolOn( i, j, k, stride_i, stride_j, stride_k, ni, nj, nk, cx, cy, cz, speed, sol );
                     sol[ind] = std::min( q, p );
-                    if ( std::fabs( p - q ) < 1.E-6 )  // Valeurs d'epsilon à changer en parametre ( externe ? ) )
+                    if ( std::fabs( p - q ) < EIKONAL_CONV_EPS( p ) )  // Valeurs d'epsilon à changer en parametre ( externe ? ) )
                     {                                  // Pour chaque voisin xnb de x :
                         if ( ( i > 0 ) &&
                              ( Cbn[ind - stride_i] == 0 ) )  // Si i-1 existe et n est pas dans la liste active :

@@ -5983,6 +5983,17 @@ def _adaptValueType(nodes, newType):
     for n in nodes:
       n[1] = n[1].astype(newType)
 
+# Convert every real numpy of a tree to the given dtype (float32 or float64).
+# Used in single precision to read references or files written in double.
+# CGNSLibraryVersion is kept in R4 as prescribed by the CGNS norm.
+def _adaptFloatTypes(t, dtype):
+  for n in getNodesFromName(t, '*'):
+    v = n[1]
+    if isinstance(v, numpy.ndarray) and v.dtype.kind == 'f' and v.dtype != dtype:
+      if n[0] == 'CGNSLibraryVersion': continue
+      n[1] = v.astype(dtype, order='K')
+  return None
+
 # change les numpy R4 en R8 et les numpy i8 en i4
 # dans FlowSolution/Coordinates et Elements_t
 def _adaptTypes(t, convertR42R8=True, convertI82I4=True, convertR82R4=False, convertI42I8=False):
