@@ -1,6 +1,6 @@
 # Compilation de Cassiopee en simple précision (r4)
 
-Bilan au 16/11/2026, branche `claude/admiring-planck-933s9c` (31 commits au-dessus de `dev`, `dev` fusionné à 0ae977d).
+Bilan au 16/11/2026, branche `claude/admiring-planck-933s9c` (34 commits au-dessus de `dev`, `dev` fusionné à 0ae977d).
 
 ## Objectif et principe
 
@@ -11,10 +11,10 @@ Le mécanisme suit celui des entiers 64 bits (`_i8`) :
 
 - suffixe `_r4` dans `ELSAPROD` (par exemple `juno_gcc_r4`), cumulable avec `_i8` et `_DBG` ;
 - `Dist.ESINGLEREAL()` ajoute `-DE_SINGLEREAL` en C/C++, passe `REAL_E="REAL*4"` au préprocesseur Fortran et retire `-r8`/`-fdefault-real-8` ; le suffixe est retiré pour la recherche de la configuration dans `installBase.json` ;
-- `DefTypes.h` : `E_DOUBLEREAL` découle de l'absence de `E_SINGLEREAL` ; `E_NPY_FLOAT` (NPY_DOUBLE ou NPY_FLOAT32), `E_EPSILON` (1e-12 ou 1e-6) et `E_FloatAsInt` (entier de la taille de `E_Float`) dépendent de la précision ;
+- `DefTypes.h` : `E_DOUBLEREAL` découle de l'absence de `E_SINGLEREAL` ; `E_NPY_FLOAT` (NPY_DOUBLE ou NPY_FLOAT32), `E_EPSILON` (1e-12 ou 1e-6), `E_REALTOL(x)` (plafonne à 1e-6 en r4 une tolérance de coïncidence écrite pour le double) et `E_FloatAsInt` (entier de la taille de `E_Float`) dépendent de la précision ;
 - `DefFunction.h` : en r4, surcharges `double` et mixtes float/double de `E_min`/`E_max`, pour que les appels avec un littéral double restent non ambigus ;
-- côté Python, `Converter.Internal.E_NpyFloat` (numpy.float64 ou numpy.float32) est le dtype des numpys échangés avec les modules compilés, et `KCore.realTol(tol)` plafonne à 1e-6 en r4 les tolérances géométriques par défaut des API ;
-- les points d'entrée NumPy de KCore (`getFromArray*`, `getFromNumpyArray`) refusent un numpy qui n'est pas dans la précision compilée, au lieu de le lire corrompu. C'est le seul changement de comportement en r8 : un float32 passé par erreur est maintenant refusé.
+- côté Python, la précision est demandée au binaire (`KCore.getRealSize()`, 4 ou 8) et non déduite d'`ELSAPROD` : `Converter.Internal.E_NpyFloat` (numpy.float64 ou numpy.float32) est le dtype des numpys échangés avec les modules compilés, et `KCore.realTol(tol)` plafonne à 1e-6 en r4 les tolérances géométriques par défaut des API ;
+- les points d'entrée NumPy de KCore (`getFromArray*`, `getFromNumpyArray`, macro `K_NUMPY_CHECK_FLOAT` pour les lectures directes des modules) refusent un numpy qui n'est pas dans la précision compilée, au lieu de le lire corrompu ; le chemin pyTree (`K_PYTREE::getValueAF`) convertit le nœud en place avec un avertissement. C'est le seul changement de comportement en r8 : un float32 passé par erreur est maintenant refusé ou converti.
 
 Installation : `export ELSAPROD=<prod>_r4` (ou `MACHINE=<prod>_r4` avec `sh_Cassiopee_local`), puis `./install`. Les binaires vont dans `Dist/bin/<prod>_r4`, séparés du build r8.
 
@@ -38,7 +38,8 @@ En double précision tous ces types sont identiques, le binaire r8 ne change pas
 | usurp (Post) | conversion explicite des tableaux, usurp travaille en `real(kind=rd)` |
 | CPlot | les zones gardent leur stockage `double`, conversion à la copie (`zoneCopyField`) |
 | Expression (Converter) | moteur SIMD en double, vues directes en r8, tampons convertis et recopiés en r4, tableaux float acceptés |
-| lecteur arc, FSDM | buffers double ou types mémoire HDF5 adaptés |
+| lecteur arc, FSDM, tau | buffers double ou types mémoire HDF5/netCDF adaptés |
+| tecplot binaire, plot3d | la précision du fichier est lue (drapeaux ou séparateurs) puis convertie, un build r4 relit les fichiers double |
 | HDF/ADF CGNS | lecture dans la précision compilée (conversion HDF5 à la volée, ou copie pour ADF), écriture pilotée par le dtype |
 | MPI | `E_PCM_FLOAT`, `XMPI_FLOAT` (XCore), `E_MPI_FLOAT` (Converter.Mpi4py) |
 | Nuga | calcule en double, voir ci-dessus |
@@ -53,11 +54,11 @@ En double précision tous ces types sont identiques, le binaire r8 ne change pas
 
 **Lot 2, modules C++ : terminé.** Tous les modules compilent en r4 avec gcc 12. Un balayage syntaxique des 1218 sources C++ dans les deux modes ne montre aucune différence r4/r8. Fortran : compile, non relu (21 fichiers avec des littéraux `D0`, promus en double dans les expressions).
 
-**Lot 3, entrées/sorties : CGNS terminé.** Formats binaires legacy compilés mais non relus ligne à ligne.
+**Lot 3, entrées/sorties : CGNS, tecplot, plot3d, tau, FSDM, arc terminés.** Autres formats binaires (vtk, ply, stl, gmsh, v3d) compilés mais non relus ligne à ligne.
 
 **Lot 4, frontières : fait**, sauf Compressor, Netgen et zoltan, voir le tableau.
 
-**Lot 5, validation : en cours.** Tolérances de `KCore/test.py` en r4 : 1e-5 absolu, 1e-6 relatif. Les références pickle (`.ref*`), arrays et pyTrees, sont converties dans la précision compilée à la lecture, ce qui permet de comparer un run r4 aux références r8.
+**Lot 5, validation : en cours.** Tolérances de `KCore/test.py` en r4 : 1e-5 absolu, 1e-5 relatif. Les références pickle (`.ref*`), arrays et pyTrees, sont converties dans la précision compilée à la lecture, ce qui permet de comparer un run r4 aux références r8.
 
 ## Validation
 
@@ -81,6 +82,13 @@ Pour les tests MPI lancés hors `mpirun` (import de `Converter.Mpi` dans un test
 - **Attendus** (15 tests) : getSizeOf (tailles en octets), tests comparant des dtypes.
 
 Les tests dont le résultat est combinatoirement sensible à la précision (booléens, mailleurs, AMR, adaptMesh) différeront des références r8 par construction. Leur critère en r4 est l'absence de plantage et un résultat plausible ; des références r4 propres devront être générées une fois le code stabilisé.
+
+## Limites connues du mode r4
+
+- Les indices stockés dans des champs réels (`getInterpolatedPoints`, `getInterpolatedEXPoints`, `setInterpolations`) ne sont exacts que jusqu'à 2^24, soit 16,7 millions de points par zone.
+- `E_FloatAsInt` vaut `int32` en r4 : en `_r4_i8`, l'index global de `createGlobalIndex` est tronqué au-delà de 2^31.
+- Les tolérances C++ en dur (environ 500 lignes entre 1e-10 et 1e-15 hors tiers) ne sont traitées qu'au cas par cas avec `E_REALTOL` ; les gardes anti-division par zéro peuvent rester telles quelles, les seuils de coïncidence géométrique sont à passer sous `E_REALTOL` quand la validation les désigne.
+- Compressor rend des float64 (zfp, sz, fpc décompressent en double).
 
 ## Correctifs notables trouvés par la validation r4
 
