@@ -166,9 +166,14 @@ E_Int K_IO::GenIO::tauread(char* file, PyObject*& tree)
       {
         npy_dim_vals[0] = dims[0];
         count[0] = dims[0];
-        xc = (PyArrayObject*)PyArray_EMPTY(1, &npy_dim_vals[0], NPY_FLOAT64, 1);
+        xc = (PyArrayObject*)PyArray_EMPTY(1, &npy_dim_vals[0], E_NPY_FLOAT, 1);
         E_Float* pxc = (E_Float*)PyArray_DATA(xc);
+        #ifdef E_DOUBLEREAL
         nc_get_vara_double(ncid, id, start, count, pxc);
+        #else
+        { double* bufd = new double [count[0]]; nc_get_vara_double(ncid, id, start, count, bufd);
+          for (size_t k = 0; k < count[0]; k++) pxc[k] = (E_Float)bufd[k]; delete [] bufd; }
+        #endif
         nvertex = dims[0];
       }
     }
@@ -178,9 +183,14 @@ E_Int K_IO::GenIO::tauread(char* file, PyObject*& tree)
       {
         npy_dim_vals[0] = dims[0];
         count[0] = dims[0];
-        yc = (PyArrayObject*)PyArray_EMPTY(1, &npy_dim_vals[0], NPY_FLOAT64, 1);
+        yc = (PyArrayObject*)PyArray_EMPTY(1, &npy_dim_vals[0], E_NPY_FLOAT, 1);
         E_Float* pyc = (E_Float*)PyArray_DATA(yc);
+        #ifdef E_DOUBLEREAL
         nc_get_vara_double(ncid, id, start, count, pyc);
+        #else
+        { double* bufd = new double [count[0]]; nc_get_vara_double(ncid, id, start, count, bufd);
+          for (size_t k = 0; k < count[0]; k++) pyc[k] = (E_Float)bufd[k]; delete [] bufd; }
+        #endif
       }
     }
     else if (strcmp(name, "points_zc") == 0)
@@ -189,9 +199,14 @@ E_Int K_IO::GenIO::tauread(char* file, PyObject*& tree)
       {
         npy_dim_vals[0] = dims[0];
         count[0] = dims[0];
-        zc = (PyArrayObject*)PyArray_EMPTY(1, &npy_dim_vals[0], NPY_FLOAT64, 1);
+        zc = (PyArrayObject*)PyArray_EMPTY(1, &npy_dim_vals[0], E_NPY_FLOAT, 1);
         E_Float* pzc = (E_Float*)PyArray_DATA(zc);
+        #ifdef E_DOUBLEREAL
         nc_get_vara_double(ncid, id, start, count, pzc);
+        #else
+        { double* bufd = new double [count[0]]; nc_get_vara_double(ncid, id, start, count, bufd);
+          for (size_t k = 0; k < count[0]; k++) pzc[k] = (E_Float)bufd[k]; delete [] bufd; }
+        #endif
       }
     }
     else if (strcmp(name, "points_of_hexaeders") == 0) // HEXA

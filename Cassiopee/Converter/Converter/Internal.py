@@ -6,11 +6,11 @@ import KCore.kcore as KCore
 from . import converter
 
 # INT size for numpy connectivities
-from KCore.Dist import EDOUBLEINT, ESINGLEREAL
+from KCore.Dist import EDOUBLEINT
 if EDOUBLEINT(): E_NpyInt = numpy.int64
 else: E_NpyInt = numpy.int32
-# REAL size for numpy fields (compiled precision of E_Float)
-if ESINGLEREAL(): E_NpyFloat = numpy.float32
+# REAL size for numpy fields (compiled precision of E_Float, asked to the binary)
+if KCore.getRealSize() == 4: E_NpyFloat = numpy.float32
 else: E_NpyFloat = numpy.float64
 
 # Containers

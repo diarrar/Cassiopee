@@ -96,8 +96,12 @@
 
 #ifdef E_DOUBLEREAL
   #define E_EPSILON 1.e-12
+  // geometric coincidence tolerance given in double: unchanged
+  #define E_REALTOL(x) (x)
 #else
   #define E_EPSILON 1.e-6
+  // geometric coincidence tolerance given in double: floored at the resolution of float
+  #define E_REALTOL(x) (((x) < 1.e-6) ? 1.e-6 : (x))
 #endif
 
 ///-

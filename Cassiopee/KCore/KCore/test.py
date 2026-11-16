@@ -6,10 +6,10 @@
 import numpy, sys, os
 
 # global tolerance on float fields (depends on the compiled real precision)
-from KCore.Dist import ESINGLEREAL
-if ESINGLEREAL():
+import KCore
+if KCore.getRealSize() == 4:
     TOLERANCE = 1.e-5  # absolute
-    RELTOLERANCE = 1.e-6 # relative
+    RELTOLERANCE = 1.e-5 # relative (float eps is 1.2e-7)
 else:
     TOLERANCE = 1.e-11  # absolute
     RELTOLERANCE = 1.e-14 # relative

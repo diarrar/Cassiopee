@@ -43,6 +43,7 @@ PyObject* K_CONVERTER::cpyGhost2Real(PyObject* self, PyObject* args)
   E_Int indreal, indghost;
   PyArrayObject* arR = (PyArrayObject*)arrayR;
   PyArrayObject* arG = (PyArrayObject*)arrayG;
+  K_NUMPY_CHECK_FLOAT(arG, "cpyGhost2Real"); K_NUMPY_CHECK_FLOAT(arR, "cpyGhost2Real");
   E_Float* dataG = (E_Float*)PyArray_DATA(arG);
   E_Float* dataR = (E_Float*)PyArray_DATA(arR);
   if (km == 0) dim = 2; 
@@ -105,6 +106,7 @@ PyObject* K_CONVERTER::cpyReal2Ghost(PyObject* self,
   E_Int indreal, indghost, indadj;
   PyArrayObject* arR = (PyArrayObject*)arrayR;
   PyArrayObject* arG = (PyArrayObject*)arrayG;
+  K_NUMPY_CHECK_FLOAT(arG, "cpyGhost2Real"); K_NUMPY_CHECK_FLOAT(arR, "cpyGhost2Real");
   E_Float* dataG = (E_Float*)PyArray_DATA(arG);
   E_Float* dataR = (E_Float*)PyArray_DATA(arR);
   if (km == 0) dim = 2; 
@@ -420,6 +422,7 @@ PyObject* K_CONVERTER::cpyValueByField(PyObject* self, PyObject* args)
 
   PyArrayObject* crA = (PyArrayObject*)cA;
   PyArrayObject* crB = (PyArrayObject*)cB;
+  K_NUMPY_CHECK_FLOAT(crA, "cpyGhost2Real"); K_NUMPY_CHECK_FLOAT(crB, "cpyGhost2Real");
   E_Float* dataA = (E_Float*)PyArray_DATA(crA);
   E_Float* dataB = (E_Float*)PyArray_DATA(crB);
   E_Float* pA = dataA+nf*np;

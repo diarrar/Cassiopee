@@ -38,8 +38,15 @@ static PyMethodDef Pykcore [] =
   {"testerAcc", K_KCORE::testerAcc, METH_VARARGS},
   {"copyto", K_KCORE::copyto, METH_VARARGS},
   {"copyfrom", K_KCORE::copyfrom, METH_VARARGS},
+  {"getRealSize", K_KCORE::getRealSize, METH_VARARGS},
   {NULL, NULL}
 };
+
+// Size in bytes of E_Float of this build (8: double, 4: single precision)
+PyObject* K_KCORE::getRealSize(PyObject* self, PyObject* args)
+{
+  return Py_BuildValue("i", (int)sizeof(E_Float));
+}
 
 #if PY_MAJOR_VERSION >= 3
 static struct PyModuleDef moduledef = {

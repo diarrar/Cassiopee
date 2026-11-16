@@ -53,7 +53,7 @@ void K_COMPGEOM::rectifyNormals(const E_Int ni1, const E_Int nj1, const E_Int in
   isopp = 1;
   isclassical = 0;
 
-  eps = 1.e-12;
+  eps = E_REALTOL(1.e-12);
   matchTol = 1.e-12;
   psmin = 0.1; // minimum value to avoid considering blocks orthogonal
 

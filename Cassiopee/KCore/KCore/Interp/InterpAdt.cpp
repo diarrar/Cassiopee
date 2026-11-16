@@ -130,7 +130,7 @@ K_INTERP::InterpAdt::InterpAdt(E_Int npts,
     
     E_Float *rt, *thetat;
     thetat = NULL; rt = NULL;
-    E_Float eps = 1.e-12;
+    E_Float eps = E_REALTOL(1.e-12);
 
     if (axisX > eps && axisY < eps && axisZ < eps) // axe X
     {
@@ -207,7 +207,7 @@ void K_INTERP::InterpAdt::cart2Cyl(E_Int npts, E_Float* x, E_Float* y, E_Float* 
   E_Float* xR=NULL; E_Float* yR=NULL; E_Float* zR=NULL;
   E_Float *rt, *thetat;
   thetat = NULL; rt = NULL;
-  E_Float eps = 1.e-12;
+  E_Float eps = E_REALTOL(1.e-12);
   if (_axisX > eps && _axisY < eps && _axisZ < eps) // axe X
   {
     rt = coordY; thetat = coordZ;
@@ -245,7 +245,7 @@ void K_INTERP::InterpAdt::cart2Cyl(E_Int npts, E_Float* x, E_Float* y, E_Float* 
 // Passe le pt fourni en cylindrique
 void K_INTERP::InterpAdt::cart2Cyl(E_Float& x, E_Float& y, E_Float& z)
 {
-    E_Float eps = 1.e-12;
+    E_Float eps = E_REALTOL(1.e-12);
     E_Float* rt=NULL; E_Float* thetat=NULL;
     E_Float Xo, Yo, Zo;
 

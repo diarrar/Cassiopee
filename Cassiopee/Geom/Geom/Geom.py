@@ -7,8 +7,8 @@ import numpy
 import KCore.Vector as Vector
 
 # REAL size for numpy fields (compiled precision of E_Float)
-from KCore.Dist import ESINGLEREAL
-if ESINGLEREAL(): E_NpyFloat = numpy.float32
+import KCore
+if KCore.getRealSize() == 4: E_NpyFloat = numpy.float32
 else: E_NpyFloat = numpy.float64
 
 from .MapEdge import (

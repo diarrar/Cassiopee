@@ -76,6 +76,7 @@ PyObject* K_CONVERTER::fillJoinNMNodes(PyObject* self, PyObject* args)
   PyArrayObject* arR = (PyArrayObject*)arrayR;
   PyArrayObject* arD = (PyArrayObject*)arrayD;
   PyArrayObject* arI = (PyArrayObject*)arrayIR;
+  K_NUMPY_CHECK_FLOAT(arR, "fillJoinNM"); K_NUMPY_CHECK_FLOAT(arD, "fillJoinNM");
   E_Float* dataR = (E_Float*)PyArray_DATA(arR);
   E_Float* dataD = (E_Float*)PyArray_DATA(arD);
   E_Int* arrayBorder = (E_Int*)PyArray_DATA(arI);
@@ -296,6 +297,7 @@ PyObject* K_CONVERTER::fillJoinNMCenters(PyObject* self, PyObject* args)
   PyArrayObject* arR = (PyArrayObject*)arrayR;
   PyArrayObject* arD = (PyArrayObject*)arrayD;
   PyArrayObject* arI = (PyArrayObject*)arrayIR;
+  K_NUMPY_CHECK_FLOAT(arR, "fillJoinNM"); K_NUMPY_CHECK_FLOAT(arD, "fillJoinNM");
   E_Float* dataR = (E_Float*)PyArray_DATA(arR);
   E_Float* dataD = (E_Float*)PyArray_DATA(arD);
   E_Int* arrayBorder = (E_Int*)PyArray_DATA(arI);

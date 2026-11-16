@@ -41,6 +41,7 @@ PyObject* K_CONNECTOR::cellN2OversetHolesStruct(PyObject* self, PyObject* args)
 
   // Get CellN array
   PyArrayObject* cellNatureField = (PyArrayObject*)CellN;
+  K_NUMPY_CHECK_FLOAT(cellNatureField, "cellN2OversetHoles");
   E_Float* cellN = (E_Float*)PyArray_DATA(cellNatureField);
 
   // Get PointList array
@@ -124,6 +125,7 @@ PyObject* K_CONNECTOR::cellN2OversetHolesUnStruct(PyObject* self,
 
   // Get CellN array
   PyArrayObject* cellNatureField = (PyArrayObject*)CellN;
+  K_NUMPY_CHECK_FLOAT(cellNatureField, "cellN2OversetHoles");
   E_Float* cellN = (E_Float*)PyArray_DATA(cellNatureField);
 
   // Get PointList array
