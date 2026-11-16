@@ -5,6 +5,7 @@
 #
 from . import Transform
 import KCore
+from KCore import realTol
 from . import transform
 import numpy
 __version__ = Transform.__version__
@@ -285,7 +286,7 @@ def _freeForm(a, controlPoints):
     C.setFields(array, a, 'nodes', writeDim=False)
     return None
 
-def join(t, t2=None, tol=KCore.realTol(1.e-10)):
+def join(t, t2=None, tol=realTol(1.e-10)):
     """Join two zones in one or join a list of zones in one.
     Usage: join(t,t2) or join(t)"""
     nodes = Internal.getZones(t)
@@ -311,7 +312,7 @@ def join(t, t2=None, tol=KCore.realTol(1.e-10)):
         z = C.identifyBC(z, allBCInfos, tol)
     return z
 
-def merge(t, sizeMax=1000000000, dir=0, tol=KCore.realTol(1.e-10), alphaRef=180., mergeBCs=False):
+def merge(t, sizeMax=1000000000, dir=0, tol=realTol(1.e-10), alphaRef=180., mergeBCs=False):
     """Merge a list of matching zones.
     Usage: merge(t, sizeMax, dir, tol, alphaRef)"""
     Internal._orderFlowSolution(t, loc='both')
@@ -369,7 +370,7 @@ def merge(t, sizeMax=1000000000, dir=0, tol=KCore.realTol(1.e-10), alphaRef=180.
                 C._fillEmptyBCWith(z, fct[k], 'FamilySpecified:'+k)
     return zones
 
-def mergeCart(t, sizeMax=1000000000, tol=KCore.realTol(1.e-10)):
+def mergeCart(t, sizeMax=1000000000, tol=realTol(1.e-10)):
     """Merge Cartesian grids defined as a list of zones using Rigby algorithm.
     Usage: mergeCart(t, sizeMax, tol)"""
     Internal._orderFlowSolution(t, loc='both')
@@ -1822,13 +1823,13 @@ def _reorderAll(t, dir=1):
 # Align I,J,K directions of a Cartesian mesh with X,Y,Z axes
 # Order the mesh such that it is direct
 #=============================================================================
-def makeCartesianXYZ(t, tol=KCore.realTol(1.e-10)):
+def makeCartesianXYZ(t, tol=realTol(1.e-10)):
     """Reorder a Cartesian mesh in order to get i,j,k aligned with X,Y,Z."""
     t2 = Internal.copyRef(t)
     _makeCartesianXYZ(t2, tol)
     return t2
 
-def _makeCartesianXYZ(t, tol=KCore.realTol(1.e-10)):
+def _makeCartesianXYZ(t, tol=realTol(1.e-10)):
     """Reorder a Cartesian mesh in order to get i,j,k aligned with X,Y,Z."""
     for z in Internal.getZones(t):
         dims = Internal.getZoneDim(z)
@@ -3040,7 +3041,7 @@ def splitBAR(t, N, N2=-1):
         zones.append(zone)
     return zones
 
-def splitTBranches(t, tol=KCore.realTol(1.e-10)):
+def splitTBranches(t, tol=realTol(1.e-10)):
     """Split a BAR at vertices where T-branches exist.
     Usage: splitTBranches(t, tol)"""
     a = C.getAllFields(t, 'nodes', api=1)

@@ -3,6 +3,7 @@
 from . import Connector
 from . import connector
 import KCore.Vector as Vector
+from KCore import realTol
 import numpy
 __version__ = Connector.__version__
 
@@ -78,7 +79,7 @@ def _addCellN__(t, loc='centers', cellNName='cellN'):
 #=============================================================================
 # 1. CALCUL DES INTERSECTIONS ENTRE DOMAINES
 #=============================================================================
-def getIntersectingDomainsAABB(t, tol=KCore.realTol(1.e-10)):
+def getIntersectingDomainsAABB(t, tol=realTol(1.e-10)):
     """Return the intersection list of a list of bounding boxes."""
     m = C.getFields(Internal.__GridCoordinates__, t, api=3)
     ret = Connector.getIntersectingDomainsAABB(m, tol)
@@ -113,7 +114,7 @@ def getBBIntersectingDomains(A, B, tol=1.e-6):
 
 #------------------------------------------------------------------------------
 def getIntersectingDomains(t, t2=None, method='AABB', taabb=None, tobb=None,
-                           taabb2=None, tobb2=None, tol=KCore.realTol(1e-10)):
+                           taabb2=None, tobb2=None, tol=realTol(1e-10)):
     """Returns the dictionary of intersecting zones.
     Usage: getIntersectingDomains(t, t2, method, taabb, tobb, taabb2, tobb2)"""
     try: import Generator.PyTree as G

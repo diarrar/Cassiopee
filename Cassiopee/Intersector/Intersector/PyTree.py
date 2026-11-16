@@ -5,6 +5,7 @@
 #
 from . import Intersector as XOR
 import KCore
+from KCore import realTol
 from . import intersector
 import time
 
@@ -1296,7 +1297,7 @@ def _XcellN_(t, priorities, output_type=0, rtol=0.05):
     bid=-1
     for bNG in basesNG:
         bid += 1
-        zj = concatenate(bNG, tol=KCore.realTol(1.e-10)) # discard inner joins
+        zj = concatenate(bNG, tol=realTol(1.e-10)) # discard inner joins
         #if DBG: C.convertPyTree2File(zj, 'zj_'+str(bid)+'.cgns')
         b_bounds = externalFaces(zj) # keeping orientation
         if DBG: C.convertPyTree2File(b_bounds, 'bound_b_'+str(bid)+'.cgns')
@@ -3548,7 +3549,7 @@ def getNthNeighborhood(t, N, ids):
 # OUT: Returns a list of integers sized as the nb of cells in t giving the nb of subdivisions
 #      per cell in the range [minv, maxv].
 #==============================================================================
-def estimateAdapReq(t, donnor, metric_policy=2, rtol=KCore.realTol(1.e-12), minv=0, maxv=5):
+def estimateAdapReq(t, donnor, metric_policy=2, rtol=realTol(1.e-12), minv=0, maxv=5):
     """ estimates an cell-specified adaptation requirement from on a istotropic metric field based on donnor connectivity.
      Usage : estimateAdapReq(t, donnor [, metric_policy, rtol, minv, maxv])"""
     zones2 = Internal.getZones(donnor)
@@ -4096,14 +4097,14 @@ def _volumes(t, algo=1, all_pgs_convex=False):
         vols = XOR.volumes(m, algo, all_pgs_convex)
         C.setFields([vols], z, 'centers', False)
 
-def merge(tz, sz, tol=KCore.realTol(1.e-15)): #target zone, list source zones
+def merge(tz, sz, tol=realTol(1.e-15)): #target zone, list source zones
     m = C.getFields(Internal.__GridCoordinates__, tz)[0]
     #print m
     s = C.getFields(Internal.__GridCoordinates__, sz)[0]
     #print s
     return XOR.merge(m, s, tol)
 
-def concatenate(t, tol=KCore.realTol(1.e-15)):
+def concatenate(t, tol=realTol(1.e-15)):
     zones = Internal.getZones(t)
 
 

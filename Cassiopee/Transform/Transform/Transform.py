@@ -5,6 +5,7 @@ __version__ = "2026.11"
 # Python Interface to make basic transformations on arrays
 from . import transform
 import KCore
+from KCore import realTol
 try: import Converter
 except: raise ImportError("Transform: requires Converter module.")
 from Converter.Internal import E_NpyInt
@@ -69,12 +70,12 @@ def mergeCartByRefinementLevel(A, sizeMax):
         level += 1
     return out
 
-def mergeCart(A, sizeMax=1000000000, tol=KCore.realTol(1.e-10)):
+def mergeCart(A, sizeMax=1000000000, tol=realTol(1.e-10)):
     """Merge a list of Cartesian zones using the method of weakest descent.
     Usage: mergeCart(A, sizeMax, tol)"""
     return transform.mergeCart(A, sizeMax, tol)
 
-def merge(A, Ac=[], sizeMax=1000000000, dir=0, tol=KCore.realTol(1.e-10), alphaRef=180.):
+def merge(A, Ac=[], sizeMax=1000000000, dir=0, tol=realTol(1.e-10), alphaRef=180.):
     """Merge a list of matching structured grids.
     Usage: merge(A, Ac, sizeMax, dir, tol, alphaRef)"""
     if len(Ac) != 0 and len(A) != len(Ac):
@@ -724,7 +725,7 @@ def freeForm(array, controlPoints):
         transform._freeForm(b, controlPoints)
         return b
 
-def join(array, array2=[], arrayc=[], arrayc2=[], tol=KCore.realTol(1.e-10)):
+def join(array, array2=[], arrayc=[], arrayc2=[], tol=realTol(1.e-10)):
     """Join two arrays in one or join a list of arrays in one. 
     Usage: join(array, array2) or join(arrays)"""
     if arrayc == []:
@@ -952,7 +953,7 @@ def reorderAll(arrays, dir=1):
     elif btype == 4: return transform.reorderAllUnstr(arrays, dir)
     else: raise TypeError("reorderAll: blocks types are not supported.")
 
-def makeCartesianXYZ(a, tol=KCore.realTol(1.e-10)):
+def makeCartesianXYZ(a, tol=realTol(1.e-10)):
     """Reorder a Cartesian mesh in order to get i,j,k aligned with X,Y,Z."""
     if isinstance(a[0], list):
         b = []
@@ -962,7 +963,7 @@ def makeCartesianXYZ(a, tol=KCore.realTol(1.e-10)):
     else:
         return makeCartesianXYZ__(a, tol)
 
-def makeCartesianXYZ__(z, tol=KCore.realTol(1.e-10)):
+def makeCartesianXYZ__(z, tol=realTol(1.e-10)):
     if len(z) == 5:
         import KCore
         ni = z[2]; nj = z[3]; nk = z[4]
@@ -1993,7 +1994,7 @@ def splitBAR(array, N, N2=-1):
     A = splitConnexity(a)
     return A
 
-def splitTBranches(array, tol=KCore.realTol(1.e-13)):
+def splitTBranches(array, tol=realTol(1.e-13)):
     """Split a BAR into a set of BARS at vertices where T branches exist.
     Usage: splitTBranches(array, tol=1.e-13)"""
     if isinstance(array[0], list):

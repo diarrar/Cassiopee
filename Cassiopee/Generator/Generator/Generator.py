@@ -5,6 +5,7 @@ __version__ = "2026.11"
 
 from . import generator
 import KCore
+from KCore import realTol
 import numpy
 import Converter as C
 from Converter.Internal import E_NpyFloat
@@ -96,7 +97,7 @@ def cylinder3(arrayxz, tetas, tetae, arrayteta):
     Usage: cylinder3(arrayxz, tetas, tetae, arrayteta)"""
     return generator.cylinder3(arrayxz, tetas, tetae, arrayteta)
 
-def delaunay(array, tol=KCore.realTol(1.e-10), keepBB=0):
+def delaunay(array, tol=realTol(1.e-10), keepBB=0):
     """Create a delaunay mesh given a set of points defined by array.
     Usage: delaunay(array, tol, keepBB)"""
     array = close(array, tol=tol)
@@ -107,7 +108,7 @@ def checkDelaunay(contour, tri):
     Usage: checkDelaunay(contour, tri)"""
     return generator.checkDelaunay(contour, tri)
 
-def constrainedDelaunay(cont0, tol=KCore.realTol(1.e-10), keepBB=0):
+def constrainedDelaunay(cont0, tol=realTol(1.e-10), keepBB=0):
     """Create a constrained-Delaunay mesh starting from a BAR-array defining
     the contour.
     Usage: constrainedDelaunay(array, tol, keepBB)"""
@@ -244,7 +245,7 @@ def barycenter(array, weight=None):
     else:
         return generator.barycenter(array, weight)
 
-def CEBBIntersection(array1, array2, tol=KCore.realTol(1.e-10)):
+def CEBBIntersection(array1, array2, tol=realTol(1.e-10)):
     """Get the Cartesian Elements bounding box intersection of 2 arrays."""
     return generator.CEBBIntersection(array1, array2, tol)
 
@@ -822,7 +823,7 @@ def hyper2D4(array, arrayd, type):
     Usage: hyper2D4(array, arrayd, type)"""
     return generator.hyper2D4(array, arrayd, type)
 
-def close(array, arrayc=None, tol=KCore.realTol(1.e-12),
+def close(array, arrayc=None, tol=realTol(1.e-12),
           rmOverlappingPts=True, rmOrphanPts=True,
           rmDuplicatedFaces=True, rmDuplicatedElts=True,
           rmDegeneratedFaces=True, rmDegeneratedElts=True,
@@ -883,7 +884,7 @@ def rmOrphans(a, indices=None, status=None):
                  rmDegeneratedFaces=False, rmDegeneratedElts=False,
                  indices=indices, status=status)
 
-def zip(array, tol=KCore.realTol(1e-12)):
+def zip(array, tol=realTol(1e-12)):
     """Zip a set of meshes defined by gathering exterior points closer than tol.
     Usage: zip(array, tol)"""
     if isinstance(array[0], list):

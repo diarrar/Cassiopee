@@ -2,6 +2,7 @@
 """
 from . import Generator
 import KCore
+from KCore import realTol
 from . import generator
 __version__ = Generator.__version__
 import numpy
@@ -398,7 +399,7 @@ def cylinder3(distxz, tetas, tetae, dteta):
     a = Generator.cylinder3(axz, tetas, tetae, at)
     return C.convertArrays2ZoneNode('cylinder', [a])
 
-def delaunay(a, tol=KCore.realTol(1.e-10), keepBB=0):
+def delaunay(a, tol=realTol(1.e-10), keepBB=0):
     """Create a delaunay mesh given a set of points defined by array.
     Usage: delaunay(mesh, tol, keepBB)"""
     contour = C.deleteFlowSolutions__(a, 'centers')
@@ -412,7 +413,7 @@ def checkDelaunay(contour, tri):
     return C.TZA1(contour, 'nodes', 'nodes', True,
                   Generator.checkDelaunay, tria)
 
-def constrainedDelaunay(contour, tol=KCore.realTol(1.e-10), keepBB=0):
+def constrainedDelaunay(contour, tol=realTol(1.e-10), keepBB=0):
     """Create a constrained-Delaunay mesh starting from a BAR-array defining
     the contour.
     Usage: constrainedDelaunay( contour, tol, keepBB )"""
@@ -589,7 +590,7 @@ def barycenter(t, weight='None'):
         return Generator.barycenter(A, W)
     else: return Generator.barycenter(A)
 
-def CEBBIntersection(a1, a2, tol=KCore.realTol(1.e-10)):
+def CEBBIntersection(a1, a2, tol=realTol(1.e-10)):
     """Get the Cartesian Elements bounding box intersection of 2 meshes."""
     a1 = Internal.getZones(a1)
     a2 = Internal.getZones(a2)
@@ -961,7 +962,7 @@ def addPointInDistribution(a, ind):
     a = C.deleteAllBCAndSolutions__(a)
     return C.TZGC1(a, 'nodes', True, Generator.addPointInDistribution, ind)
 
-def close(a, tol=KCore.realTol(1.e-12), rmOverlappingPts=True, rmOrphanPts=True,
+def close(a, tol=realTol(1.e-12), rmOverlappingPts=True, rmOrphanPts=True,
           rmDuplicatedFaces=True, rmDuplicatedElts=True,
           rmDegeneratedFaces=True, rmDegeneratedElts=True,
           indices=None, status=None):
@@ -975,7 +976,7 @@ def close(a, tol=KCore.realTol(1.e-12), rmOverlappingPts=True, rmOrphanPts=True,
            indices=indices, status=status)
     return t
 
-def _close(t, tol=KCore.realTol(1.e-12), rmOverlappingPts=True, rmOrphanPts=True,
+def _close(t, tol=realTol(1.e-12), rmOverlappingPts=True, rmOrphanPts=True,
            rmDuplicatedFaces=True, rmDuplicatedElts=True,
            rmDegeneratedFaces=True, rmDegeneratedElts=True,
            indices=None, status=None):
@@ -1009,13 +1010,13 @@ def _rmOrphans(a, indices=None, status=None):
                   rmDegeneratedFaces=False, rmDegeneratedElts=False,
                   indices=indices, status=status)
 
-def zip(a, tol=KCore.realTol(1.e-12)):
+def zip(a, tol=realTol(1.e-12)):
     """Zip zones if they are distant of tol."""
     t = Internal.copyRef(a)
     _zip(t, tol=tol)
     return t
 
-def _zip(t, tol=KCore.realTol(1e-12)):
+def _zip(t, tol=realTol(1e-12)):
     """Zip zones if they are distant of tol."""
     fields = C.getAllFields(t, 'nodes', api=1)
     fields = Generator.zip(fields, tol)
@@ -1643,7 +1644,7 @@ def surfaceWalk(t, contour, distrib, constraints=[], niter=0,
 #=============================================================================
 def collarMesh(s1, s2, distribj, distribk,
                niterj=100, niterk=100, ext=10, alphaRef=180., type='union',
-               contour=[], constraints1=[], constraints2=[], toldist=KCore.realTol(1.e-10)):
+               contour=[], constraints1=[], constraints2=[], toldist=realTol(1.e-10)):
     """Generates a collar mesh starting from s1 and s2 surfaces, distributions
     along the surfaces and along the normal direction, with respect to the assembly type between grids.
     Usage: collarMesh(s1, s2, distribj, distribk, niterj, niterk, ext, alphaRef, type, contour,constraints1,constraints2,toldist)"""

@@ -2,6 +2,7 @@
 """
 from . import Connector
 import KCore
+from KCore import realTol
 from . import connector
 import numpy
 
@@ -710,7 +711,7 @@ def duplicatePeriodicZones__(t, rotationCenter=[0.,0.,0.], rotationAngle=[0.,0.,
 #==============================================================================
 # Set degenerated BC
 #==============================================================================
-def setDegeneratedBC(t, dim=3, tol=KCore.realTol(1.e-10)):
+def setDegeneratedBC(t, dim=3, tol=realTol(1.e-10)):
     """Find degenerated boundaries (lines)."""
     try: import Generator
     except: raise ImportError("setDegeneratedBC: requires Generator module.")
@@ -921,7 +922,7 @@ def connectNearMatch(t, ratio=2, tol=1.e-6, dim=3):
 # strand grids.
 # Set the cellN to 0 for invalid cells, 2 for neighbouring cells
 #=============================================================================
-def blankIntersectingCells(t, tol=KCore.realTol(1.e-10), depth=2):
+def blankIntersectingCells(t, tol=realTol(1.e-10), depth=2):
     """Set the cellN at 0 for intersecting cells in the normal direction
     to the wall.
     Usage: blankIntersectingCells(t, tol, depth)"""
@@ -1077,7 +1078,7 @@ def _blankCells(a, bodies, blankingMatrix=[], depth=2,
 # Masquage par Tetra
 #==============================================================================
 def blankCellsTetra(t, mT4, blankingMatrix=[], blankingType='node_in',
-                    tol=KCore.realTol(1.e-12), cellnval=0, overwrite=0, cellNName='cellN'):
+                    tol=realTol(1.e-12), cellnval=0, overwrite=0, cellNName='cellN'):
     """Set the cellN at 0 for points inside a tetra mesh."""
     try: import Transform as T
     except: raise ImportError("blankCells: requires Transform module.")
@@ -1136,7 +1137,7 @@ def blankCellsTetra(t, mT4, blankingMatrix=[], blankingType='node_in',
 # Masquage par Tri (surface Tri)
 #==============================================================================
 def blankCellsTri(t, mT3, blankingMatrix=[], blankingType='node_in',
-                  tol=KCore.realTol(1.e-12), cellnval=0, overwrite=0, cellNName='cellN'):
+                  tol=realTol(1.e-12), cellnval=0, overwrite=0, cellNName='cellN'):
     """Set the cellN at 0 for points inside a triangular surface."""
     try: import Transform as T
     except: raise ImportError("blankCellsTri: requires Transform module.")
@@ -1192,7 +1193,7 @@ def blankCellsTri(t, mT3, blankingMatrix=[], blankingType='node_in',
     return a
 
 def _blankCellsTri(a, mT3, blankingMatrix=[], blankingType='node_in',
-                   tol=KCore.realTol(1.e-12), cellnval=0, overwrite=0, cellNName='cellN'):
+                   tol=realTol(1.e-12), cellnval=0, overwrite=0, cellNName='cellN'):
     """Set the cellN at 0 for points inside a triangular surface."""
     try: import Transform as T
     except: raise ImportError("blankCellsTri: requires Transform module.")

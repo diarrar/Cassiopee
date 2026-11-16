@@ -2,6 +2,7 @@
 """
 from . import Compressor
 import KCore
+from KCore import realTol
 import numpy
 import Converter.Internal as Internal
 import Converter.PyTree as C
@@ -119,14 +120,14 @@ def writeUnsteadyCoefs(iteration, indices, filename, loc, format="b"):
 # if layers not None, only communicate the desired number of layers
 # bboxDict is dict with the zones of t as keys and their specific bboxes as key values, used when layers not None
 # if subr, the tree subregions are kept during the exchange
-def compressCartesian(t, bbox=[], layers=None, subr=True, tol=KCore.realTol(1.e-10)):
+def compressCartesian(t, bbox=[], layers=None, subr=True, tol=realTol(1.e-10)):
     """For Cartesian grids, replace Grid Coordinates with a compressed node."""
     tp = Internal.copyRef(t)
     _compressCartesian(tp, bbox=bbox, layers=layers, subr=subr, tol=tol)
     return tp
 
 # compress a gridCoordinates container
-def _compressCartesian__(z, ztype, gc, tol=KCore.realTol(1.e-10)):
+def _compressCartesian__(z, ztype, gc, tol=realTol(1.e-10)):
     xp = Internal.getNodeFromName1(gc, 'CoordinateX')
     yp = Internal.getNodeFromName1(gc, 'CoordinateY')
     zp = Internal.getNodeFromName1(gc, 'CoordinateZ')
@@ -232,7 +233,7 @@ def _compressCartesian__(z, ztype, gc, tol=KCore.realTol(1.e-10)):
 # If the zone is Cartesian:
 # Adds a CartesianData node to the zone
 # Replaces Coordinates with nodes containing arrays of size 10
-def _compressCartesian(t, bbox=[], layers=None, subr=True, tol=KCore.realTol(1.e-10)):
+def _compressCartesian(t, bbox=[], layers=None, subr=True, tol=realTol(1.e-10)):
     """For Cartesian grids, replace Grid Coordinates with a compressed node."""
     zones = Internal.getZones(t)
     for z in zones:

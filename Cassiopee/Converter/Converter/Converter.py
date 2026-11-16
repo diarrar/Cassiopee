@@ -11,6 +11,7 @@ import KCore
 
 # INT size for numpys connectivities
 from KCore.Dist import EDOUBLEINT, ESINGLEREAL
+from KCore import realTol
 if EDOUBLEINT(): E_NpyInt = numpy.int64
 else: E_NpyInt = numpy.int32
 # REAL size for numpy fields (compiled precision of E_Float)
@@ -1003,7 +1004,7 @@ def diffArrays(arrays1, arrays2, arrays3=[], atol=1.e11, rtol=0.):
     else:
         return converter.diffArrays(arrays1, arrays2, atol, rtol)
 
-def diffArraysGeom(array1, array2, atol=KCore.realTol(1.e-10), rtol=0.):
+def diffArraysGeom(array1, array2, atol=realTol(1.e-10), rtol=0.):
     """Diff arrays defining solutions, geometrically. Return the delta field."""
     if isinstance(array1[0], list):
         ret = []
@@ -1015,7 +1016,7 @@ def diffArraysGeom(array1, array2, atol=KCore.realTol(1.e-10), rtol=0.):
     else:
         return diffArraysGeom__(array1, array2, atol, rtol)
 
-def diffArraysGeom__(array1, array2, atol=KCore.realTol(1.e-10), rtol=0.):
+def diffArraysGeom__(array1, array2, atol=realTol(1.e-10), rtol=0.):
     hook = createHook(array1, 'nodes')
     ids = identifyNodes(hook, array2, tol=atol)
     if numpy.any(ids == -1):
@@ -1736,7 +1737,7 @@ def freeHook(hook):
 #==============================================================================
 # Geometric identification functions
 #==============================================================================
-def identifyNodes(hook, a, tol=KCore.realTol(1.e-11), rtol=KCore.realTol(1.e-12)):
+def identifyNodes(hook, a, tol=realTol(1.e-11), rtol=realTol(1.e-12)):
     """Identify nodes of a in KDT. return identified indices.
     Usage: identifyNodes(hook, a)"""
     if isinstance(a[0], list):
@@ -1747,7 +1748,7 @@ def identifyNodes(hook, a, tol=KCore.realTol(1.e-11), rtol=KCore.realTol(1.e-12)
     else:
         return converter.identifyNodes(hook, a, tol, rtol)
 
-def identifyFaces(hook, a, tol=KCore.realTol(1.e-11), rtol=KCore.realTol(1.e-12)):
+def identifyFaces(hook, a, tol=realTol(1.e-11), rtol=realTol(1.e-12)):
     """Identify face centers of a in KDT. return identified indices.
     Usage: identifyFaces(hook, a)"""
     if isinstance(a[0], list):
@@ -1758,7 +1759,7 @@ def identifyFaces(hook, a, tol=KCore.realTol(1.e-11), rtol=KCore.realTol(1.e-12)
     else:
         return converter.identifyFaces(hook, convertArray2NGon(a), tol, rtol)
 
-def identifyElements(hook, a, tol=KCore.realTol(1.e-11), rtol=KCore.realTol(1.e-12)):
+def identifyElements(hook, a, tol=realTol(1.e-11), rtol=realTol(1.e-12)):
     """Identify element centers of a in KDT. return identified indices.
     Usage: identifyElement(hook, a)"""
     if isinstance(a[0], list):

@@ -1,6 +1,7 @@
 # Check CAD
 import OCC.PyTree as OCC
 import KCore
+from KCore import realTol
 
 # Return dict of face->edges (topologic)
 def getEdgesByFace(hook):
@@ -24,7 +25,7 @@ def getFacesByEdge(hook, edgesByFace):
     return out
 
 # Return the list of degenerated edges (geometric)
-def getDegeneratedEdges(hook, tol=KCore.realTol(1.e-12)):
+def getDegeneratedEdges(hook, tol=realTol(1.e-12)):
     """Return a list of degenerated edge numbers with length below tolerance."""
     out = []
     nbEdges = OCC.getNbEdges(hook)
@@ -34,7 +35,7 @@ def getDegeneratedEdges(hook, tol=KCore.realTol(1.e-12)):
     return out
 
 # Return the list of degenerated faces (geometric)
-def getDegeneratedFaces(hook, tol=KCore.realTol(1.e-12)):
+def getDegeneratedFaces(hook, tol=realTol(1.e-12)):
     """Return a list of degenerated face numbers with area below tolerance."""
     out = []
     nbFaces = OCC.getNbFaces(hook)
@@ -44,7 +45,7 @@ def getDegeneratedFaces(hook, tol=KCore.realTol(1.e-12)):
     return out
 
 # Check if faces overlap
-def getFaceOverlap(hook, tol=KCore.realTol(1.e-12), byOCAFLabels=True):
+def getFaceOverlap(hook, tol=realTol(1.e-12), byOCAFLabels=True):
     """Check for overlapping faces and return intersecting and overlapping face pairs."""
     nbFaces = OCC.getNbFaces(hook)
     # compute bbox of faces
@@ -108,7 +109,7 @@ def getFaceOverlap(hook, tol=KCore.realTol(1.e-12), byOCAFLabels=True):
 #=====================================================================================
 # Check CAD
 #=====================================================================================
-def checkCAD(hook, tol=KCore.realTol(1.e-9), byOCAFLabels=True, repair=False):
+def checkCAD(hook, tol=realTol(1.e-9), byOCAFLabels=True, repair=False):
     """Check CAD quality for degenerated edges/faces, lonely/multiple edges, and face overlaps."""
     import numpy
     score = 0
@@ -255,7 +256,7 @@ def checkCAD(hook, tol=KCore.realTol(1.e-9), byOCAFLabels=True, repair=False):
 # internal mesh: mesh.cgns
 # mtype: type of mesh (0: Cassiopee local, 1: OCC)
 #=====================================================================================
-def checkMesh(hook, t=None, tol=KCore.realTol(1.e-9), byOCAFLabels=True, repair=False, zipTol=None, mtype=0):
+def checkMesh(hook, t=None, tol=realTol(1.e-9), byOCAFLabels=True, repair=False, zipTol=None, mtype=0):
     """Check CAD quality through coarse meshing, including watertightness, reorder stability, and mesh quality."""
     import Transform.PyTree as T
     import Converter.PyTree as C

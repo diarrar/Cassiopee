@@ -12,6 +12,7 @@ except ImportError:
     raise ImportError("TFIs: requires Converter and Transform module.")
 import KCore.Vector as Vector
 import KCore
+from KCore import realTol
 import numpy
 from Converter.Internal import E_NpyFloat
 
@@ -38,7 +39,7 @@ def quality(meshes):
 #==============================================================================
 # Order a set of structured edges in a loop
 #==============================================================================
-def orderEdges(edges, tol=KCore.realTol(1.e-10)):
+def orderEdges(edges, tol=realTol(1.e-10)):
     """Order edges in a loop."""
     out = [] # ordered list of edges
     pool = edges[:] # list copy

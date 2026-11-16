@@ -13,6 +13,7 @@ import Converter.Mpi as Cmpi
 import numpy
 import Dist2Walls.PyTree as DTW
 import KCore.test as test
+from KCore import realTol
 import Connector.PyTree as X
 import Transform
 import Geom.PyTree as D
@@ -1809,7 +1810,7 @@ def _addBC2UnstructZoneLoc__(z, bndName, bndType, wrange=[],
                              rotationCenter=[], rotationAngle=[], translation=[],
                              faceList=[], pointList=[], elementList=[], elementRange=[], data=None,
                              subzone=None, faceListDonor=None, elementListDonor=None,
-                             elementRangeDonor=None, tol=KCore.realTol(1.e-12), unitAngle=None):
+                             elementRangeDonor=None, tol=realTol(1.e-12), unitAngle=None):
     s = bndType.split(':')
     bndType1 = s[0]
     if len(s) > 1: bndType2 = s[1]
@@ -1948,7 +1949,7 @@ def _addBC2UnstructZoneLoc__(z, bndName, bndType, wrange=[],
     return None
 
 
-def _recoverBCs1(a, T, tol=KCore.realTol(1.e-11)):
+def _recoverBCs1(a, T, tol=realTol(1.e-11)):
     """Recover given BCs on a tree.
     Usage: _recoverBCs(a, (BCs, BCNames, BCTypes), tol)"""
     try:import Post.PyTree as P

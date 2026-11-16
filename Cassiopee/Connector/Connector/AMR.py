@@ -17,6 +17,7 @@ import Generator.Mpi as Gmpi
 import Post.PyTree as P
 import Dist2Walls.PyTree as DTW
 import KCore.test as test
+from KCore import realTol
 import Generator.IBM as G_IBM
 import Generator.AMR as G_AMR
 import Generator.Generator as Generator
@@ -232,7 +233,7 @@ def prepareAMRData(t_case, t, IBM_parameters=None, check=False, dim=3, localDir=
     #====================================================
     # Keep cells outside of Immersed Body
     Cmpi.trace(" Removing blanked cells [start]", master=True, cpu=False)
-    t = G.close(t, tol=KCore.realTol(1e-12),
+    t = G.close(t, tol=realTol(1e-12),
                 rmOverlappingPts=True, rmOrphanPts=False,
                 rmDuplicatedFaces=False, rmDuplicatedElts=False,
                 rmDegeneratedFaces=False, rmDegeneratedElts=False)
