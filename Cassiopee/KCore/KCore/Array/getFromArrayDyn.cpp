@@ -276,6 +276,13 @@ E_Int K_ARRAY::getFromArray(PyObject* o,
     Py_DECREF(a);
     return -4;
   }
+  if (PyArray_TYPE(a) != E_NPY_FLOAT)
+  {
+    PyErr_Warn(PyExc_Warning,
+               "getFromArrayDyn: field must have the compiled real precision (E_Float).");
+    Py_DECREF(a);
+    return -4;
+  }
   
   f = new DynArray<nuga_real_t>(nfld, s);
   E_Float* d = (E_Float*)PyArray_DATA(a);
@@ -312,6 +319,13 @@ E_Int K_ARRAY::getFromArray(PyObject* o,
   {
     PyErr_Warn(PyExc_Warning,
                "getFromArrayDyn: number of variables different in varString and field.");
+    Py_DECREF(a);
+    return -4;
+  }
+  if (PyArray_TYPE(a) != E_NPY_FLOAT)
+  {
+    PyErr_Warn(PyExc_Warning,
+               "getFromArrayDyn: field must have the compiled real precision (E_Float).");
     Py_DECREF(a);
     return -4;
   }
