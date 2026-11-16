@@ -1,5 +1,6 @@
 # Interface pour MPI
 import Converter.Mpi as Cmpi
+import KCore
 from . import PyTree as X
 import Converter.Internal as Internal
 import Converter.PyTree as C
@@ -113,7 +114,7 @@ def connectMatchPeriodic(a, rotationCenter=[0.,0.,0.],
 #==============================================================================
 # connect match NGON for only one zone per process
 #==============================================================================
-def _connectMatchNGon(z, tol=1.e-11):
+def _connectMatchNGon(z, tol=KCore.realTol(1.e-11)):
     """Connect one ngon zone."""
     import Post.PyTree as P
     import Transform.PyTree as T

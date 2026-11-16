@@ -1,5 +1,6 @@
 """Toolbox for CODA."""
 import Converter.PyTree as C
+import KCore
 import Converter.Internal as Internal
 import Connector.IBM as X_IBM
 import Generator.IBM as G_IBM
@@ -1808,7 +1809,7 @@ def _addBC2UnstructZoneLoc__(z, bndName, bndType, wrange=[],
                              rotationCenter=[], rotationAngle=[], translation=[],
                              faceList=[], pointList=[], elementList=[], elementRange=[], data=None,
                              subzone=None, faceListDonor=None, elementListDonor=None,
-                             elementRangeDonor=None, tol=1.e-12, unitAngle=None):
+                             elementRangeDonor=None, tol=KCore.realTol(1.e-12), unitAngle=None):
     s = bndType.split(':')
     bndType1 = s[0]
     if len(s) > 1: bndType2 = s[1]
@@ -1947,7 +1948,7 @@ def _addBC2UnstructZoneLoc__(z, bndName, bndType, wrange=[],
     return None
 
 
-def _recoverBCs1(a, T, tol=1.e-11):
+def _recoverBCs1(a, T, tol=KCore.realTol(1.e-11)):
     """Recover given BCs on a tree.
     Usage: _recoverBCs(a, (BCs, BCNames, BCTypes), tol)"""
     try:import Post.PyTree as P

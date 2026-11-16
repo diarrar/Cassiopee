@@ -13,6 +13,7 @@ except ImportError:
 
 __version__ = OCC.__version__
 import numpy
+import KCore
 
 from OCC import readCAD, writeCAD, createEmptyCAD, freeHook, \
     getNbEdges, getNbFaces, getFileAndFormat, \
@@ -1390,7 +1391,7 @@ def _updateConnectivityTree(tc, name, nameDonor, ptList, ptListDonor):
 # return ordered edgeList with possible negative number (meaning to be reversed)
 # edges: list of arrays
 # return edgeList: list of edge numbers in CAD
-def orderEdgeList(edges, tol=1.e-10):
+def orderEdgeList(edges, tol=KCore.realTol(1.e-10)):
     """Order edges in a loop."""
     import Transform.PyTree as T
     import KCore.Vector as Vector
@@ -1585,7 +1586,7 @@ def _addOCAFCompoundNames(hook, t):
 # IN: tol: tolerance for face zipping
 # IN: byOCAFLabels: if true, make component following OCAF
 # return components with a field tag corresponding to face number
-def getComponents(t, tol=1.e-12, byOCAFLabels=False):
+def getComponents(t, tol=KCore.realTol(1.e-12), byOCAFLabels=False):
     """Return the number of components in t, taggings faces with component number."""
     import Transform.PyTree as T
     FACES = Internal.getNodeFromName1(t, 'FACES')
@@ -1656,7 +1657,7 @@ def getComponents(t, tol=1.e-12, byOCAFLabels=False):
 # IN: component: one zone component
 # IN: tol: tol to discard degenerated exterior faces check
 # OUT: leaks: leaks corresponding to exterior faces
-def isWatertight(component, leaks=[], tol=1.e-12):
+def isWatertight(component, leaks=[], tol=KCore.realTol(1.e-12)):
     """Tell if component is watertight."""
     import Post.PyTree as P
     import Transform.PyTree as T

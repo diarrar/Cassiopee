@@ -560,7 +560,7 @@ def meshFaceWithMetric(hook, i, edges, hmin, hmax, hausd, close, aniso, mesh, FA
     T = _scaleUV(edges)
     edges = Converter.convertArray2Tetra(edges)
     edges = Transform.join(edges)
-    edges = Generator.close(edges, tol=1.e-10)
+    edges = Generator.close(edges, tol=KCore.realTol(1.e-10))
     _unscaleUV([edges], T)
 
     pt = edges[1]
@@ -580,7 +580,7 @@ def meshFaceWithMetric(hook, i, edges, hmin, hmax, hausd, close, aniso, mesh, FA
         a = occ.trimesh(hook, edges, i, hmin, hmax, hausd, 1.1, aniso)
         _enforceEdgesInFace(a, edgesSav)
         if close:
-            a = Generator.close(a, tol=1.e-10) # needed for periodic faces
+            a = Generator.close(a, tol=KCore.realTol(1.e-10)) # needed for periodic faces
         if occ.getFaceOrientation(hook, i) == 0:
             a = Transform.reorder(a, (-1,))
         _unscaleUV([a], T, vu='u', vv='v')
@@ -614,7 +614,7 @@ def meshFaceInUV(hook, i, edges, grading, close, mesh, FAILED):
         o = occ.evalFace(hook, a, i)
         _enforceEdgesInFace(o, edgesSav)
         if close:
-            a = Generator.close(a, tol=1.e-10) # needed for periodic faces
+            a = Generator.close(a, tol=KCore.realTol(1.e-10)) # needed for periodic faces
         if occ.getFaceOrientation(hook, i) == 0:
             o = Transform.reorder(o, (-1,))
         o = Converter.initVars(o, '{u}=0.')
@@ -649,12 +649,12 @@ def meshFaceWithPointedHat(hook, i, edges, close, mesh):
             a = Generator.pointedHat(e, X)
 
     a = Converter.convertArray2Tetra(a)
-    a = Generator.close(a, tol=1.e-10)
+    a = Generator.close(a, tol=KCore.realTol(1.e-10))
     _unscaleUV([a], T)
     o = occ.evalFace(hook, a, i)
     #_enforceEdgesInFace(o, edgesSav)
     if close:
-        a = Generator.close(a, tol=1.e-10) # needed for periodic faces
+        a = Generator.close(a, tol=KCore.realTol(1.e-10)) # needed for periodic faces
     if occ.getFaceOrientation(hook, i) == 0:
         o = Transform.reorder(o, (-1,))
     o = Converter.initVars(o, '{u}=0.')
@@ -685,7 +685,7 @@ def meshAllEdges(hook, hmin, hmax, hausd, N, edgeList=None, order=1):
 
 # regularize edges
 # IN: edges: meshed edges
-def regularizeEdges(hook, edges, tol=1.e-12):
+def regularizeEdges(hook, edges, tol=KCore.realTol(1.e-12)):
     import KCore.Vector as Vector
     # get extreme points and h
     Pe = {}
@@ -1073,7 +1073,7 @@ def getEdgeVertices(hook, edgeList=None):
 
 
 # Check if face overlaps
-def checkFaceOverlap(hook, face1, face2, tol=1.e-12):
+def checkFaceOverlap(hook, face1, face2, tol=KCore.realTol(1.e-12)):
     """Check if two faces overlap."""
     return occ.checkFaceOverlap(hook, face1, face2, tol)
 

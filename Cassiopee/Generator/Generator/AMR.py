@@ -1202,10 +1202,10 @@ def reorderNodesInCanonicalOrderForBigFace3D__(conn_4faces):
 def createEmptyQuadZone__():
     zone = Internal.newZone(name="empty", zsize=[[0,0]], ztype="Unstructured")
     gc = Internal.newGridCoordinates(parent=zone)
-    Internal.newDataArray('CoordinateX', value=numpy.empty(0), parent=gc)
-    Internal.newDataArray('CoordinateY', value=numpy.empty(0), parent=gc)
-    Internal.newDataArray('CoordinateZ', value=numpy.empty(0), parent=gc)
-    elt = Internal.newElements(name="GridElements", etype=7, econnectivity=numpy.empty(0), erange=[1, 0], eboundary=0, parent=zone)
+    Internal.newDataArray('CoordinateX', value=numpy.empty(0, dtype=Internal.E_NpyFloat), parent=gc)
+    Internal.newDataArray('CoordinateY', value=numpy.empty(0, dtype=Internal.E_NpyFloat), parent=gc)
+    Internal.newDataArray('CoordinateZ', value=numpy.empty(0, dtype=Internal.E_NpyFloat), parent=gc)
+    elt = Internal.newElements(name="GridElements", etype=7, econnectivity=numpy.empty(0, dtype=Internal.E_NpyInt), erange=[1, 0], eboundary=0, parent=zone)
     return zone
 
 def _createQuadConnectivityFromNgonPointList__(a_hexa, a, PL, bcname, bctype):

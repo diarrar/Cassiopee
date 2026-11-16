@@ -3746,7 +3746,7 @@ def addBC2Zone(a, bndName, bndType, wrange=[],
                rotationCenter=[], rotationAngle=[], translation=[],
                faceList=None, pointList=None, elementList=None, elementRange=[], data=None,
                subzone=None, faceListDonor=None, elementListDonor=None,
-               elementRangeDonor=None, tol=1.e-12, unitAngle=None):
+               elementRangeDonor=None, tol=KCore.realTol(1.e-12), unitAngle=None):
     """Add a BC to a zone node.
     Usage: addBC2Zone(zone, bndName, bndType, wrange)"""
     ap = Internal.copyRef(a)
@@ -3763,7 +3763,7 @@ def _addBC2Zone(a, bndName, bndType, wrange=[],
                 rotationCenter=[], rotationAngle=[], translation=[],
                 faceList=None, pointList=None, elementList=None, elementRange=[], data=None,
                 subzone=None, faceListDonor=None, elementListDonor=None,
-                elementRangeDonor=None, tol=1.e-12, unitAngle=None):
+                elementRangeDonor=None, tol=KCore.realTol(1.e-12), unitAngle=None):
     """Add a BC to a zone node."""
     bndName = getBCName(bndName)
     zones = Internal.getZones(a)
@@ -4492,21 +4492,21 @@ def getNMRatio__(win, winopp, trirac):
 # OUT: a modifie avec des BCs ajoutees en BCFaces
 # OUT: if missingBCInfo is an empty list, return missing BCInfo data for later
 # reidentification in the same format as BCInfo
-def recoverBCs(a, BCInfo, tol=1.e-11, removeBC=True, missingBCInfo=None):
+def recoverBCs(a, BCInfo, tol=KCore.realTol(1.e-11), removeBC=True, missingBCInfo=None):
     """Recover given BCs on a tree.
     Usage: recoverBCs(a, (BCs, BCNames, BCTypes), tol, removeBC, missingBCInfo=None)"""
     tp = Internal.copyRef(a)
     _recoverBCs(tp, BCInfo, tol, removeBC, missingBCInfo)
     return tp
 
-def _recoverBCs(t, BCInfo, tol=1.e-11, removeBC=True, indices=None, missingBCInfo=None):
+def _recoverBCs(t, BCInfo, tol=KCore.realTol(1.e-11), removeBC=True, indices=None, missingBCInfo=None):
     method = "geometric" if indices is None else "topologic"
     if method == "geometric":
         _recoverBCsGeometric(t, BCInfo, tol, removeBC, missingBCInfo)
     else:
         _recoverBCsTopologic(t, BCInfo, removeBC, indices, missingBCInfo=None)
 
-def _recoverBCsGeometric(t, BCInfo, tol=1.e-11, removeBC=True, missingBCInfo=None):
+def _recoverBCsGeometric(t, BCInfo, tol=KCore.realTol(1.e-11), removeBC=True, missingBCInfo=None):
     try: import Post.PyTree as P
     except: raise ImportError("_recoverBCsGeometric: requires Post module.")
     try: import Transform.PyTree as T
@@ -4760,7 +4760,7 @@ def _recoverBCsTopologic(t, BCInfo, removeBC=True, indices=None, missingBCInfo=N
 # IN: type='F': pour tout type: output en face list
 #     type='BCC': seulement si z2 est BE: output en BCC (BC connect)
 # IN: overwriteBC: efface les BC de t2 si existent
-def pushBC(t1, t2, type='F', tol=1.e-12, overwriteBC=True):
+def pushBC(t1, t2, type='F', tol=KCore.realTol(1.e-12), overwriteBC=True):
     """Put BCs of t1 to t2.
     Usage: t2 = pushBC(t1, t2)"""
     zones1 = Internal.getZones(t1)
@@ -4809,7 +4809,7 @@ def pushBC(t1, t2, type='F', tol=1.e-12, overwriteBC=True):
             if outBCC == 0: freeHook(KDT)
     return t2p
 
-def identifyBC(t, infos, tol=1.e-12):
+def identifyBC(t, infos, tol=KCore.realTol(1.e-12)):
     if infos == []: return t
     try: import Post.PyTree as P
     except: raise ImportError("identifyBC: requires Post.PyTree module.")
@@ -6997,7 +6997,7 @@ def node2ExtCenter(t, var=''):
 #==============================================================================
 # diff 2 pyTrees
 #==============================================================================
-def diffArrays(A, B, removeCoordinates=True, atol=1.e-11, rtol=0.):
+def diffArrays(A, B, removeCoordinates=True, atol=KCore.realTol(1.e-11), rtol=0.):
     """Compute the difference of two pyTrees, topologically."""
     t1 = Internal.copyRef(A); t2 = Internal.copyRef(B)
     zones1 = Internal.getZones(t1)
@@ -7033,7 +7033,7 @@ def diffArrays(A, B, removeCoordinates=True, atol=1.e-11, rtol=0.):
     if removeCoordinates: _rmNodes(t1, Internal.__GridCoordinates__)
     return t1
 
-def diffArraysGeom(A, B, removeCoordinates=True, atol=1.e-10, rtol=0.):
+def diffArraysGeom(A, B, removeCoordinates=True, atol=KCore.realTol(1.e-10), rtol=0.):
     """Compute the difference of two pyTrees, geometrically."""
     t1 = Internal.copyRef(A); t2 = Internal.copyRef(B)
     zones1 = Internal.getZones(t1)
@@ -7587,7 +7587,7 @@ def freeHook(hook):
 #==============================================================================
 
 # -- identifyNodes: identifies nodes of a in hook
-def identifyNodes(hook, a, tol=1.e-11, rtol=1.e-12):
+def identifyNodes(hook, a, tol=KCore.realTol(1.e-11), rtol=KCore.realTol(1.e-12)):
     """Find in a hook nearest points of nodes of a. return identified node indices.
     Usage: identifyNodes(hook, a)"""
     fields = getFields(Internal.__GridCoordinates__, a, api=3)
@@ -7595,7 +7595,7 @@ def identifyNodes(hook, a, tol=1.e-11, rtol=1.e-12):
     else: return Converter.identifyNodes(hook, fields, tol, rtol)
 
 # -- identifyFaces: identifies face centers of a in hook
-def identifyFaces(hook, a, tol=1.e-11, rtol=1.e-12):
+def identifyFaces(hook, a, tol=KCore.realTol(1.e-11), rtol=KCore.realTol(1.e-12)):
     """Find in a hook nearest points of face centers of a. return identified face indices.
     Usage: identifyFaces(hook, a)"""
     fields = getFields(Internal.__GridCoordinates__, a, api=3)
@@ -7603,7 +7603,7 @@ def identifyFaces(hook, a, tol=1.e-11, rtol=1.e-12):
     else: return Converter.identifyFaces(hook, fields, tol, rtol)
 
 # -- identifyElements: identifies element centers of a in hook
-def identifyElements(hook, a, tol=1.e-11, rtol=1.e-12):
+def identifyElements(hook, a, tol=KCore.realTol(1.e-11), rtol=KCore.realTol(1.e-12)):
     """Find in a hook nearest points of element centers of a. return identified element indices.
     Usage: identifyElements(hook, a)"""
     fields = getFields(Internal.__GridCoordinates__, a, api=3)

@@ -10,7 +10,7 @@ node1 = Internal.createNode('myNode', 'DataArray_t', value=1., children=[])
 node2 = Internal.createNode('myNode', 'DataArray_t', value=[12.,14.,15.], children=[])
 
 # Create a node named myNode, of type DataArray_t, with a given numpy
-a = numpy.zeros( (10) )
+a = numpy.zeros( (10), dtype=Internal.E_NpyFloat )
 a[1] = 1.; a[8] = 2.
 node3 = Internal.createNode('myNode', 'DataArray_t', value=a, children=[])
 

@@ -1,4 +1,5 @@
 from Generator.IBM import buildOctree, generateIBMMesh, createRefinementBodies
+import KCore
 
 from Connector.IBM import prepareIBMData, dist2wallIBM, blankingIBM, buildFrontIBM, setInterpDataIBM, initializeIBM
 
@@ -284,7 +285,7 @@ def generateIsoXSurface__(tb, x):
     a = C.convertArray2Tetra(a)
     zones = Internal.getZones(tb)+[a]
     z = T.join(zones)
-    z = XOR.conformUnstr(z, tol=1e-10, itermax=1)
+    z = XOR.conformUnstr(z, tol=KCore.realTol(1e-10), itermax=1)
     zones = T.splitManifold(z)
     candidates = []
     eps = 1e-4
