@@ -1,6 +1,6 @@
 # Compilation de Cassiopee en simple précision (r4)
 
-Bilan au 16/11/2026, branche `claude/admiring-planck-933s9c` (34 commits au-dessus de `dev`, `dev` fusionné à 0ae977d).
+Bilan au 17/11/2026, branche `claude/admiring-planck-933s9c` et sa suite `claude/optimistic-maxwell-xwotl2` (`dev` fusionné à 0ae977d).
 
 ## Objectif et principe
 
@@ -66,7 +66,18 @@ Protocole retenu, tout en gcc sur juno :
 
 1. qualification de `dev` gcc contre les références officielles `Data_juno` (stack Intel) : 1357 identiques, 71 écarts imputables au compilateur (ordre d'itération de conteneurs, dernier bit propagé dans des décisions combinatoires, lissages itératifs). Ces 71 références ont été régénérées en gcc pour constituer `Data_juno_gcc` ;
 2. r8 de la branche contre `Data_juno_gcc` : 1428 OK ;
-3. r4 de la branche contre `Data_juno_gcc` copié en `Data_juno_gcc_r4` : 851 FAILED au premier run (dont environ 550 dus au banc de comparaison), 399 au second (commit 4a86414, Nuga en double), 321 au troisième (commit 7081c36, tolérances par défaut), 306 FAILED et 1 TIMEOUT au quatrième (commit 5fe788a, 17/11). Le cinquième, après les correctifs du masque X-Ray, des générateurs trigonométriques et de l'Eikonal, est à faire.
+3. r4 de la branche contre `Data_juno_gcc` copié en `Data_juno_gcc_r4` : 851 FAILED au premier run (dont environ 550 dus au banc de comparaison), 399 au second (commit 4a86414, Nuga en double), 321 au troisième (commit 7081c36, tolérances par défaut), 306 FAILED et 1 TIMEOUT au quatrième (commit 5fe788a, 17/11).
+
+Validation complémentaire sur un conteneur Ubuntu 24.04 (gcc 13, Python 3.13, numpy 2.5, OCC 7.6, machine `ubuntu`), même protocole avec des références générées par le r8 de la branche (`Data_ubuntu`, copiées en `Data_ubuntu_r4`) :
+
+| Run | Commit | r4 | r8 |
+|---|---|---|---|
+| référence | 0e92489 | 1146 OK, 281 FAILED, 1 TIMEOUT | 1416 OK, 11 FAILED, 1 TIMEOUT (références créées) |
+| final | 21d83ba | 1161 OK, 267 FAILED, 0 TIMEOUT | 1417 OK, 11 FAILED : r8 inchangé |
+
+Les 11 échecs r8 et 16 des échecs r4 tiennent au conteneur (pas de `tkinter`, rendus OSMesa, tests OCC qui lisent un `cube.cgns` produit par un autre test). 54 tests en échec dans le run juno de 5fe788a passent sur ce banc (sphère et tore en double, Eikonal). Avec numpy 2, les scalaires `numpy.float32` sont beaucoup plus fréquents qu'avec numpy 1 (règles NEP 50) : le banc juno, s'il est en numpy 1.x, ne voit pas cette famille.
+
+Répartition des 267 échecs r4 du run final : taille de maillage différente 90, écart maximal ≥ 1 : 34, entre 1e-2 et 1 : 33, entre 1e-4 et 1e-2 : 22, sous 1e-4 : 27, autres différences (valeurs de nœuds, objets) 33, exceptions 8 (Compressor en float64, connectMatch_t3, P1ConsChimeraCoeffs, fittingPlaster d'extractSlices, MirabelleRefine), plantages 3 (prepAMRFull_m1, extractIBMWallSolutionPT_m1, streamLine2PT_m1), environnement 16. snapFront_t1 alterne entre OK et FAILED d'un run à l'autre.
 
 Le répertoire de références dépend d'`ELSAPROD` (`Data_<ELSAPROD>`), il faut amorcer `Data_<prod>_r4` depuis `Data_<prod>` avant un run r4. Un `update` depuis un build r4 n'écrase donc jamais les références r8.
 
@@ -97,6 +108,10 @@ Les tests dont le résultat est combinatoirement sensible à la précision (bool
 - `globalIndex` stockait un entier 64 bits dans chaque case d'un champ `E_Float` (corruption mémoire en r4) : `E_FloatAsInt`.
 - Branches `#else` de `#ifdef E_DOUBLEREAL` jamais compilées (parenthèses manquantes dans Intersector/PolyMeshTools).
 - Eikonal (Dist2Walls) : critère de convergence absolu 1e-6, inaccessible en float, boucle infinie ; critère relatif en r4.
+- Scalaires `numpy.float32` : `numpy.float64` dérive de `float`, pas `numpy.float32`. Les valeurs calculées à partir des coordonnées étaient refusées ou mal aiguillées : `T._rotate` envoyait un angle vers la surcharge à deux axes, `PyFloat_Check` refusait les `snear` (getIBMPtsWithFront, octree, octree3, zipper), `K_ARRAY::getFromList` les lisait comme des entiers. Tests de type élargis à `numpy.floating` en Python, macro `K_PYFLOAT_CHECK` (kPython.h) en C++.
+- Références converties en float32 : les sentinelles `DBL_MAX` devenaient `inf` et `diffArrays` refusait le tableau (getCurvatureRadius). `KCore.castFloatArray` les ramène à `FLT_MAX` (`E_MAX_FLOAT` en r4).
+- `intersectRayTriangle` calcule en double : sur la couture de `D.sphere`, la coordonnée barycentrique du bon triangle vaut -1,5e-6 en float (tolérance 1e-6), le rayon était rejeté par tous les triangles et le point projeté sur la face opposée (projectDir, projectAllDirs, projectRay).
+- Masque X-Ray, essai non retenu : passer sous `E_REALTOL` la tolérance de coïncidence de `compIntersect` et celle de fusion de `compactZ` fait perdre 6 points de percée sur 1,56 million au cas 3D de maskXRay_t1 (identique au r8 sinon) sans corriger les cas 2D, dont l'écart de 2,7e-3 vient du seul rayon tangent au cercle et de sa perturbation aléatoire.
 - Eikonal, solveur `fim_old` (défaut de `Dist2Walls.eikonal`, TIMEOUT d'eikonal_t2 au run du 17/11) : la dernière formule de `solveQuadratic` perd ses chiffres significatifs en float (discriminant de l'ordre de 12h² obtenu par différence de termes de l'ordre de 80), la mise à jour d'un nœud pouvait dépasser sa valeur courante de plus que le critère et le nœud restait indéfiniment dans la liste active. `solveQuadratic` calcule en double, et en r4 un nœud dont la mise à jour ne diminue pas la valeur est convergé. Reproduit hors Cassiopee (grille 128³ et sphère de l'eikonal_t2) : r4 converge en 0,4 s, écart au r8 de 3e-7 ; binaire r8 inchangé bit à bit.
 - Ambiguïtés `std::max(x, 1.e-12)` et `E_max` avec `E_Float = float` : surcharges mixtes dans `DefFunction.h`, littéraux castés.
 - Tolérances géométriques par défaut de 1e-12 dans les API Python : contours non fermés, échec du mailleur Delaunay ; `KCore.realTol`.
