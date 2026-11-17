@@ -411,7 +411,10 @@ E_Int K_CONNECTOR::compIntersect(E_Int elevationDir,
   E_Float ymin, ymax;
   E_Float yy;//ordonnee du point d abscisse x sur la trace 
   E_Float delta1, delta2, delta3;
-  E_Float eps = 1.e-10;
+  // coincidence of the ray with an edge or a node of the facet: below the
+  // resolution of float, such rays were not seen as ambiguous in single
+  // precision (no perturbation, pierce point counted twice or not at all)
+  E_Float eps = E_REALTOL(1.e-10);
   E_Float eps2 = 1.e-7;//tolerance sur cos
 
   if (elevationDir == 3) // 3D case ---
@@ -616,7 +619,7 @@ void K_CONNECTOR::compactZ(
     c = start;
     for (j = start+1; j < start+s; j++)
     {
-      if (K_FUNC::E_abs(p->Z[c] - p->Z[j]) > tol)
+      if (K_FUNC::E_abs(p->Z[c] - p->Z[j]) > E_REALTOL(tol))
       {
         p->Z[c+1] = p->Z[j]; c++;
       }
