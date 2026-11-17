@@ -12,8 +12,11 @@
 #include <vector>
 
 // Resoud
-static E_Float solveQuadratic( E_Float a, E_Float b, E_Float c, E_Float evalf ) {
-    E_Float u = c + 1. / evalf;
+// Computed in double: in single precision the discriminant of the last formula
+// cancels catastrophically and q could exceed the current value of the node
+// (unchanged in double precision, E_Float is double)
+static E_Float solveQuadratic( double a, double b, double c, double evalf ) {
+    double u = c + 1. / evalf;
     if ( u <= b ) return u;
     u = ( b + c + sqrt( -b * b - c * c + 2 * b * c + 2. / ( evalf * evalf ) ) ) * 0.5;
     if ( u <= a ) return u;
@@ -170,6 +173,11 @@ void solveEikonalOnIsotropGrid( unsigned ni, unsigned nj, unsigned nk, E_Float l
             E_Float  p = sol[ind];
             E_Float  q = updateSolOn( i, j, k, stride_i, stride_j, stride_k, ni, nj, nk, cx, cy, cz, speed, sol );
             sol[ind]   = std::min( q, p );
+#ifndef E_DOUBLEREAL
+            // single precision: a node whose update does not decrease its value is
+            // converged (q > p by rounding kept it in the active list forever)
+            q = std::min( q, p );
+#endif
             if ( std::fabs( p - q ) < EIKONAL_CONV_EPS( p ) ) {  // Valeurs d'epsilon a changer en parametre ( externe ? ) )
                 // Pour chaque voisin xnb de x:
                 if ( ( i > 0 ) &&
@@ -280,6 +288,9 @@ static void solveBlock( unsigned iBlk, unsigned jBlk, unsigned kBlk, unsigned nb
                     E_Float q =
                         updateSolOn( i, j, k, stride_i, stride_j, stride_k, ni, nj, nk, cx, cy, cz, speed, sol );
                     sol[ind] = std::min( q, p );
+#ifndef E_DOUBLEREAL
+                    q = std::min( q, p );  // see solveEikonalOnIsotropGrid
+#endif
                     if ( std::fabs( p - q ) < EIKONAL_CONV_EPS( p ) )  // Valeurs d'epsilon à changer en parametre ( externe ? ) )
                     {                                  // Pour chaque voisin xnb de x :
                         if ( ( i > 0 ) &&

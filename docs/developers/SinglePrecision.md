@@ -66,7 +66,7 @@ Protocole retenu, tout en gcc sur juno :
 
 1. qualification de `dev` gcc contre les références officielles `Data_juno` (stack Intel) : 1357 identiques, 71 écarts imputables au compilateur (ordre d'itération de conteneurs, dernier bit propagé dans des décisions combinatoires, lissages itératifs). Ces 71 références ont été régénérées en gcc pour constituer `Data_juno_gcc` ;
 2. r8 de la branche contre `Data_juno_gcc` : 1428 OK ;
-3. r4 de la branche contre `Data_juno_gcc` copié en `Data_juno_gcc_r4` : 851 FAILED au premier run (dont environ 550 dus au banc de comparaison), 399 au second (commit 4a86414, Nuga en double), 321 au troisième (commit 7081c36, tolérances par défaut). Le quatrième, après les correctifs du masque X-Ray et des générateurs trigonométriques, est à faire.
+3. r4 de la branche contre `Data_juno_gcc` copié en `Data_juno_gcc_r4` : 851 FAILED au premier run (dont environ 550 dus au banc de comparaison), 399 au second (commit 4a86414, Nuga en double), 321 au troisième (commit 7081c36, tolérances par défaut), 306 FAILED et 1 TIMEOUT au quatrième (commit 5fe788a, 17/11). Le cinquième, après les correctifs du masque X-Ray, des générateurs trigonométriques et de l'Eikonal, est à faire.
 
 Le répertoire de références dépend d'`ELSAPROD` (`Data_<ELSAPROD>`), il faut amorcer `Data_<prod>_r4` depuis `Data_<prod>` avant un run r4. Un `update` depuis un build r4 n'écrase donc jamais les références r8.
 
@@ -97,6 +97,7 @@ Les tests dont le résultat est combinatoirement sensible à la précision (bool
 - `globalIndex` stockait un entier 64 bits dans chaque case d'un champ `E_Float` (corruption mémoire en r4) : `E_FloatAsInt`.
 - Branches `#else` de `#ifdef E_DOUBLEREAL` jamais compilées (parenthèses manquantes dans Intersector/PolyMeshTools).
 - Eikonal (Dist2Walls) : critère de convergence absolu 1e-6, inaccessible en float, boucle infinie ; critère relatif en r4.
+- Eikonal, solveur `fim_old` (défaut de `Dist2Walls.eikonal`, TIMEOUT d'eikonal_t2 au run du 17/11) : la dernière formule de `solveQuadratic` perd ses chiffres significatifs en float (discriminant de l'ordre de 12h² obtenu par différence de termes de l'ordre de 80), la mise à jour d'un nœud pouvait dépasser sa valeur courante de plus que le critère et le nœud restait indéfiniment dans la liste active. `solveQuadratic` calcule en double, et en r4 un nœud dont la mise à jour ne diminue pas la valeur est convergé. Reproduit hors Cassiopee (grille 128³ et sphère de l'eikonal_t2) : r4 converge en 0,4 s, écart au r8 de 3e-7 ; binaire r8 inchangé bit à bit.
 - Ambiguïtés `std::max(x, 1.e-12)` et `E_max` avec `E_Float = float` : surcharges mixtes dans `DefFunction.h`, littéraux castés.
 - Tolérances géométriques par défaut de 1e-12 dans les API Python : contours non fermés, échec du mailleur Delaunay ; `KCore.realTol`.
 - `Converter.Mpi4py` diffusait les champs en `MPI.DOUBLE` ; datatype dérivé de `E_NpyFloat`.
