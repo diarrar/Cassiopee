@@ -3,6 +3,7 @@
 import numpy
 import fnmatch # unix wildcards
 import KCore.kcore as KCore
+from KCore import castFloatArray
 from . import converter
 
 # INT size for numpy connectivities
@@ -5991,7 +5992,7 @@ def _adaptFloatTypes(t, dtype):
     v = n[1]
     if isinstance(v, numpy.ndarray) and v.dtype.kind == 'f' and v.dtype != dtype:
       if n[0] == 'CGNSLibraryVersion': continue
-      n[1] = v.astype(dtype, order='K')
+      n[1] = castFloatArray(v, dtype)
   return None
 
 # change les numpy R4 en R8 et les numpy i8 en i4

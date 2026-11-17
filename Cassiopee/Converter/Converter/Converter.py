@@ -216,10 +216,10 @@ def _adaptArrayFloatType__(a):
     if isinstance(a[1], list): # array2/3
         for c, k in enumerate(a[1]):
             if isinstance(k, numpy.ndarray) and k.dtype != E_NpyFloat and k.dtype.kind == 'f':
-                a[1][c] = k.astype(E_NpyFloat, order='K')
+                a[1][c] = KCore.castFloatArray(k, E_NpyFloat)
     elif isinstance(a[1], numpy.ndarray):
         if a[1].dtype != E_NpyFloat and a[1].dtype.kind == 'f':
-            a[1] = a[1].astype(E_NpyFloat, order='K')
+            a[1] = KCore.castFloatArray(a[1], E_NpyFloat)
 
 # -- Copy an array --
 def copy(array):
