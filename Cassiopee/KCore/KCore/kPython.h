@@ -12,3 +12,10 @@
 #define PyInt_AsLong PyLong_AsLong
 #define PyInt_FromLong PyLong_FromLong
 #endif
+
+// True for a python float or a numpy floating scalar (to be used where numpy
+// arrayobject.h is included). numpy.float64 derives from float but
+// numpy.float32 does not: in single precision, values computed from
+// coordinates reach the modules as numpy.float32 (numpy >= 2 keeps float32 in
+// mixed scalar arithmetic). Read them with PyFloat_AsDouble.
+#define K_PYFLOAT_CHECK(o) (PyFloat_Check(o) || PyArray_IsScalar(o, Floating))

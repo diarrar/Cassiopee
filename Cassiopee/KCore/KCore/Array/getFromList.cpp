@@ -110,7 +110,7 @@ E_Int K_ARRAY::getFromList(PyObject* o, FldArrayF& out)
     E_Int n = PyList_Size(o);
     if (n == 0) return 1;  // empty list supported
     out.malloc(n);
-    if (PyFloat_Check(PyList_GetItem(o, 0)))
+    if (K_PYFLOAT_CHECK(PyList_GetItem(o, 0)))
     {
       for (E_Int i = 0; i < n; i++)
       {

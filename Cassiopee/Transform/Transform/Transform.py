@@ -221,7 +221,7 @@ def _rotate(array, center, arg1, arg2=None, vectors=[]):
         if isinstance(array[0], list):
             for a in array: transform._rotateA3(a, center, arg1, vectors)
         else: transform._rotateA3(array, center, arg1, vectors)
-    elif isinstance(arg2, float) or isinstance(arg2, int):
+    elif isinstance(arg2, (float, int, numpy.floating, numpy.integer)):
         if isinstance(array[0], list):
             for a in array: transform._rotateA1(a, center, arg1, arg2, vectors)
         else: transform._rotateA1(array, center, arg1, arg2, vectors)
@@ -338,7 +338,7 @@ def smoothField(a, eps=0.1, niter=1, type=0, varNames=[]):
 def _smoothField(a, eps=0.1, niter=1, type=0, varNames=[]):
     """Smooth given fields."""
     if not isinstance(varNames, list): varNames = [varNames]
-    if not isinstance(eps, float): epsv = 0.; epsf = eps
+    if not isinstance(eps, (float, numpy.floating)): epsv = 0.; epsf = eps
     else: epsv = eps; epsf = None
     if isinstance(a[0], list):
         for i in a: transform._smoothField(i, epsv, epsf, niter, type, varNames)
