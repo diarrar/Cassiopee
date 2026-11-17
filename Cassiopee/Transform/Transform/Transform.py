@@ -6,6 +6,7 @@ __version__ = "2026.11"
 from . import transform
 import KCore
 from KCore import realTol
+import numpy
 try: import Converter
 except: raise ImportError("Transform: requires Converter module.")
 from Converter.Internal import E_NpyInt
