@@ -201,6 +201,7 @@ namespace K_CONNECTOR
       K_FLD::FldArrayI indir; // Compact storage indirection
       K_FLD::FldArrayF Z; // Compact Z storage (increasing order)
       std::vector<E_Float>* tempZ; // temporary storage of Z
+      E_LONG seed; // seed of the ray perturbations (changed on each pass in single precision)
   };
 
 /* C'est a l'appelant de detruire les planes */
