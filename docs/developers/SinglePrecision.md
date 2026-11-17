@@ -66,7 +66,7 @@ Protocole retenu, tout en gcc sur juno :
 
 1. qualification de `dev` gcc contre les références officielles `Data_juno` (stack Intel) : 1357 identiques, 71 écarts imputables au compilateur (ordre d'itération de conteneurs, dernier bit propagé dans des décisions combinatoires, lissages itératifs). Ces 71 références ont été régénérées en gcc pour constituer `Data_juno_gcc` ;
 2. r8 de la branche contre `Data_juno_gcc` : 1428 OK ;
-3. r4 de la branche contre `Data_juno_gcc` copié en `Data_juno_gcc_r4` : 851 FAILED au premier run (dont environ 550 dus au banc de comparaison), 399 au second (commit 4a86414, Nuga en double). Le troisième, après la correction des tolérances par défaut, est à faire.
+3. r4 de la branche contre `Data_juno_gcc` copié en `Data_juno_gcc_r4` : 851 FAILED au premier run (dont environ 550 dus au banc de comparaison), 399 au second (commit 4a86414, Nuga en double), 321 au troisième (commit 7081c36, tolérances par défaut). Le quatrième, après les correctifs du masque X-Ray et des générateurs trigonométriques, est à faire.
 
 Le répertoire de références dépend d'`ELSAPROD` (`Data_<ELSAPROD>`), il faut amorcer `Data_<prod>_r4` depuis `Data_<prod>` avant un run r4. Un `update` depuis un build r4 n'écrase donc jamais les références r8.
 
@@ -74,7 +74,9 @@ Pour les tests MPI lancés hors `mpirun` (import de `Converter.Mpi` dans un test
 
 ## Écarts r4 restants, par famille (run du 16/11, 399 FAILED)
 
-- **Mailleurs, booléens et conformizers Nuga** (T3mesher2D, gapfixer, fittingPlaster, conformUnstr, splitManifold, collarMesh, diffMesh, intersection) : cause identifiée, les contours remis au mailleur n'étaient pas fermés parce que `G.close` et `T.join` ont des tolérances par défaut de 1e-12, sous la résolution du float. Traité par `KCore.realTol`, à confirmer par le prochain run.
+- **Mailleurs, booléens et conformizers Nuga** (T3mesher2D, gapfixer, fittingPlaster, conformUnstr, splitManifold, collarMesh, diffMesh, intersection) : cause identifiée, les contours remis au mailleur n'étaient pas fermés parce que `G.close` et `T.join` ont des tolérances par défaut de 1e-12, sous la résolution du float. Traité par `KCore.realTol`, confirmé par le run suivant (conformUnstr passe, T3mesher2D maille).
+- **`error finalizing` restants** (agglomerateSmallCells, diffSurf, diffMesh, en tableau et en pyTree) : la sphère de `D.sphere` était calculée en float, `sin(pi)` y vaut -8,7e-8, les pôles devenaient des anneaux de points distincts que Nuga ne fusionne pas (fusion à 1e-12), et `diffSurf` gardait les cellules intérieures à la sphère. Reproduit et corrigé hors Cassiopee : les générateurs trigonométriques calculent en double. extractSlicesPT_t1 (fichier CGNS lu) reste à examiner.
+- **AMR, prepAMRFull_m1/t1/t2** : le masque X-Ray gardait des faces ambiguës après ses passes de perturbation, `blankCells` ignorait ce statut et passait au Fortran une table de rayons non initialisée. Reproduit hors Cassiopee et corrigé.
 - **Écarts numériques purs** (129 tests) : 66 sous 1e-3 (gradients, divergences, projections, lissages, accumulation d'arrondi float) à couvrir par une tolérance r4 de test relevée ou à accepter test par test ; 63 au-dessus, dont 42 au-dessus de 1e-1 (cellN, indicateurs, intersections de rayons, blanking, P1ConsInterpolation) qui sont des décisions qui basculent, à examiner un par un.
 - **Tailles de maillage différentes** (92 tests) : mailleurs et booléens, à rejuger après la correction des tolérances.
 - **Valeurs float64 dans le résultat** (7 tests) : décompresseurs de Compressor, tests à typer.
@@ -99,3 +101,5 @@ Les tests dont le résultat est combinatoirement sensible à la précision (bool
 - Tolérances géométriques par défaut de 1e-12 dans les API Python : contours non fermés, échec du mailleur Delaunay ; `KCore.realTol`.
 - `Converter.Mpi4py` diffusait les champs en `MPI.DOUBLE` ; datatype dérivé de `E_NpyFloat`.
 - Tolérance relative de l'alignement des points donneurs de l'AMR (Connector) relâchée en r4.
+- Masque X-Ray (`maskXRay.cpp`) : quand des faces restaient ambiguës, `compactZ` n'était pas appelé et `blankCells` utilisait `indir` non initialisé avec un Z vide (sortie de tableau dans `k6searchblankednodesx2d`). Les tables sont désormais toujours cohérentes et `blankCells` avertit. En r4 seulement, la perturbation des rayons change à chaque passe : le germe aléatoire était réinitialisé à chaque triangle, un rayon qui retombait sur un nœud recevait indéfiniment la même perturbation. Les points de percée des cas ordinaires sont identiques bit à bit, en r8 comme en r4.
+- Générateurs `D.circle`, `D.sphere`, `D.torus`, `D.cone`, `G.cylinder` : angles et trigonométrie en double, résultat stocké en `E_Float`. Pôles, coutures et fermetures à 360° sont exacts à 1e-16 près, au lieu de 1e-7. Code inchangé en r8.
