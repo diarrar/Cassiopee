@@ -38,7 +38,9 @@ PyObject* K_GEOM::cone(PyObject* self, PyObject* args)
   {
     return NULL;
   }
-  E_Float pi = 4*atan(1.);
+  // angles and trigonometry in double: exact closures (poles, seams, 360 deg)
+  // also in single precision; identical in double precision
+  double pi = 4*atan(1.);
 
   // Data check
   if (N < 2)
@@ -63,12 +65,12 @@ PyObject* K_GEOM::cone(PyObject* self, PyObject* args)
   E_Float* yt = f->begin(2);
   E_Float* zt = f->begin(3);
 
-  E_Float alpha;
-  E_Float x1, y1, z1;
-  E_Float delta = 2.*pi/(N-1.);
+  double alpha;
+  double x1, y1, z1;
+  double delta = 2.*pi/(N-1.);
   E_Float rapport = (Rb-Rv)/H;
   E_Float hk = H/(N-1.);
-  E_Float Rk;
+  double Rk;
   z1 = 0.;
 
   for (E_Int k = 0; k < N; k++)
