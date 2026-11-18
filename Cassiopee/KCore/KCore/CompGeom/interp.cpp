@@ -21,6 +21,7 @@
 # include <math.h>
 # include <stdio.h>
 # include "CompGeom/compGeom.h"
+# include "CompGeom/onedmapT.h"
 
 //=============================================================================
 // Hermite cubic interpolation helper
@@ -48,39 +49,7 @@ void K_COMPGEOM::interp(
   E_Float* tabx, E_Float* taby, E_Float* tabz
 )
 {
-  tabx[0] = tabx0[0];
-  taby[0] = taby0[0];
-  tabz[0] = tabz0[0];
-  tabx[im-1] = tabx0[im0-1];
-  taby[im-1] = taby0[im0-1];
-  tabz[im-1] = tabz0[im0-1];
-
-  if (im == 2) return;
-  else
-  {
-    E_Int k;
-    E_Float t, coef, d1, d2;
-
-    for (E_Int i = 1; i < im-1; i++)
-    {
-      for (k = 0; k < im0-1; k++)
-      {
-        if (s[i] <= s0[k+1]) break;
-      }
-      if (k >= im0-1) k = im0-2;
-      t = (s[i] - s0[k]) / (s0[k+1] - s0[k]);
-      coef = stota * (s0[k+1] - s0[k]);
-      d1 = dx0[k] * coef;
-      d2 = dx0[k+1] * coef;
-      tabx[i] = valcub(tabx0[k], tabx0[k+1], d1, d2, t);
-      d1 = dy0[k] * coef;
-      d2 = dy0[k+1] * coef;
-      taby[i] = valcub(taby0[k], taby0[k+1], d1, d2, t);
-      d1 = dz0[k] * coef;
-      d2 = dz0[k+1] * coef;
-      tabz[i] = valcub(tabz0[k], tabz0[k+1], d1, d2, t);
-    }
-  }
+  interpT<E_Float>(im0, im, stota, s0, s, tabx0, taby0, tabz0, dx0, dy0, dz0, tabx, taby, tabz);
 }
 
 //=============================================================================
