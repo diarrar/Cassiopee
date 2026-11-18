@@ -385,13 +385,15 @@ E_Int K_CONNECTOR::blankIntersectingCellsPenta(
       for (E_Int noet = 0; noet < nelts0; noet++)
       {
         E_Int et = noet + k * nelts0;
+        // face centers are summed in double (exact for 4 floats): the two
+        // cells sharing a face get the same center whatever the vertex order
         //facettes ABED
         indA = cn1[et]-1; indB = cn2[et]-1; indC = cn5[et]-1; indD = cn4[et]-1;
         facette* face = new facette;
         face->indA = indA; face->indB = indB; face->indC = indC; face->indD = indD; 
-        face->xo = 0.25*(xt[indA]+xt[indB]+xt[indC]+xt[indD]);
-        face->yo = 0.25*(yt[indA]+yt[indB]+yt[indC]+yt[indD]);
-        face->zo = 0.25*(zt[indA]+zt[indB]+zt[indC]+zt[indD]);
+        face->xo = 0.25*((double)xt[indA]+xt[indB]+xt[indC]+xt[indD]);
+        face->yo = 0.25*((double)yt[indA]+yt[indB]+yt[indC]+yt[indD]);
+        face->zo = 0.25*((double)zt[indA]+zt[indB]+zt[indC]+zt[indD]);
         etvoisin = K_CONNECT::getNbrForQuadFace(indA, indB, indC, indD, *cn, cEEN[et]);
         if (etvoisin == -1) etvoisin = et;
         face->indcell1 = et; face->indcell2 = etvoisin;
@@ -401,9 +403,9 @@ E_Int K_CONNECTOR::blankIntersectingCellsPenta(
         indA = cn2[et]-1; indB = cn3[et]-1; indC = cn6[et]-1; indD = cn5[et]-1;
         face = new facette;
         face->indA = indA; face->indB = indB; face->indC = indC; face->indD = indD; 
-        face->xo = 0.25*(xt[indA]+xt[indB]+xt[indC]+xt[indD]);
-        face->yo = 0.25*(yt[indA]+yt[indB]+yt[indC]+yt[indD]);
-        face->zo = 0.25*(zt[indA]+zt[indB]+zt[indC]+zt[indD]);
+        face->xo = 0.25*((double)xt[indA]+xt[indB]+xt[indC]+xt[indD]);
+        face->yo = 0.25*((double)yt[indA]+yt[indB]+yt[indC]+yt[indD]);
+        face->zo = 0.25*((double)zt[indA]+zt[indB]+zt[indC]+zt[indD]);
         etvoisin = K_CONNECT::getNbrForQuadFace(indA, indB, indC, indD, *cn, cEEN[et]);
         if ( etvoisin == -1 ) etvoisin = et;
         face->indcell1 = et; face->indcell2 = etvoisin;
@@ -414,9 +416,9 @@ E_Int K_CONNECTOR::blankIntersectingCellsPenta(
         indA = cn3[et]-1; indB = cn1[et]-1; indC = cn4[et]-1; indD = cn6[et]-1;
         face = new facette;
         face->indA = indA; face->indB = indB; face->indC = indC; face->indD = indD; 
-        face->xo = 0.25*(xt[indA]+xt[indB]+xt[indC]+xt[indD]);
-        face->yo = 0.25*(yt[indA]+yt[indB]+yt[indC]+yt[indD]);
-        face->zo = 0.25*(zt[indA]+zt[indB]+zt[indC]+zt[indD]);
+        face->xo = 0.25*((double)xt[indA]+xt[indB]+xt[indC]+xt[indD]);
+        face->yo = 0.25*((double)yt[indA]+yt[indB]+yt[indC]+yt[indD]);
+        face->zo = 0.25*((double)zt[indA]+zt[indB]+zt[indC]+zt[indD]);
         etvoisin = K_CONNECT::getNbrForQuadFace(indA, indB, indC, indD, *cn, cEEN[et]);
         if ( etvoisin == -1 ) etvoisin = et;
         face->indcell1 = et; face->indcell2 = etvoisin;
@@ -621,9 +623,9 @@ E_Int K_CONNECTOR::blankIntersectingCellsHexa(
         indA = cn1[et]-1; indB = cn4[et]-1; indC = cn8[et]-1; indD = cn5[et]-1;
         facette* face = new facette;
         face->indA = indA; face->indB = indB; face->indC = indC; face->indD = indD; 
-        face->xo = 0.25*(xt[indA]+xt[indB]+xt[indC]+xt[indD]);
-        face->yo = 0.25*(yt[indA]+yt[indB]+yt[indC]+yt[indD]);
-        face->zo = 0.25*(zt[indA]+zt[indB]+zt[indC]+zt[indD]);
+        face->xo = 0.25*((double)xt[indA]+xt[indB]+xt[indC]+xt[indD]);
+        face->yo = 0.25*((double)yt[indA]+yt[indB]+yt[indC]+yt[indD]);
+        face->zo = 0.25*((double)zt[indA]+zt[indB]+zt[indC]+zt[indD]);
         etvoisin = K_CONNECT::getNbrForQuadFace(indA, indB, indC, indD, *cn, cEEN[et]);
         if ( etvoisin == -1 ) etvoisin = et;
         face->indcell1 = et; face->indcell2 = etvoisin;
@@ -633,9 +635,9 @@ E_Int K_CONNECTOR::blankIntersectingCellsHexa(
         indA = cn2[et]-1; indB = cn3[et]-1; indC = cn7[et]-1; indD = cn6[et]-1;
         face = new facette;
         face->indA = indA; face->indB = indB; face->indC = indC; face->indD = indD; 
-        face->xo = 0.25*(xt[indA]+xt[indB]+xt[indC]+xt[indD]);
-        face->yo = 0.25*(yt[indA]+yt[indB]+yt[indC]+yt[indD]);
-        face->zo = 0.25*(zt[indA]+zt[indB]+zt[indC]+zt[indD]);
+        face->xo = 0.25*((double)xt[indA]+xt[indB]+xt[indC]+xt[indD]);
+        face->yo = 0.25*((double)yt[indA]+yt[indB]+yt[indC]+yt[indD]);
+        face->zo = 0.25*((double)zt[indA]+zt[indB]+zt[indC]+zt[indD]);
         etvoisin = K_CONNECT::getNbrForQuadFace(indA, indB, indC, indD, *cn, cEEN[et]);
         if ( etvoisin == -1 ) etvoisin = et;
         face->indcell1 = et; face->indcell2 = etvoisin;
@@ -646,9 +648,9 @@ E_Int K_CONNECTOR::blankIntersectingCellsHexa(
         indA = cn1[et]-1; indB = cn2[et]-1; indC = cn6[et]-1; indD = cn5[et]-1;
         face = new facette;
         face->indA = indA; face->indB = indB; face->indC = indC; face->indD = indD; 
-        face->xo = 0.25*(xt[indA]+xt[indB]+xt[indC]+xt[indD]);
-        face->yo = 0.25*(yt[indA]+yt[indB]+yt[indC]+yt[indD]);
-        face->zo = 0.25*(zt[indA]+zt[indB]+zt[indC]+zt[indD]);
+        face->xo = 0.25*((double)xt[indA]+xt[indB]+xt[indC]+xt[indD]);
+        face->yo = 0.25*((double)yt[indA]+yt[indB]+yt[indC]+yt[indD]);
+        face->zo = 0.25*((double)zt[indA]+zt[indB]+zt[indC]+zt[indD]);
         etvoisin = K_CONNECT::getNbrForQuadFace(indA, indB, indC, indD, *cn, cEEN[et]);
         if ( etvoisin == -1 ) etvoisin = et;
         face->indcell1 = et; face->indcell2 = etvoisin;
@@ -659,9 +661,9 @@ E_Int K_CONNECTOR::blankIntersectingCellsHexa(
         indA = cn4[et]-1; indB = cn3[et]-1; indC = cn7[et]-1; indD = cn8[et]-1;
         face = new facette;
         face->indA = indA; face->indB = indB; face->indC = indC; face->indD = indD; 
-        face->xo = 0.25*(xt[indA]+xt[indB]+xt[indC]+xt[indD]);
-        face->yo = 0.25*(yt[indA]+yt[indB]+yt[indC]+yt[indD]);
-        face->zo = 0.25*(zt[indA]+zt[indB]+zt[indC]+zt[indD]);
+        face->xo = 0.25*((double)xt[indA]+xt[indB]+xt[indC]+xt[indD]);
+        face->yo = 0.25*((double)yt[indA]+yt[indB]+yt[indC]+yt[indD]);
+        face->zo = 0.25*((double)zt[indA]+zt[indB]+zt[indC]+zt[indD]);
         etvoisin = K_CONNECT::getNbrForQuadFace(indA, indB, indC, indD, *cn, cEEN[et]);
         if ( etvoisin == -1 ) etvoisin = et;
         face->indcell1 = et; face->indcell2 = etvoisin;
@@ -854,9 +856,9 @@ E_Int K_CONNECTOR::blankIntersectingCellsStruct(
           indcell = i + j * nic + k * nicnjc;
           indcelld = indcell + incd; indcellg = indcell + incg; 
           face->indA = indA; face->indB = indB; face->indC = indC; face->indD = indD; 
-          face->xo = 0.25*(xt[indA]+xt[indB]+xt[indC]+xt[indD]);
-          face->yo = 0.25*(yt[indA]+yt[indB]+yt[indC]+yt[indD]);
-          face->zo = 0.25*(zt[indA]+zt[indB]+zt[indC]+zt[indD]);
+          face->xo = 0.25*((double)xt[indA]+xt[indB]+xt[indC]+xt[indD]);
+          face->yo = 0.25*((double)yt[indA]+yt[indB]+yt[indC]+yt[indD]);
+          face->zo = 0.25*((double)zt[indA]+zt[indB]+zt[indC]+zt[indD]);
           face->indcell1 = indcellg; face->indcell2 = indcelld;
           face->nozone = v;
           listFacettes.push_back(face);
@@ -874,9 +876,9 @@ E_Int K_CONNECTOR::blankIntersectingCellsStruct(
           indcell = i + j * nic + k * nicnjc; 
           indcelld = indcell+incd; indcellg = indcell + incg; 
           face->indA = indA; face->indB = indB; face->indC = indC; face->indD = indD; 
-          face->xo = 0.25*(xt[indA]+xt[indB]+xt[indC]+xt[indD]);
-          face->yo = 0.25*(yt[indA]+yt[indB]+yt[indC]+yt[indD]);
-          face->zo = 0.25*(zt[indA]+zt[indB]+zt[indC]+zt[indD]);
+          face->xo = 0.25*((double)xt[indA]+xt[indB]+xt[indC]+xt[indD]);
+          face->yo = 0.25*((double)yt[indA]+yt[indB]+yt[indC]+yt[indD]);
+          face->zo = 0.25*((double)zt[indA]+zt[indB]+zt[indC]+zt[indD]);
           face->indcell1 = indcellg; face->indcell2 = indcelld;
           face->nozone = v; listFacettes.push_back(face);
         }
@@ -1248,9 +1250,9 @@ E_Int K_CONNECTOR::blankInvalidCellsPenta(
       listFacettes.push_back(face);
 
       //facette ACFD decoupee en 4 triangles
-      xo = 0.25*(xt[indA]+xt[indC]+xt[indF]+xt[indD]);
-      yo = 0.25*(yt[indA]+yt[indC]+yt[indF]+yt[indD]);
-      zo = 0.25*(zt[indA]+zt[indC]+zt[indF]+zt[indD]);
+      xo = 0.25*((double)xt[indA]+xt[indC]+xt[indF]+xt[indD]);
+      yo = 0.25*((double)yt[indA]+yt[indC]+yt[indF]+yt[indD]);
+      zo = 0.25*((double)zt[indA]+zt[indC]+zt[indF]+zt[indD]);
       face = new trifacette;//ACO
       face->x1 = xt[indA]; face->y1 = yt[indA]; face->z1 = zt[indA]; 
       face->x2 = xt[indC]; face->y2 = yt[indC]; face->z2 = zt[indC]; 
@@ -1273,9 +1275,9 @@ E_Int K_CONNECTOR::blankInvalidCellsPenta(
       listFacettes.push_back(face);
 
       //facette ABED decoupee en 4 triangles
-      xo = 0.25*(xt[indA]+xt[indB]+xt[indE]+xt[indD]);
-      yo = 0.25*(yt[indA]+yt[indB]+yt[indE]+yt[indD]);
-      zo = 0.25*(zt[indA]+zt[indB]+zt[indE]+zt[indD]);
+      xo = 0.25*((double)xt[indA]+xt[indB]+xt[indE]+xt[indD]);
+      yo = 0.25*((double)yt[indA]+yt[indB]+yt[indE]+yt[indD]);
+      zo = 0.25*((double)zt[indA]+zt[indB]+zt[indE]+zt[indD]);
       face = new trifacette;//ABO
       face->x1 = xt[indA]; face->y1 = yt[indA]; face->z1 = zt[indA]; 
       face->x2 = xt[indB]; face->y2 = yt[indB]; face->z2 = zt[indB]; 
@@ -1298,9 +1300,9 @@ E_Int K_CONNECTOR::blankInvalidCellsPenta(
       listFacettes.push_back(face);
 
       //facette BCFE decoupee en 4 triangles
-      xo = 0.25*(xt[indB]+xt[indC]+xt[indF]+xt[indE]);
-      yo = 0.25*(yt[indB]+yt[indC]+yt[indF]+yt[indE]);
-      zo = 0.25*(zt[indB]+zt[indC]+zt[indF]+zt[indE]);
+      xo = 0.25*((double)xt[indB]+xt[indC]+xt[indF]+xt[indE]);
+      yo = 0.25*((double)yt[indB]+yt[indC]+yt[indF]+yt[indE]);
+      zo = 0.25*((double)zt[indB]+zt[indC]+zt[indF]+zt[indE]);
       face = new trifacette;//BCO
       face->x1 = xt[indC]; face->y1 = yt[indC]; face->z1 = zt[indC]; 
       face->x2 = xt[indB]; face->y2 = yt[indB]; face->z2 = zt[indB]; 
@@ -1402,44 +1404,44 @@ E_Int K_CONNECTOR::blankInvalidCellsHexa(
       indE = cn5[et]-1; indF = cn6[et]-1; indG = cn7[et]-1; indH = cn8[et]-1;
       facette* face = new facette;  // facette ABCD
       face->indA = indA; face->indB = indB; face->indC = indC; face->indD = indD; 
-      face->xo = 0.25*(xt[indA]+xt[indB]+xt[indC]+xt[indD]);
-      face->yo = 0.25*(yt[indA]+yt[indB]+yt[indC]+yt[indD]);
-      face->zo = 0.25*(zt[indA]+zt[indB]+zt[indC]+zt[indD]);
+      face->xo = 0.25*((double)xt[indA]+xt[indB]+xt[indC]+xt[indD]);
+      face->yo = 0.25*((double)yt[indA]+yt[indB]+yt[indC]+yt[indD]);
+      face->zo = 0.25*((double)zt[indA]+zt[indB]+zt[indC]+zt[indD]);
       face->nozone = v; listFacettes.push_back(face);
 
       face = new facette;//facette EFGH
       face->indA = indE; face->indB = indF; face->indC = indG; face->indD = indH; 
-      face->xo = 0.25*(xt[indE]+xt[indF]+xt[indG]+xt[indH]);
-      face->yo = 0.25*(yt[indE]+yt[indF]+yt[indG]+yt[indH]);
-      face->zo = 0.25*(zt[indE]+zt[indF]+zt[indG]+zt[indH]);
+      face->xo = 0.25*((double)xt[indE]+xt[indF]+xt[indG]+xt[indH]);
+      face->yo = 0.25*((double)yt[indE]+yt[indF]+yt[indG]+yt[indH]);
+      face->zo = 0.25*((double)zt[indE]+zt[indF]+zt[indG]+zt[indH]);
       face->nozone = v; listFacettes.push_back(face);
 
       face = new facette; //face ABFE
       face->indA = indA; face->indB = indB; face->indC = indF; face->indD = indE; 
-      face->xo = 0.25*(xt[indA]+xt[indB]+xt[indF]+xt[indE]);
-      face->yo = 0.25*(yt[indA]+yt[indB]+yt[indF]+yt[indE]);
-      face->zo = 0.25*(zt[indA]+zt[indB]+zt[indF]+zt[indE]);
+      face->xo = 0.25*((double)xt[indA]+xt[indB]+xt[indF]+xt[indE]);
+      face->yo = 0.25*((double)yt[indA]+yt[indB]+yt[indF]+yt[indE]);
+      face->zo = 0.25*((double)zt[indA]+zt[indB]+zt[indF]+zt[indE]);
       face->nozone = v; listFacettes.push_back(face);
 
       face = new facette; //face DCGH
       face->indA = indD; face->indB = indC; face->indC = indG; face->indD = indH; 
-      face->xo = 0.25*(xt[indD]+xt[indC]+xt[indG]+xt[indH]);
-      face->yo = 0.25*(yt[indD]+yt[indC]+yt[indG]+yt[indH]);
-      face->zo = 0.25*(zt[indD]+zt[indC]+zt[indG]+zt[indH]);
+      face->xo = 0.25*((double)xt[indD]+xt[indC]+xt[indG]+xt[indH]);
+      face->yo = 0.25*((double)yt[indD]+yt[indC]+yt[indG]+yt[indH]);
+      face->zo = 0.25*((double)zt[indD]+zt[indC]+zt[indG]+zt[indH]);
       face->nozone = v; listFacettes.push_back(face);
   
       face = new facette; //face ADHE
       face->indA = indA; face->indB = indD; face->indC = indH; face->indD = indE; 
-      face->xo = 0.25*(xt[indA]+xt[indD]+xt[indH]+xt[indE]);
-      face->yo = 0.25*(yt[indA]+yt[indD]+yt[indH]+yt[indE]);
-      face->zo = 0.25*(zt[indA]+zt[indD]+zt[indH]+zt[indE]);
+      face->xo = 0.25*((double)xt[indA]+xt[indD]+xt[indH]+xt[indE]);
+      face->yo = 0.25*((double)yt[indA]+yt[indD]+yt[indH]+yt[indE]);
+      face->zo = 0.25*((double)zt[indA]+zt[indD]+zt[indH]+zt[indE]);
       face->nozone = v; listFacettes.push_back(face);
   
       face = new facette; //face BCGF
       face->indA = indB; face->indB = indC; face->indC = indG; face->indD = indF; 
-      face->xo = 0.25*(xt[indB]+xt[indC]+xt[indG]+xt[indF]);
-      face->yo = 0.25*(yt[indB]+yt[indC]+yt[indG]+yt[indF]);
-      face->zo = 0.25*(zt[indB]+zt[indC]+zt[indG]+zt[indF]);
+      face->xo = 0.25*((double)xt[indB]+xt[indC]+xt[indG]+xt[indF]);
+      face->yo = 0.25*((double)yt[indB]+yt[indC]+yt[indG]+yt[indF]);
+      face->zo = 0.25*((double)zt[indB]+zt[indC]+zt[indG]+zt[indF]);
       face->nozone = v; listFacettes.push_back(face);
    
       E_Int nfacettes = listFacettes.size();
@@ -1562,44 +1564,44 @@ E_Int K_CONNECTOR::blankInvalidCellsStruct(
       indE = indA+ninj; indF = indB+ninj; indG = indC+ninj; indH = indD+ninj;
       facette* face = new facette; //face ABCD
       face->indA = indA; face->indB = indB; face->indC = indC; face->indD = indD; 
-      face->xo = 0.25*(xt[indA]+xt[indB]+xt[indC]+xt[indD]);
-      face->yo = 0.25*(yt[indA]+yt[indB]+yt[indC]+yt[indD]);
-      face->zo = 0.25*(zt[indA]+zt[indB]+zt[indC]+zt[indD]);
+      face->xo = 0.25*((double)xt[indA]+xt[indB]+xt[indC]+xt[indD]);
+      face->yo = 0.25*((double)yt[indA]+yt[indB]+yt[indC]+yt[indD]);
+      face->zo = 0.25*((double)zt[indA]+zt[indB]+zt[indC]+zt[indD]);
       face->indcell1 = ind; face->indcell2 = -1;
       face->nozone = v; listFacettes.push_back(face);
       face = new facette; //face EFGH
       face->indA = indE; face->indB = indF; face->indC = indG; face->indD = indH; 
-      face->xo = 0.25*(xt[indE]+xt[indF]+xt[indG]+xt[indH]);
-      face->yo = 0.25*(yt[indE]+yt[indF]+yt[indG]+yt[indH]);
-      face->zo = 0.25*(zt[indE]+zt[indF]+zt[indG]+zt[indH]);
+      face->xo = 0.25*((double)xt[indE]+xt[indF]+xt[indG]+xt[indH]);
+      face->yo = 0.25*((double)yt[indE]+yt[indF]+yt[indG]+yt[indH]);
+      face->zo = 0.25*((double)zt[indE]+zt[indF]+zt[indG]+zt[indH]);
       face->indcell1 = ind; face->indcell2 = -1;
       face->nozone = v; listFacettes.push_back(face);
       face = new facette; //face ABFE
       face->indA = indA; face->indB = indB; face->indC = indF; face->indD = indE; 
-      face->xo = 0.25*(xt[indA]+xt[indB]+xt[indF]+xt[indE]);
-      face->yo = 0.25*(yt[indA]+yt[indB]+yt[indF]+yt[indE]);
-      face->zo = 0.25*(zt[indA]+zt[indB]+zt[indF]+zt[indE]);
+      face->xo = 0.25*((double)xt[indA]+xt[indB]+xt[indF]+xt[indE]);
+      face->yo = 0.25*((double)yt[indA]+yt[indB]+yt[indF]+yt[indE]);
+      face->zo = 0.25*((double)zt[indA]+zt[indB]+zt[indF]+zt[indE]);
       face->indcell1 = ind; face->indcell2 = -1;
       face->nozone = v; listFacettes.push_back(face);      
       face = new facette; //face DCGH
       face->indA = indD; face->indB = indC; face->indC = indG; face->indD = indH; 
-      face->xo = 0.25*(xt[indD]+xt[indC]+xt[indG]+xt[indH]);
-      face->yo = 0.25*(yt[indD]+yt[indC]+yt[indG]+yt[indH]);
-      face->zo = 0.25*(zt[indD]+zt[indC]+zt[indG]+zt[indH]);
+      face->xo = 0.25*((double)xt[indD]+xt[indC]+xt[indG]+xt[indH]);
+      face->yo = 0.25*((double)yt[indD]+yt[indC]+yt[indG]+yt[indH]);
+      face->zo = 0.25*((double)zt[indD]+zt[indC]+zt[indG]+zt[indH]);
       face->indcell1 = ind; face->indcell2 = -1;
       face->nozone = v; listFacettes.push_back(face);       
       face = new facette; //face ADHE
       face->indA = indA; face->indB = indD; face->indC = indH; face->indD = indE; 
-      face->xo = 0.25*(xt[indA]+xt[indD]+xt[indH]+xt[indE]);
-      face->yo = 0.25*(yt[indA]+yt[indD]+yt[indH]+yt[indE]);
-      face->zo = 0.25*(zt[indA]+zt[indD]+zt[indH]+zt[indE]);
+      face->xo = 0.25*((double)xt[indA]+xt[indD]+xt[indH]+xt[indE]);
+      face->yo = 0.25*((double)yt[indA]+yt[indD]+yt[indH]+yt[indE]);
+      face->zo = 0.25*((double)zt[indA]+zt[indD]+zt[indH]+zt[indE]);
       face->indcell1 = ind; face->indcell2 = -1;
       face->nozone = v; listFacettes.push_back(face);    
       face = new facette; //face BCGF
       face->indA = indB; face->indB = indC; face->indC = indG; face->indD = indF; 
-      face->xo = 0.25*(xt[indB]+xt[indC]+xt[indG]+xt[indF]);
-      face->yo = 0.25*(yt[indB]+yt[indC]+yt[indG]+yt[indF]);
-      face->zo = 0.25*(zt[indB]+zt[indC]+zt[indG]+zt[indF]);
+      face->xo = 0.25*((double)xt[indB]+xt[indC]+xt[indG]+xt[indF]);
+      face->yo = 0.25*((double)yt[indB]+yt[indC]+yt[indG]+yt[indF]);
+      face->zo = 0.25*((double)zt[indB]+zt[indC]+zt[indG]+zt[indF]);
       face->indcell1 = ind; face->indcell2 = -1;
       face->nozone = v; listFacettes.push_back(face);    
       E_Int nfacettes = listFacettes.size();
