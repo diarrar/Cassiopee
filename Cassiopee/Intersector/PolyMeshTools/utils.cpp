@@ -1522,7 +1522,7 @@ PyObject* K_INTERSECTOR::extractBadVolCells(PyObject* self, PyObject* args)
   double aratio{0.125}, vmin{0.};
   int nneighs{1};
 
-  if (!PYPARSETUPLE_(args, OO_ RR_ I_, &arr, &PE, &aratio, &vmin, &nneighs)) return NULL;
+  if (!PYPARSETUPLE_(args, OO_ "dd" I_, &arr, &PE, &aratio, &vmin, &nneighs)) return NULL;
 
   K_FLD::FloatArray* f(0);
   K_FLD::IntArray* cn(0);
@@ -2939,7 +2939,7 @@ PyObject* K_INTERSECTOR::immerseNodes(PyObject* self, PyObject* args)
   PyObject *arr1, *arr2;
   double TOL{0.};
 
-  if (!PYPARSETUPLE_(args, OO_ R_, &arr1, &arr2, &TOL)) return NULL;
+  if (!PYPARSETUPLE_(args, OO_ "d", &arr1, &arr2, &TOL)) return NULL;
 
   K_FLD::FloatArray* f(0);
   K_FLD::IntArray* cn(0);
