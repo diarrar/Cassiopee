@@ -18,6 +18,9 @@ C    along with Cassiopee.  If not, see <http://www.gnu.org/licenses/>.
 
 C ============================================================================
 C Ensemble de subroutines pour generer une repartition tanhmap 
+C Les calculs internes sont en double quelle que soit la precision compilee ;
+C seules les interfaces (t1, t2, ds1, ds2, distribution) restent en REAL_E.
+C Inchange en double precision.
 C  ==========================================================================
       SUBROUTINE k6stretch(t1,t2,sn,nbp,dsm,dsp,ityp,inewt)
 c
@@ -78,9 +81,9 @@ C_IN
 C_OUT
       REAL_E t(jmax)
 C_AUX
-      REAL_E b, sn1
-      REAL_E dt, eps, bbar, dlt, v, w, pi, x1, f, df, dx1
-      REAL_E r, s
+      REAL*8  b, sn1
+      REAL*8  dt, eps, bbar, dlt, v, w, pi, x1, f, df, dx1
+      REAL*8  r, s
       INTEGER_E it, j
 c.....
 C   common/tanh1/ b,sn1,kmax
@@ -91,7 +94,7 @@ C   kmax    = jmax
 c.....
       sn1     = ds1/dt
 c.....
-      b       = dt/float(jmax-1)/ds1
+      b       = dt/dble(jmax-1)/ds1
 c.....
 c.....  ** first case b>1.0001 **
 c.....
@@ -169,7 +172,7 @@ c.....  ** first case b>1.0001 **
 c.....
        if (b.ge.1.0001) then
          do 10 j = 2,jmax-1
-            r     = float(j-1)/float(jmax-1)
+            r     = dble(j-1)/dble(jmax-1)
             s     = 1.0 + tanh(dlt*0.5*(r-1.0))/tanh(0.5*dlt)
             t(j)  = t1 + dt*s
  10      continue 
@@ -178,7 +181,7 @@ c.....  ** second case b<0.9999 **
 c.....
        else if(b.lt.0.9999) then
          do 20 j = 2,jmax-1
-            r     = float(j-1)/float(jmax-1)
+            r     = dble(j-1)/dble(jmax-1)
             s     = 1.0 + tan (dlt*0.5*(r-1.0))/tan (0.5*dlt)
             t(j)  = t1 + dt*s
  20      continue
@@ -187,7 +190,7 @@ c.....  ** third case 0.9999<=b<=1.0001 **
 c.....
        else 
          do 30 j = 2,jmax-1
-           r     = float(j-1)/float(jmax-1)
+           r     = dble(j-1)/dble(jmax-1)
            s     = r*(1.-0.5*dlt*(1.-r)*(2.-r))
            t(j)  = t1 + dt*s
  30      continue 
@@ -206,15 +209,15 @@ c ---------------------------------------------------------------------
 c
       IMPLICIT NONE
 C_IN
-      REAL_E x1
-      REAL_E b, sn1
+      REAL*8  x1
+      REAL*8  b, sn1
       INTEGER_E jmax
 C_OUT
-      REAL_E f
+      REAL*8  f
 C_AUX
-      REAL_E r
+      REAL*8  r
 c.....
-      r = 1.0/float(jmax-1)
+      r = 1.0/dble(jmax-1)
 c.....
       if (b.ge.1.0001) then
          f = 1.0D0 + tanh(x1*0.5D0*(r-1.0D0))/tanh(0.5D0*x1)-sn1
@@ -236,15 +239,15 @@ c
       IMPLICIT NONE
 C
 C_IN
-      REAL_E x1
-      REAL_E b, sn1
+      REAL*8  x1
+      REAL*8  b, sn1
       INTEGER_E jmax
 C_OUT 
-      REAL_E df
+      REAL*8  df
 C_AUX
-      REAL_E r, eps, x1eps
+      REAL*8  r, eps, x1eps
 
-      r = 1./float(jmax-1)
+      r = 1./dble(jmax-1)
       eps = -1.0e-06
       x1eps = x1+eps
 c.....
@@ -285,12 +288,12 @@ C_IN
       INTEGER_E jmax, inewt
 C_OUT
       REAL_E t(jmax)
-      REAL_E b, s1n, s2n
+      REAL*8  b, s1n, s2n
 C_AUX
-      REAL_E dt, eps, zero2, s1, s2, a, v, w, delta
-      REAL_E bbar, pi, x1, x2, f1, f2, a11, a12, a21, a22
-      REAL_E omega1, omega2, rdelta, dx1, dx2, x1old, x2old
-      REAL_E r, u, s
+      REAL*8  dt, eps, zero2, s1, s2, a, v, w, delta
+      REAL*8  bbar, pi, x1, x2, f1, f2, a11, a12, a21, a22
+      REAL*8  omega1, omega2, rdelta, dx1, dx2, x1old, x2old
+      REAL*8  r, u, s
       INTEGER_E itmax, itmax1, it, j
 c.....
       dt    = t2 - t1
@@ -298,8 +301,8 @@ c.....
       zero2  = 1.0e-12
 C        kmax  = jmax
 c.....
-      s1    = dt/ds1/float(jmax-1)
-      s2    = dt/ds2/float(jmax-1)
+      s1    = dt/ds1/dble(jmax-1)
+      s2    = dt/ds2/dble(jmax-1)
       s1n   = ds1/dt
       s2n   = ds2/dt
 c.....
@@ -381,10 +384,10 @@ c.....
           call k6fnctanh(f1,f2,x1,x2,b,s1n,s2n,jmax)
           call k6dfnctanh(a11,a12,a21,a22,x1,x2,b,s1n,s2n,jmax)
 c.....
-          omega1= float(it)/float(itmax1-1)
-          omega2= float(it)/float(itmax1-1)
-          omega1= MIN(1.0,omega1)
-          omega2= MIN(1.0,omega2)
+          omega1= dble(it)/dble(itmax1-1)
+          omega2= dble(it)/dble(itmax1-1)
+          omega1= MIN(1.0D0,omega1)
+          omega2= MIN(1.0D0,omega2)
           delta = (a11*a22 - a21*a12) 
           if ( abs(delta).lt.zero2 ) then
             goto 1111
@@ -427,7 +430,7 @@ c.....
 c.....    ** spacing distribution **
 c.....
           do j = 2,jmax-1
-             r    = float(j-1)/float(jmax-1)
+             r    = dble(j-1)/dble(jmax-1)
              u    = 0.5*(1.+tanh(delta*(r-0.5))/tanh(0.5*delta))
              s    = u/(a+(1.-a)*u)
              t(j) = t1 + dt*s
@@ -440,7 +443,7 @@ c.....
 c.....    ** spacing distribution **
 c.....
            do j = 2,jmax-1
-             r    = float(j-1)/float(jmax-1)
+             r    = dble(j-1)/dble(jmax-1)
              u    = 0.5*(1.+tan(delta*(r-0.5))/tan(0.5*delta))
              s    = u/(a+(1.-a)*u)
              t(j) = t1 + dt*s
@@ -453,7 +456,7 @@ c.....
 c.....   ** spacing distribution **
 c.....
            do j = 2,jmax-1
-             r    = float(j-1)/float(jmax-1)
+             r    = dble(j-1)/dble(jmax-1)
              u    = r*(1.0+2.0*delta*(r-0.5)*(1.0-r))
              s    = u/(a+(1.-a)*u)
              t(j) = t1 + dt*s
@@ -471,18 +474,18 @@ c ======================================================================
 C
 c
 C_IN
-       REAL_E x1, x2
-       REAL_E b, s1n, s2n
+       REAL*8  x1, x2
+       REAL*8  b, s1n, s2n
        INTEGER_E jmax
 C_OUT
-       REAL_E f1, f2
+       REAL*8  f1, f2
 C_AUX
-       REAL_E r1, r2, u1, u2
+       REAL*8  r1, r2, u1, u2
 c.....
 C        common/tanh2/b,s1n,s2n,jmax
 c.....
-       r1  = float(   1  )/float(jmax-1)
-       r2  = float(jmax-2)/float(jmax-1)
+       r1  = dble(   1  )/dble(jmax-1)
+       r2  = dble(jmax-2)/dble(jmax-1)
 c.....
        if(b.ge.1.0001) then
 c.....
@@ -519,17 +522,17 @@ c ======================================================================
 C
 c
 C_IN
-        REAL_E x1, x2, b, s1n, s2n
+        REAL*8  x1, x2, b, s1n, s2n
         INTEGER_E jmax
 C_OUT
-        REAL_E a11, a12, a21, a22
+        REAL*8  a11, a12, a21, a22
 C_AUX
-        REAL_E r1, r2, u1, u2, du1dx2, du2dx2
+        REAL*8  r1, r2, u1, u2, du1dx2, du2dx2
 c.....
 C        common/tanh2/b,s1n,s2n,jmax
 c.....
-        r1      = float(   1  )/float(jmax-1)
-        r2      = float(jmax-2)/float(jmax-1)
+        r1      = dble(   1  )/dble(jmax-1)
+        r2      = dble(jmax-2)/dble(jmax-1)
 c.....
         if (b.ge.1.0001) then
 c.....
