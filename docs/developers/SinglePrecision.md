@@ -91,6 +91,10 @@ Le répertoire de références dépend d'`ELSAPROD` (`Data_<ELSAPROD>`), il faut
 
 Pour les tests MPI lancés hors `mpirun` (import de `Converter.Mpi` dans un test séquentiel), l'initialisation singleton d'Open MPI peut échouer sur un nœud alloué ; `OMPI_MCA_pml=ob1 OMPI_MCA_btl=self,vader` règle le cas sur un nœud. validCassiopee ne détecte pas ces échecs (motifs non reconnus), il faut relire la sortie.
 
+## Statut des échecs r4 restants
+
+La liste test par test est dans [SinglePrecision_r4_failures.md](SinglePrecision_r4_failures.md). Outre la comparaison géométrique, elle utilise un banc « r8 arrondi » : le test tourne avec le build r8, et tous les tableaux réels en entrée et en sortie de chaque fonction compilée sont arrondis au float. Si ce banc échoue aussi, l'écart vient de la précision des données. S'il passe alors que le r4 change une décision, le test est suspect. Sur les 215 échecs du 18/11 : 2 corrigés depuis, 47 vérifiés, 86 reproduits par le r8 arrondi, 28 dérives numériques faibles dues à l'arithmétique en float, 17 suspects, 19 seulement classés (AMR et IBM surtout, le banc plante), 16 d'environnement.
+
 ## Écarts r4 restants, par famille (run du 16/11, 399 FAILED)
 
 - **Mailleurs, booléens et conformizers Nuga** (T3mesher2D, gapfixer, fittingPlaster, conformUnstr, splitManifold, collarMesh, diffMesh, intersection) : cause identifiée, les contours remis au mailleur n'étaient pas fermés parce que `G.close` et `T.join` ont des tolérances par défaut de 1e-12, sous la résolution du float. Traité par `KCore.realTol`, confirmé par le run suivant (conformUnstr passe, T3mesher2D maille).
@@ -142,4 +146,7 @@ Les tests dont le résultat est combinatoirement sensible à la précision (bool
 - `Converter.Mpi4py` diffusait les champs en `MPI.DOUBLE` ; datatype dérivé de `E_NpyFloat`.
 - Tolérance relative de l'alignement des points donneurs de l'AMR (Connector) relâchée en r4.
 - Masque X-Ray (`maskXRay.cpp`) : quand des faces restaient ambiguës, `compactZ` n'était pas appelé et `blankCells` utilisait `indir` non initialisé avec un Z vide (sortie de tableau dans `k6searchblankednodesx2d`). Les tables sont désormais toujours cohérentes et `blankCells` avertit. En r4 seulement, la perturbation des rayons change à chaque passe : le germe aléatoire était réinitialisé à chaque triangle, un rayon qui retombait sur un nœud recevait indéfiniment la même perturbation. Les points de percée des cas ordinaires sont identiques bit à bit, en r8 comme en r4.
+- `blankIntersectingCells` (PENTA) : le centre d'une face quadrangulaire partagée par deux cellules était calculé par chacune dans un ordre de sommets différent ; en float les deux centres différaient d'un ulp, les deux éventails de triangles se croisaient et 18 à 67 cellules par zone étaient masquées au lieu de 0. Somme en double, exacte pour 4 floats.
+- Lecteur v3d binaire : un fichier écrit par un build de l'autre précision était refusé ; la taille des enregistrements donne la précision du fichier.
+- Netgen : sortie mal construite en r8 comme en r4 (`api` passé comme drapeau `center`).
 - Générateurs `D.circle`, `D.sphere`, `D.torus`, `D.cone`, `G.cylinder` : angles et trigonométrie en double, résultat stocké en `E_Float`. Pôles, coutures et fermetures à 360° sont exacts à 1e-16 près, au lieu de 1e-7. Code inchangé en r8.
