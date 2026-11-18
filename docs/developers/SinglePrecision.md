@@ -76,6 +76,8 @@ Validation complémentaire sur un conteneur Ubuntu 24.04 (gcc 13, Python 3.13, n
 | 17/11 | 21d83ba | 1161 OK, 267 FAILED, 0 TIMEOUT | 1417 OK, 11 FAILED : r8 inchangé |
 | 18/11 | 0fde385 | 1169 OK, 259 FAILED, 0 TIMEOUT | 1417 OK, 11 FAILED : r8 inchangé |
 | 18/11 | 43a52d1 | 1188 OK, 240 FAILED, 0 TIMEOUT | 1417 OK, 11 FAILED : r8 inchangé |
+| 18/11 | 647a6d3 | 1192 OK, 236 FAILED | 1417 OK, 11 FAILED : r8 inchangé |
+| 19/11 | f3d8a43 | 1213 OK, 215 FAILED | 1417 OK, 11 FAILED : r8 inchangé ; build r8 de `dev` identique sur les 1417 tests |
 
 Les 11 échecs r8 et 16 des échecs r4 tiennent au conteneur (pas de `tkinter`, rendus OSMesa, tests OCC qui lisent un `cube.cgns` produit par un autre test). 54 tests en échec dans le run juno de 5fe788a passent sur ce banc (sphère et tore en double, Eikonal). Avec numpy 2, les scalaires `numpy.float32` sont beaucoup plus fréquents qu'avec numpy 1 (règles NEP 50) : le banc juno, s'il est en numpy 1.x, ne voit pas cette famille.
 
@@ -126,6 +128,12 @@ Les tests dont le résultat est combinatoirement sensible à la précision (bool
 - `T.rotate` : angle, axe, trigonométrie et quaternions en double (cos(90°) valait -4,4e-8, la copie tournée ne partageait plus ses bords, merge_t1).
 - Égalités dans les données de test, laissées en l'état : enforcePoint_t1 (x0 = 0,5 à mi-chemin de deux nœuds), booleanMinus_t1 cas 2 (x0 = 0,4 sur un nœud).
 - Compressor : sz, zfp, fpc et cellN lisaient un champ float32 comme du float64, les données décompressées étaient fausses en r4 (écarts jusqu'à 1e117, NaN pour fpc). `_packNode` compresse en float64 et `_unpackNode` revient au dtype compilé ; le format compressé ne change pas. Indépendamment de la précision, zfp rend des valeurs fausses pour un numpy 2D en ordre Fortran (aussi en r8, non traité).
+- Loi de paroi de Musker (IBM : computeFrictionVelocity, setIBCTransfers) : pow(y+ + 10,6 ; 9,6) dépasse le plus grand float pour y+ > ~9000, la loi et sa dérivée devenaient inf et utau était faux d'un facteur 2 à 10. Temporaires en double.
+- setInterpolations : la somme des coefficients pondérée par le cellN devait valoir 1 à 1e-8 près, un tiers des receveurs de setInterpolationsPT_t1 étaient extrapolés au lieu d'interpolés. `E_REALTOL`.
+- Octree en rapport 3 (checkBalancing3, mergeElement) : seuils absolus de 1e-10 sur des tailles 3 fois plus grandes, raffinement en cascade (octree 8796 points au lieu de 1024). Seuil à la résolution des coordonnées.
+- checkCartesian : tolérance de 1e-12 sur les différences de pas ; Internal.isValue : un scalaire réel était comparé en float64 au nœud float32.
+- Tests adaptés (valeurs écrites en dur ou dtype) : extractPoint (5), newDataArrayPT_t1.
+- Écarts attendus vérifiés : getCurvatureRadius (courbure par différences finies, limitée par la précision des coordonnées : le r8 sur coordonnées arrondies en float donne le même bruit), BB_t2 (boîte orientée d'un cube indéterminée, valeurs propres égales), mmgs (même nombre de sommets, optimisation sensible aux entrées), isoLine_t1 (valeurs d'iso égales aux valeurs nodales), convertArrays2File / convertPyTree2FilePT_t4 (comparaison octet à octet de fichiers binaires).
 - Eikonal, solveur `fim_old` (défaut de `Dist2Walls.eikonal`, TIMEOUT d'eikonal_t2 au run du 17/11) : la dernière formule de `solveQuadratic` perd ses chiffres significatifs en float (discriminant de l'ordre de 12h² obtenu par différence de termes de l'ordre de 80), la mise à jour d'un nœud pouvait dépasser sa valeur courante de plus que le critère et le nœud restait indéfiniment dans la liste active. `solveQuadratic` calcule en double, et en r4 un nœud dont la mise à jour ne diminue pas la valeur est convergé. Reproduit hors Cassiopee (grille 128³ et sphère de l'eikonal_t2) : r4 converge en 0,4 s, écart au r8 de 3e-7 ; binaire r8 inchangé bit à bit.
 - Ambiguïtés `std::max(x, 1.e-12)` et `E_max` avec `E_Float = float` : surcharges mixtes dans `DefFunction.h`, littéraux castés.
 - Tolérances géométriques par défaut de 1e-12 dans les API Python : contours non fermés, échec du mailleur Delaunay ; `KCore.realTol`.
