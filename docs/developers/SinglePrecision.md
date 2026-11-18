@@ -77,7 +77,7 @@ Validation complémentaire sur un conteneur Ubuntu 24.04 (gcc 13, Python 3.13, n
 | 18/11 | 0fde385 | 1169 OK, 259 FAILED, 0 TIMEOUT | 1417 OK, 11 FAILED : r8 inchangé |
 | 18/11 | 43a52d1 | 1188 OK, 240 FAILED, 0 TIMEOUT | 1417 OK, 11 FAILED : r8 inchangé |
 | 18/11 | 647a6d3 | 1192 OK, 236 FAILED | 1417 OK, 11 FAILED : r8 inchangé |
-| 19/11 | f3d8a43 | 1213 OK, 215 FAILED | 1417 OK, 11 FAILED : r8 inchangé ; build r8 de `dev` identique sur les 1417 tests |
+| 19/11 | c19ca89 | 1213 OK, 215 FAILED | 1417 OK, 11 FAILED : r8 inchangé ; build r8 de `dev` identique sur les 1417 tests |
 
 Les 11 échecs r8 et 16 des échecs r4 tiennent au conteneur (pas de `tkinter`, rendus OSMesa, tests OCC qui lisent un `cube.cgns` produit par un autre test). 54 tests en échec dans le run juno de 5fe788a passent sur ce banc (sphère et tore en double, Eikonal). Avec numpy 2, les scalaires `numpy.float32` sont beaucoup plus fréquents qu'avec numpy 1 (règles NEP 50) : le banc juno, s'il est en numpy 1.x, ne voit pas cette famille.
 
