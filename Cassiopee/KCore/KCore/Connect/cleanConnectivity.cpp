@@ -37,6 +37,9 @@ void K_CONNECT::cleanConnectivity(E_Int posx, E_Int posy, E_Int posz,
                                   E_Float eps,  const char* eltType, 
                                   FldArrayF& f, FldArrayI& cn, bool remove_degen, bool ordered_merge)
 {
+  // coincidence tolerance given in double: floored at the resolution of float in
+  // single precision (points interpolated twice on a shared edge were not merged)
+  if (eps > 0.) eps = E_REALTOL(eps);
   if (K_STRING::cmp(eltType, "NGON") == 0 || K_STRING::cmp(eltType, "NGON*") == 0) 
     cleanConnectivityNGon(posx, posy, posz, eps, f, cn, remove_degen, ordered_merge);
   else
@@ -53,6 +56,9 @@ void K_CONNECT::cleanConnectivity_opt(E_Int posx, E_Int posy, E_Int posz,
                                   E_Float eps,  const char* eltType, 
                                   FldArrayF& f, FldArrayI& cn, bool remove_degen, bool ordered_merge)
 {
+  // coincidence tolerance given in double: floored at the resolution of float in
+  // single precision (points interpolated twice on a shared edge were not merged)
+  if (eps > 0.) eps = E_REALTOL(eps);
   if (K_STRING::cmp(eltType, "NGON") == 0 || K_STRING::cmp(eltType, "NGON*") == 0) 
     cleanConnectivityNGon(posx, posy, posz, eps, f, cn, remove_degen, ordered_merge);
   else
