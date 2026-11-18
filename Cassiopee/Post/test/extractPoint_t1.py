@@ -3,6 +3,11 @@ import Converter as C
 import Generator as G
 import Post as P
 import KCore.test as test
+import KCore
+# values are computed in the compiled real precision: comparison tolerance and
+# margin on the interpolation error bounds (unchanged in double precision)
+TOLVAL = 1.e-10 if KCore.getRealSize() == 8 else 1.e-6
+ERRMARGIN = 0. if KCore.getRealSize() == 8 else 1.e-6
 import numpy
 
 # Tests sur maillage cartesien
@@ -26,7 +31,7 @@ val = P.extractPoint([a], (0.55, 0.38, 0.12), 2)
 ref = [0.5918312757201647]
 print("Test1... done.")
 for i in range(len(val)):
-    if abs(val[i]-ref[i]) > 1.e-10:
+    if abs(val[i]-ref[i]) > TOLVAL:
         print('DIFF: reference: '+str(ref[i])+'.')
         print('DIFF: courant: '+str(val[i])+'.')
 
@@ -35,7 +40,7 @@ val = P.extractPoint([a], (0.55, 0.38, 0.12), 3)
 ref = [0.58564300411522652]
 print("Test2... done.")
 for i in range(len(val)):
-    if abs(val[i]-ref[i]) > 1.e-10:
+    if abs(val[i]-ref[i]) > TOLVAL:
         print('DIFF: reference: '+str(ref[i])+'.')
         print('DIFF: courant: '+str(val[i])+'.')
 
@@ -44,7 +49,7 @@ val = P.extractPoint([a], (0.55, 0.38, 0.12), 5)
 ref = [0.58469400000224414]
 print("Test3... done.")
 for i in range(len(val)):
-    if abs(val[i]-ref[i]) > 1.e-10:
+    if abs(val[i]-ref[i]) > TOLVAL:
         print('DIFF: reference: '+str(ref[i])+'.')
         print('DIFF: courant: '+str(val[i])+'.')
 
@@ -69,7 +74,7 @@ err5 = [0.009497125, 0.001978125, 2.81249995571e-05]
 for i in [2,3,5]:
     val = P.extractPoint([a], (0.55, 0.38, 0.12), i)
     print("Test order "+str(i)+"... done.")
-    if abs(val[0]-val0) > err5[cnt]:
+    if abs(val[0]-val0) > err5[cnt]+ERRMARGIN:
         print('DIFF: reference: '+str(err5[cnt])+'.')
         print('DIFF: courant: '+str(val[0]-val0)+'.')
     cnt += 1
@@ -79,7 +84,7 @@ hook = C.createHook([a], function='extractMesh')
 for i in [2,3,5]:
     val = P.extractPoint([a], (0.55, 0.38, 0.12), i)
     print("Test order "+str(i)+"... done.")
-    if abs(val[0]-val0) > err5[cnt]:
+    if abs(val[0]-val0) > err5[cnt]+ERRMARGIN:
         print('DIFF: reference: '+str(err5[cnt])+'.')
         print('DIFF: courant: '+str(val[0]-val0)+'.')
     cnt += 1
