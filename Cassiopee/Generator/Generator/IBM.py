@@ -14,6 +14,7 @@ import Connector.PyTree as X
 import Converter.Mpi as Cmpi
 import Converter.Filter as Filter
 import numpy
+import KCore
 import math
 
 EPSCART = 1.e-6
@@ -1470,6 +1471,13 @@ def extrudeCartesianZDir(t, tb, check=False, extrusion="cart", dz=0.01, NPas=10,
     X_IBM._redispatch__(t=t)
     return t, tb
 
+# Tolerance on the difference of two consecutive steps: 1e-12 in double
+# precision; in single precision, the resolution of float at the coordinates
+# (steps of a cartesian grid differ by ~1e-8 once the nodes are rounded).
+def __cartesianTol__(*coords):
+    if KCore.getRealSize() == 8: return 1.e-12
+    return 4.*numpy.finfo(numpy.float32).eps*max([1.]+[abs(float(c)) for c in coords])
+
 def checkCartesian(t, nghost=0):
     """Checks if the provided mesh in Cartesian or Rectilinear.
      Usage: checkCartesian(t, nghost)"""
@@ -1489,7 +1497,7 @@ def checkCartesian(t, nghost=0):
         for i in range(1,4):
             dx2  = coord[i+1+nghost, 0+nghost, 0+nghostZ] - coord[i+nghost, 0+nghost, 0+nghostZ]
             diff = abs(dx2-dx)
-            if diff > 1e-12: isCartesian=0
+            if diff > __cartesianTol__(coord[i+1+nghost, 0+nghost, 0+nghostZ]): isCartesian=0
         if isCartesian < 1: break
 
         ##Y Direction
@@ -1499,7 +1507,7 @@ def checkCartesian(t, nghost=0):
         for i in range(1,4):
             dx2  = coord[0+nghost, i+1+nghost, 0+nghostZ] - coord[0+nghost, i+nghost, 0+nghostZ]
             diff = abs(dx2-dx)
-            if diff > 1e-12: isCartesian=0
+            if diff > __cartesianTol__(coord[0+nghost, i+1+nghost, 0+nghostZ]): isCartesian=0
         if isCartesian < 1: break
 
         ##Z Direction
@@ -1510,7 +1518,7 @@ def checkCartesian(t, nghost=0):
             for i in range(1,4):
                 dx2  = coord[0+nghost,0+nghost,i+1+nghost] - coord[0+nghost,0+nghost,i  +nghost]
                 diff = abs(dx2-dx)
-                if diff > 1e-12: isCartesian=0
+                if diff > __cartesianTol__(coord[0+nghost,0+nghost,i+1+nghost]): isCartesian=0
         if isCartesian < 1: break
 
     isCartesian = Cmpi.allreduce(isCartesian, op=Cmpi.MIN)
