@@ -20,6 +20,7 @@
 // Adapt a 27-tree
 
 #include "generator.h"
+#include <cfloat>
 using namespace K_FLD;
 using namespace std;
 
@@ -631,6 +632,15 @@ K_GENERATOR::mergeOctreeElement27(E_Int et, E_Int npts, E_Float indic,
                                   K_FLD::FldArrayIS& dejaVu)
 {
   E_Float eps = 1.e-10;
+#ifndef E_DOUBLEREAL
+  // single precision: 3 cells of size dh match the merged size to a few ulps
+  // of the coordinates only
+  {
+    E_Int* cn1 = cn.begin(1);
+    E_Int i1 = cn1[et]-1;
+    eps = 16.*FLT_EPSILON*(K_FUNC::E_abs(xt[i1])+K_FUNC::E_abs(yt[i1])+K_FUNC::E_abs(zt[i1])+3.*dht[et]+1.);
+  }
+#endif
   // Recherche des elements voisins de meme niveau
   E_Int nvert = cno.getNfld(); E_Int nelts = cno.getSize();
   E_Int nptso = fo.getSize();

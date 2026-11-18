@@ -18,6 +18,7 @@
 */
 
 #include "generator.h"
+#include <cfloat>
 using namespace K_FLD;
 using namespace std;
 
@@ -490,6 +491,13 @@ void K_GENERATOR::checkBalancing3(FldArrayI& cn, FldArrayF& coords)
   E_Float eps = 1.e-10;
   E_Int split = 1;
 
+#ifndef E_DOUBLEREAL
+  // tolerance at the resolution of the coordinates (single precision)
+  E_Float tolBal = 0.;
+  for (E_Int d = 1; d <= 3; d++)
+    for (E_Int i = 0; i < coords.getSize(); i++) tolBal = K_FUNC::E_max(tolBal, K_FUNC::E_abs(coords(i,d)));
+  tolBal = 16.*FLT_EPSILON*K_FUNC::E_max(tolBal, 1.);
+#endif
   while (split == 1) 
   {
     FldArrayI cno = cn; FldArrayF fo = coords; // copies
@@ -522,7 +530,13 @@ void K_GENERATOR::checkBalancing3(FldArrayI& cn, FldArrayF& coords)
       for (E_Int noet2 = 0; noet2 < nvoisins; noet2++)
       {
         et2 = voisins[noet2]; dh2 = dhtp[et2];
+#ifdef E_DOUBLEREAL
         if (dh1 > 3.*dh2 + eps)
+#else
+        // single precision: cells exactly 3 times larger differ by a few ulps of
+        // the coordinates, an absolute 1e-10 refined them in cascade
+        if (dh1 > 3.*dh2 + tolBal)
+#endif
         {
           splitElement27(et1, npts, indict[et1], cn, xt, yt, zt, cno, fo, 
                          indict, no, eto);
