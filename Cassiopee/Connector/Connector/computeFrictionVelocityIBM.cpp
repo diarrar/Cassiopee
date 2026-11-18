@@ -87,7 +87,7 @@ PyObject* K_CONNECTOR::_computeFrictionVelocityIBM(PyObject* self, PyObject* arg
       return NULL;
     }
 
-    E_Float ax, l1, l2, l3;
+    double ax, l1, l2, l3; // double: pow(y+ + 10.6, 9.6) overflows float for y+ > ~9000
     E_Float roext, uext, pext, muext, yext, rowall, muwall;
     E_Float uscaln, un, vn, wn, ut, vt, wt, utau0;
     E_Float u, v, w, normb;
@@ -96,7 +96,7 @@ PyObject* K_CONNECTOR::_computeFrictionVelocityIBM(PyObject* self, PyObject* arg
     //Lois de paroi : criteres d arret pour estimer le frottement par Newton
     E_Float newtoneps = 1.e-7; // critere d arret pour u+
     E_Float newtonepsprime = 1.e-12;// critere d arret pour la derivee
-    E_Float fp, tp;
+    double fp, tp;
 
     E_Int ideb=0, ifin=npts;
     E_Int err=0, skip=0;

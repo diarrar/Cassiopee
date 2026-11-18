@@ -15,21 +15,23 @@ E_Float K_CONNECTOR::logfprime(E_Float x, E_Float a, E_Float d)
 //==============================================================================
 E_Float K_CONNECTOR::musker(E_Float x, E_Float a, E_Float b)
 {
-  E_Float ax = a*x;
-  E_Float ax2 = ax*ax;
-  E_Float l1 = pow(ax+10.6,9.6);
-  E_Float l2 = ax2-8.15*ax + 86.;
-  E_Float l2s = l2*l2;
+  // double: pow(ax+10.6, 9.6) overflows float for ax > ~9000
+  double ax = double(a)*x;
+  double ax2 = ax*ax;
+  double l1 = pow(ax+10.6,9.6);
+  double l2 = ax2-8.15*ax + 86.;
+  double l2s = l2*l2;
   return 5.424*atan((2.*ax-8.15)/16.7) + log10(l1/l2s) - b/x - 3.52;
 }
 
 //==============================================================================
 E_Float K_CONNECTOR::muskerprime(E_Float x, E_Float a, E_Float b)
 {
-  E_Float t = pow((a*x + 10.6),9.6);
-  E_Float tp = (a*9.6*pow((a*x + 10.6),8.6) * ((a*x)*(a*x) - 8.15*a*x + 86.)*((a*x)*(a*x) - 8.15*a*x + 86.)
-                - t*(2.*(a*a)*x - 8.15*a)*2.*((a*x)*(a*x) - 8.15*a*x + 86.))/( ((a*x)*(a*x) - 8.15*a*x + 86.)*((a*x)*(a*x) - 8.15*a*x + 86.) );
-  return 5.424*2./16.7*a/(1. + ((2.*a*x - 8.15)/16.7)*((2.*a*x - 8.15)/16.7) )+ tp/(t*log(10.)) + b/(x*x);
+  double ad = a, xd = x; // double: the powers overflow float for a*x > ~9000
+  double t = pow((ad*xd + 10.6),9.6);
+  double tp = (ad*9.6*pow((ad*xd + 10.6),8.6) * ((ad*xd)*(ad*xd) - 8.15*ad*xd + 86.)*((ad*xd)*(ad*xd) - 8.15*ad*xd + 86.)
+                - t*(2.*(ad*ad)*xd - 8.15*ad)*2.*((ad*xd)*(ad*xd) - 8.15*ad*xd + 86.))/( ((ad*xd)*(ad*xd) - 8.15*ad*xd + 86.)*((ad*xd)*(ad*xd) - 8.15*ad*xd + 86.) );
+  return 5.424*2./16.7*ad/(1. + ((2.*ad*xd - 8.15)/16.7)*((2.*ad*xd - 8.15)/16.7) )+ tp/(t*log(10.)) + b/(xd*xd);
 }
 //==============================================================================
 // fonctions pour estimer nutilde par Newton
