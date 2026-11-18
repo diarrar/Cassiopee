@@ -42,7 +42,8 @@ PyObject* K_CONNECTOR::setInterpolations(PyObject* self, PyObject* args)
   E_Int Nir, Njr;
   E_Int isEX = 0;
   E_Int Zid;
-  E_Float geomCutOff = 1.e-8;
+  // the sum of the interpolation coefficients is 1 to ~1e-7 in single precision
+  E_Float geomCutOff = E_REALTOL(1.e-8);
   E_Float cfMax = 30.;
   //E_Float extrapTol;//tolerance sur la  somme des coefs d'extrapolation
   if (!PYPARSETUPLE_(args, II_ OOO_ II_ R_,
