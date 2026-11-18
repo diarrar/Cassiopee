@@ -321,7 +321,15 @@ namespace K_POST
                     const point3d &    origin = faces[ref_face].get_barycenter();
                     const vector3d& direction = faces[ref_face].get_normal();
                     vector3d normal = (1./abs(direction))*direction;
+#if defined(E_DOUBLEREAL)
                     point3d  o = origin + (-1.E-8)*normal;
+#else
+                    // single precision: 1e-8 is below the resolution of the
+                    // coordinates, the point stayed on the face and the parity of
+                    // the crossings (hence the orientation of every face of the
+                    // cell) was random. Offset relative to the size of the face.
+                    point3d  o = origin + (-1.E-3*std::sqrt(abs(direction)))*normal;
+#endif
                     point3d  r{xmin-1.E-3,o.y, o.z};
                     vector3d d{o.x-r.x,0.,0.};
                     E_Int nb_intersects = 0;
