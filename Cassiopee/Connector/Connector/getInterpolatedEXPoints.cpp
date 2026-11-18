@@ -91,6 +91,14 @@ PyObject* K_CONNECTOR::getEXPoints(PyObject* self, PyObject* args)
     RELEASESHAREDS(cellNArray, field1);
     return NULL;   
   }
+  if (im*jm*km > E_MAXFLOATINT) // node and cell indices are stored in real fields
+  {
+    PyErr_SetString(PyExc_ValueError,
+                    "getEXPoints: too many points for indices stored in a real field (2^24 in single precision).");
+    RELEASESHAREDS(coordArray, field);
+    RELEASESHAREDS(cellNArray, field1);
+    return NULL;
+  }
   /* fin des verifs*/
   E_Float* xn = field->begin(posx);
   E_Float* yn = field->begin(posy);

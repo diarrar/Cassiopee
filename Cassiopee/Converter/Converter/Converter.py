@@ -708,6 +708,8 @@ def _initVarByEq2__(a, eq):
 # Get index field
 def getIndexField__(a):
     npts = getNPts(a)
+    if E_NpyFloat == numpy.float32 and npts > 16777216:
+        raise ValueError("getIndexField: too many points for indices stored in a real field (2^24 in single precision).")
     n = numpy.arange(0, npts, dtype=E_NpyFloat)
     # structure/non structure/array1/array2
     if len(a) == 5: # structure

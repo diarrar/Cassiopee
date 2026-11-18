@@ -1711,6 +1711,12 @@ PyObject* K_CONNECTOR::getInterpolatedPoints(PyObject* self, PyObject* args)
   /*fin verifs*/
   E_Int nfld = f->getNfld();
   E_Int npts = f->getSize();
+  if (npts > E_MAXFLOATINT) // indcell is stored in a real field
+  {
+    PyErr_SetString(PyExc_ValueError,
+                    "getInterpolatedPoints: too many points for indices stored in a real field (2^24 in single precision).");
+    RELEASESHAREDB(res, array, f, cn); return NULL;
+  }
   E_Int api = f->getApi();
   char varStringOut[K_ARRAY::VARSTRINGLENGTH]; varStringOut[0] = '\0';
   E_Int nfldOut = nfld+1;

@@ -53,6 +53,8 @@
   #define E_NPY_FLOAT NPY_DOUBLE
   #define E_MAXFLOAT 1.797693134862315e308
   typedef int64_t E_FloatAsInt; // integer stored in an E_Float slot (same size)
+  // largest integer N such that all integers of [0,N] are exact in an E_Float
+  #define E_MAXFLOATINT 9007199254740992.
 #else
   typedef float E_Float;
   #ifdef E_MPI
@@ -63,6 +65,9 @@
   #define E_NPY_FLOAT NPY_FLOAT32
   #define E_MAXFLOAT 3.4028235e38
   typedef int32_t E_FloatAsInt; // integer stored in an E_Float slot (same size)
+  // largest integer N such that all integers of [0,N] are exact in an E_Float
+  // (indices stored in real fields are exact up to 2^24 points)
+  #define E_MAXFLOATINT 16777216.
 #endif
 
 // Int (int or long long)

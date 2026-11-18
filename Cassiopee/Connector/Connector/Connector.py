@@ -86,15 +86,27 @@ def connectMatch(a1, a2, sameZone=0, tol=1.e-6, dim=3):
     return res
 
 #===============================================================================
+# The opposite indices (tag2) are stored in real fields: in single precision
+# they are exact up to 2^24 points per array
+def _checkTagIndices__(A):
+    if KCore.E_REALSIZE != 4: return
+    for a in A:
+        npts = a[1].shape[1] if not isinstance(a[1], list) else a[1][0].size
+        if npts > 16777216:
+            raise ValueError("identifyMatching: too many points for indices stored in a real field (2^24 in single precision).")
+
 def identifyMatching(A, tol=1.e-6):
+    _checkTagIndices__(A)
     return connector.identifyMatching(A, tol)
 
 #===============================================================================
 def identifyMatchingP(A, AP, tol=1.e-6):
+    _checkTagIndices__(A); _checkTagIndices__(AP)
     return connector.identifyMatchingP(A, AP, tol)
 
 #===============================================================================
 def identifyMatchingNM(AR, AD, tol=1.e-6):
+    _checkTagIndices__(AR); _checkTagIndices__(AD)
     return connector.identifyMatchingNM(AR, AD, tol)
 
 #===============================================================================

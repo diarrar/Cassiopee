@@ -57,6 +57,13 @@ PyObject* K_CONVERTER::createGlobalIndex(PyObject* self, PyObject* args)
   pos += 1; 
   E_Float* fp = f->begin(pos);
   E_FloatAsInt* gi = (E_FloatAsInt*)fp; // integer of the size of E_Float
+  if (sizeof(E_FloatAsInt) < 8 && f->getSize() > 2147483647) // r4: int32 slots
+  {
+    PyErr_SetString(PyExc_ValueError,
+                    "createGlobalIndex: too many points for an index stored in a single precision field (2^31).");
+    RELEASESHAREDB(res, array, f, cn);
+    return NULL;
+  }
 
 #pragma omp parallel
   {
