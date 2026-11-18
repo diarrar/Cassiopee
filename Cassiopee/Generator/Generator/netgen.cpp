@@ -591,12 +591,14 @@ PyObject* K_GENERATOR::netgen1(PyObject* self, PyObject* args)
   printf("Generate %d elements.\n",ne);
   
   /* Build output array */
-  out = K_ARRAY::buildArray3(3, "x,y,z", np, ne, "TETRA", api);
-  E_Float* fp = K_ARRAY::getFieldPtr(out);
-  E_Float* fx = fp; E_Float* fy = fp+np; E_Float* fz = fp+2*np;
-  E_Int* cp = K_ARRAY::getConnectPtr(out);
-  E_Int* cp1 = cp; E_Int* cp2 = cp+ne; 
-  E_Int* cp3 = cp+2*ne; E_Int* cp4 = cp+3*ne; 
+  out = K_ARRAY::buildArray3(3, "x,y,z", np, ne, "TETRA", false, api);
+  FldArrayF* fout; FldArrayI* cout;
+  K_ARRAY::getFromArray3(out, fout, cout);
+  E_Float* fx = fout->begin(1);
+  E_Float* fy = fout->begin(2);
+  E_Float* fz = fout->begin(3);
+  E_Int* cp1 = cout->begin(1); E_Int* cp2 = cout->begin(2);
+  E_Int* cp3 = cout->begin(3); E_Int* cp4 = cout->begin(4);
 
   for (E_Int i = 0; i < np; i++)
   {
@@ -612,6 +614,7 @@ PyObject* K_GENERATOR::netgen1(PyObject* self, PyObject* args)
     cp3[i] = tet[2]; cp4[i] = tet[3];
     //printf("%d %d %d %d\n", cp1[i], cp2[i], cp3[i], cp4[i]);
   }
+  RELEASESHAREDU(out, fout, cout);
  
   nglib::Ng_DeleteMesh(mesh);
 
@@ -727,12 +730,14 @@ PyObject* K_GENERATOR::netgen2(PyObject* self, PyObject* args)
    printf("Generate " SF_D_ " elements.\n", ne);
   
   /* Build output array */
-  out = K_ARRAY::buildArray3(3, "x,y,z", np, ne, "TETRA", api);
-  E_Float* fp = K_ARRAY::getFieldPtr(out);
-  E_Float* fx = fp; E_Float* fy = fp+np; E_Float* fz = fp+2*np;
-  E_Int* cp = K_ARRAY::getConnectPtr(out);
-  E_Int* cp1 = cp; E_Int* cp2 = cp+ne; 
-  E_Int* cp3 = cp+2*ne; E_Int* cp4 = cp+3*ne; 
+  out = K_ARRAY::buildArray3(3, "x,y,z", np, ne, "TETRA", false, api);
+  FldArrayF* fout; FldArrayI* cout;
+  K_ARRAY::getFromArray3(out, fout, cout);
+  E_Float* fx = fout->begin(1);
+  E_Float* fy = fout->begin(2);
+  E_Float* fz = fout->begin(3);
+  E_Int* cp1 = cout->begin(1); E_Int* cp2 = cout->begin(2);
+  E_Int* cp3 = cout->begin(3); E_Int* cp4 = cout->begin(4);
 
   for (E_Int i = 0; i < np; i++)
   {
@@ -748,6 +753,7 @@ PyObject* K_GENERATOR::netgen2(PyObject* self, PyObject* args)
     cp3[i] = tet[2]; cp4[i] = tet[3];
     //printf("%d %d %d %d\n", cp1[i], cp2[i], cp3[i], cp4[i]);
   }
+  RELEASESHAREDU(out, fout, cout);
  
   nglib::Ng_DeleteMesh(mesh);
 
