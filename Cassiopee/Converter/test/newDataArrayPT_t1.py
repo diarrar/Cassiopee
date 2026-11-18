@@ -4,14 +4,14 @@ import KCore.test as test
 import numpy
 
 # Create a DataArray node
-n = Internal.newDataArray('CoordinateX', numpy.zeros(10))
+n = Internal.newDataArray('CoordinateX', numpy.zeros(10, dtype=Internal.E_NpyFloat))
 test.testT(n, 1)
 
 # Attach it to a parent node
 g = Internal.newGridCoordinates()
 Internal.newDataArray('CoordinateX', value=numpy.arange(0,10), parent=g)
-Internal.newDataArray('CoordinateY', value=numpy.zeros(10), parent=g)
-Internal.newDataArray('CoordinateZ', value=numpy.zeros(10), parent=g)
+Internal.newDataArray('CoordinateY', value=numpy.zeros(10, dtype=Internal.E_NpyFloat), parent=g)
+Internal.newDataArray('CoordinateZ', value=numpy.zeros(10, dtype=Internal.E_NpyFloat), parent=g)
 test.testT(n, 2)
 
 # Iterative nodes

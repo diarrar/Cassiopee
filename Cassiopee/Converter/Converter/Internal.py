@@ -244,10 +244,15 @@ def isValue(node, value):
   # Not string case
   if not(isStrValue or isByteValue or isNStrValue):
     # Value to ndarray
-    if not isinstance(value, numpy.ndarray): value = numpy.array([value]) # float or int
+    isScalar = not isinstance(value, numpy.ndarray)
+    if isScalar: value = numpy.array([value]) # float or int
     # Node Value to ndarray
     if not isinstance(node[1], numpy.ndarray): nodeValue = numpy.array([node[1]]) # float or int or str not CGNS/Python compliant
     else: nodeValue = node[1]
+    # a python real scalar is stored in the compiled real precision by setValue:
+    # compare it in the real type of the node (float32 in single precision)
+    if isScalar and value.dtype.kind == 'f' and nodeValue.dtype.kind == 'f':
+      value = value.astype(nodeValue.dtype)
     # Comparison on ndarray
     if value.dtype != nodeValue.dtype: return False
     elif value.shape != nodeValue.shape: return False
