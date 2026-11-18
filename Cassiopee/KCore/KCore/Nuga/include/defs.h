@@ -49,11 +49,14 @@ typedef double nuga_real_t;
 namespace NUGA
 {
 static const nuga_real_t FLOAT_MAX = K_CONST::E_MAX_FLOAT;
-static const nuga_real_t SQRT3 = K_CONST::E_SQRT3;
+// Nuga computes in double: its constants must not come from K_CONST, whose
+// E_Float values are rounded to float in single precision (pi would then be
+// 3.14159274 in the angle tests). Same values as K_CONST in double precision.
+static const nuga_real_t SQRT3 = 1.73205080756887729353;
 
-static const nuga_real_t PI   = K_CONST::E_PI;
-static const nuga_real_t PI_2 = K_CONST::E_PI_2;
-static const nuga_real_t PI_4 = K_CONST::E_PI_4;
+static const nuga_real_t PI   = 3.14159265358979323846;
+static const nuga_real_t PI_2 = 1.57079632679489661923;
+static const nuga_real_t PI_4 = 0.78539816339744830962;
 }
 
 #endif
