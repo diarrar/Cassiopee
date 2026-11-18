@@ -1,6 +1,6 @@
 # Compilation de Cassiopee en simple précision (r4)
 
-Bilan au 17/11/2026, branche `claude/admiring-planck-933s9c` et sa suite `claude/optimistic-maxwell-xwotl2` (`dev` fusionné à 0ae977d).
+Bilan au 18/11/2026, branche `claude/admiring-planck-933s9c` et sa suite `claude/optimistic-maxwell-xwotl2` (`dev` fusionné à 0ae977d).
 
 ## Objectif et principe
 
@@ -44,7 +44,8 @@ En double précision tous ces types sont identiques, le binaire r8 ne change pas
 | MPI | `E_PCM_FLOAT`, `XMPI_FLOAT` (XCore), `E_MPI_FLOAT` (Converter.Mpi4py) |
 | Nuga | calcule en double, voir ci-dessus |
 | Compressor (zfp, sz, fpc, cellN) | compression en float64 (données compressées identiques dans les deux précisions), retour au dtype compilé à la décompression |
-| Netgen (Generator), zoltan (XCore) | non traités |
+| Netgen (Generator) | coordonnées recopiées dans des `double` à l'interface ; la sortie était mal construite en r8 comme en r4 (`api` passé comme drapeau `center`), corrigé |
+| zoltan (XCore) | non compilé (`ZOLTAN = False` dans `XCore/srcs.py`) |
 
 ## État par lot
 
@@ -52,11 +53,11 @@ En double précision tous ces types sont identiques, le binaire r8 ne change pas
 
 **Lot 1, couche Python : explicite terminé, implicite ouvert.** Les `numpy.float64` explicites sont remplacés dans les modules et dans 62 tests, les polices de Geom et les tableaux vides des générateurs AMR sont typés. Les créations NumPy sans dtype (environ 1100 dans les modules, dont Geom 467 et Connector 212) ne sont traitées qu'au fur et à mesure que le garde-fou les signale. Les tolérances par défaut des API (83 dans 24 fichiers) passent par `KCore.realTol`.
 
-**Lot 2, modules C++ : terminé.** Tous les modules compilent en r4 avec gcc 12. Un balayage syntaxique des 1218 sources C++ dans les deux modes ne montre aucune différence r4/r8. Fortran : compile, non relu (21 fichiers avec des littéraux `D0`, promus en double dans les expressions).
+**Lot 2, modules C++ : terminé.** Tous les modules compilent en r4 avec gcc 12. Un balayage syntaxique des 1218 sources C++ dans les deux modes ne montre aucune différence r4/r8. Fortran relu : les 21 fichiers à littéraux `D0` ne passent aucun littéral double en argument d'une routine `REAL_E` et aucune interface C++ n'attend de double ; les 63 avertissements « Change of value » de gfortran ne portent que sur l'arrondi de constantes.
 
-**Lot 3, entrées/sorties : CGNS, tecplot, plot3d, tau, FSDM, arc terminés.** Autres formats binaires (vtk, ply, stl, gmsh, v3d) compilés mais non relus ligne à ligne.
+**Lot 3, entrées/sorties : CGNS, tecplot, plot3d, tau, FSDM, arc terminés.** Autres formats vérifiés par allers-retours r8→r8, r8→r4, r4→r8 et r4→r4 : ply, mesh, gmsh (fmt et bin), tecplot, v3d formaté, obj, pov, 3ds, stl (renumérotation des points, aussi en r8). Le v3d binaire n'était lisible que dans la précision qui l'avait écrit : la taille des enregistrements donne maintenant la précision du fichier, en big et little endian. Le vtk legacy (lecture seule) lit dans le type du fichier, float ou double, puis convertit ; vérifié sur des fichiers binaires big-endian générés à la main (la lecture ASCII échoue aussi en r8).
 
-**Lot 4, frontières : fait**, sauf Netgen et zoltan, voir le tableau.
+**Lot 4, frontières : fait**, voir le tableau. Netgen n'est couvert par aucun test (appel commenté dans tetraMesher_t1) : après correction de la sortie, le cube de ce test donne le même maillage en r8 et en r4 ; sur une sphère, r4 donne un maillage valide plus fin (2033 points contre 1075, même volume) et le r8 plante (segfault) sur la même sphère arrondie en float, netgen est donc sensible aux entrées à 1e-7 près.
 
 **Lot 5, validation : en cours.** Tolérances de `KCore/test.py` en r4 : 1e-5 absolu, 1e-5 relatif. Les références pickle (`.ref*`), arrays et pyTrees, sont converties dans la précision compilée à la lecture, ce qui permet de comparer un run r4 aux références r8.
 
@@ -77,7 +78,8 @@ Validation complémentaire sur un conteneur Ubuntu 24.04 (gcc 13, Python 3.13, n
 | 18/11 | 0fde385 | 1169 OK, 259 FAILED, 0 TIMEOUT | 1417 OK, 11 FAILED : r8 inchangé |
 | 18/11 | 43a52d1 | 1188 OK, 240 FAILED, 0 TIMEOUT | 1417 OK, 11 FAILED : r8 inchangé |
 | 18/11 | 647a6d3 | 1192 OK, 236 FAILED | 1417 OK, 11 FAILED : r8 inchangé |
-| 19/11 | c19ca89 | 1213 OK, 215 FAILED | 1417 OK, 11 FAILED : r8 inchangé ; build r8 de `dev` identique sur les 1417 tests |
+| 18/11 | c19ca89 | 1213 OK, 215 FAILED | 1417 OK, 11 FAILED : r8 inchangé ; build r8 de `dev` identique sur les 1417 tests |
+| 18/11 | ebc4d2b | 1213 OK, 215 FAILED (mêmes tests) | 1417 OK, 11 FAILED : r8 inchangé |
 
 Les 11 échecs r8 et 16 des échecs r4 tiennent au conteneur (pas de `tkinter`, rendus OSMesa, tests OCC qui lisent un `cube.cgns` produit par un autre test). 54 tests en échec dans le run juno de 5fe788a passent sur ce banc (sphère et tore en double, Eikonal). Avec numpy 2, les scalaires `numpy.float32` sont beaucoup plus fréquents qu'avec numpy 1 (règles NEP 50) : le banc juno, s'il est en numpy 1.x, ne voit pas cette famille.
 
@@ -104,8 +106,8 @@ Les tests dont le résultat est combinatoirement sensible à la précision (bool
 
 ## Limites connues du mode r4
 
-- Les indices stockés dans des champs réels (`getInterpolatedPoints`, `getInterpolatedEXPoints`, `setInterpolations`) ne sont exacts que jusqu'à 2^24, soit 16,7 millions de points par zone.
-- `E_FloatAsInt` vaut `int32` en r4 : en `_r4_i8`, l'index global de `createGlobalIndex` est tronqué au-delà de 2^31.
+- Les indices stockés dans des champs réels ne sont exacts que jusqu'à 2^24 (`E_MAXFLOATINT`), soit 16,7 millions de points par zone : `getInterpolatedPoints` et `getEXPoints` (indcell lus ensuite par `setInterpolations`), `identifyMatching*` (tag2 de connectMatch, par fenêtre) et `getIndexField` lèvent une `ValueError` au-delà, au lieu de rendre des indices arrondis. Un balayage `-Wconversion` des sources r4 (toutes conversions entier vers `E_Float`) ne trouve pas d'autre indice stocké dans un champ réel ; les autres conversions sont arithmétiques (x0 + i*h, moyennes).
+- `E_FloatAsInt` vaut `int32` en r4 : en `_r4_i8`, `createGlobalIndex` refuse plus de 2^31 points.
 - Les tolérances C++ en dur (environ 500 lignes entre 1e-10 et 1e-15 hors tiers) ne sont traitées qu'au cas par cas avec `E_REALTOL` ; les gardes anti-division par zéro peuvent rester telles quelles, les seuils de coïncidence géométrique sont à passer sous `E_REALTOL` quand la validation les désigne.
 
 ## Correctifs notables trouvés par la validation r4
