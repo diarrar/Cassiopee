@@ -24,6 +24,10 @@ using namespace std;
 using namespace K_FUNC;
 using namespace K_FLD;
 
+// Angles, axes, trigonometry and rotation computed in double: in single precision
+// the coordinates are the float rounding of the double precision rotation
+// (cos(90 deg) was -4.4e-8 instead of 6e-17). Unchanged in double precision.
+
 //==============================================================================
 E_Int K_TRANSFORM::extractVectorComponents(char* varString,
                                            PyObject* listOfFieldVectors,
@@ -101,9 +105,9 @@ PyObject* K_TRANSFORM::_rotateA1(PyObject* self, PyObject* args)
 {
   PyObject* array;
   PyObject* listOfFieldVectors;
-  E_Float xc, yc, zc;
-  E_Float nx, ny, nz, teta;
-  if (!PYPARSETUPLE_(args, O_ TRRR_ TRRR_ R_ O_,
+  double xc, yc, zc;
+  double nx, ny, nz, teta;
+  if (!PYPARSETUPLE_(args, O_ "(ddd)" "(ddd)" "d" O_,
                     &array, &xc, &yc, &zc, &nx, &ny, &nz, &teta, &listOfFieldVectors))
   {
       return NULL;
@@ -148,15 +152,15 @@ PyObject* K_TRANSFORM::_rotateA1(PyObject* self, PyObject* args)
   }
 
   // Transformation en radians
-  E_Float pi = 4.*atan(1.);
+  double pi = 4.*atan(1.);
   teta = teta*pi/180.;
 
   E_Int npts = f->getSize();
 
   // rotate
-  E_Float norm, unx, uny, unz;
-  E_Float sinteta, sinteta5;
-  E_Float e0,e1,e2,e3,a1;
+  double norm, unx, uny, unz;
+  double sinteta, sinteta5;
+  double e0,e1,e2,e3,a1;
 
   norm = nx*nx+ny*ny+nz*nz;
   norm = K_FUNC::E_max(norm, 1.e-20);
@@ -183,7 +187,7 @@ PyObject* K_TRANSFORM::_rotateA1(PyObject* self, PyObject* args)
 
     #pragma omp parallel default(shared)
     {
-      E_Float rx,ry,rz,a2,px,py,pz;
+      double rx,ry,rz,a2,px,py,pz;
       #pragma omp for
       for (E_Int ind = 0; ind < npts; ind++)
       {
@@ -207,7 +211,7 @@ PyObject* K_TRANSFORM::_rotateA1(PyObject* self, PyObject* args)
   {
     #pragma omp parallel default(shared)
     {
-      E_Float rx,ry,rz,a2,px,py,pz;
+      double rx,ry,rz,a2,px,py,pz;
       for (E_Int nov = 0; nov < nvect; nov++)
       {
         E_Float* xt = f->begin(posvx[nov]);
@@ -243,12 +247,12 @@ PyObject* K_TRANSFORM::_rotateA1(PyObject* self, PyObject* args)
 PyObject* K_TRANSFORM::_rotateA2(PyObject* self, PyObject* args)
 {
   PyObject* array;
-  E_Float xc, yc, zc;
-  E_Float e1x, e1y, e1z, e2x, e2y, e2z, e3x, e3y, e3z;
-  E_Float f1x, f1y, f1z, f2x, f2y, f2z, f3x, f3y, f3z;
+  double xc, yc, zc;
+  double e1x, e1y, e1z, e2x, e2y, e2z, e3x, e3y, e3z;
+  double f1x, f1y, f1z, f2x, f2y, f2z, f3x, f3y, f3z;
   PyObject* listOfFieldVectors;
 
-  if (!PYPARSETUPLE_(args, O_ TRRR_ "(" TRRR_ TRRR_ TRRR_ ")" "(" TRRR_ TRRR_ TRRR_ ")" O_,
+  if (!PYPARSETUPLE_(args, O_ "(ddd)" "(" "(ddd)" "(ddd)" "(ddd)" ")" "(" "(ddd)" "(ddd)" "(ddd)" ")" O_,
                      &array,
                      &xc, &yc, &zc,
                      &e1x, &e1y, &e1z,
@@ -269,12 +273,12 @@ PyObject* K_TRANSFORM::_rotateA2(PyObject* self, PyObject* args)
   E_Int res;
 
   // Make unity
-  E_Float e1 = sqrt(e1x*e1x+e1y*e1y+e1z*e1z);
-  E_Float e2 = sqrt(e2x*e2x+e2y*e2y+e2z*e2z);
-  E_Float e3 = sqrt(e3x*e3x+e3y*e3y+e3z*e3z);
-  E_Float f1 = sqrt(f1x*f1x+f1y*f1y+f1z*f1z);
-  E_Float f2 = sqrt(f2x*f2x+f2y*f2y+f2z*f2z);
-  E_Float f3 = sqrt(f3x*f3x+f3y*f3y+f3z*f3z);
+  double e1 = sqrt(e1x*e1x+e1y*e1y+e1z*e1z);
+  double e2 = sqrt(e2x*e2x+e2y*e2y+e2z*e2z);
+  double e3 = sqrt(e3x*e3x+e3y*e3y+e3z*e3z);
+  double f1 = sqrt(f1x*f1x+f1y*f1y+f1z*f1z);
+  double f2 = sqrt(f2x*f2x+f2y*f2y+f2z*f2z);
+  double f3 = sqrt(f3x*f3x+f3y*f3y+f3z*f3z);
 
   if (K_FUNC::fEqualZero(e1) == true ||
       K_FUNC::fEqualZero(e2) == true ||
@@ -321,15 +325,15 @@ PyObject* K_TRANSFORM::_rotateA2(PyObject* self, PyObject* args)
   E_Int npts = f->getSize();
 
   // rotate
-  E_Float m11 = f1x*e1x+f2x*e2x+f3x*e3x;
-  E_Float m21 = f1y*e1x+f2y*e2x+f3y*e3x;
-  E_Float m31 = f1z*e1x+f2z*e2x+f3z*e3x;
-  E_Float m12 = f1x*e1y+f2x*e2y+f3x*e3y;
-  E_Float m22 = f1y*e1y+f2y*e2y+f3y*e3y;
-  E_Float m32 = f1z*e1y+f2z*e2y+f3z*e3y;
-  E_Float m13 = f1x*e1z+f2x*e2z+f3x*e3z;
-  E_Float m23 = f1y*e1z+f2y*e2z+f3y*e3z;
-  E_Float m33 = f1z*e1z+f2z*e2z+f3z*e3z;
+  double m11 = f1x*e1x+f2x*e2x+f3x*e3x;
+  double m21 = f1y*e1x+f2y*e2x+f3y*e3x;
+  double m31 = f1z*e1x+f2z*e2x+f3z*e3x;
+  double m12 = f1x*e1y+f2x*e2y+f3x*e3y;
+  double m22 = f1y*e1y+f2y*e2y+f3y*e3y;
+  double m32 = f1z*e1y+f2z*e2y+f3z*e3y;
+  double m13 = f1x*e1z+f2x*e2z+f3x*e3z;
+  double m23 = f1y*e1z+f2y*e2z+f3y*e3z;
+  double m33 = f1z*e1z+f2z*e2z+f3z*e3z;
 
   if (posx>0 && posy>0 && posz> 0)
   {
@@ -339,7 +343,7 @@ PyObject* K_TRANSFORM::_rotateA2(PyObject* self, PyObject* args)
 
     #pragma omp parallel default(shared)
     {
-      E_Float x,y,z;
+      double x,y,z;
       #pragma omp for
       for (E_Int i = 0; i < npts; i++)
       {
@@ -359,7 +363,7 @@ PyObject* K_TRANSFORM::_rotateA2(PyObject* self, PyObject* args)
   {
     #pragma omp parallel default(shared)
     {
-      E_Float x,y,z;
+      double x,y,z;
       for (E_Int nov = 0; nov < nvect; nov++)
       {
         E_Float* xt = f->begin(posvx[nov]);
@@ -389,11 +393,11 @@ PyObject* K_TRANSFORM::_rotateA2(PyObject* self, PyObject* args)
 PyObject* K_TRANSFORM::_rotateA3(PyObject* self, PyObject* args)
 {
   PyObject* array;
-  E_Float xc, yc, zc;
-  E_Float alpha, beta, gamma;
+  double xc, yc, zc;
+  double alpha, beta, gamma;
   PyObject* listOfFieldVectors;
 
-  if (!PYPARSETUPLE_(args, O_ TRRR_ TRRR_ O_,
+  if (!PYPARSETUPLE_(args, O_ "(ddd)" "(ddd)" O_,
                     &array, &xc, &yc, &zc, &alpha, &beta, &gamma, &listOfFieldVectors))
   {
       return NULL;
@@ -427,7 +431,7 @@ PyObject* K_TRANSFORM::_rotateA3(PyObject* self, PyObject* args)
   }
 
   // Transformation en radians
-  E_Float pi = 4*atan(1.);
+  double pi = 4*atan(1.);
   alpha = alpha*pi/180.;
   beta = beta*pi/180.;
   gamma = gamma*pi/180.;
@@ -435,12 +439,12 @@ PyObject* K_TRANSFORM::_rotateA3(PyObject* self, PyObject* args)
   E_Int npts = f->getSize();
 
   // rotate
-  E_Float calpha = cos(alpha);
-  E_Float salpha = sin(alpha);
-  E_Float cbeta = cos(beta);
-  E_Float sbeta = sin(beta);
-  E_Float cgamma = cos(gamma);
-  E_Float sgamma = sin(gamma);
+  double calpha = cos(alpha);
+  double salpha = sin(alpha);
+  double cbeta = cos(beta);
+  double sbeta = sin(beta);
+  double cgamma = cos(gamma);
+  double sgamma = sin(gamma);
 
   if (posx>0 && posy>0 && posz>0)
   {
@@ -450,8 +454,8 @@ PyObject* K_TRANSFORM::_rotateA3(PyObject* self, PyObject* args)
 
     #pragma omp parallel default(shared)
     {
-      E_Float dx, dy, dz;
-      E_Float x1, y1, z1, x2, y2, z2;
+      double dx, dy, dz;
+      double x1, y1, z1, x2, y2, z2;
       #pragma omp for
       for (E_Int i = 0; i < npts; i++)
       {
@@ -482,8 +486,8 @@ PyObject* K_TRANSFORM::_rotateA3(PyObject* self, PyObject* args)
   {
     #pragma omp parallel default(shared)
     {
-      E_Float dx, dy, dz;
-      E_Float x1, y1, z1, x2, y2, z2;
+      double dx, dy, dz;
+      double x1, y1, z1, x2, y2, z2;
       for (E_Int nov = 0; nov < nvect; nov++)
       {
         E_Float* x = f->begin(posvx[nov]);
