@@ -369,9 +369,24 @@ def _uncompressCartesian(t):
 # ctype=4: compress ngon connectivity (losless)
 # ctype=5: compress with fpc (lossless)
 # ctype=6: reserved for compressCartesian (lossless)
+# The real compressors (sz, zfp, fpc, cellN) work on float64 numpys. In single
+# precision the fields are float32: they are compressed as float64 (the
+# compressed data are then the same in both precisions) and the uncompressed
+# numpy is cast back to the compiled real precision.
+def _asFloat64__(a):
+    if isinstance(a, numpy.ndarray) and a.dtype.kind == 'f' and a.dtype != numpy.float64:
+        return numpy.asarray(a, dtype=numpy.float64, order='K')
+    return a
+
+def _asRealType__(a):
+    if isinstance(a, numpy.ndarray) and a.dtype.kind == 'f' and a.dtype != Internal.E_NpyFloat:
+        return KCore.castFloatArray(a, Internal.E_NpyFloat)
+    return a
+
 def _packNode(node, tol=1.e-8, ctype=0):
     """Compress a pyTree node."""
     if Internal.getNodeFromName1(node, 'ZData') is not None: return None # already compressed node
+    if ctype in (0, 1, 2, 5): node[1] = _asFloat64__(node[1])
     if ctype == 0: # sz
         from . import sz
         ret = sz.pack(node[1], {'relBoundRatio':tol})
@@ -453,6 +468,7 @@ def _unpackNode(node):
             Internal._rmNodesFromName1(node, 'ZData')
         else:
             raise ValueError("unpackNode: unknown compression type.")
+        if ctype in (0, 1, 2, 5): node[1] = _asRealType__(node[1])
     return None
 
 # compressCoords of zones

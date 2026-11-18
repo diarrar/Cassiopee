@@ -43,7 +43,7 @@ En double précision tous ces types sont identiques, le binaire r8 ne change pas
 | HDF/ADF CGNS | lecture dans la précision compilée (conversion HDF5 à la volée, ou copie pour ADF), écriture pilotée par le dtype |
 | MPI | `E_PCM_FLOAT`, `XMPI_FLOAT` (XCore), `E_MPI_FLOAT` (Converter.Mpi4py) |
 | Nuga | calcule en double, voir ci-dessus |
-| Compressor (zfp, sz, fpc) | non traité : décompression en double, sorties float64 |
+| Compressor (zfp, sz, fpc, cellN) | compression en float64 (données compressées identiques dans les deux précisions), retour au dtype compilé à la décompression |
 | Netgen (Generator), zoltan (XCore) | non traités |
 
 ## État par lot
@@ -56,7 +56,7 @@ En double précision tous ces types sont identiques, le binaire r8 ne change pas
 
 **Lot 3, entrées/sorties : CGNS, tecplot, plot3d, tau, FSDM, arc terminés.** Autres formats binaires (vtk, ply, stl, gmsh, v3d) compilés mais non relus ligne à ligne.
 
-**Lot 4, frontières : fait**, sauf Compressor, Netgen et zoltan, voir le tableau.
+**Lot 4, frontières : fait**, sauf Netgen et zoltan, voir le tableau.
 
 **Lot 5, validation : en cours.** Tolérances de `KCore/test.py` en r4 : 1e-5 absolu, 1e-5 relatif. Les références pickle (`.ref*`), arrays et pyTrees, sont converties dans la précision compilée à la lecture, ce qui permet de comparer un run r4 aux références r8.
 
@@ -105,7 +105,6 @@ Les tests dont le résultat est combinatoirement sensible à la précision (bool
 - Les indices stockés dans des champs réels (`getInterpolatedPoints`, `getInterpolatedEXPoints`, `setInterpolations`) ne sont exacts que jusqu'à 2^24, soit 16,7 millions de points par zone.
 - `E_FloatAsInt` vaut `int32` en r4 : en `_r4_i8`, l'index global de `createGlobalIndex` est tronqué au-delà de 2^31.
 - Les tolérances C++ en dur (environ 500 lignes entre 1e-10 et 1e-15 hors tiers) ne sont traitées qu'au cas par cas avec `E_REALTOL` ; les gardes anti-division par zéro peuvent rester telles quelles, les seuils de coïncidence géométrique sont à passer sous `E_REALTOL` quand la validation les désigne.
-- Compressor rend des float64 (zfp, sz, fpc décompressent en double).
 
 ## Correctifs notables trouvés par la validation r4
 
@@ -126,6 +125,7 @@ Les tests dont le résultat est combinatoirement sensible à la précision (bool
 - `indiceStruct2Unstr` : la tolérance porte sur le carré de la distance (1e-14, soit 1e-7) ; nœuds non retrouvés (indice -1 lu comme le dernier nœud par numpy) dans addNormalLayers, couche extrudée effondrée et coordonnées NaN dans MirabelleRefine. Plancher (1e-6)^2 en r4.
 - `T.rotate` : angle, axe, trigonométrie et quaternions en double (cos(90°) valait -4,4e-8, la copie tournée ne partageait plus ses bords, merge_t1).
 - Égalités dans les données de test, laissées en l'état : enforcePoint_t1 (x0 = 0,5 à mi-chemin de deux nœuds), booleanMinus_t1 cas 2 (x0 = 0,4 sur un nœud).
+- Compressor : sz, zfp, fpc et cellN lisaient un champ float32 comme du float64, les données décompressées étaient fausses en r4 (écarts jusqu'à 1e117, NaN pour fpc). `_packNode` compresse en float64 et `_unpackNode` revient au dtype compilé ; le format compressé ne change pas. Indépendamment de la précision, zfp rend des valeurs fausses pour un numpy 2D en ordre Fortran (aussi en r8, non traité).
 - Eikonal, solveur `fim_old` (défaut de `Dist2Walls.eikonal`, TIMEOUT d'eikonal_t2 au run du 17/11) : la dernière formule de `solveQuadratic` perd ses chiffres significatifs en float (discriminant de l'ordre de 12h² obtenu par différence de termes de l'ordre de 80), la mise à jour d'un nœud pouvait dépasser sa valeur courante de plus que le critère et le nœud restait indéfiniment dans la liste active. `solveQuadratic` calcule en double, et en r4 un nœud dont la mise à jour ne diminue pas la valeur est convergé. Reproduit hors Cassiopee (grille 128³ et sphère de l'eikonal_t2) : r4 converge en 0,4 s, écart au r8 de 3e-7 ; binaire r8 inchangé bit à bit.
 - Ambiguïtés `std::max(x, 1.e-12)` et `E_max` avec `E_Float = float` : surcharges mixtes dans `DefFunction.h`, littéraux castés.
 - Tolérances géométriques par défaut de 1e-12 dans les API Python : contours non fermés, échec du mailleur Delaunay ; `KCore.realTol`.
