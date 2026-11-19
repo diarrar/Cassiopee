@@ -1,6 +1,6 @@
 # Compilation de Cassiopee en simple précision (r4)
 
-Bilan au 18/11/2026, branche `claude/admiring-planck-933s9c` et sa suite `claude/optimistic-maxwell-xwotl2` (`dev` fusionné à 0ae977d).
+Bilan au 19/11/2026, branche `claude/admiring-planck-933s9c` et sa suite `claude/optimistic-maxwell-xwotl2` (`dev` fusionné à 0ae977d).
 
 ## Objectif et principe
 
@@ -80,6 +80,7 @@ Validation complémentaire sur un conteneur Ubuntu 24.04 (gcc 13, Python 3.13, n
 | 18/11 | 647a6d3 | 1192 OK, 236 FAILED | 1417 OK, 11 FAILED : r8 inchangé |
 | 18/11 | c19ca89 | 1213 OK, 215 FAILED | 1417 OK, 11 FAILED : r8 inchangé ; build r8 de `dev` identique sur les 1417 tests |
 | 18/11 | ebc4d2b | 1213 OK, 215 FAILED (mêmes tests) | 1417 OK, 11 FAILED : r8 inchangé |
+| 19/11 | 65bb11a | 1227 OK, 201 FAILED (14 corrigés, aucun nouveau) | 1417 OK, 11 FAILED : r8 inchangé |
 
 Les 11 échecs r8 et 16 des échecs r4 tiennent au conteneur (pas de `tkinter`, rendus OSMesa, tests OCC qui lisent un `cube.cgns` produit par un autre test). 54 tests en échec dans le run juno de 5fe788a passent sur ce banc (sphère et tore en double, Eikonal). Avec numpy 2, les scalaires `numpy.float32` sont beaucoup plus fréquents qu'avec numpy 1 (règles NEP 50) : le banc juno, s'il est en numpy 1.x, ne voit pas cette famille.
 
@@ -93,7 +94,7 @@ Pour les tests MPI lancés hors `mpirun` (import de `Converter.Mpi` dans un test
 
 ## Statut des échecs r4 restants
 
-La liste test par test est dans [SinglePrecision_r4_failures.md](SinglePrecision_r4_failures.md). Outre la comparaison géométrique, elle utilise un banc « r8 arrondi » : le test tourne avec le build r8, et tous les tableaux réels en entrée et en sortie de chaque fonction compilée sont arrondis au float. Si ce banc échoue aussi, l'écart vient de la précision des données. S'il passe alors que le r4 change une décision, le test est suspect. Sur les 215 échecs du 18/11 : 2 corrigés depuis, 47 vérifiés, 86 reproduits par le r8 arrondi, 28 dérives numériques faibles dues à l'arithmétique en float, 17 suspects, 19 seulement classés (AMR et IBM surtout, le banc plante), 16 d'environnement.
+La liste test par test est dans [SinglePrecision_r4_failures.md](SinglePrecision_r4_failures.md). Outre la comparaison géométrique, elle utilise un banc « r8 arrondi » : le test tourne avec le build r8, et tous les tableaux réels en entrée et en sortie de chaque fonction compilée sont arrondis au float. Si ce banc échoue aussi, l'écart vient de la précision des données ; s'il passe alors que le r4 change une décision, le test est suspect et doit être examiné. Au 19/11, sur 201 échecs : 63 vérifiés, 94 reproduits par le r8 arrondi, 28 dérives numériques faibles dues à l'arithmétique en float, 16 d'environnement ; plus aucun suspect ni test seulement classé.
 
 ## Écarts r4 restants, par famille (run du 16/11, 399 FAILED)
 
@@ -146,6 +147,13 @@ Les tests dont le résultat est combinatoirement sensible à la précision (bool
 - `Converter.Mpi4py` diffusait les champs en `MPI.DOUBLE` ; datatype dérivé de `E_NpyFloat`.
 - Tolérance relative de l'alignement des points donneurs de l'AMR (Connector) relâchée en r4.
 - Masque X-Ray (`maskXRay.cpp`) : quand des faces restaient ambiguës, `compactZ` n'était pas appelé et `blankCells` utilisait `indir` non initialisé avec un Z vide (sortie de tableau dans `k6searchblankednodesx2d`). Les tables sont désormais toujours cohérentes et `blankCells` avertit. En r4 seulement, la perturbation des rayons change à chaque passe : le germe aléatoire était réinitialisé à chaque triangle, un rayon qui retombait sur un nœud recevait indéfiniment la même perturbation. Les points de percée des cas ordinaires sont identiques bit à bit, en r8 comme en r4.
+- Tolérances de fusion relatives aux coordonnées (`K_CONNECT::realMergeTol`) : le plancher absolu de 1e-6 de `cleanConnectivity` (G.close, T.join, isoSurf, extractPlane...) et d'`identifyMatching` (connectMatch) est sous l'ulp des coordonnées au-delà de 8 ; des points calculés deux fois n'étaient pas fusionnés (isoSurf, `D.cylinder` en QUAD, une face sur 196 des raccords NGON, MirabelleRefine). En r4, une tolérance positive est relevée à 8 ulps de la plus grande coordonnée des sommets de la connectivité.
+- `isoSurfMC` réservait 4 points par arête coupée et n'en écrivait qu'un : les trois quarts de la sortie étaient non initialisés et passaient dans la fusion (aussi en r8). Trouvé par valgrind sur un échec intermittent de prepareIBMDataPT_t2 (front IBM vide).
+- Delaunay de `K_COMPGEOM` (extractPlane) : cercles circonscrits en double et doublons retirés à la résolution des coordonnées (31 208 triangles sur 2 330 points au lieu de 3 750 sur 1 971) ; extractPlane extrude les surfaces au-dessus de la résolution float.
+- X-Ray (`compactZ`) : le même point de percée calculé par les deux triangles d'une face diffère de quelques ulps, au-dessus de la tolérance de 1e-8 ; en 2D un rayon sur deux était perdu (blankCells cell_in : 728 cellules masquées au lieu de 1 247, snapFront_t1). Tolérance relative en r4.
+- Octrees : `modifyIndicToExpandLayer` et `extendCartGrids` comparaient des pas de grille au-dessous de la résolution float (cellules de même niveau raffinées, extensions 2/3 inversées) ; les blocs cartésiens d'IBMrectilinear_t1 sont maintenant identiques au r8.
+- `spline` : le dernier paramètre float dépassait le vecteur de nœuds, la courbe contenait des NaN (Modeler circle2). `stitchedHat` : normales et marche en double. `selectCells*` : `1-1e-10` vaut 1 en float.
+- Lecteurs CGNS HDF et ADF : la racine renvoyée avait un nom, une valeur et un type NULL (seuls les enfants étaient remplis), la lire faisait planter Python (indépendant de la précision).
 - `blankIntersectingCells` (PENTA) : le centre d'une face quadrangulaire partagée par deux cellules était calculé par chacune dans un ordre de sommets différent ; en float les deux centres différaient d'un ulp, les deux éventails de triangles se croisaient et 18 à 67 cellules par zone étaient masquées au lieu de 0. Somme en double, exacte pour 4 floats.
 - Lecteur v3d binaire : un fichier écrit par un build de l'autre précision était refusé ; la taille des enregistrements donne la précision du fichier.
 - Netgen : sortie mal construite en r8 comme en r4 (`api` passé comme drapeau `center`).
