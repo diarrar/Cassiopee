@@ -46,8 +46,11 @@ namespace K_CONNECT
      the largest coordinate), so that points computed twice (interpolated on
      a shared edge in another order) are merged. Unchanged in double.
      posx, posy, posz start at 1. */
+  /* If a basic element connectivity is given, only its vertices are
+     considered (arrays may hold unreferenced, uninitialized points). */
   E_Float realMergeTol(E_Float eps, K_FLD::FldArrayF& f,
-                       E_Int posx, E_Int posy, E_Int posz);
+                       E_Int posx, E_Int posy, E_Int posz,
+                       K_FLD::FldArrayI* cn=NULL, const char* eltType=NULL);
   void cleanConnectivity(E_Int posx, E_Int posy, E_Int posz, 
                          E_Float eps, const char* eltType, 
                          K_FLD::FldArrayF& f, K_FLD::FldArrayI& cEV,
