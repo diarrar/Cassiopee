@@ -141,7 +141,7 @@ PyObject* K_POST::selectCells(PyObject* self, PyObject* args)
     return NULL;
   }
 
-  E_Float oneEps = 1.-1.e-10;
+  E_Float oneEps = 1.-E_REALTOL(1.e-10); // 1-1e-10 is 1 in float
   // no check of coordinates
   E_Int posx = K_ARRAY::isCoordinateXPresent(varString); posx++;
   E_Int posy = K_ARRAY::isCoordinateYPresent(varString); posy++;
@@ -888,7 +888,7 @@ PyObject* K_POST::selectCells3(PyObject* self, PyObject* args)
 
   E_Int nelts = fa->getSize();
   E_Float* tagp = fa->begin(); 
-  E_Float oneEps = 1.-1.e-10;
+  E_Float oneEps = 1.-E_REALTOL(1.e-10); // 1-1e-10 is 1 in float
 
   // Compte les tag > 1-eps
   E_Int nthreads = __NUMTHREADS__;

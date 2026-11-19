@@ -20,6 +20,7 @@
 // Identify matching points in windows
 
 # include "connector.h"
+# include "Connect/connect.h"
 # include "Nuga/include/merge.h"
 # include "Nuga/include/KdTree.h"
 # include "Nuga/include/ArrayAccessor.h"
@@ -258,6 +259,8 @@ PyObject* K_CONNECTOR::identifyMatchingP(PyObject* self, PyObject* args)
     fields.push_back(fp); sizeOfFields.push_back(npts);
     PyList_Append(l, tpl); Py_DECREF(tpl);
   }
+  // r4: tolerance raised to the resolution of the coordinates
+  tolmatch = K_CONNECT::realMergeTol(tolmatch, ftemp, 1, 2, 3);
   ArrayAccessor<FldArrayF> posAcc(ftemp,1,2,3);
   K_SEARCH::KdTree<FldArrayF> globalKdtPeriodic(posAcc);
   E_Float pt[3];
@@ -533,6 +536,8 @@ PyObject* K_CONNECTOR::identifyMatching(PyObject* self, PyObject* args)
     PyList_Append(l, tpl); Py_DECREF(tpl);
   }
 
+  // r4: tolerance raised to the resolution of the coordinates
+  tolmatch = K_CONNECT::realMergeTol(tolmatch, ftemp, 1, 2, 3);
   ArrayAccessor<FldArrayF> posAcc(ftemp,1,2,3);
   E_Int nbMerges = merge(posAcc, tolmatch, newID);
   if (nbMerges > 0)
@@ -737,6 +742,8 @@ PyObject* K_CONNECTOR::identifyMatchingNM(PyObject* self, PyObject* args)
       indt++;
     }        
   }
+  // r4: tolerance raised to the resolution of the coordinates
+  tolmatch = K_CONNECT::realMergeTol(tolmatch, ftempR, 1, 2, 3);
   ArrayAccessor<FldArrayF> coordAcc(ftempR, 1, 2, 3);
   K_SEARCH::KdTree<FldArrayF> globalKdt(coordAcc);
   PyObject* l = PyList_New(0);

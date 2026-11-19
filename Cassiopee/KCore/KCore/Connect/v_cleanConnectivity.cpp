@@ -66,9 +66,6 @@ PyObject* K_CONNECT::V_cleanConnectivity(
   E_Bool* modified
 )
 {
-  // coincidence tolerance given in double: floored at the resolution of float in
-  // single precision (points interpolated twice on a shared edge were not merged)
-  if (tol > 0.) tol = E_REALTOL(tol);
   E_Int posx = K_ARRAY::isCoordinateXPresent(varString);
   E_Int posy = K_ARRAY::isCoordinateYPresent(varString);
   E_Int posz = K_ARRAY::isCoordinateZPresent(varString);
@@ -79,6 +76,9 @@ PyObject* K_CONNECT::V_cleanConnectivity(
     return NULL;
   }
   posx++; posy++; posz++;
+  // coincidence tolerance given in double: raised to the resolution of the
+  // coordinates in single precision (points computed twice were not merged)
+  tol = realMergeTol(tol, f, posx, posy, posz);
   
   PyObject* l = NULL;
   if (K_STRING::cmp(eltType, 4, "NGON") == 0)

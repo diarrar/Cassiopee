@@ -39,7 +39,7 @@ void K_COMPGEOM::delaunay(E_Float coefa, E_Float coefb, E_Float coefc,
   list<Edge*> edges;
   E_Int indA, indB, indC;
 
-  E_Float dmax2;
+  double dmax2;
   E_Bool isInCC;
   FldArrayF norm2; // SQUARED norm of points in field
   // Sort coordinates with respect to their norm
@@ -68,7 +68,12 @@ void K_COMPGEOM::delaunay(E_Float coefa, E_Float coefb, E_Float coefc,
       (*itrT)->getVertexIndices(indA, indB,  indC);
       dmax2 = (*itrT)->getDistMaxOfCC();
       
+#ifdef E_DOUBLEREAL
       if (norm2p[ind] > dmax2 + eps)
+#else
+      // norm2 is a float: keep a relative margin before completing a triangle
+      if (norm2p[ind] > dmax2*(1.+1.e-6) + eps)
+#endif
       { 
         compTriangles.push_back(*itrT);
         itrT2 = itrT;

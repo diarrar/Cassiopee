@@ -39,13 +39,21 @@ def extrudeLayer__(i, nlayers, planarity, eps, dplus, dmoins):
         p = Generator.getCellPlanarity(i)
         epsmax = max(eps, 2*Converter.getMaxValue(p, 'dist'))
     else: epsmax = eps
+    ctol = {}
+    if E_NpyFloat == numpy.float32:
+        # single precision: layers thicker than the resolution of the
+        # coordinates, and merged with a tolerance below their thickness
+        xyz = i[1][0:3] if not isinstance(i[1], list) else numpy.concatenate([numpy.ravel(v) for v in i[1][0:3]])
+        L = float(numpy.abs(xyz).max()) if numpy.size(xyz) else 1.
+        epsmax = max(epsmax, 1.e-5, 64.*float(numpy.finfo(numpy.float32).eps)*L)
+        ctol = {'tol': 0.1*epsmax}
     if i[3] == 'BAR' or (i[3] == 1 and i[4] == 1): # 1D
         for k in range(nlayers+1): dplus[1][0,k] = k*epsmax; dmoins[1][0,k] =-k*epsmax
         b = Generator.addNormalLayers(i, dplus)
         c = Generator.addNormalLayers(i, dmoins)
         b = Converter.convertArray2Tetra(b)
         c = Converter.convertArray2Tetra(c)
-        p = Transform.join(b, c); p = Generator.close(p)
+        p = Transform.join(b, c); p = Generator.close(p, **ctol)
     else: # other
         j = Converter.convertArray2Tetra(i)
         for k in range(nlayers+1): dplus[1][0,k] = k*epsmax; dmoins[1][0,k] =-k*epsmax
@@ -53,7 +61,7 @@ def extrudeLayer__(i, nlayers, planarity, eps, dplus, dmoins):
         b = Generator.addNormalLayers(j, dplus)
         j = Transform.reorder(j, (-1,))
         c = Generator.addNormalLayers(j, dplus)
-        p = Transform.join(b, c); p = Generator.close(p)
+        p = Transform.join(b, c); p = Generator.close(p, **ctol)
         p = Converter.convertArray2Tetra(p)
 
     if p[3] == 'TRI': # initially a BAR
@@ -61,7 +69,7 @@ def extrudeLayer__(i, nlayers, planarity, eps, dplus, dmoins):
         b = Generator.addNormalLayers(p, dplus)
         p = Transform.reorder(p, (-1,))
         c = Generator.addNormalLayers(p, dplus)
-        p = Transform.join(b, c); p = Generator.close(p)
+        p = Transform.join(b, c); p = Generator.close(p, **ctol)
         p = Converter.convertArray2Tetra(p)
     return p
 

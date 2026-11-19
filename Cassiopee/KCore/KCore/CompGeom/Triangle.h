@@ -39,7 +39,7 @@ class Triangle
     void getVertexIndices(E_Int& indA, E_Int& indB, E_Int& indC);
 
     /* Return OC^2 + r^2, r radius of circum circle */
-    E_Float getDistMaxOfCC();
+    double getDistMaxOfCC();
 
     /* Return true if point of index ind in coord array is in circum circle */
     E_Bool isPointInCircumCircle(E_Int ind, K_FLD::FldArrayF& coord,
@@ -56,9 +56,10 @@ class Triangle
     E_Int _indB;
     E_Int _indC;
 
-    E_Float _distmax; //distance max for completed status criterium
-    E_Float _radius2; // square radius of the circumcircle of the triangle ABC
-    E_Float _coordCC[3]; // coordinates of the circumcircle center of ABC 
+    // computed in double, also in single precision (Delaunay predicates)
+    double _distmax; //distance max for completed status criterium
+    double _radius2; // square radius of the circumcircle of the triangle ABC
+    double _coordCC[3]; // coordinates of the circumcircle center of ABC 
 };
 //-----------------------------------------------------------------------------
 // inline functions
@@ -71,7 +72,7 @@ inline void K_COMPGEOM::Triangle::getVertexIndices(
   indC = _indC;
 }
 //-----------------------------------------------------------------------------
-inline E_Float K_COMPGEOM::Triangle::getDistMaxOfCC()
+inline double K_COMPGEOM::Triangle::getDistMaxOfCC()
 {
   return _distmax;
 }

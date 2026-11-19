@@ -41,6 +41,13 @@ namespace K_CONNECT
                    E_Float tol=1.e-14);
 
   /* Nettoyage de la connectivite de maillage non-structures */
+  /* Merge tolerance of cleanConnectivity: in single precision, a positive
+     tolerance is raised to the resolution of the coordinates (a few ulps of
+     the largest coordinate), so that points computed twice (interpolated on
+     a shared edge in another order) are merged. Unchanged in double.
+     posx, posy, posz start at 1. */
+  E_Float realMergeTol(E_Float eps, K_FLD::FldArrayF& f,
+                       E_Int posx, E_Int posy, E_Int posz);
   void cleanConnectivity(E_Int posx, E_Int posy, E_Int posz, 
                          E_Float eps, const char* eltType, 
                          K_FLD::FldArrayF& f, K_FLD::FldArrayI& cEV,
