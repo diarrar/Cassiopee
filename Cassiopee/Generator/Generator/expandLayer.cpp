@@ -18,6 +18,7 @@
 */
 
 # include "generator.h"
+# include <cfloat>
 using namespace K_FLD;
 using namespace std;
 
@@ -140,7 +141,19 @@ PyObject* K_GENERATOR::modifyIndicToExpandLayer(PyObject* self, PyObject* args)
   }
 
   // detection des elements de niveau l 
-  E_Float eps = 1.e-10; E_Float dhl = pow(2.,level) * dhmin;
+  E_Float eps = 1.e-10;
+#ifndef E_DOUBLEREAL
+  // single precision: cell sizes are differences of float coordinates, equal
+  // sizes differ by a few ulps (cells of the same level were refined)
+  {
+    E_Float amax = 1.;
+    for (E_Int i = 0; i < npts; i++)
+      amax = K_FUNC::E_max(amax, K_FUNC::E_max(K_FUNC::E_abs(xt[i]),
+                           K_FUNC::E_max(K_FUNC::E_abs(yt[i]), K_FUNC::E_abs(zt[i]))));
+    eps = 16.*FLT_EPSILON*amax;
+  }
+#endif
+  E_Float dhl = pow(2.,level) * dhmin;
   E_Bool voisinBlanked;
   E_Int etv; E_Float dhet; E_Float dhetv;
   E_Float dhleps = dhl + eps;

@@ -18,6 +18,7 @@
 */
 
 #include "generator.h"
+#include <cfloat>
 
 using namespace K_FLD;
 using namespace std;
@@ -88,6 +89,27 @@ PyObject* K_GENERATOR::extendCartGrids(PyObject* self, PyObject* args)
   }
   E_Int dim = 3;
   if (nkt[0] == 1) dim = 2;
+  // tolerance on the comparison of grid steps (unchanged in double: tol^2)
+  E_Float tolS = tol*tol;
+#ifndef E_DOUBLEREAL
+  // single precision: the coincidence tolerance is raised to the resolution
+  // of the coordinates (faces of adjacent grids differ by a few ulps)
+  {
+    E_Float amax = 0.;
+    for (E_Int v = 0; v < nzones; v++)
+    {
+      E_Int np = structF[v]->getSize();
+      E_Float* xv = structF[v]->begin(posxt[v]); E_Float* yv = structF[v]->begin(posyt[v]);
+      E_Float* zv = structF[v]->begin(poszt[v]);
+      for (E_Int i = 0; i < np; i++)
+        amax = K_FUNC::E_max(amax, K_FUNC::E_max(K_FUNC::E_abs(xv[i]),
+                             K_FUNC::E_max(K_FUNC::E_abs(yv[i]), K_FUNC::E_abs(zv[i]))));
+    }
+    tol = K_FUNC::E_max(tol, (E_Float)(16.*FLT_EPSILON*amax));
+    // steps (ymax-ymin)/(nj-1) of equal grids differ by ~1e-8 in float
+    tolS = K_FUNC::E_max(tol*tol, (E_Float)(16.*FLT_EPSILON*amax));
+  }
+#endif
 
   // determination des elts dont les bbox intersectent l elt courant
   FldArrayF bbox(nzones, 6);// xmin, ymin, zmin, xmax, ymax, zmax
@@ -205,13 +227,13 @@ PyObject* K_GENERATOR::extendCartGrids(PyObject* self, PyObject* args)
             vector<E_Int>& dejaVu1 = dejaVu[v1]; dejaVu1.push_back(v2);
             vector<E_Int>& dejaVu2 = dejaVu[v2]; dejaVu2.push_back(v1);
             diff = s1-dhmax;
-            if ( K_FUNC::fEqualZero(diff,tol2) == true ) //F/F : 3/2 if possible
+            if ( K_FUNC::fEqualZero(diff,tolS) == true ) //F/F : 3/2 if possible
             {
               ext1[v1] = K_FUNC::E_max(ext1[v1],extf); 
               ext2[v2] = K_FUNC::E_max(ext2[v2],extff);
               //ext2[v2] = K_FUNC::E_max(ext2[v2],extg);
             }
-            else if ( s1 < dhmax - tol2) // current grid is finer than all its opposite grids
+            else if ( s1 < dhmax - tolS) // current grid is finer than all its opposite grids
             {
               ext1[v1] = K_FUNC::E_max(ext1[v1],extg); //F/G : 2/3 if possible
               ext2[v2] = K_FUNC::E_max(ext2[v2],extf);
@@ -277,13 +299,13 @@ PyObject* K_GENERATOR::extendCartGrids(PyObject* self, PyObject* args)
             vector<E_Int>& dejaVu1 = dejaVu[v1]; dejaVu1.push_back(v2);
             vector<E_Int>& dejaVu2 = dejaVu[v2]; dejaVu2.push_back(v1);
             diff = s1-dhmax;
-            if ( K_FUNC::fEqualZero(diff,tol2) == true ) //F/F : 3/2 if possible
+            if ( K_FUNC::fEqualZero(diff,tolS) == true ) //F/F : 3/2 if possible
             {
               ext2[v1] = K_FUNC::E_max(ext2[v1],extf); 
               ext1[v2] = K_FUNC::E_max(ext1[v2],extff);
               //ext1[v2] = K_FUNC::E_max(ext1[v2],extg);
             }
-            else if ( s1 < dhmax - tol2) // current grid is finer than all its opposite grids
+            else if ( s1 < dhmax - tolS) // current grid is finer than all its opposite grids
             {
               ext2[v1] = K_FUNC::E_max(ext2[v1],extg); //F/G : 2/3 if possible
               ext1[v2] = K_FUNC::E_max(ext1[v2],extf);
@@ -351,13 +373,13 @@ PyObject* K_GENERATOR::extendCartGrids(PyObject* self, PyObject* args)
             vector<E_Int>& dejaVu1 = dejaVu[v1]; dejaVu1.push_back(v2);
             vector<E_Int>& dejaVu2 = dejaVu[v2]; dejaVu2.push_back(v1);
             diff = s1-dhmax;
-            if ( K_FUNC::fEqualZero(diff,tol2) == true ) //F/F : 3/2 if possible
+            if ( K_FUNC::fEqualZero(diff,tolS) == true ) //F/F : 3/2 if possible
             {
               ext3[v1] = K_FUNC::E_max(ext3[v1],extf); 
               ext4[v2] = K_FUNC::E_max(ext4[v2],extff);
               //ext4[v2] = K_FUNC::E_max(ext4[v2],extg);
             }
-            else if ( s1 < dhmax - tol2) // current grid is finer than all its opposite grids
+            else if ( s1 < dhmax - tolS) // current grid is finer than all its opposite grids
             {
               ext3[v1] = K_FUNC::E_max(ext3[v1],extg); //F/G : 2/3 if possible
               ext4[v2] = K_FUNC::E_max(ext4[v2],extf);
@@ -423,13 +445,13 @@ PyObject* K_GENERATOR::extendCartGrids(PyObject* self, PyObject* args)
             vector<E_Int>& dejaVu1 = dejaVu[v1]; dejaVu1.push_back(v2);
             vector<E_Int>& dejaVu2 = dejaVu[v2]; dejaVu2.push_back(v1);
             diff = s1-dhmax;
-            if ( K_FUNC::fEqualZero(diff,tol2) == true ) //F/F : 3/2 if possible
+            if ( K_FUNC::fEqualZero(diff,tolS) == true ) //F/F : 3/2 if possible
             {
               ext4[v1] = K_FUNC::E_max(ext4[v1],extf); 
               ext3[v2] = K_FUNC::E_max(ext3[v2],extff);
               //ext3[v2] = K_FUNC::E_max(ext3[v2],extg);
             }
-            else if ( s1 < dhmax - tol2) // current grid is finer than all its opposite grids
+            else if ( s1 < dhmax - tolS) // current grid is finer than all its opposite grids
             {
               ext4[v1] = K_FUNC::E_max(ext4[v1],extg); //F/G : 2/3 if possible
               ext3[v2] = K_FUNC::E_max(ext3[v2],extf);
@@ -542,12 +564,12 @@ PyObject* K_GENERATOR::extendCartGrids(PyObject* self, PyObject* args)
             vector<E_Int>& dejaVu1 = dejaVu[v1]; dejaVu1.push_back(v2);
             vector<E_Int>& dejaVu2 = dejaVu[v2]; dejaVu2.push_back(v1);
             diff = s1-dhmax;
-            if ( K_FUNC::fEqualZero(diff,tol2) == true ) //F/F : 3/2 if possible
+            if ( K_FUNC::fEqualZero(diff,tolS) == true ) //F/F : 3/2 if possible
             {
               ext1[v1] = K_FUNC::E_max(ext1[v1],extf); 
               ext2[v2] = K_FUNC::E_max(ext2[v2],extff);
             }
-            else if ( s1 < dhmax - tol2) // current grid is finer than all its opposite grids
+            else if ( s1 < dhmax - tolS) // current grid is finer than all its opposite grids
             {
               ext1[v1] = K_FUNC::E_max(ext1[v1],extg); //F/G : 2/3 if possible
               ext2[v2] = K_FUNC::E_max(ext2[v2],extf);
@@ -641,12 +663,12 @@ PyObject* K_GENERATOR::extendCartGrids(PyObject* self, PyObject* args)
             vector<E_Int>& dejaVu1 = dejaVu[v1]; dejaVu1.push_back(v2);
             vector<E_Int>& dejaVu2 = dejaVu[v2]; dejaVu2.push_back(v1);
             diff = s1-dhmax;
-            if ( K_FUNC::fEqualZero(diff,tol2) == true ) //F/F : 3/2 if possible
+            if ( K_FUNC::fEqualZero(diff,tolS) == true ) //F/F : 3/2 if possible
             {
               ext2[v1] = K_FUNC::E_max(ext2[v1],extf); 
               ext1[v2] = K_FUNC::E_max(ext1[v2],extff);
             }
-            else if ( s1 < dhmax - tol2) // current grid is finer than all its opposite grids
+            else if ( s1 < dhmax - tolS) // current grid is finer than all its opposite grids
             {
               ext2[v1] = K_FUNC::E_max(ext2[v1],extg); //F/G : 2/3 if possible
               ext1[v2] = K_FUNC::E_max(ext1[v2],extf);
@@ -742,12 +764,12 @@ PyObject* K_GENERATOR::extendCartGrids(PyObject* self, PyObject* args)
             vector<E_Int>& dejaVu2 = dejaVu[v2]; dejaVu2.push_back(v1);
             diff = s1-dhmax;
             
-            if ( K_FUNC::fEqualZero(diff,tol2) == true ) //F/F : 3/2 if possible
+            if ( K_FUNC::fEqualZero(diff,tolS) == true ) //F/F : 3/2 if possible
             {
               ext3[v1] = K_FUNC::E_max(ext3[v1],extf); 
               ext4[v2] = K_FUNC::E_max(ext4[v2],extff);
             }
-            else if ( s1 < dhmax - tol2) // current grid is finer than all its opposite grids
+            else if ( s1 < dhmax - tolS) // current grid is finer than all its opposite grids
             {
               ext3[v1] = K_FUNC::E_max(ext3[v1],extg); //F/G : 2/3 if possible
               ext4[v2] = K_FUNC::E_max(ext4[v2],extf);
@@ -840,12 +862,12 @@ PyObject* K_GENERATOR::extendCartGrids(PyObject* self, PyObject* args)
             vector<E_Int>& dejaVu1 = dejaVu[v1]; dejaVu1.push_back(v2);
             vector<E_Int>& dejaVu2 = dejaVu[v2]; dejaVu2.push_back(v1);
             diff = s1-dhmax;
-            if ( K_FUNC::fEqualZero(diff,tol2) == true ) //F/F : 3/2 if possible
+            if ( K_FUNC::fEqualZero(diff,tolS) == true ) //F/F : 3/2 if possible
             {
               ext4[v1] = K_FUNC::E_max(ext4[v1],extf); 
               ext3[v2] = K_FUNC::E_max(ext3[v2],extff);
             }
-            else if ( s1 < dhmax - tol2) // current grid is finer than all its opposite grids
+            else if ( s1 < dhmax - tolS) // current grid is finer than all its opposite grids
             {
               ext4[v1] = K_FUNC::E_max(ext4[v1],extg); //F/G : 2/3 if possible
               ext3[v2] = K_FUNC::E_max(ext3[v2],extf);
@@ -937,12 +959,12 @@ PyObject* K_GENERATOR::extendCartGrids(PyObject* self, PyObject* args)
             vector<E_Int>& dejaVu1 = dejaVu[v1]; dejaVu1.push_back(v2);
             vector<E_Int>& dejaVu2 = dejaVu[v2]; dejaVu2.push_back(v1);
             diff = s1-dhmax;
-            if ( K_FUNC::fEqualZero(diff,tol2) == true ) //F/F : 3/2 if possible
+            if ( K_FUNC::fEqualZero(diff,tolS) == true ) //F/F : 3/2 if possible
             {
               ext5[v1] = K_FUNC::E_max(ext5[v1],extf); 
               ext6[v2] = K_FUNC::E_max(ext6[v2],extff);
             }
-            else if ( s1 < dhmax - tol2) // current grid is finer than all its opposite grids
+            else if ( s1 < dhmax - tolS) // current grid is finer than all its opposite grids
             {
               ext5[v1] = K_FUNC::E_max(ext5[v1],extg); //F/G : 2/3 if possible
               ext6[v2] = K_FUNC::E_max(ext6[v2],extf);
@@ -1035,12 +1057,12 @@ PyObject* K_GENERATOR::extendCartGrids(PyObject* self, PyObject* args)
             vector<E_Int>& dejaVu1 = dejaVu[v1]; dejaVu1.push_back(v2);
             vector<E_Int>& dejaVu2 = dejaVu[v2]; dejaVu2.push_back(v1);
             diff = s1-dhmax;
-            if ( K_FUNC::fEqualZero(diff,tol2) == true ) //F/F : 3/2 if possible
+            if ( K_FUNC::fEqualZero(diff,tolS) == true ) //F/F : 3/2 if possible
             {
               ext6[v1] = K_FUNC::E_max(ext6[v1],extf); 
               ext5[v2] = K_FUNC::E_max(ext5[v2],extff);
             }
-            else if ( s1 < dhmax - tol2) // current grid is finer than all its opposite grids
+            else if ( s1 < dhmax - tolS) // current grid is finer than all its opposite grids
             {
               ext6[v1] = K_FUNC::E_max(ext6[v1],extg); //F/G : 2/3 if possible
               ext5[v2] = K_FUNC::E_max(ext5[v2],extf);

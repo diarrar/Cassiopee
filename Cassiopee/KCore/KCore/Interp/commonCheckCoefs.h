@@ -1,6 +1,6 @@
 // on verifie si tous les coefs sont nuls sauf 1. Si oui -> on passe en type 1
 E_Int nozd = noDonorBlk-1;
-E_Float cutOffCf = 1.e-10;//1.e-12;
+E_Float cutOffCf = E_REALTOL(1.e-10);//1.e-12; (1.e-6 in single precision: coefficients of a coincident point are ~1.e-7 in float)
 if (a3[nozd] != NULL) //structure
 {
   ni = *(E_Int*)a1[nozd]; nj = *(E_Int*)a2[nozd]; nk = *(E_Int*)a3[nozd]; 
