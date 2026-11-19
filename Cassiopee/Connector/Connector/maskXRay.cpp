@@ -18,6 +18,7 @@
 */
 
 # include "connector.h"
+# include <cfloat>
 
 using namespace std;
 using namespace K_FLD;
@@ -616,7 +617,14 @@ void K_CONNECTOR::compactZ(
     c = start;
     for (j = start+1; j < start+s; j++)
     {
-      if (K_FUNC::E_abs(p->Z[c] - p->Z[j]) > tol)
+      E_Float tolj = tol;
+#ifndef E_DOUBLEREAL
+      // single precision: the same pierce point computed from two triangles
+      // differs by a few ulps (a vertical face split in two triangles gave
+      // 4 points instead of 2 in 2D and the whole ray was lost)
+      tolj = K_FUNC::E_max(tol, 8.*FLT_EPSILON*K_FUNC::E_max(K_FUNC::E_abs(p->Z[c]), K_FUNC::E_abs(p->Z[j])));
+#endif
+      if (K_FUNC::E_abs(p->Z[c] - p->Z[j]) > tolj)
       {
         p->Z[c+1] = p->Z[j]; c++;
       }
@@ -627,7 +635,11 @@ void K_CONNECTOR::compactZ(
     // d'intersection
     if ((c-start)%2 != 0)
     { 
-      p->Z[c] = p->Z[c-1] + 1.e-6;
+      E_Float dz = 1.e-6;
+#ifndef E_DOUBLEREAL
+      dz = K_FUNC::E_max(dz, 8.*FLT_EPSILON*K_FUNC::E_abs(p->Z[c-1]));
+#endif
+      p->Z[c] = p->Z[c-1] + dz;
       c++;
     }
   }
