@@ -20,31 +20,119 @@
 
 # include "Array/Array.h"
 # include "GenIO.h"
+# include <algorithm>
+# include <limits>
 # include <stdio.h>
+# include <string>
 # include <string.h>
 
 using namespace K_ARRAY;
 using namespace K_FLD;
 using namespace std;
 
-// Read n reals of realLength bytes (4 or 8) from the file into an E_Float array
-static void readReals(FILE* ptrFile, E_Float* dst, E_Int n, E_Int realLength)
+template <typename T>
+static bool readValues(FILE* file, T* values, size_t count, bool swapEndian)
 {
-  if (realLength == (E_Int)sizeof(E_Float)) { fread(dst, sizeof(E_Float), n, ptrFile); return; }
-  if (realLength == 8)
+  if (fread(values, sizeof(T), count, file) != count) return false;
+  if (swapEndian)
   {
-    double* buf = new double [n];
-    fread(buf, sizeof(double), n, ptrFile);
-    for (E_Int i = 0; i < n; i++) dst[i] = (E_Float)buf[i];
-    delete [] buf;
+    char* bytes = reinterpret_cast<char*>(values);
+    for (size_t i = 0; i < count; ++i, bytes += sizeof(T))
+      std::reverse(bytes, bytes + sizeof(T));
+  }
+  return true;
+}
+
+template <typename T>
+static bool readConvertedValues(FILE* file, E_Float* dst, size_t count, bool swapEndian)
+{
+  const size_t blockSize = 4096;
+  T buf[blockSize];
+  for (size_t offset = 0; offset < count;)
+  {
+    size_t block = std::min(blockSize, count - offset);
+    if (!readValues(file, buf, block, swapEndian)) return false;
+    for (size_t i = 0; i < block; ++i) dst[offset + i] = static_cast<E_Float>(buf[i]);
+    offset += block;
+  }
+  return true;
+}
+
+static bool readReals(FILE* file, E_Float* dst, size_t count, E_Int realLength,
+                      bool swapEndian)
+{
+  if (realLength == sizeof(E_Float)) return readValues(file, dst, count, swapEndian);
+  if (realLength == sizeof(double)) return readConvertedValues<double>(file, dst, count, swapEndian);
+  return readConvertedValues<float>(file, dst, count, swapEndian);
+}
+
+static bool readMarker(FILE* file, int expectedSize, bool swapEndian)
+{
+  int marker;
+  return readValues(file, &marker, 1, swapEndian) && marker == expectedSize;
+}
+
+static bool readPositiveInteger(FILE* file, E_Int& value, E_Int intLength, bool swapEndian)
+{
+  if (intLength == sizeof(int))
+  {
+    int word;
+    if (!readValues(file, &word, 1, swapEndian) || word <= 0) return false;
+    value = word;
   }
   else
   {
-    float* buf = new float [n];
-    fread(buf, sizeof(float), n, ptrFile);
-    for (E_Int i = 0; i < n; i++) dst[i] = (E_Float)buf[i];
-    delete [] buf;
+    E_LONG word;
+    if (!readValues(file, &word, 1, swapEndian) || word <= 0 ||
+        word > std::numeric_limits<E_Int>::max()) return false;
+    value = static_cast<E_Int>(word);
   }
+  return true;
+}
+
+static bool readZoneHeader(FILE* file, E_Int intLength, bool swapEndian,
+                           vector<E_Int>& ni, vector<E_Int>& nj, vector<E_Int>& nk,
+                           vector<E_Int>* nvar = NULL)
+{
+  const bool haveDimensions = !ni.empty();
+  const int bytesPerZone = intLength * (nvar == NULL ? 3 : 4);
+  E_Int nzones;
+  if (!readMarker(file, intLength, swapEndian) ||
+      !readPositiveInteger(file, nzones, intLength, swapEndian) ||
+      !readMarker(file, intLength, swapEndian) ||
+      nzones > std::numeric_limits<int>::max() / bytesPerZone ||
+      (haveDimensions && ni.size() != size_t(nzones))) return false;
+
+  const int headerSize = nzones * bytesPerZone;
+  if (!readMarker(file, headerSize, swapEndian)) return false;
+
+  const E_Int maxPoints = std::numeric_limits<int>::max() / sizeof(float);
+  for (E_Int i = 0; i < nzones; i++)
+  {
+    E_Int ip, jp, kp;
+    if (!readPositiveInteger(file, ip, intLength, swapEndian) ||
+        !readPositiveInteger(file, jp, intLength, swapEndian) ||
+        !readPositiveInteger(file, kp, intLength, swapEndian) ||
+        ip > maxPoints/jp || ip*jp > maxPoints/kp) return false;
+    if (nvar != NULL)
+    {
+      E_Int nv;
+      if (!readPositiveInteger(file, nv, intLength, swapEndian) ||
+          (i != 0 && nv != (*nvar)[0])) return false;
+      nvar->push_back(nv);
+    }
+    if (haveDimensions)
+    {
+      if (ip != ni[i] || jp != nj[i] || kp != nk[i]) return false;
+    }
+    else
+    {
+      ni.push_back(ip);
+      nj.push_back(jp);
+      nk.push_back(kp);
+    }
+  }
+  return readMarker(file, headerSize, swapEndian);
 }
 
 //=============================================================================
@@ -384,13 +472,7 @@ E_Int K_IO::GenIO::xyzread(
   vector<FldArrayF*>& field)
 {
   FILE* ptrFile;
-  E_Int s;
-  int ib;
 
-  /* Constants */
-  E_Int si = sizeof(int);
-  E_Int si2 = sizeof(E_LONG);
-  
   // Check endianess
   E_Int ret = v3dCheckEndian(file); // similar to v3d
   if (ret == -1)
@@ -424,86 +506,49 @@ E_Int K_IO::GenIO::xyzread(
     _intLength = 8;
   }
 
-  /* Opening */
   ptrFile = fopen(file, "rb");
-
-  // Read number of zones in file
-  fread(&ib, si, 1, ptrFile); // sep : taille int
-  E_Int nzones;
-  readInt(nzones, _intLength, 
-          ptrFile, _convertEndian, si, si2);
-  readInt(s, si, // sep : taille int
-          ptrFile, _convertEndian, si, si2);
-  if (s != _intLength)
+  if (ptrFile == NULL) return 1;
+  if (!readZoneHeader(ptrFile, _intLength, _convertEndian, ni, nj, nk))
   {
-    printf("Warning: binary file corrupted.\n");
+    printf("Warning: xyzread: invalid or incompatible zone header.\n");
     fclose(ptrFile);
     return 1;
   }
-
-  readInt(s, si, 
-          ptrFile, _convertEndian, si, si2);
-  if (s != _intLength*3*nzones) // sep : nombre de zones * 3 * taille int
-  {
-    printf("Warning: binary file corrupted.\n");
-    fclose(ptrFile);
-    return 1;
-  }
-  
-  // Read dimensions of zones
-  for (E_Int i = 0; i < nzones; i++)
-  {
-    E_Int ip, jp, kp;
-    readInt(ip, _intLength, 
-            ptrFile, _convertEndian, si, si2);    
-    readInt(jp, _intLength, 
-            ptrFile, _convertEndian, si, si2);    
-    readInt(kp, _intLength, 
-            ptrFile, _convertEndian, si, si2);
-
-    ni.push_back(ip);
-    nj.push_back(jp);
-    nk.push_back(kp);
-  }
-  
+  E_Int nzones = ni.size();
   E_Int iblank = false;
-
-  // Sep
-  readInt(s, si, // sep : nombre de zone * taille int * 3
-          ptrFile, _convertEndian, si, si2);    
-  if (s != _intLength*3*nzones)
-  {
-    printf("Warning: binary file corrupted.\n");
-    fclose(ptrFile);
-    return 1;
-  }
 
   // Read x,y,z coordinates
   for (E_Int i = 0; i < nzones; i++)
   {
-    readInt(s, si, // sep taille dom * 3 * taille float
-          ptrFile, _convertEndian, si, si2);
+    int recordSize;
     E_Int np = ni[i]*nj[i]*nk[i];
+    if (!readValues(ptrFile, &recordSize, 1, _convertEndian) ||
+        recordSize <= 0 || recordSize % np != 0)
+    {
+      printf("Warning: xyzread: invalid coordinate record size.\n");
+      fclose(ptrFile);
+      return 1;
+    }
+    E_Int bytesPerPoint = recordSize / np;
+    E_Int zoneBlank = false;
 
-    if (s == np*(3*8+_intLength))
+    if (bytesPerPoint == 3*8+_intLength)
     {
       _realLength = 8;
-      iblank = true;
+      zoneBlank = true;
     }
-    else if (s == np*(3*4+_intLength))
+    else if (bytesPerPoint == 3*4+_intLength)
     {
       _realLength = 4;
-      iblank = true;
+      zoneBlank = true;
     }
-    else if (s == np*3*8)
+    else if (bytesPerPoint == 3*8)
     {
       _realLength = 8;
-      iblank = false;
     }
-    else if (s == np*3*4)
+    else if (bytesPerPoint == 3*4)
     {
       _realLength = 4;
-      iblank = false;
     }
     else
     {
@@ -511,44 +556,27 @@ E_Int K_IO::GenIO::xyzread(
       fclose(ptrFile);
       return 1;
     }
-   
-    E_Int ip = ni[i];
-    E_Int jp = nj[i];
-    E_Int kp = nk[i];
-    E_Int ipjpkp = ip*jp*kp;
-    FldArrayF* f = NULL;
-    if (iblank == true)
+    if (i > 0 && zoneBlank != iblank)
     {
-      f = new FldArrayF(ipjpkp, 4);
-      readReals(ptrFile, f->begin(), 3*ipjpkp, _realLength);
-      if (_intLength == 8)
-      {
-        E_LONG* blank = new E_LONG[ipjpkp];
-        fread(blank, sizeof(E_LONG), ipjpkp, ptrFile);
-        E_Float* pf = f->begin();
-        for (E_Int ind = 0; ind < ipjpkp; ind++)
-          pf[3*ipjpkp+ind] = blank[ind];
-        delete [] blank;
-      }
-      else
-      {
-        int* blank = new int[ipjpkp];
-        fread(blank, sizeof(int), ipjpkp, ptrFile);
-        E_Float* pf = f->begin();
-        for (E_Int ind = 0; ind < ipjpkp; ind++)
-          pf[3*ipjpkp+ind] = blank[ind];
-        delete [] blank;
-      }
+      printf("Warning: xyzread: inconsistent iblank across zones.\n");
+      fclose(ptrFile);
+      return 1;
     }
-    else
-    {
-      f = new FldArrayF(ipjpkp, 3);
-      readReals(ptrFile, f->begin(), 3*ipjpkp, _realLength);
-    }
+    iblank = zoneBlank;
+
+    FldArrayF* f = new FldArrayF(np, iblank ? 4 : 3);
     field.push_back(f);
-    
-    readInt(s, si, // sep taille dom *3 ou *4 taille float
-          ptrFile, _convertEndian, si, si2);
+    bool ok = readReals(ptrFile, f->begin(), 3*size_t(np), _realLength, _convertEndian);
+    if (ok && iblank)
+      ok = (_intLength == 8) ?
+        readConvertedValues<E_LONG>(ptrFile, f->begin(4), np, _convertEndian) :
+        readConvertedValues<int>(ptrFile, f->begin(4), np, _convertEndian);
+    if (!ok || !readMarker(ptrFile, recordSize, _convertEndian))
+    {
+      printf("Warning: xyzread: invalid coordinate record.\n");
+      fclose(ptrFile);
+      return 1;
+    }
   }
 
   fclose(ptrFile);
@@ -570,16 +598,10 @@ E_Int K_IO::GenIO::p3dqread(
   vector<FldArrayF*>& field)
 {
   FILE* ptrFile;
-  E_Int s;
-  int ib;
 
   E_Int xyzdone = false;
   if (ni.size() != 0) xyzdone = true;
 
-  /* Constants */
-  E_Int si = sizeof(int);
-  E_Int si2 = sizeof(E_LONG);
-  
   // Check endianess
   E_Int ret = v3dCheckEndian(file); // similar to v3d
   if (ret == -1)
@@ -613,83 +635,28 @@ E_Int K_IO::GenIO::p3dqread(
     _intLength = 8;
   }
 
-  /* Opening */
   ptrFile = fopen(file, "rb");
-
-  // Read number of zones in file
-  fread(&ib, si, 1, ptrFile); // sep
-  E_Int nzones;
-  readInt(nzones, _intLength, 
-          ptrFile, _convertEndian, si, si2);
-  readInt(s, si, // sep : taille int
-          ptrFile, _convertEndian, si, si2);
-  if (s != _intLength)
+  if (ptrFile == NULL) return 1;
+  if (!readZoneHeader(ptrFile, _intLength, _convertEndian, ni, nj, nk))
   {
-    printf("Warning: binary file corrupted.\n");
+    printf("Warning: qread: invalid or incompatible zone header.\n");
     fclose(ptrFile);
     return 1;
   }
-
-  // Coherence
-  if (xyzdone == true)
-  {
-    E_Int nisize = ni.size();
-    if (nisize != nzones)
-      printf("Warning: qread: the number of zones in q and xyz files is different.\n");
-  }
-
-  readInt(s, si, 
-          ptrFile, _convertEndian, si, si2);
-  if (s != _intLength*3*nzones) // sep : nombre de zones * 3 * taille int
-  {
-    printf("Warning: binary file corrupted.\n");
-    fclose(ptrFile);
-    return 1;
-  }
-  
-  // Read dimensions of zones
-  for (E_Int i = 0; i < nzones; i++)
-  {
-    E_Int ip, jp, kp;
-    readInt(ip, _intLength, 
-            ptrFile, _convertEndian, si, si2);    
-    readInt(jp, _intLength, 
-            ptrFile, _convertEndian, si, si2);    
-    readInt(kp, _intLength, 
-            ptrFile, _convertEndian, si, si2);
-
-    // Coherence
-    if (xyzdone == true)
-    {
-      if (ip != ni[i] || jp != nj[i] || kp != nk[i])
-        printf("Warning: zones in q file and xyz are different.\n");
-    }
-    else
-    {
-      ni.push_back(ip);
-      nj.push_back(jp);
-      nk.push_back(kp);
-    }
-  }
-  
-  // Sep
-  readInt(s, si, 
-          ptrFile, _convertEndian, si, si2);
-  if (s != _intLength*3*nzones) // sep : nombre de zones * 3 * taille int
-  {
-    printf("Warning: binary file corrupted.\n");
-    fclose(ptrFile);
-    return 1;
-  }
+  E_Int nzones = ni.size();
 
   // Read ro, rou, rov, row, roE
   for (E_Int i = 0; i < nzones; i++)
   {
-    readInt(s, si, 
-            ptrFile, _convertEndian, si, si2);
+    int recordSize;
+    if (!readValues(ptrFile, &recordSize, 1, _convertEndian))
+    {
+      fclose(ptrFile);
+      return 1;
+    }
     E_Int realLength = 0; // precision of the file, from the separator (4 reals)
-    if (s == 4*8) realLength = 8;
-    else if (s == 4*4) realLength = 4;
+    if (recordSize == 4*8) realLength = 8;
+    else if (recordSize == 4*4) realLength = 4;
     else // sep 4 * taille float
     {
       printf("Warning: binary file corrupted.\n");
@@ -697,12 +664,9 @@ E_Int K_IO::GenIO::p3dqread(
       return 1;
     }
 
-    for (E_Int p = 0; p < 4*realLength/si; p++)
-      fread(&ib, si, 1, ptrFile); // Mach, etc..
-    
-    readInt(s, si, 
-            ptrFile, _convertEndian, si, si2);
-    if (s != 4*realLength) // sep 4 * taille float
+    char parameters[4*sizeof(double)]; // Mach, etc.
+    if (fread(parameters, 1, recordSize, ptrFile) != size_t(recordSize) ||
+        !readMarker(ptrFile, recordSize, _convertEndian))
     {
       printf("Warning: binary file corrupted.\n");
       fclose(ptrFile);
@@ -712,10 +676,10 @@ E_Int K_IO::GenIO::p3dqread(
     E_Int ip = ni[i];
     E_Int jp = nj[i];
     E_Int kp = nk[i];
-    readInt(s, si, 
-            ptrFile, _convertEndian, si, si2);
-    E_Int sizeBytes = 5*realLength*ip*jp*kp;
-    if (s != sizeBytes) // sep 5 * taille float * taille ndom
+    E_Int np = ip*jp*kp;
+    if (!readValues(ptrFile, &recordSize, 1, _convertEndian) ||
+        recordSize <= 0 || recordSize % (5*realLength) != 0 ||
+        np != recordSize / (5*realLength))
     {
       printf("Warning: binary file corrupted.\n");
       fclose(ptrFile);
@@ -725,7 +689,7 @@ E_Int K_IO::GenIO::p3dqread(
     E_Int start = 1;
     if (xyzdone == false)
     {
-      FldArrayF* f = new FldArrayF(ip*jp*kp, 5);
+      FldArrayF* f = new FldArrayF(np, 5);
       field.push_back(f);
     }
     else
@@ -741,10 +705,15 @@ E_Int K_IO::GenIO::p3dqread(
         for (E_Int p = 0; p < size; p++)
           pf[8*size+p] = pf[3*size+p];
       }
-      start = nfld;
+      start = (nfld == 4) ? nfld : nfld+1;
     }
-    readReals(ptrFile, field[i]->begin(start), 5*ip*jp*kp, realLength);
-    fread(&ib, si, 1, ptrFile); // sep taille dom * 5 * taille float
+    if (!readReals(ptrFile, field[i]->begin(start), recordSize/realLength, realLength, _convertEndian) ||
+        !readMarker(ptrFile, recordSize, _convertEndian))
+    {
+      printf("Warning: qread: invalid field record.\n");
+      fclose(ptrFile);
+      return 1;
+    }
   }
   fclose(ptrFile);
 
@@ -770,8 +739,6 @@ E_Int K_IO::GenIO::p3dfread(
   vector<FldArrayF*>& field)
 {
   FILE* ptrFile;
-  int s;
-  int ib;
   vector<E_Int> nvar;
 
   // Un fichier a deja ete lu
@@ -789,10 +756,6 @@ E_Int K_IO::GenIO::p3dfread(
         varString[l-1] == 'N')
       cellN = true;
   }
-  
-  /* Constantes */
-  E_Int si = sizeof(int);
-  E_Int si2 = sizeof(int);
   
   // Check endianess
   E_Int ret = v3dCheckEndian(file); // similar to v3d
@@ -827,138 +790,57 @@ E_Int K_IO::GenIO::p3dfread(
     _intLength = 8;
   }
 
-  /* Opening */
   ptrFile = fopen(file, "rb");
-
-  // Read number of zones in file
-  fread(&ib, si, 1, ptrFile); // sep
-  E_Int nzones;
-  if (_intLength == 4)
+  if (ptrFile == NULL) return 1;
+  if (!readZoneHeader(ptrFile, _intLength, _convertEndian, ni, nj, nk, &nvar))
   {
-    fread(&ib, si, 1, ptrFile);
-    if (_convertEndian == true)
-      nzones = IBE(ib);
-    else
-      nzones = ib;
+    printf("Warning: fread: invalid or incompatible zone header.\n");
+    fclose(ptrFile);
+    return 1;
   }
-  else
+  E_Int nzones = ni.size();
+  std::string names(varString);
+  if (cellN) names.resize(names.size()-6);
+  for (E_Int p = 0; p < nvar[0]; p++)
   {
-    fread(&s, si2, 1, ptrFile);
-    if (_convertEndian == true)
-      nzones = LBE(s);
-    else
-      nzones = s;
-  }
-
-  // Coherence
-  if (xyzdone == true)
-  {
-    E_Int niSize = ni.size();
-    if (niSize != nzones)
-      printf("Warning: fread: the number of zones in f and xyz or q files is different.\n");
-  }
-
-  fread(&ib, si, 1, ptrFile); // sep taille int
-  fread(&ib, si, 1, ptrFile); // sep nombre de zones * 3 * taille int
-  
-  // Read dimensions of zones
-  for (E_Int i = 0; i < nzones; i++)
-  {
-    E_Int ip;
-    if (_intLength == 4)
+    if (!names.empty()) names += ',';
+    names += "var" + std::to_string(p);
+    if (names.size() + (cellN ? 6 : 0) >= K_ARRAY::VARSTRINGLENGTH)
     {
-      fread(&ib, si, 1, ptrFile);
-      if (_convertEndian == true) ip = IBE(ib);
-      else ip = ib;
-    }
-    else
-    {
-      fread(&s, si2, 1, ptrFile);
-      if (_convertEndian == true) ip = LBE(s);
-      else ip = s;
-    } 
-    
-    E_Int jp;
-    if (_intLength == 4)
-    {
-      fread(&ib, si, 1, ptrFile);
-      if (_convertEndian == true) jp = IBE(ib);
-      else jp = ib;
-    }
-    else
-    {
-      fread(&s, si2, 1, ptrFile);
-      if (_convertEndian == true) jp = LBE(s);
-      else jp = s;
-    }
-    
-    E_Int kp;
-    if (_intLength == 4)
-    {
-      fread(&ib, si, 1, ptrFile);
-      if (_convertEndian == true) kp = IBE(ib);
-      else kp = ib;
-    }
-    else
-    {
-      fread(&s, si2, 1, ptrFile);
-      if (_convertEndian == true) kp = LBE(s);
-      else kp = s;
-    }
-
-    E_Int nv;
-    if (_intLength == 4)
-    {
-      fread(&ib, si, 1, ptrFile);
-      if (_convertEndian == true) nv = IBE(ib);
-      else nv = ib;
-    }
-    else
-    {
-      fread(&s, si2, 1, ptrFile);
-      if (_convertEndian == true) nv = LBE(s);
-      else nv = s;
-    }
-    nvar.push_back(nv);
-
-    // Coherence
-    if (xyzdone == true)
-    {
-      if (ip != ni[i] || jp != nj[i] || kp != nk[i])
-        printf("Warning: zones in f file and xyz or q files are different.\n");
-    }
-    else
-    {
-      ni.push_back(ip); nj.push_back(jp); nk.push_back(kp);
+      printf("Warning: fread: too many variables.\n");
+      fclose(ptrFile);
+      return 1;
     }
   }
-  
-  // Sep
-  //E_Int sep;
-  fread(&ib, si, 1, ptrFile); // sep nombre de zone * taille int * 4
-  //if (_convertEndian == true) sep = IBE(ib);
-  //else sep = ib;
+  if (cellN) names += ",cellN";
 
   // Read additional variables
   for (E_Int i = 0; i < nzones; i++)
   {
-    
-    fread(&ib, si, 1, ptrFile); // sep taille dom * nvar * taille float
-    E_Int sep;
-    if (_convertEndian == true) sep = IBE(ib);
-    else sep = ib;
-
     E_Int ip = ni[i];
     E_Int jp = nj[i];
     E_Int kp = nk[i];
     E_Int nv = nvar[i];
-    // precision of the file from the size of the data block (4 or 8 bytes per real)
-    E_Int realLength = (nv*ip*jp*kp > 0) ? sep/(nv*ip*jp*kp) : (E_Int)sizeof(E_Float);
-    if (realLength != 4 && realLength != 8) realLength = sizeof(E_Float);
+    E_Int np = ip*jp*kp;
+    int recordSize;
+    if (!readValues(ptrFile, &recordSize, 1, _convertEndian) || recordSize <= 0 ||
+        recordSize % np != 0 || (recordSize / np) % nv != 0)
+    {
+      printf("Warning: fread: invalid field record size.\n");
+      fclose(ptrFile);
+      return 1;
+    }
+    E_Int realLength = recordSize / np / nv;
+    if (realLength != sizeof(float) && realLength != sizeof(double))
+    {
+      printf("Warning: fread: unsupported real width.\n");
+      fclose(ptrFile);
+      return 1;
+    }
     E_Int start = 1;
     if (xyzdone == false)
     {
-      FldArrayF* f = new FldArrayF(ip*jp*kp, 5);
+      FldArrayF* f = new FldArrayF(np, nv);
       field.push_back(f);
     }
     else
@@ -972,46 +854,20 @@ E_Int K_IO::GenIO::p3dfread(
         // Deplacement de cellN a la fin
         E_Float* pf = f->begin();
         for (E_Int p = 0; p < size; p++)
-          pf[(nfld-1)*size+p] = pf[(nfld+nv-1)*size+p]; 
+          pf[(nfld+nv-1)*size+p] = pf[(nfld-1)*size+p];
       }
-      start = nfld;
+      start = cellN ? nfld : nfld+1;
     }
-    readReals(ptrFile, field[i]->begin(start), nv*ip*jp*kp, realLength);
-    fread(&ib, si, 1, ptrFile); // sep taille dom * 3 * taille float
-    //if (_convertEndian == true) sep = IBE(ib);
-    //else sep = ib;
+    if (!readReals(ptrFile, field[i]->begin(start), recordSize/realLength, realLength, _convertEndian) ||
+        !readMarker(ptrFile, recordSize, _convertEndian))
+    {
+      printf("Warning: fread: invalid field record.\n");
+      fclose(ptrFile);
+      return 1;
+    }
   }
   fclose(ptrFile);
-
-  // Build varString
-  char no[128];
-  if (cellN == false)
-  {
-    E_Int nv = nvar[0];
-    for (E_Int p = 0 ; p < nv; p++)
-    {
-      if (strlen(varString) != 0) strcat(varString, ",");
-      strcat(varString, "var");
-      sprintf(no, SF_D_, p);
-      strcat(varString, no);
-    }
-  }
-  else
-  {
-    E_Int nv = nvar[0];
-    E_Int l = strlen(varString);
-    varString[l-6] = '\0';
-    for (E_Int p = 0 ; p < nv; p++)
-    {
-      if (strlen(varString) != 0)
-        strcat(varString, ",");
-      strcat(varString, "var");
-      sprintf(no, SF_D_, p);
-      strcat(varString, no);
-    }
-    strcat(varString, ",cellN");
-  }
-
+  strcpy(varString, names.c_str());
   return 0;
 }
 
@@ -1033,49 +889,36 @@ E_Int K_IO::GenIO::plot3dread(
   char* fFile = NULL;
   E_Int res = findOpenablePlot3dFiles(file, xyzFile, qFile, fFile);
   
-  if (res == 0)
+  if (res == 0) res = 1; // no openable file
+  else
   {
-    return 1; // no openable file
+    res = 0;
+    if (xyzFile != NULL) res = xyzread(xyzFile, varString, ni, nj, nk, field);
+    if (res == 0 && qFile != NULL) res = p3dqread(qFile, varString, ni, nj, nk, field);
+    if (res == 0 && fFile != NULL) res = p3dfread(fFile, varString, ni, nj, nk, field);
   }
+  delete [] xyzFile;
+  delete [] qFile;
+  delete [] fFile;
 
-  // Read xyzFile if possible
-  if (xyzFile != NULL)
+  if (res != 0)
   {
-    res = xyzread(xyzFile, varString, ni, nj, nk,
-                  field);
-    delete [] xyzFile;
+    for (FldArrayF* f : field) delete f;
+    field.clear();
+    ni.clear(); nj.clear(); nk.clear();
+    delete [] varString;
+    varString = NULL;
+    return res;
   }
 
   // Cree les noms de zones
-  E_Int fieldSize = field.size();
-  for (E_Int i = 0; i < fieldSize; i++)
+  for (E_Int i = 0; i < E_Int(field.size()); i++)
   {
     char* zoneName = new char [128];
     sprintf(zoneName, "Zone" SF_D_, i);
     zoneNames.push_back(zoneName);
   }
 
-  // Read q file if possible
-  if (qFile != NULL)
-  {
-    res = p3dqread(qFile, varString, ni, nj, nk,
-                   field);
-    delete [] qFile;
-  }
-
-  // Read f file if possible
-  if (fFile != NULL)
-  {
-    res = p3dfread(fFile, varString, ni, nj, nk,
-                   field);
-    delete [] fFile;
-  }
-
-  // Endian conversion of field
-  if (_convertEndian == true && fieldSize > 0)
-  {
-    for (E_Int i = 0; i < fieldSize; i++) convertEndianField(*field[i]);
-  } 
   return 0;
 }
 
