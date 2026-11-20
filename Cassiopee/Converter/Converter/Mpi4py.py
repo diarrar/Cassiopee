@@ -466,82 +466,82 @@ def bcastTree(t, root=0):
 # if variables == [] and coord == True, envoie uniquement les coords de z
 #==============================================================================
 def bcastZone(z, root=0, coord=True, variables=[]):
-    # zp = squelette envoye en pickle
+    """Broadcast selected zone fields in the compiled real precision."""
+    metadata = None
     if rank == root:
-        zp = Internal.copyRef(z)
-        Internal._rmNodesFromType(zp, 'GridCoordinates_t')
-        Internal._rmNodesFromType(zp, 'FlowSolution_t')
-        Internal._rmNodesFromType(zp, 'ZoneSubRegion_t')
-    else: zp = None
+        try:
+            if not isinstance(z, list) or len(z) != 4 or z[3] != 'Zone_t':
+                raise ValueError("expected a PyTree zone on the root rank")
+            zp = Internal.copyRef(z)
+            skeleton = Internal.copyRef(z)
+            for nodeType in ('GridCoordinates_t', 'FlowSolution_t', 'ZoneSubRegion_t'):
+                Internal._rmNodesFromType(skeleton, nodeType)
 
-    zp = KCOMM.bcast((zp), root)
-
-    if coord:
-        if rank == root:
-            px = Internal.getNodeFromName2(z, 'CoordinateX')[1]
-            py = Internal.getNodeFromName2(z, 'CoordinateY')[1]
-            pz = Internal.getNodeFromName2(z, 'CoordinateZ')[1]
-            sx = px.shape; sy = py.shape; sz = pz.shape
-        else:
-            sx = None; sy = None; sz = None
-
-        sx, sy, sz = KCOMM.bcast((sx, sy, sz), root)
-
-        if rank != root:
-            px = numpy.empty(sx, dtype=Internal.E_NpyFloat, order='F')
-            py = numpy.empty(sy, dtype=Internal.E_NpyFloat, order='F')
-            pz = numpy.empty(sz, dtype=Internal.E_NpyFloat, order='F')
-
-        KCOMM.Bcast([px,E_MPI_FLOAT], root)
-        KCOMM.Bcast([py,E_MPI_FLOAT], root)
-        KCOMM.Bcast([pz,E_MPI_FLOAT], root)
-
-        if rank != root:
-            # Reconstruction de la zone
-            Internal._createUniqueChild(zp, Internal.__GridCoordinates__, 'GridCoordinates_t')
-            n = Internal.getNodeFromName1(zp, Internal.__GridCoordinates__)
-            Internal._createUniqueChild(n, 'CoordinateX', 'DataArray_t', value=px)
-            Internal._createUniqueChild(n, 'CoordinateY', 'DataArray_t', value=py)
-            Internal._createUniqueChild(n, 'CoordinateZ', 'DataArray_t', value=pz)
-
-    for cpt, var in enumerate(variables):
-        loc = 'centers' if 'centers' in var else 'nodes'
-        var = var.replace('centers:','')
-
-        if rank == root:
-            pv = Internal.getNodeFromName2(z, var)[1]
-            sv = pv.shape
-        else:
-            sv = None
-
-        sv = KCOMM.bcast((sv), root)
-
-        if rank != root:
-            pv = numpy.empty(sv, dtype=Internal.E_NpyFloat, order='F')
-
-        KCOMM.Bcast([pv,E_MPI_FLOAT], root)
-
-        if rank != root:
-            # Reconstruction de la zone
-            flowSol = Internal.__FlowSolutionNodes__ if loc == 'nodes' else Internal.__FlowSolutionCenters__
-            if cpt == 0:
-                Internal._createUniqueChild(zp, flowSol, 'FlowSolution_t')
-                n = Internal.getNodeFromName1(zp, flowSol)
-                if loc == 'centers': Internal._createUniqueChild(n, 'GridLocation', 'GridLocation_t', 'CellCenter')
+            nodes = Internal.__FlowSolutionNodes__
+            centers = Internal.__FlowSolutionCenters__
+            requested = {}
+            if coord:
+                grid = Internal.getNodeFromName1(zp, Internal.__GridCoordinates__)
+                if grid is None:
+                    grid = Internal.getNodeFromType1(zp, 'GridCoordinates_t')
+                if grid is None:
+                    raise ValueError("expected grid coordinates")
+                requested[grid[0]] = ['CoordinateX', 'CoordinateY', 'CoordinateZ']
             else:
-                n = Internal.getNodeFromName1(zp, flowSol)
-            Internal._createUniqueChild(n, var, 'DataArray_t', value=pv)
+                Internal._rmNodesFromType(zp, 'GridCoordinates_t')
+            for variable in variables:
+                if not isinstance(variable, str):
+                    raise ValueError("expected variable names as strings")
+                if variable.startswith('centers:'):
+                    containerName, name = centers, variable[len('centers:'):]
+                else:
+                    containerName = nodes
+                    name = variable[len('nodes:'):] if variable.startswith('nodes:') else variable
+                requested.setdefault(containerName, []).append(name)
 
-    if rank == root:
-        zp = Internal.copyRef(z)
-        # suppression coord si coord=False et des autres champs
-        if not coord: Internal._rmNodesFromType(zp, 'GridCoordinates_t')
-        if variables == []: Internal._rmNodesFromType(zp, 'FlowSolution_t')
-        else:
-            varszp = C.getVarNames(zp, excludeXYZ=True, loc='both')[0]
-            for var in varszp:
-                if var not in variables:
-                    Internal._rmNodesFromName(zp, var.replace('centers:',''))
+            for container in Internal.getNodesFromType1(zp, 'FlowSolution_t'):
+                names = requested.get(container[0])
+                if names is None:
+                    zp[2].remove(container)
+                else:
+                    container[2] = [child for child in container[2]
+                                    if child[3] != 'DataArray_t' or child[0] in names]
+
+            buffers = []
+            manifest = []
+            for containerName, names in requested.items():
+                container = Internal.getNodeFromName1(zp, containerName)
+                for name in names:
+                    node = Internal.getNodeFromName1(container, name)
+                    if node is None or not isinstance(node[1], numpy.ndarray) or node[1].dtype.kind != 'f':
+                        raise ValueError(f"expected a real array for {containerName}/{name}")
+                    array = numpy.asarray(node[1], dtype=Internal.E_NpyFloat, order='F')
+                    node[1] = array
+                    buffers.append(array)
+                    location = 'CellCenter' if containerName == centers else None
+                    manifest.append((containerName, container[3], location, name, array.shape))
+            metadata = (None, skeleton, manifest)
+        except (TypeError, ValueError, ArithmeticError, MemoryError) as error:
+            metadata = (str(error) or type(error).__name__, None, None)
+
+    error, skeleton, manifest = KCOMM.bcast(metadata, root)
+    if error is not None:
+        raise ValueError(f"bcastZone: {error}")
+
+    if rank != root:
+        zp = skeleton
+        buffers = [numpy.empty(shape, dtype=Internal.E_NpyFloat, order='F')
+                   for _, _, _, _, shape in manifest]
+    for (containerName, containerType, location, name, _), array in zip(manifest, buffers):
+        KCOMM.Bcast([array, E_MPI_FLOAT], root)
+        if rank != root:
+            container = Internal.getNodeFromName1(zp, containerName)
+            if container is None:
+                if containerType == 'GridCoordinates_t':
+                    container = Internal.newGridCoordinates(name=containerName, parent=zp)
+                else:
+                    container = Internal.newFlowSolution(containerName, gridLocation=location, parent=zp)
+            Internal.newDataArray(name, value=array, parent=container)
     return zp
 
 #==============================================================================
