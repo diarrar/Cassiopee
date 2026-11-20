@@ -219,16 +219,12 @@ def createApp(win):
 #==============================================================================
 def showApp():
     WIDGETS['frame'].grid(sticky=TK.NSEW)
-    #try: CTK.WIDGETS['StateNoteBook'].add(WIDGETS['frame'], text='tkDriver')
-    #except: pass
-    #CTK.WIDGETS['StateNoteBook'].select(WIDGETS['frame'])
 
 #==============================================================================
 # Called to hide widgets
 #==============================================================================
 def hideApp(event=None):
     WIDGETS['frame'].grid_forget()
-    #CTK.WIDGETS['StateNoteBook'].hide(WIDGETS['frame'])
 
 #==============================================================================
 # Update widgets when global pyTree t changes
@@ -264,7 +260,7 @@ if __name__ == "__main__":
         except: pass
 
     # Main window
-    (win, menu, file, tools) = CTK.minimal('tkDriver '+C.__version__)
+    (win, menu, file, tools) = CTK.minimal('tkDb '+C.__version__)
 
     createApp(win); showApp()
 

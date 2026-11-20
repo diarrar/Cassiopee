@@ -3559,6 +3559,24 @@ def getMeanRangeValue(t, var, rmin, rmax):
     if len(v) > 1: var = v[1]
     return Converter.getMeanRangeValue(A, var, rmin, rmax)
 
+# -- getStandardDeviation
+def getStandardDeviation(t, var):
+    """Get the standard deviation of the variable defined by varName in an array.
+    Usage: getStandardDeviation(array, varName)"""
+    A = getField(var, t, api=3)
+    v = var.split(':')
+    if len(v) > 1: var = v[1]
+    return Converter.getStandardDeviation(A, var)
+
+# -- get stats
+def getStats(t, var):
+    """Return the stats of a var."""
+    minv = getMinValue(t, var)
+    maxv = getMaxValue(t, var)
+    meanv = getMeanValue(t, var)
+    stdv = getStandardDeviation(t, var)
+    return {'min': minv, 'max': maxv, 'mean': meanv, 'stdv': stdv}
+
 #==============================================================================
 # -- Topology conversions --
 #==============================================================================

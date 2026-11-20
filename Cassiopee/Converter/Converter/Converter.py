@@ -32,6 +32,8 @@ __all__ = [
     'setNANValuesAt', 'extCenter2Node', 'extractVars', 'getIndexField',
     'freeHook', 'getArgMax', 'getArgMin', 'getMaxValue', 'getMeanRangeValue',
     'getMeanValue', 'getMinValue', 'getNCells', 'getNPts', 'getValue',
+    'getStandardDeviation',
+    'getStats',
     'getVarNames', 'identifyElements', 'identifyFaces', 'identifyNodes',
     'identifySolutions', 'initVars', '_initVars', 'isNamePresent', 'listen',
     'magnitude', 'nearestElements', 'nearestFaces', 'nearestNodes',
@@ -1210,7 +1212,6 @@ def getMeanValue(array, varName):
         b = 0.
         lb = 0.
         for i in array:
-            pos2 = KCore.isNamePresent(i, varName)
             a = converter.getMeanValue(i, varName)
             if isinstance(i[1], list): # array2/3
                 la = i[1][0].size * 1.
@@ -1221,6 +1222,26 @@ def getMeanValue(array, varName):
         return b
     else:
         return converter.getMeanValue(array, varName)
+
+def getStandardDeviation(array, varName):
+    """Get the standard deviation of the variable defined by varName in an array.
+    Usage: getStandardDeviation(array, varName)"""
+    if isinstance(array[0], list):
+        meanv = getMeanValue(array, varName)
+        var = 0.
+        n = 0.
+        for i in array:
+            a = converter.getStandardDeviation(i, varName)
+            m = converter.getMeanValue(i, varName)
+            if isinstance(i[1], list): # array2/3
+                la = i[1][0].size * 1.
+            else: la = i[1].shape[1] * 1.
+            var = var + la*a*a + la*(m-meanv)*(m-meanv)
+            n = n + la
+        if n > 0: return (var/n)**0.5
+        else: return 0.
+    else:
+        return converter.getStandardDeviation(array, varName)
 
 def getMeanRangeValue(array, varName, rmin, rmax):
     """Get the mean value of the variable defined by varName for a sorted range in an array.
@@ -1241,6 +1262,14 @@ def getMeanRangeValue(array, varName, rmin, rmax):
         return b
     else:
         return converter.getMeanRangeValue(array, varName, rmin, rmax)
+
+def getStats(a, var):
+    """Return the stats of a var."""
+    minv = getMinValue(a, var)
+    maxv = getMaxValue(a, var)
+    meanv = getMeanValue(a, var)
+    stdv = getStandardDeviation(a, var)
+    return {'min': minv, 'max': maxv, 'mean': meanv, 'stdv': stdv}
 
 def normL0(array, varName):
     """Get the L0 norm of the field defined by varName in the array.

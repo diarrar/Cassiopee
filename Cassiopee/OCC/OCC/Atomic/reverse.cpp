@@ -37,6 +37,7 @@
 #include "BRep_Builder.hxx"
 #include "ShapeUpgrade_ShapeDivideClosedEdges.hxx"
 #include "BRepBuilderAPI_Sewing.hxx"
+#include "BRepBuilderAPI_MakeEdge.hxx"
 
 //=====================================================================
 // Reverse edges/faces
@@ -71,7 +72,14 @@ PyObject* K_OCC::reverse(PyObject* self, PyObject* args)
       TopoDS_Edge E = TopoDS::Edge(edges(i+1));
       if (tage[i] == 1)
       {
-        E.Orientation(TopAbs::Complement(E.Orientation()));
+        //E.Orientation(TopAbs::Complement(E.Orientation()));
+        //E = TopoDS::Edge(E.Reversed());
+        Standard_Real first, last;
+        Handle(Geom_Curve) curve = BRep_Tool::Curve(E, first, last);
+        Handle(Geom_Curve) revCurve = curve->Reversed();
+        Standard_Real rfirst = curve->ReversedParameter(last);
+        Standard_Real rlast = curve->ReversedParameter(first);
+        E = BRepBuilderAPI_MakeEdge(revCurve, rfirst, rlast);
       }
       builder.Add(shc, E);
     }
@@ -91,7 +99,7 @@ PyObject* K_OCC::reverse(PyObject* self, PyObject* args)
   }
   else if (method == 1) // by shape reverse
   {
-    TopoDS_Shape* newshp = NULL;
+    TopoDS_Shape* newshp = NULL; 
     if (listFaces == Py_None)
     {
       newshp = new TopoDS_Shape(shape->Reversed());
@@ -143,7 +151,7 @@ PyObject* K_OCC::reverse(PyObject* self, PyObject* args)
       BRepBuilderAPI_Sewing sewer(1.e-6);
       sewer.Add(shc2);
       sewer.Perform();
-      *newshp = sewer.SewedShape();
+      newshp = new TopoDS_Shape(sewer.SewedShape());
     }
 
     // export
@@ -155,6 +163,5 @@ PyObject* K_OCC::reverse(PyObject* self, PyObject* args)
   }
 
   Py_INCREF(Py_None);
-  printf("here3\n"); fflush(stdout);
   return Py_None;
 }

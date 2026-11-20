@@ -1,7 +1,7 @@
 # test Driver sketches
 import Roms.Driver as D
 
-TEST = 'airfoil'
+TEST = 'superellipse'
 
 T1 = D.Part('test')
 
@@ -39,9 +39,10 @@ sketch2 = sketch1.Copy('sketch2')
 sketch2.set(position=(1,0,0))
 
 sketch3 = sketch1.Copy('sketch3')
-sketch3.set(scaleCenter=(0,0,0), scaleFactor=0.5)
+sketch3.set(scaleCenter=(0,0,0), scaleFactor=0.5, reverse=True)
 
 T1.solve()
 T1.instantiate({'v1': 1.})
+T1.writeCAD(TEST+'.step')
 
 D.DRIVER.plot()

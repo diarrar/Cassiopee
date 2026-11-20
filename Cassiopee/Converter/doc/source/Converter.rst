@@ -218,6 +218,8 @@ List of functions
     Converter.getMinValue
     Converter.getMaxValue
     Converter.getMeanValue
+    Converter.getStandardDeviation
+    Converter.getStats
     Converter.getMeanRangeValue
     Converter.normL0
     Converter.normL2
@@ -2095,6 +2097,52 @@ Array / PyTree analysis
     * `Get the mean of F (pyTree) <Examples/Converter/getMeanValuePT.py>`_:
 
     .. literalinclude:: ../build/Examples/Converter/getMeanValuePT.py
+
+-----------------------------------------------------------------------------------
+
+.. py:function:: Converter.getStandardDeviation(a, var)
+
+    Return the standard deviation of field 'var' on input.
+
+    :param a: input data
+    :type a: [array, list of arrays] or [pyTree, base, zone, list of zones]
+    :param var: variable name
+    :type var: string
+    :rtype: standard deviation
+
+    *Example of use:*
+
+    * `Get the standard deviation of F (array) <Examples/Converter/getStandardDeviation.py>`_:
+
+    .. literalinclude:: ../build/Examples/Converter/getStandardDeviation.py
+
+    * `Get the standard deviation of F (pyTree) <Examples/Converter/getStandardDeviationPT.py>`_:
+
+    .. literalinclude:: ../build/Examples/Converter/getStandardDeviationPT.py
+
+-----------------------------------------------------------------------------------
+
+.. py:function:: Converter.getStats(a, var)
+
+    Return a dictionary of statistics of field 'var' on input.
+    The returned dictionary contains the keys 'min', 'max', 'mean' and 'stdv'
+    (standard deviation).
+
+    :param a: input data
+    :type a: [array, list of arrays] or [pyTree, base, zone, list of zones]
+    :param var: variable name
+    :type var: string
+    :rtype: dictionary of statistics ('min', 'max', 'mean', 'stdv')
+
+    *Example of use:*
+
+    * `Get the stats of F (array) <Examples/Converter/getStats.py>`_:
+
+    .. literalinclude:: ../build/Examples/Converter/getStats.py
+
+    * `Get the stats of F (pyTree) <Examples/Converter/getStatsPT.py>`_:
+
+    .. literalinclude:: ../build/Examples/Converter/getStatsPT.py
 
 -----------------------------------------------------------------------------------
 
