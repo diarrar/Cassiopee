@@ -2074,7 +2074,11 @@ namespace K_MESH
     X[2] = array.begin(coord.posX(2));
         
     for (size_t i = 0; i < 3; ++i)
-      G[i]=(X[i][*pN]+X[i][*(pN+1)]+X[i][*(pN+2)])/3.;
+    {
+      // Promote before summing so the centroid stays in the triangle plane in r4.
+      const nuga_real_t first = X[i][pN[0]];
+      G[i] = (first + X[i][pN[1]] + X[i][pN[2]]) / 3.;
+    }
   }
 
   inline void K_MESH::Triangle::isoG(const nuga_real_t* P0, const nuga_real_t* P1, const nuga_real_t* P2, nuga_real_t* G)
