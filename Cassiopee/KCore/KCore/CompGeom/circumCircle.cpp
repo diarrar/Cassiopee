@@ -17,6 +17,7 @@
     along with Cassiopee.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+# include <limits>
 # include <math.h>
 # include <stdio.h>
 # include "CompGeom/compGeom.h"
@@ -28,6 +29,7 @@ E_Float K_COMPGEOM::circumCircleRadius(E_Float& p1x, E_Float& p1y, E_Float& p1z,
 				       E_Float& p2x, E_Float& p2y, E_Float& p2z,
 				       E_Float& p3x, E_Float& p3y, E_Float& p3z)
 {
+#ifdef E_DOUBLEREAL
   // AB
   E_Float xa = p2x-p1x; E_Float ya = p2y-p1y; E_Float za = p2z-p1z;
   // AC
@@ -44,6 +46,23 @@ E_Float K_COMPGEOM::circumCircleRadius(E_Float& p1x, E_Float& p1y, E_Float& p1z,
   if (K_FUNC::fEqualZero(A, 1.e-15)) return 0.;
   E_Float R = sqrt(a2*b2*c2 / A);
   return R;
+#else
+  // The side-length formula subtracts nearly equal terms for thin triangles.
+  // Compute twice the area from AB x AC, with double-precision intermediates.
+  const double xa = double(p2x)-p1x, ya = double(p2y)-p1y, za = double(p2z)-p1z;
+  const double xb = double(p3x)-p1x, yb = double(p3y)-p1y, zb = double(p3z)-p1z;
+  const double xc = double(p3x)-p2x, yc = double(p3y)-p2y, zc = double(p3z)-p2z;
+  const double a2 = xa*xa + ya*ya + za*za;
+  const double b2 = xb*xb + yb*yb + zb*zb;
+  const double c2 = xc*xc + yc*yc + zc*zc;
+  const double nx = ya*zb - za*yb;
+  const double ny = za*xb - xa*zb;
+  const double nz = xa*yb - ya*xb;
+  const double area2 = nx*nx + ny*ny + nz*nz;
+  const double areaTol = std::numeric_limits<double>::epsilon() * K_FUNC::E_max(a2, b2, c2);
+  if (area2 <= areaTol*areaTol) return 0.;
+  return 0.5 * sqrt(a2*b2*c2 / area2);
+#endif
 }
 
 //=============================================================================
