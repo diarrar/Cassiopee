@@ -1,4 +1,5 @@
 import Converter.PyTree as C
+import Converter.Internal as Internal
 import Converter.Mpi as Cmpi
 import Geom.IBM as D_IBM
 import Connector.AMR as X_AMR
@@ -43,4 +44,15 @@ if Cmpi.rank==0:test.testT(tAMR,1)
 del tAMR
 
 tIBM = C.convertFile2PyTree(LOCAL+'tIBM.cgns')
-if Cmpi.rank==0:test.testT(tIBM,2)
+if Cmpi.rank == 0:
+    walls = [bc for bc in Internal.getNodesFromType(tIBM, 'BC_t') if bc[0].startswith('IBMWall')]
+    assert walls
+    for bc in walls:
+        first, last = Internal.getNodeFromName1(bc, 'ElementRange')[1].ravel()
+        faceCount = last - first + 1
+        for name in ('DonorPointCoordinates', 'WallPointCoordinates'):
+            coordinates = Internal.getNodeFromName(bc, name)
+            for axis in 'XYZ':
+                pointCount = Internal.getNodeFromName1(coordinates, 'Coordinate' + axis)[1].size
+                assert pointCount == faceCount, f'{bc[0]} {name}/{axis} has {pointCount} points for {faceCount} faces'
+    test.testT(tIBM,2)

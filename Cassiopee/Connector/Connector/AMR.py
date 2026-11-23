@@ -303,7 +303,8 @@ def prepareAMRData(t_case, t, IBM_parameters=None, check=False, dim=3, localDir=
         # Determine location of DP points on DP Front
         # 1. calculate normals from tb2 to frontIP
         if dimfrontIP > 0:
-            if IBM_parameters["spatial discretization"]["type"] == "FV":
+            isFV = IBM_parameters["spatial discretization"]["type"] == "FV"
+            if isFV:
                 Cmpi.trace(" Computing normals via project ortho [start]", master=False, cpu=False)
                 _computeNormalsViaProjectOrtho__(frontIP, tb2)
                 Cmpi.trace(" Computing normals via project ortho [end]  ", master=False, cpu=False)
@@ -314,11 +315,22 @@ def prepareAMRData(t_case, t, IBM_parameters=None, check=False, dim=3, localDir=
                 frontIP_C = computeNormalsForDG__(frontIP_C, tb2)
 
             Cmpi.trace(" Extracting IBM Points [start]", master=False, cpu=False)
-            ip_pts, image_pts, wall_pts = extractIBMPoints(tb2, frontIP, frontIP_C, frontDP_gath, bbo, IBM_parameters, check, dim, forceAlignment, localDir=localDir)
+            pointIndicesByIBCName = {} if isFV else None
+            ip_pts, image_pts, wall_pts = extractIBMPoints(
+                tb2, frontIP, frontIP_C, frontDP_gath, bbo, IBM_parameters, check, dim,
+                forceAlignment, localDir=localDir, pointIndicesByIBCName=pointIndicesByIBCName)
             Cmpi.trace(" Extracting IBM Points [end]"  , master=False, cpu=False)
 
+            faceIndicesByIBCName = {}
+            if isFV:
+                # The FV front has one integration point per face, in subzone order.
+                sourceFaceIndices = numpy.asarray(ids_IBMWall, dtype=E_NpyInt)
+                faceIndicesByIBCName = {
+                    name: sourceFaceIndices[indices]
+                    for name, indices in pointIndicesByIBCName.items()
+                }
             Cmpi.trace(" Adding IBCDatasets [start]", master=False, cpu=False)
-            _addIBCDatasets__(t, f, image_pts, wall_pts, ip_pts, IBM_parameters)
+            _addIBCDatasets__(t, f, image_pts, wall_pts, ip_pts, IBM_parameters, faceIndicesByIBCName)
             Cmpi.trace(" Adding IBCDatasets [end]  ", master=False, cpu=False)
     else:
         if dimfrontIP>0: _addIBC2Zone__(t, f, frontIP)
@@ -599,7 +611,8 @@ def computeCellNForIBMFronts(t, dim, IBM_parameters, VPM=False):
     frontIP = P.frontFaces(t, 'cellN')
     return frontIP
 
-def extractIBMPoints(tb, frontIP, frontIP_C, frontDP, bbo, IBM_parameters, check, dim, forceAlignment=False, localDir='./'):
+def extractIBMPoints(tb, frontIP, frontIP_C, frontDP, bbo, IBM_parameters, check, dim, forceAlignment=False, localDir='./',
+                     pointIndicesByIBCName=None):
 
     projAlgo = 0
 
@@ -744,6 +757,9 @@ def extractIBMPoints(tb, frontIP, frontIP_C, frontDP, bbo, IBM_parameters, check
         for nob in range(nbTypes):
             ibcTypeL = listOfIBCTypes[nob]
             indicesByTypeL = indicesByTypeForZone[nob]
+            if pointIndicesByIBCName is not None:
+                # Transform.subzone takes one-based node indices. NumPy takes zero-based indices.
+                pointIndicesByIBCName[ibcTypeL] = indicesByTypeL - 1
             if indicesByTypeL.shape[0] > 0:
                 ipPtsL = Transform.subzone(ip_pts[noz], indicesByTypeL)
                 imagePtsL = Transform.subzone(imagepts[noz], indicesByTypeL)
@@ -900,7 +916,7 @@ def _recoverBoundaryConditions__(t, t_exteriorFaces, zbcs, bctypes, bcnames):
     if meshgen == "AMR" and f is not None: t_exteriorFaces[2][1][2] = [f]
     return None
 
-def _addIBCDatasets__(t, f, image_pts, wall_pts, ip_pts, IBM_parameters):
+def _addIBCDatasets__(t, f, image_pts, wall_pts, ip_pts, IBM_parameters, faceIndicesByIBCName):
 
     if IBM_parameters["spatial discretization"]["type"]=="FV":
         N_IP_per_face = 1
@@ -917,26 +933,12 @@ def _addIBCDatasets__(t, f, image_pts, wall_pts, ip_pts, IBM_parameters):
     list_suffix_datasets.extend(range(1, N_IP_per_face))
 
     for z in Internal.getZones(t):
-        hook = C.createHook(f, 'elementCenters')
         if IBM_parameters["spatial discretization"]["type"] == "FV":
-            for nobc,ibc in enumerate(list(ip_pts.values())):
-                if ibc!=[[]]:
-                    coords_IBC_x = Converter.extractVars(ibc,["CoordinateX"])[0][1][0]
-                    coords_IBC_y = Converter.extractVars(ibc,["CoordinateY"])[0][1][0]
-                    coords_IBC_z = Converter.extractVars(ibc,["CoordinateZ"])[0][1][0]
-                    zibc = Internal.newZone(name="IntegrationPoints",zsize=[[len(coords_IBC_x),0]],ztype="Unstructured")
-                    gc = Internal.newGridCoordinates(parent=zibc)
-                    Internal.newDataArray('CoordinateX', value=coords_IBC_x, parent=gc)
-                    Internal.newDataArray('CoordinateY', value=coords_IBC_y, parent=gc)
-                    Internal.newDataArray('CoordinateZ', value=coords_IBC_z, parent=gc)
-                    ids = C.identifyNodes(hook, zibc, tol=__TOL__)
-                    ids = ids[ids[:] > -1]
-                    ids = ids.tolist()
-                    ids = [ids[i]-1 for i in range(len(ids))]
-                    zf = T.subzone(f,ids, type='elements')
-                    G_AMR._addBC2Zone__(z, "IBMWall%d" %nobc, "FamilySpecified:IBMWall", zf)
+            for name, indices in faceIndicesByIBCName.items():
+                if indices.size > 0:
+                    zf = T.subzone(f, indices.tolist(), type='elements')
+                    G_AMR._addBC2Zone__(z, name, "FamilySpecified:IBMWall", zf)
 
-        #C.freeHook(hook)
         for bc in Internal.getNodesFromType2(z, 'BC_t'):
             famName = Internal.getNodeFromName(bc, 'FamilyName')
             if famName is not None:
