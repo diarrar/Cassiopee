@@ -18,7 +18,9 @@
 */
 
 # include "connector.h"
-# include <cfloat>
+# include <algorithm>
+# include <cmath>
+# include <limits>
 
 using namespace std;
 using namespace K_FLD;
@@ -189,7 +191,7 @@ E_Int K_CONNECTOR::compCharacteristics(
   {p->nj = dim2;p->hj = (p->ymax - p->ymin)/(K_CONST::ONE*p->nj-1);}
   
   p->indir.malloc(p->ni * p->nj);
-  p->tempZ = new vector<E_Float>[p->ni * p->nj];
+  p->tempZ = new vector<double>[p->ni * p->nj];
   p->seed = -1;
   
   // Technique de perturbation des rayons pour resoudre les
@@ -293,7 +295,8 @@ E_Int K_CONNECTOR::triangleOnPlane(E_Int elevationDir,
 {
   E_Int comp = 0;
   E_Float eps = K_CONST::E_GEOM_CUTOFF;
-  E_Float x, y, z;
+  E_Float x, y;
+  double z;
   E_Float sgn1 = 0.;
   E_Float sgn2 = 0.;
   E_Int found;
@@ -398,38 +401,41 @@ E_Int K_CONNECTOR::triangleOnPlane(E_Int elevationDir,
 //                  -2 intersection on a node of triangle
 //-----------------------------------------------------------------------------
 E_Int K_CONNECTOR::compIntersect(E_Int elevationDir,
-                                 E_Float x0, E_Float y0, E_Float z0,
-                                 E_Float x1, E_Float y1, E_Float z1,
-                                 E_Float x2, E_Float y2, E_Float z2,
-                                 E_Float x, E_Float y, 
-                                 E_Float zmin, E_Float zmax,
-                                 E_Float& z)
+                                 double x0, double y0, double z0,
+                                 double x1, double y1, double z1,
+                                 double x2, double y2, double z2,
+                                 double x, double y,
+                                 double zmin, double zmax,
+                                 double& z)
 {
-  E_Float delta, dx;
-  E_Float r, t, l;
-  E_Float alpha, beta;
-  E_Float xmin, xmax;
-  E_Float ymin, ymax;
-  E_Float yy;//ordonnee du point d abscisse x sur la trace 
-  E_Float delta1, delta2, delta3;
-  E_Float eps = 1.e-10;
-  E_Float eps2 = 1.e-7;//tolerance sur cos
+  // Keep the pierce coordinates in double until coincident hits are removed.
+  double delta, dx;
+  double r, t, l;
+  double alpha, beta;
+  double xmin, xmax;
+  double ymin, ymax;
+  double yy;//ordonnee du point d abscisse x sur la trace
+  double delta1, delta2, delta3;
+  const double eps = 1.e-10;
+  const double eps2 = 1.e-7;//tolerance sur cos
+  const auto nearZero = [](double value, double tolerance)
+  { return value >= -tolerance && value <= tolerance; };
 
   if (elevationDir == 3) // 3D case ---
   {
-    E_Float x02 = x0-x2;
-    E_Float y02 = y0-y2;
-    E_Float z02 = z0-z2;
-    E_Float x12 = x1-x2;
-    E_Float y12 = y1-y2;
-    E_Float z12 = z1-z2;
-    E_Float dx2 = x-x2;
-    E_Float dy2 = y-y2;
-    E_Float dzmin2 = zmin-z2;
-    E_Float dz = zmin-zmax;
-    E_Float n012x = y02*z12 - z02*y12;
-    E_Float n012y = z02*x12 - x02*z12;
-    E_Float n012z = x02*y12 - y02*x12;
+    double x02 = x0-x2;
+    double y02 = y0-y2;
+    double z02 = z0-z2;
+    double x12 = x1-x2;
+    double y12 = y1-y2;
+    double z12 = z1-z2;
+    double dx2 = x-x2;
+    double dy2 = y-y2;
+    double dzmin2 = zmin-z2;
+    double dz = zmin-zmax;
+    double n012x = y02*z12 - z02*y12;
+    double n012y = z02*x12 - x02*z12;
+    double n012z = x02*y12 - y02*x12;
     
     delta = dz*n012z;
     delta1 = dz*(dx2*y12 - x12*dy2);
@@ -438,12 +444,12 @@ E_Int K_CONNECTOR::compIntersect(E_Int elevationDir,
       + y02*(z12*dx2-dzmin2*x12)
       + z02*(x12*dy2-dx2*y12);
 
-    E_Float n012  = 1./sqrt(n012x*n012x+n012y*n012y+n012z*n012z);    
-    E_Float deltad = n012z * n012;
+    double n012  = 1./sqrt(n012x*n012x+n012y*n012y+n012z*n012z);
+    double deltad = n012z * n012;
  
-    if (K_FUNC::fEqualZero(deltad, eps2) != true)
+    if (!nearZero(deltad, eps2))
     {
-      E_Float deltai = 1./delta;
+      double deltai = 1./delta;
       r = delta1 * deltai;
       t = delta2 * deltai;
       l = delta3 * deltai;
@@ -453,9 +459,7 @@ E_Int K_CONNECTOR::compIntersect(E_Int elevationDir,
       {
 
         // ambiguite
-        if (K_FUNC::fEqualZero(r, eps) == true || 
-            K_FUNC::fEqualZero(t, eps) == true ||
-            K_FUNC::fEqualZero(r+t-1., eps) == true)
+        if (nearZero(r, eps) || nearZero(t, eps) || nearZero(r+t-1., eps))
         {
           return -1;
         }
@@ -496,10 +500,9 @@ E_Int K_CONNECTOR::compIntersect(E_Int elevationDir,
       
       dx = xmax-xmin;
       // Les trois points  sont sur une droite (x,y)=cte
-      if (K_FUNC::fEqualZero(dx, eps) == true)
+      if (nearZero(dx, eps))
       {
-        if (K_FUNC::fEqualZero(x-xmin, eps) == true &&
-            K_FUNC::fEqualZero(y-ymin, eps) == true)
+        if (nearZero(x-xmin, eps) && nearZero(y-ymin, eps))
           return -1;
         else return 0;
       }
@@ -511,7 +514,7 @@ E_Int K_CONNECTOR::compIntersect(E_Int elevationDir,
       if (x >= xmin-eps && x <= xmax+eps)
       {
         yy = alpha * x + beta;
-        if (K_FUNC::fEqualZero(y-yy, eps) == true)
+        if (nearZero(y-yy, eps))
           return -1;
         else return 0;
       }
@@ -523,15 +526,14 @@ E_Int K_CONNECTOR::compIntersect(E_Int elevationDir,
     // in this case the Z elevation is in y
     // triangles Z coordinates are not meaningful
     delta = (x1 - x0);
-    if (K_FUNC::fEqualZero(delta, eps) != true)
+    if (!nearZero(delta, eps))
     {
       l = (x - x0)/delta;
     
       if (l <= 1.+eps && l >= -eps)
       {
         z = y0 + l*(y1 - y0);
-        if (K_FUNC::fEqualZero(l, eps) == true ||
-            K_FUNC::fEqualZero(l-1., eps) == true)
+        if (nearZero(l, eps) || nearZero(l-1., eps))
           return -2;
         else
           return 1;
@@ -543,7 +545,7 @@ E_Int K_CONNECTOR::compIntersect(E_Int elevationDir,
     }
     else // determinant null
     {
-      if (K_FUNC::fEqualZero(x - x0, eps) == true)
+      if (nearZero(x - x0, eps))
         return -1;
       else
         return 0;
@@ -553,7 +555,7 @@ E_Int K_CONNECTOR::compIntersect(E_Int elevationDir,
 
 //=============================================================================
 // Compact Z array
-// Ensure that the number of pierce point on a ray is odd
+// Ensure that the number of pierce points on a ray is even
 // If not: add a pierce point next to the last one
 // IN: tempZ
 // OUT: indir + Z
@@ -564,19 +566,16 @@ void K_CONNECTOR::compactZ(
   E_Float xmax, E_Float ymax, E_Float zmax,             
   XRayPlane* p)
 {
-  E_Int i, j, ind, in, start;
-  E_Float z, temp;
+  E_Int i;
   E_Int n = p->ni * p->nj;
 
   // Count the number of pierce points: size
   E_Int size = 0;
   for (i = 0; i < n; i++)
   {
-    vector<E_Float>& v = p->tempZ[i];
-    size = size+v.size();
+    size = size+p->tempZ[i].size();
   }
 
-  E_Int s = 0;
   E_Int c = 0;
   p->Z.malloc(2*size); // dans le cas ou tous les pierce points sont impairs
   // Compacting
@@ -584,14 +583,15 @@ void K_CONNECTOR::compactZ(
   for (i = 0; i < n; i++)
   {
     // Compacting one ray
-    start = c;
+    E_Int start = c;
     p->indir[i] = start;
-    vector<E_Float>& v = p->tempZ[i];
-    s = v.size();
+    vector<double>& v = p->tempZ[i];
+#ifdef E_DOUBLEREAL
+    E_Int j, ind, in;
+    E_Int s = v.size();
     for (j = 0; j < s; j++)
     {
-      z = v[j];
-      p->Z[c] = z;
+      p->Z[c] = v[j];
       c++;
     }
 
@@ -607,7 +607,7 @@ void K_CONNECTOR::compactZ(
       }
       if (ind != j)
       {
-        temp = p->Z[j];
+        E_Float temp = p->Z[j];
         p->Z[j] = p->Z[ind];
         p->Z[ind] = temp;
       }
@@ -617,29 +617,39 @@ void K_CONNECTOR::compactZ(
     c = start;
     for (j = start+1; j < start+s; j++)
     {
-      E_Float tolj = tol;
-#ifndef E_DOUBLEREAL
-      // single precision: the same pierce point computed from two triangles
-      // differs by a few ulps (a vertical face split in two triangles gave
-      // 4 points instead of 2 in 2D and the whole ray was lost)
-      tolj = K_FUNC::E_max(tol, 8.*FLT_EPSILON*K_FUNC::E_max(K_FUNC::E_abs(p->Z[c]), K_FUNC::E_abs(p->Z[j])));
-#endif
-      if (K_FUNC::E_abs(p->Z[c] - p->Z[j]) > tolj)
+      if (K_FUNC::E_abs(p->Z[c] - p->Z[j]) > tol)
       {
         p->Z[c+1] = p->Z[j]; c++;
       }
     }
     if (s > 0) c++;
+#else
+    // Distinct surfaces can be only a few float steps apart. The roundoff
+    // margin uses the precision of the calculation, before storing in float.
+    std::sort(v.begin(), v.end());
+    double previous = 0.;
+    for (double hit : v)
+    {
+      double scale = std::max(std::abs(previous), std::abs(hit));
+      double margin = 8.*std::numeric_limits<double>::epsilon()*scale;
+      if (c == start || hit-previous > std::max(double(tol), margin))
+      {
+        p->Z[c++] = hit;
+        previous = hit;
+      }
+    }
+#endif
     // Ajout pour obtenir un nombre pair d'elements
     // Dans le cas classique, on ajoute un point au dessus du dernier point
     // d'intersection
     if ((c-start)%2 != 0)
     { 
       E_Float dz = 1.e-6;
-#ifndef E_DOUBLEREAL
-      dz = K_FUNC::E_max(dz, 8.*FLT_EPSILON*K_FUNC::E_abs(p->Z[c-1]));
-#endif
       p->Z[c] = p->Z[c-1] + dz;
+#ifndef E_DOUBLEREAL
+      if (p->Z[c] == p->Z[c-1])
+        p->Z[c] = std::nextafter(p->Z[c-1], std::numeric_limits<E_Float>::max());
+#endif
       c++;
     }
   }

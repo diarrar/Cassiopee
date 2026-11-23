@@ -200,7 +200,7 @@ namespace K_CONNECTOR
       E_Float hi, hj;
       K_FLD::FldArrayI indir; // Compact storage indirection
       K_FLD::FldArrayF Z; // Compact Z storage (increasing order)
-      std::vector<E_Float>* tempZ; // temporary storage of Z
+      std::vector<double>* tempZ; // pierce points before deduplication
       E_LONG seed; // seed of the ray perturbations (changed on each pass in single precision)
   };
 
@@ -241,12 +241,12 @@ namespace K_CONNECTOR
    -1 ambiguous intersection, face is along z
    -2 intersection on a node of triangle*/
   E_Int compIntersect(E_Int elevationDir,
-                      E_Float x0, E_Float y0, E_Float z0,
-                      E_Float x1, E_Float y1, E_Float z1,
-                      E_Float x2, E_Float y2, E_Float z2,
-                      E_Float x, E_Float y,
-                      E_Float zmin, E_Float zmax,
-                      E_Float& z);
+                      double x0, double y0, double z0,
+                      double x1, double y1, double z1,
+                      double x2, double y2, double z2,
+                      double x, double y,
+                      double zmin, double zmax,
+                      double& z);
   void
   compactZ(E_Int isNot, E_Int elevationDir, E_Float delta, E_Float tol,
            E_Float xmin, E_Float ymin, E_Float zmin,
