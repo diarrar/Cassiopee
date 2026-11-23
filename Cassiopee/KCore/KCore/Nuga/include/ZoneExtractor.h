@@ -144,7 +144,9 @@ void ZoneExtractor<Coordinate_t, Connectivity_t>::getInBox
   
   for (size_t i = 0; i < sz; ++i)
   {
-    if (PT_INSIDE_BOX(px[i],py[i],pz[i],mB,MB))
+    if (mB[0] - tol < px[i] && px[i] < MB[0] + tol &&
+        mB[1] - tol < py[i] && py[i] < MB[1] + tol &&
+        mB[2] - tol < pz[i] && pz[i] < MB[2] + tol)
       xnode_ids.push_back(i);
   }
 }
