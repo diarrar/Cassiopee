@@ -541,13 +541,12 @@ PyObject* K_GENERATOR::netgen1(PyObject* self, PyObject* args)
   }
 
   /* Ajoute les connectivites */
+  // (i,k) access: the connectivity is strided with api 2 and 3
+  FldArrayI& cm = *(cn->getConnect(0));
   E_Int ne = cn->getSize();
-  E_Int* cn1 = cn->begin(1);
-  E_Int* cn2 = cn->begin(2);
-  E_Int* cn3 = cn->begin(3);
   for (E_Int i = 0; i < ne; i++) 
   {
-    trig[0] = cn1[i]; trig[1] = cn2[i]; trig[2] = cn3[i];
+    trig[0] = cm(i,1); trig[1] = cm(i,2); trig[2] = cm(i,3);
     //printf("%d %d %d\n", trig[0], trig[1], trig[2]);
     nglib::Ng_AddSurfaceElement(mesh, nglib::NG_TRIG, trig);
   }
@@ -597,8 +596,8 @@ PyObject* K_GENERATOR::netgen1(PyObject* self, PyObject* args)
   E_Float* fx = fout->begin(1);
   E_Float* fy = fout->begin(2);
   E_Float* fz = fout->begin(3);
-  E_Int* cp1 = cout->begin(1); E_Int* cp2 = cout->begin(2);
-  E_Int* cp3 = cout->begin(3); E_Int* cp4 = cout->begin(4);
+  // (i,k) access: the connectivity is strided with api 2 and 3
+  FldArrayI& co = *cout;
 
   for (E_Int i = 0; i < np; i++)
   {
@@ -610,8 +609,8 @@ PyObject* K_GENERATOR::netgen1(PyObject* self, PyObject* args)
   for (E_Int i = 0; i < ne; i++)
   {
     nglib::Ng_GetVolumeElement (mesh, i+1, tet);
-    cp1[i] = tet[0]; cp2[i] = tet[1];
-    cp3[i] = tet[2]; cp4[i] = tet[3];
+    co(i,1) = tet[0]; co(i,2) = tet[1];
+    co(i,3) = tet[2]; co(i,4) = tet[3];
     //printf("%d %d %d %d\n", cp1[i], cp2[i], cp3[i], cp4[i]);
   }
   RELEASESHAREDU(out, fout, cout);
@@ -736,8 +735,8 @@ PyObject* K_GENERATOR::netgen2(PyObject* self, PyObject* args)
   E_Float* fx = fout->begin(1);
   E_Float* fy = fout->begin(2);
   E_Float* fz = fout->begin(3);
-  E_Int* cp1 = cout->begin(1); E_Int* cp2 = cout->begin(2);
-  E_Int* cp3 = cout->begin(3); E_Int* cp4 = cout->begin(4);
+  // (i,k) access: the connectivity is strided with api 2 and 3
+  FldArrayI& co = *cout;
 
   for (E_Int i = 0; i < np; i++)
   {
@@ -749,8 +748,8 @@ PyObject* K_GENERATOR::netgen2(PyObject* self, PyObject* args)
   for (E_Int i = 0; i < ne; i++)
   {
     nglib::Ng_GetVolumeElement (mesh, i+1, tet);
-    cp1[i] = tet[0]; cp2[i] = tet[1];
-    cp3[i] = tet[2]; cp4[i] = tet[3];
+    co(i,1) = tet[0]; co(i,2) = tet[1];
+    co(i,3) = tet[2]; co(i,4) = tet[3];
     //printf("%d %d %d %d\n", cp1[i], cp2[i], cp3[i], cp4[i]);
   }
   RELEASESHAREDU(out, fout, cout);
