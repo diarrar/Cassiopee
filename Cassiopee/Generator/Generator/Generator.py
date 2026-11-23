@@ -1459,13 +1459,17 @@ def mapSplitStruct__(array, dist, splitCrit, densMax):
     # Find indices in dist which correspond to "split points"
     indsplit_previous = 0
     for i in range(len(L)):
-        ind2 = D.getDistantIndex(dist, 1, L[i]*ldt)
-        ind1 = ind2-1
-
-        d1 = numpy.fabs(L[i]-ld[ind1])
-        d2 = numpy.fabs(L[i]-ld[ind2])
-        if d1 < d2: indsplit = ind1
-        else: indsplit = ind2
+        if i == len(L)-1:
+            # The final split point is the end of the distribution even if
+            # summing the normalized curve lengths rounds slightly above one.
+            indsplit = nbpoints-1
+        else:
+            ind2 = D.getDistantIndex(dist, 1, L[i]*ldt)
+            ind1 = ind2-1
+            d1 = numpy.fabs(L[i]-ld[ind1])
+            d2 = numpy.fabs(L[i]-ld[ind2])
+            if d1 < d2: indsplit = ind1
+            else: indsplit = ind2
         # Split distribution with "split points"
         if indsplit_previous < indsplit:
             ds = T.subzone(d, (indsplit_previous+1,1,1), (indsplit+1,1,1))
