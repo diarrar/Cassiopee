@@ -29,6 +29,8 @@ Compress double precision float array (or a list of arrays) with zfp
 --------------------------------------------------------------------
 
 Compress a muti-dimensionnal array (number of dimensions must be between one and four ).
+Arrays of another real type or non contiguous are compressed from a contiguous double copy;
+the uncompressed array is double.
 
 Usage :
     zfp.pack(array[,reversible = True or False, rate = <float>, accuracy = <float>])
@@ -83,18 +85,44 @@ py_compress(PyObject *self, PyObject *args, PyObject *kwd)
 
     PyObject *compressed_list = PyList_New(np_arrays.size());
     int       ind_list        = 0;
-    for (const auto &an_array : np_arrays) {
-        int       ndims = PyArray_NDIM(an_array);
-        npy_intp *dims  = PyArray_DIMS(an_array);
-        bool is_c_order = false;
-        if (PyArray_CHKFLAGS(an_array, NPY_ARRAY_C_CONTIGUOUS)) is_c_order = true;
-
-        void* data = PyArray_DATA(an_array);
+    for (const auto &an_array0 : np_arrays) {
+        if (!PyArray_Check((PyObject*)an_array0))
+        {
+            PyErr_SetString(PyExc_TypeError, "First argument must be an array or a list of array");
+            Py_DECREF(compressed_list);
+            return NULL;
+        }
+        int       ndims = PyArray_NDIM(an_array0);
         if (ndims > 4)
         {
             PyErr_SetString(PyExc_ValueError, "Array must have less than five entries");
+            Py_DECREF(compressed_list);
             return NULL;
         }
+        // zfp reads contiguous double arrays: other types (float32...) and
+        // non contiguous arrays (strided views) are copied into one
+        PyArrayObject* an_array = an_array0;
+        PyArrayObject* copy = NULL;
+        bool is_c_order = PyArray_CHKFLAGS(an_array, NPY_ARRAY_C_CONTIGUOUS);
+        bool is_f_order = PyArray_CHKFLAGS(an_array, NPY_ARRAY_F_CONTIGUOUS);
+        if (PyArray_TYPE(an_array) != NPY_DOUBLE || !PyArray_ISALIGNED(an_array) ||
+            (is_c_order == false && is_f_order == false))
+        {
+            // keep the Fortran layout of a (strided) Fortran array
+            bool to_f = (is_c_order == false) && (is_f_order == true ||
+                        (ndims > 1 && PyArray_STRIDE(an_array, 0) < PyArray_STRIDE(an_array, ndims-1)));
+            int req = (to_f ? NPY_ARRAY_F_CONTIGUOUS : NPY_ARRAY_C_CONTIGUOUS) |
+                      NPY_ARRAY_ALIGNED | NPY_ARRAY_FORCECAST;
+            copy = (PyArrayObject*)PyArray_FromAny((PyObject*)an_array,
+                                                   PyArray_DescrFromType(NPY_DOUBLE),
+                                                   0, 0, req, NULL);
+            if (copy == NULL) { Py_DECREF(compressed_list); return NULL; }
+            an_array = copy;
+            is_c_order = !to_f;
+        }
+        npy_intp *dims  = PyArray_DIMS(an_array);
+
+        void* data = PyArray_DATA(an_array);
         if      (ndims == 1) field = zfp_field_1d(data, type, dims[0]); 
         else 
         {
@@ -134,6 +162,8 @@ py_compress(PyObject *self, PyObject *args, PyObject *kwd)
         if (!zfpsize) {
             PyErr_SetString(PyExc_RuntimeError, "Compression failed !");
             free(buffer);
+            Py_XDECREF(copy);
+            Py_DECREF(compressed_list);
             return NULL;
         }
         npy_intp cprsize = zfpsize;
@@ -159,6 +189,7 @@ py_compress(PyObject *self, PyObject *args, PyObject *kwd)
         zfp_field_free(field);
         zfp_stream_close(zfp);
         stream_close(stream);
+        Py_XDECREF(copy);
     }
     if (!is_list) {
         PyObject *array = PyList_GetItem(compressed_list, 0);
@@ -305,9 +336,9 @@ py_decompress(PyObject *self, PyObject *args, PyObject* kwd)
             else if (ndim == 3) field = zfp_field_3d(py_array_data, type, dims[2], dims[1], dims[0]);
             else if (ndim == 4) field = zfp_field_4d(py_array_data, type, dims[3], dims[2], dims[1], dims[0]);
         }
-        else//_ Fortran order _
+        else//_ Fortran order _ (same layout as the compression)
         {
-            if (ndim == 2) field = zfp_field_2d(py_array_data, type, dims[1], dims[0]);
+            if (ndim == 2) field = zfp_field_2d(py_array_data, type, dims[0], dims[1]);
             else if (ndim == 3) field = zfp_field_3d(py_array_data, type, dims[0], dims[1], dims[2]);
             else if (ndim == 4) field = zfp_field_4d(py_array_data, type, dims[0], dims[1], dims[2], dims[3]);            
         }
