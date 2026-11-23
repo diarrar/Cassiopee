@@ -215,18 +215,21 @@ if (dbg_switch && sz)
   int maskGen::is_inside<K_MESH::Triangle>(const nuga_real_t* pt, Vector_t<E_Int>& candidates)
   {
     E_Int Ti[3], tx;
-    nuga_real_t tol(E_EPSILON), tol2(E_EPSILON*E_EPSILON), d2;
+    // Vertex contact accounts for mesh precision. Ray predicates use Nuga's double precision.
+    const nuga_real_t vertexTol2 = E_EPSILON * E_EPSILON;
+    const nuga_real_t rayTol = EPSILON;
+    nuga_real_t d2;
     
     // Ray tracing from pt using closest node
     E_Int N = _kdtree->getClosest(pt, d2);
     
-    if (d2 < tol2)
+    if (d2 < vertexTol2)
       return true; //lying on the mask
     
     nuga_real_t* A = _isoG.col(_ancestors[N]);
              
     candidates.clear();
-    _tree->getIntersectingBoxes(pt, A, candidates, E_EPSILON, true);//segment intersection
+    _tree->getIntersectingBoxes(pt, A, candidates, rayTol, true);//segment intersection
     
     size_t bx_sz=candidates.size();
     
@@ -265,14 +268,14 @@ if (dbg_switch && sz)
       _coordT4.getEntry(Ti[2], Q2);
             
       // in order to prevent numerical errors, do a special treatment for the triangle containing A (when the line is not coincident with the plane).
-      if ( (_ancestors[N] == candidates[b]) && (::fabs(NUGA::dot<3>(_normals.col(candidates[b]), ptA)) > E_EPSILON) ) //prevent numerical errors due to isoG computation that does not fall into the plane exactly.
+      if ( (_ancestors[N] == candidates[b]) && (::fabs(NUGA::dot<3>(_normals.col(candidates[b]), ptA)) > rayTol) ) //prevent numerical errors due to isoG computation that does not fall into the plane exactly.
         u0 = 1.;
       else
       { 
-        if (!K_MESH::Triangle::intersectv2<3>(Q0, Q1, Q2, pt, A, tol, tol_is_abs,  u0, u1, tx, overlap, coincident))
+        if (!K_MESH::Triangle::intersectv2<3>(Q0, Q1, Q2, pt, A, rayTol, tol_is_abs,  u0, u1, tx, overlap, coincident))
           continue;
       
-        if (IS_ZERO(u0, E_EPSILON)) // lying on the mask surface
+        if (IS_ZERO(u0, rayTol)) // lying on the mask surface
           return 1;
         
         if (overlap || coincident) //ambiguous : overlap (but pt is not inside - otherwise u0=0. -) or coincident : touching a triangle's border
@@ -285,7 +288,7 @@ if (dbg_switch && sz)
         candidates[0]=candidates[b]; //overwrite candidates to have real candidates between rank 0 and (nb_visibles-1)
         mindp=u0;
       }
-      else if (IS_ZERO(u0-mindp, E_EPSILON))
+      else if (IS_ZERO(u0-mindp, rayTol))
         candidates[nb_visibles++]=candidates[b];
     }
     
