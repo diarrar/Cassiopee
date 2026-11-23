@@ -272,7 +272,7 @@ class CAD:
         """Evaluate edge at given parameters."""
         if isinstance(edge, int): no = edge
         else: no = edge.number
-        if isinstance(distribution, float):
+        if isinstance(distribution, (float, numpy.floating)):
             d = Converter.array('x,y,z', 1,1,1)
             d[1][0,0] = distribution
             d[1][1,0] = 0.

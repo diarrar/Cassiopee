@@ -205,7 +205,7 @@ PyObject* octree(PyObject* self, PyObject* args)
     {
       E_Float dfarloc;
       tpl0 = PyList_GetItem(listOfDfars,i);
-      if (PyFloat_Check(tpl0) == 0)
+      if (K_PYFLOAT_CHECK(tpl0) == 0)
       {
         for (E_Int no = 0; no < nzones; no++)
           RELEASESHAREDU(objut[no], unstrF[no], cnt[no]);
@@ -223,7 +223,7 @@ PyObject* octree(PyObject* self, PyObject* args)
   for (int i = 0; i < nzones; i++)
   {
     tpl = PyList_GetItem(listOfSnears, i);
-    if (PyFloat_Check(tpl) == 0)
+    if (K_PYFLOAT_CHECK(tpl) == 0)
     {
       for (E_Int no = 0; no < nzones; no++) RELEASESHAREDU(objut[no], unstrF[no], cnt[no]);
       PyErr_SetString(PyExc_TypeError,
