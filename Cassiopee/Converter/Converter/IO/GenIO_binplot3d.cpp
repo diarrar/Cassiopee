@@ -27,22 +27,57 @@ using namespace K_ARRAY;
 using namespace K_FLD;
 using namespace std;
 
-// Read n reals of realLength bytes (4 or 8) from the file into an E_Float array
-static void readReals(FILE* ptrFile, E_Float* dst, E_Int n, E_Int realLength)
+// Read n reals of realLength bytes (4 or 8) from the file into an E_Float
+// array. The bytes are swapped in the type of the file (convertEndian), then
+// the values are converted to E_Float.
+static void readReals(FILE* ptrFile, E_Float* dst, E_Int n, E_Int realLength,
+                      E_Bool convertEndian)
 {
-  if (realLength == (E_Int)sizeof(E_Float)) { fread(dst, sizeof(E_Float), n, ptrFile); return; }
   if (realLength == 8)
   {
     double* buf = new double [n];
     fread(buf, sizeof(double), n, ptrFile);
-    for (E_Int i = 0; i < n; i++) dst[i] = (E_Float)buf[i];
+    if (convertEndian == true)
+      for (E_Int i = 0; i < n; i++) dst[i] = (E_Float)DBE(buf[i]);
+    else
+      for (E_Int i = 0; i < n; i++) dst[i] = (E_Float)buf[i];
     delete [] buf;
   }
   else
   {
     float* buf = new float [n];
     fread(buf, sizeof(float), n, ptrFile);
-    for (E_Int i = 0; i < n; i++) dst[i] = (E_Float)buf[i];
+    if (convertEndian == true)
+      for (E_Int i = 0; i < n; i++) dst[i] = (E_Float)FBE(buf[i]);
+    else
+      for (E_Int i = 0; i < n; i++) dst[i] = (E_Float)buf[i];
+    delete [] buf;
+  }
+}
+
+// Read n integers of intLength bytes (4 or 8) from the file into an E_Float
+// array (iblank stored as cellN)
+static void readIntsAsReals(FILE* ptrFile, E_Float* dst, E_Int n,
+                            E_Int intLength, E_Bool convertEndian)
+{
+  if (intLength == 8)
+  {
+    E_LONG* buf = new E_LONG [n];
+    fread(buf, sizeof(E_LONG), n, ptrFile);
+    if (convertEndian == true)
+      for (E_Int i = 0; i < n; i++) dst[i] = (E_Float)LBE(buf[i]);
+    else
+      for (E_Int i = 0; i < n; i++) dst[i] = (E_Float)buf[i];
+    delete [] buf;
+  }
+  else
+  {
+    int* buf = new int [n];
+    fread(buf, sizeof(int), n, ptrFile);
+    if (convertEndian == true)
+      for (E_Int i = 0; i < n; i++) dst[i] = (E_Float)IBE(buf[i]);
+    else
+      for (E_Int i = 0; i < n; i++) dst[i] = (E_Float)buf[i];
     delete [] buf;
   }
 }
@@ -520,30 +555,13 @@ E_Int K_IO::GenIO::xyzread(
     if (iblank == true)
     {
       f = new FldArrayF(ipjpkp, 4);
-      readReals(ptrFile, f->begin(), 3*ipjpkp, _realLength);
-      if (_intLength == 8)
-      {
-        E_LONG* blank = new E_LONG[ipjpkp];
-        fread(blank, sizeof(E_LONG), ipjpkp, ptrFile);
-        E_Float* pf = f->begin();
-        for (E_Int ind = 0; ind < ipjpkp; ind++)
-          pf[3*ipjpkp+ind] = blank[ind];
-        delete [] blank;
-      }
-      else
-      {
-        int* blank = new int[ipjpkp];
-        fread(blank, sizeof(int), ipjpkp, ptrFile);
-        E_Float* pf = f->begin();
-        for (E_Int ind = 0; ind < ipjpkp; ind++)
-          pf[3*ipjpkp+ind] = blank[ind];
-        delete [] blank;
-      }
+      readReals(ptrFile, f->begin(), 3*ipjpkp, _realLength, _convertEndian);
+      readIntsAsReals(ptrFile, f->begin(4), ipjpkp, _intLength, _convertEndian);
     }
     else
     {
       f = new FldArrayF(ipjpkp, 3);
-      readReals(ptrFile, f->begin(), 3*ipjpkp, _realLength);
+      readReals(ptrFile, f->begin(), 3*ipjpkp, _realLength, _convertEndian);
     }
     field.push_back(f);
     
@@ -734,16 +752,17 @@ E_Int K_IO::GenIO::p3dqread(
       E_Int size = f->getSize();
       E_Int nfld = f->getNfld();
       f->reAlloc(size, 5+nfld);
+      start = nfld+1;
       if (nfld == 4)
       {
-        // Deplacement de cellN a la fin
+        // Deplacement de cellN a la fin, les variables prennent sa place
         E_Float* pf = f->begin();
         for (E_Int p = 0; p < size; p++)
           pf[8*size+p] = pf[3*size+p];
+        start = nfld;
       }
-      start = nfld;
     }
-    readReals(ptrFile, field[i]->begin(start), 5*ip*jp*kp, realLength);
+    readReals(ptrFile, field[i]->begin(start), 5*ip*jp*kp, realLength, _convertEndian);
     fread(&ib, si, 1, ptrFile); // sep taille dom * 5 * taille float
   }
   fclose(ptrFile);
@@ -770,7 +789,6 @@ E_Int K_IO::GenIO::p3dfread(
   vector<FldArrayF*>& field)
 {
   FILE* ptrFile;
-  int s;
   int ib;
   vector<E_Int> nvar;
 
@@ -790,9 +808,9 @@ E_Int K_IO::GenIO::p3dfread(
       cellN = true;
   }
   
-  /* Constantes */
+  /* Constants */
   E_Int si = sizeof(int);
-  E_Int si2 = sizeof(int);
+  E_Int si2 = sizeof(E_LONG);
   
   // Check endianess
   E_Int ret = v3dCheckEndian(file); // similar to v3d
@@ -831,24 +849,10 @@ E_Int K_IO::GenIO::p3dfread(
   ptrFile = fopen(file, "rb");
 
   // Read number of zones in file
-  fread(&ib, si, 1, ptrFile); // sep
+  fread(&ib, si, 1, ptrFile); // sep taille int
   E_Int nzones;
-  if (_intLength == 4)
-  {
-    fread(&ib, si, 1, ptrFile);
-    if (_convertEndian == true)
-      nzones = IBE(ib);
-    else
-      nzones = ib;
-  }
-  else
-  {
-    fread(&s, si2, 1, ptrFile);
-    if (_convertEndian == true)
-      nzones = LBE(s);
-    else
-      nzones = s;
-  }
+  readInt(nzones, _intLength, 
+          ptrFile, _convertEndian, si, si2);
 
   // Coherence
   if (xyzdone == true)
@@ -859,66 +863,16 @@ E_Int K_IO::GenIO::p3dfread(
   }
 
   fread(&ib, si, 1, ptrFile); // sep taille int
-  fread(&ib, si, 1, ptrFile); // sep nombre de zones * 3 * taille int
+  fread(&ib, si, 1, ptrFile); // sep nombre de zones * 4 * taille int
   
-  // Read dimensions of zones
+  // Read dimensions and number of variables of zones
   for (E_Int i = 0; i < nzones; i++)
   {
-    E_Int ip;
-    if (_intLength == 4)
-    {
-      fread(&ib, si, 1, ptrFile);
-      if (_convertEndian == true) ip = IBE(ib);
-      else ip = ib;
-    }
-    else
-    {
-      fread(&s, si2, 1, ptrFile);
-      if (_convertEndian == true) ip = LBE(s);
-      else ip = s;
-    } 
-    
-    E_Int jp;
-    if (_intLength == 4)
-    {
-      fread(&ib, si, 1, ptrFile);
-      if (_convertEndian == true) jp = IBE(ib);
-      else jp = ib;
-    }
-    else
-    {
-      fread(&s, si2, 1, ptrFile);
-      if (_convertEndian == true) jp = LBE(s);
-      else jp = s;
-    }
-    
-    E_Int kp;
-    if (_intLength == 4)
-    {
-      fread(&ib, si, 1, ptrFile);
-      if (_convertEndian == true) kp = IBE(ib);
-      else kp = ib;
-    }
-    else
-    {
-      fread(&s, si2, 1, ptrFile);
-      if (_convertEndian == true) kp = LBE(s);
-      else kp = s;
-    }
-
-    E_Int nv;
-    if (_intLength == 4)
-    {
-      fread(&ib, si, 1, ptrFile);
-      if (_convertEndian == true) nv = IBE(ib);
-      else nv = ib;
-    }
-    else
-    {
-      fread(&s, si2, 1, ptrFile);
-      if (_convertEndian == true) nv = LBE(s);
-      else nv = s;
-    }
+    E_Int ip, jp, kp, nv;
+    readInt(ip, _intLength, ptrFile, _convertEndian, si, si2);
+    readInt(jp, _intLength, ptrFile, _convertEndian, si, si2);
+    readInt(kp, _intLength, ptrFile, _convertEndian, si, si2);
+    readInt(nv, _intLength, ptrFile, _convertEndian, si, si2);
     nvar.push_back(nv);
 
     // Coherence
@@ -934,19 +888,13 @@ E_Int K_IO::GenIO::p3dfread(
   }
   
   // Sep
-  //E_Int sep;
   fread(&ib, si, 1, ptrFile); // sep nombre de zone * taille int * 4
-  //if (_convertEndian == true) sep = IBE(ib);
-  //else sep = ib;
 
   // Read additional variables
   for (E_Int i = 0; i < nzones; i++)
   {
-    
-    fread(&ib, si, 1, ptrFile); // sep taille dom * nvar * taille float
     E_Int sep;
-    if (_convertEndian == true) sep = IBE(ib);
-    else sep = ib;
+    readInt(sep, si, ptrFile, _convertEndian, si, si2); // sep taille dom * nvar * taille float
 
     E_Int ip = ni[i];
     E_Int jp = nj[i];
@@ -958,7 +906,7 @@ E_Int K_IO::GenIO::p3dfread(
     E_Int start = 1;
     if (xyzdone == false)
     {
-      FldArrayF* f = new FldArrayF(ip*jp*kp, 5);
+      FldArrayF* f = new FldArrayF(ip*jp*kp, nv);
       field.push_back(f);
     }
     else
@@ -967,19 +915,18 @@ E_Int K_IO::GenIO::p3dfread(
       E_Int size = f->getSize();
       E_Int nfld = f->getNfld();
       f->reAlloc(size, nv+nfld);
+      start = nfld+1;
       if (cellN == true)
       {
-        // Deplacement de cellN a la fin
+        // Deplacement de cellN a la fin, les variables prennent sa place
         E_Float* pf = f->begin();
         for (E_Int p = 0; p < size; p++)
-          pf[(nfld-1)*size+p] = pf[(nfld+nv-1)*size+p]; 
+          pf[(nfld+nv-1)*size+p] = pf[(nfld-1)*size+p];
+        start = nfld;
       }
-      start = nfld;
     }
-    readReals(ptrFile, field[i]->begin(start), nv*ip*jp*kp, realLength);
-    fread(&ib, si, 1, ptrFile); // sep taille dom * 3 * taille float
-    //if (_convertEndian == true) sep = IBE(ib);
-    //else sep = ib;
+    readReals(ptrFile, field[i]->begin(start), nv*ip*jp*kp, realLength, _convertEndian);
+    fread(&ib, si, 1, ptrFile); // sep taille dom * nvar * taille float
   }
   fclose(ptrFile);
 
@@ -1071,11 +1018,7 @@ E_Int K_IO::GenIO::plot3dread(
     delete [] fFile;
   }
 
-  // Endian conversion of field
-  if (_convertEndian == true && fieldSize > 0)
-  {
-    for (E_Int i = 0; i < fieldSize; i++) convertEndianField(*field[i]);
-  } 
+  // Byte order: values are converted on read, in the type of each file
   return 0;
 }
 
