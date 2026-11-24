@@ -305,9 +305,9 @@ py_decompress(PyObject *self, PyObject *args, PyObject* kwd)
             else if (ndim == 3) field = zfp_field_3d(py_array_data, type, dims[2], dims[1], dims[0]);
             else if (ndim == 4) field = zfp_field_4d(py_array_data, type, dims[3], dims[2], dims[1], dims[0]);
         }
-        else//_ Fortran order _
+        else//_ Fortran order _ (same layout as the compression)
         {
-            if (ndim == 2) field = zfp_field_2d(py_array_data, type, dims[1], dims[0]);
+            if (ndim == 2) field = zfp_field_2d(py_array_data, type, dims[0], dims[1]);
             else if (ndim == 3) field = zfp_field_3d(py_array_data, type, dims[0], dims[1], dims[2]);
             else if (ndim == 4) field = zfp_field_4d(py_array_data, type, dims[0], dims[1], dims[2], dims[3]);            
         }
