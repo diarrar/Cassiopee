@@ -3804,40 +3804,40 @@ def _rmRindCells(t, d=-1, modified=[]):
 #==============================================================================
 
 # -- checkPyTree
-def checkPyTree(t, level=-20):
+def checkPyTree(t, level=-20, verbose=True):
   """Check pyTree conformity.
-  Usage: checkPyTree(t, level)"""
+  Usage: checkPyTree(t, level, verbose)"""
   from . import Check
-  return Check.checkPyTree(t, level)
+  return Check.checkPyTree(t, level, verbose)
 
 # -- correctPyTree
-def correctPyTree(t, level=-20):
+def correctPyTree(t, level=-20, verbose=True):
   """Correct a pyTree.
-  Usage: correctPyTree(t, level)"""
+  Usage: correctPyTree(t, level, verbose)"""
   from . import Check
-  return Check.correctPyTree(t, level)
+  return Check.correctPyTree(t, level, verbose)
 
-def _correctPyTree(t, level=-20):
+def _correctPyTree(t, level=-20, verbose=True):
   """Correct a pyTree.
-  Usage: correctPyTree(t, level)"""
+  Usage: correctPyTree(t, level, verbose)"""
   from . import Check
-  Check._correctPyTree(t, level)
+  Check._correctPyTree(t, level, verbose)
   return None
 
 # -- checkMultigrid
-def checkMultigrid(t, level=1, nbMinCoarseB=5, nbMinCoarseW=3):
+def checkMultigrid(t, level=1, nbMinCoarseB=5, nbMinCoarseW=3, verbose=True):
   """Check if zones, BC ranges and grid connectivity ranges are
   compatible with multigrid of given level.
   Usage: checkMultigrid(t, level, nbMinCoarseB, nbMinCoarseW)"""
   from . import Check
-  return Check.checkMultigrid(t, level, nbMinCoarseB, nbMinCoarseW)
+  return Check.checkMultigrid(t, level, nbMinCoarseB, nbMinCoarseW, verbose)
 
 # -- checkSize
-def checkSize(t, sizeMax=100000000):
+def checkSize(t, sizeMax=100000000, verbose=True):
   """Check if the number of points of a zone exceeds the sizeMax.
   Usage: checkSize(t, sizeMax)"""
   from . import Check
-  return Check.checkSize(t, sizeMax)
+  return Check.checkSize(t, sizeMax, verbose)
 
 # -- correctElementBoundaryNodes
 def _correctElementBoundaryNodes(t):
