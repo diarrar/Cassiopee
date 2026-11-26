@@ -1,6 +1,8 @@
 """Module for CFD solution compression.
 """
 from . import Compressor
+import KCore
+from KCore import realTol
 import numpy
 import Converter.Internal as Internal
 import Converter.PyTree as C
@@ -118,14 +120,14 @@ def writeUnsteadyCoefs(iteration, indices, filename, loc, format="b"):
 # if layers not None, only communicate the desired number of layers
 # bboxDict is dict with the zones of t as keys and their specific bboxes as key values, used when layers not None
 # if subr, the tree subregions are kept during the exchange
-def compressCartesian(t, bbox=[], layers=None, subr=True, tol=1.e-10):
+def compressCartesian(t, bbox=[], layers=None, subr=True, tol=realTol(1.e-10)):
     """For Cartesian grids, replace Grid Coordinates with a compressed node."""
     tp = Internal.copyRef(t)
     _compressCartesian(tp, bbox=bbox, layers=layers, subr=subr, tol=tol)
     return tp
 
 # compress a gridCoordinates container
-def _compressCartesian__(z, ztype, gc, tol=1.e-10):
+def _compressCartesian__(z, ztype, gc, tol=realTol(1.e-10)):
     xp = Internal.getNodeFromName1(gc, 'CoordinateX')
     yp = Internal.getNodeFromName1(gc, 'CoordinateY')
     zp = Internal.getNodeFromName1(gc, 'CoordinateZ')
@@ -231,7 +233,7 @@ def _compressCartesian__(z, ztype, gc, tol=1.e-10):
 # If the zone is Cartesian:
 # Adds a CartesianData node to the zone
 # Replaces Coordinates with nodes containing arrays of size 10
-def _compressCartesian(t, bbox=[], layers=None, subr=True, tol=1.e-10):
+def _compressCartesian(t, bbox=[], layers=None, subr=True, tol=realTol(1.e-10)):
     """For Cartesian grids, replace Grid Coordinates with a compressed node."""
     zones = Internal.getZones(t)
     for z in zones:
@@ -367,9 +369,24 @@ def _uncompressCartesian(t):
 # ctype=4: compress ngon connectivity (losless)
 # ctype=5: compress with fpc (lossless)
 # ctype=6: reserved for compressCartesian (lossless)
+# The real compressors (sz, zfp, fpc, cellN) work on float64 numpys. In single
+# precision the fields are float32: they are compressed as float64 (the
+# compressed data are then the same in both precisions) and the uncompressed
+# numpy is cast back to the compiled real precision.
+def _asFloat64__(a):
+    if isinstance(a, numpy.ndarray) and a.dtype.kind == 'f' and a.dtype != numpy.float64:
+        return numpy.asarray(a, dtype=numpy.float64, order='K')
+    return a
+
+def _asRealType__(a):
+    if isinstance(a, numpy.ndarray) and a.dtype.kind == 'f' and a.dtype != Internal.E_NpyFloat:
+        return KCore.castFloatArray(a, Internal.E_NpyFloat)
+    return a
+
 def _packNode(node, tol=1.e-8, ctype=0):
     """Compress a pyTree node."""
     if Internal.getNodeFromName1(node, 'ZData') is not None: return None # already compressed node
+    if ctype in (0, 1, 2, 5): node[1] = _asFloat64__(node[1])
     if ctype == 0: # sz
         from . import sz
         ret = sz.pack(node[1], {'relBoundRatio':tol})
@@ -451,6 +468,7 @@ def _unpackNode(node):
             Internal._rmNodesFromName1(node, 'ZData')
         else:
             raise ValueError("unpackNode: unknown compression type.")
+        if ctype in (0, 1, 2, 5): node[1] = _asRealType__(node[1])
     return None
 
 # compressCoords of zones

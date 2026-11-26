@@ -1,6 +1,8 @@
 """Animation module in 2D."""
 # Billboard animation
 import Converter.PyTree as C
+import KCore
+from KCore import realTol
 import Converter.Internal as Internal
 import Geom.PyTree as D
 import Generator.PyTree as G
@@ -194,7 +196,7 @@ class Animator2D:
             if r > 0: r = 0
             C._initVars(b, 'life=%d'%r)
             out.append(b)
-        a = T.join(out, tol=1.e-12)
+        a = T.join(out, tol=realTol(1.e-12))
         #CPlot._addRender2Zone(a, material='Sphere', shaderParameters=[30.*scale,self.getShaderNo(imageKey)])
         a[0] = key
         C._initVars(a, 'TBB__', 0.)

@@ -456,7 +456,7 @@ def stats(t, useCom='match', mode='nodes'):
 
     # meanPtsPerProc, nbNodePerProc
     meanPtsPerProc = nbTot*1./NProc
-    nbNodePerProc = numpy.zeros( (NProc), dtype=numpy.float64 )
+    nbNodePerProc = numpy.zeros( (NProc), dtype=Internal.E_NpyFloat )
     for c, p in enumerate(out):
         nbNodePerProc[p] += nbPts[c]
 

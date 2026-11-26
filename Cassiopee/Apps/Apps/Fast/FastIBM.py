@@ -1,4 +1,6 @@
 from Generator.IBM import buildOctree, generateIBMMesh, createRefinementBodies
+import KCore
+from KCore import realTol
 
 from Connector.IBM import prepareIBMData, dist2wallIBM, blankingIBM, buildFrontIBM, setInterpDataIBM, initializeIBM
 
@@ -104,7 +106,7 @@ def sigmaFunctionInv__(s, gamma=1.4, range='subsonic'):
     """
     with numpy.nditer([s, None],
                       op_flags=[['readonly'], ['writeonly', 'allocate', 'no_broadcast']],
-                      op_dtypes=['float64', 'float64']) as it:
+                      op_dtypes=[Internal.E_NpyFloat, Internal.E_NpyFloat]) as it:
         for x, y in it:
             y[...] = _scalarSigmaFunctionInv__(s, gamma=gamma)
         return it.operands[1]
@@ -284,7 +286,7 @@ def generateIsoXSurface__(tb, x):
     a = C.convertArray2Tetra(a)
     zones = Internal.getZones(tb)+[a]
     z = T.join(zones)
-    z = XOR.conformUnstr(z, tol=1e-10, itermax=1)
+    z = XOR.conformUnstr(z, tol=realTol(1e-10), itermax=1)
     zones = T.splitManifold(z)
     candidates = []
     eps = 1e-4
