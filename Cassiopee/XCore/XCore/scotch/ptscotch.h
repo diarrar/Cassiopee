@@ -111,8 +111,12 @@ typedef struct {
 } SCOTCH_DgraphHaloReq;
 
 typedef struct {
-#ifdef G_DOUBLEINT
+#if defined(G_DOUBLEINT) && !defined(SCOTCH_PTHREAD)
   double                    dummy[22];
+#elif defined(G_DOUBLEINT) && defined(SCOTCH_PTHREAD)
+  double                    dummy[32];
+#elif !defined(G_DOUBLEINT) && !defined(SCOTCH_PTHREAD)
+  double                    dummy[30];
 #else
   double                    dummy[20];
 #endif
