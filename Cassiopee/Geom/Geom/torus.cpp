@@ -42,12 +42,14 @@ PyObject* K_GEOM::torus( PyObject* self, PyObject* args )
   {
       return NULL;
   }
-  E_Float pi = 4*atan(1.);
+  // angles and trigonometry in double: exact closures (poles, seams, 360 deg)
+  // also in single precision; identical in double precision
+  double pi = 4*atan(1.);
 
-  alphas *= pi/180.; // deg. to rad. conversion.
-  alphae *= pi/180.;
-  betas *= pi/180.;
-  betae *= pi/180.;
+  double alphasR = alphas*(pi/180.); // deg. to rad. conversion.
+  double alphaeR = alphae*(pi/180.);
+  double betasR = betas*(pi/180.);
+  double betaeR = betae*(pi/180.);
 
   // Data check
   if (NR < 2 || Nr < 2)
@@ -63,11 +65,11 @@ PyObject* K_GEOM::torus( PyObject* self, PyObject* args )
     return NULL;
   }
 
-  E_Bool valid_angles = (alphas >= 0.) && (alphas <= 2*pi);
-  valid_angles &= (alphae >= 0.) && (alphae <= 2*pi);
-  valid_angles &= (betas >= 0.) && (betas <= 2*pi);
-  valid_angles &= (betae >= 0.) && (betae <= 2*pi);
-  valid_angles &= (alphas < alphae) && (betas < betae);
+  E_Bool valid_angles = (alphasR >= 0.) && (alphasR <= 2*pi);
+  valid_angles &= (alphaeR >= 0.) && (alphaeR <= 2*pi);
+  valid_angles &= (betasR >= 0.) && (betasR <= 2*pi);
+  valid_angles &= (betaeR >= 0.) && (betaeR <= 2*pi);
+  valid_angles &= (alphasR < alphaeR) && (betasR < betaeR);
 
   if (!valid_angles)
   {
@@ -78,9 +80,9 @@ PyObject* K_GEOM::torus( PyObject* self, PyObject* args )
   }
 
   // Create a toroid surface
-  E_Float alpha, beta, ca, sa, cb, sb;
-  E_Float dalpha = (alphae - alphas)/(NR-1.);
-  E_Float dbeta  = (betae - betas)/(Nr-1.);
+  double alpha, beta, ca, sa, cb, sb;
+  double dalpha = (alphaeR - alphasR)/(NR-1.);
+  double dbeta  = (betaeR - betasR)/(Nr-1.);
   E_Int ind;
 
   FldArrayF coord(NR*Nr, 3);
@@ -90,13 +92,13 @@ PyObject* K_GEOM::torus( PyObject* self, PyObject* args )
 
   for (E_Int j = 0; j < NR; ++j)
   {
-    alpha = alphas + j * dalpha;
+    alpha = alphasR + j * dalpha;
     ca = ::cos(alpha);
     sa = ::sin(alpha);
 
     for (E_Int i = 0; i < Nr; ++i)
     {
-      beta  = betae - i * dbeta; // to have the normals toward the exterior.
+      beta  = betaeR - i * dbeta; // to have the normals toward the exterior.
       cb = ::cos(beta);
       sb = ::sin(beta);
       ind = i + j * Nr;

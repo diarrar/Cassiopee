@@ -38,7 +38,9 @@ PyObject* K_GEOM::sphere(PyObject* self, PyObject* args)
     return NULL;
   }
 
-  E_Float pi = 4*atan(1.);
+  // angles and trigonometry in double: exact closures (poles, seams, 360 deg)
+  // also in single precision; identical in double precision
+  double pi = 4*atan(1.);
 
   // Data check
   if (N < 2)
@@ -58,11 +60,11 @@ PyObject* K_GEOM::sphere(PyObject* self, PyObject* args)
   E_Float* yt = f->begin(2);
   E_Float* zt = f->begin(3);
 
-  E_Float alpha, beta, cbeta, sbeta, x1, y1, z1;
+  double alpha, beta, cbeta, sbeta, x1, y1, z1;
   E_Int ind;
 
-  E_Float delta = pi/(N-1.);
-  E_Float deltap = (2*pi)/(P-1.);
+  double delta = pi/(N-1.);
+  double deltap = (2*pi)/(P-1.);
 
   for (E_Int j = 0; j < P; j++)
     for (E_Int i = 0; i < N; i++)

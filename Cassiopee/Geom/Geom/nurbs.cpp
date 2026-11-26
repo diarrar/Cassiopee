@@ -33,7 +33,7 @@ PyObject* K_GEOM::nurbs(PyObject* self, PyObject* args)
   E_Int ordern, orderm;
   PyObject* ArrayW;
   double density;
-  if (!PYPARSETUPLE_(args, OO_ IIII_ R_,
+  if (!PYPARSETUPLE_(args, OO_ IIII_ "d",
                     &Array, &ArrayW, &ordern, &N, &orderm, &M, &density))
   {
     return NULL;

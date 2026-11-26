@@ -39,9 +39,11 @@ PyObject* K_GEOM::circle(PyObject* self, PyObject* args)
   {
     return NULL;
   }
-  E_Float pi = 4*atan(1.);
-  E_Float t1 = tetas*pi/180.;
-  E_Float t2 = tetae*pi/180.;
+  // angles and trigonometry in double: exact closures (poles, seams, 360 deg)
+  // also in single precision; identical in double precision
+  double pi = 4*atan(1.);
+  double t1 = tetas*pi/180.;
+  double t2 = tetae*pi/180.;
 
   // Data check
   if (N < 2)
@@ -60,8 +62,8 @@ PyObject* K_GEOM::circle(PyObject* self, PyObject* args)
   E_Float* coordy = f->begin(2);
   E_Float* coordz = f->begin(3);
 
-  E_Float delta = 1./(N-1.);
-  E_Float alpha;
+  double delta = 1./(N-1.);
+  double alpha;
   for (E_Int i = 0; i < N; i++)
   {
     alpha = t1 + i*delta*(t2 - t1);
