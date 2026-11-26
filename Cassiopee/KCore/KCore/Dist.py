@@ -14,12 +14,14 @@ _DEBUG = False
 _EDOUBLEINT = False
 # Toggle to True for compiling global index in i8
 _GDOUBLEINT = False
+# Toggle to True for compiling all reals in r4 (single precision)
+_ESINGLEREAL = False
 
 # System configuration dictionary
 CONFIGDICT = {}
 
 #==============================================================================
-# Getter functions for DEBUG and EDOUBLEINT/GDOUBLEINT
+# Getter functions for DEBUG, EDOUBLEINT/GDOUBLEINT and ESINGLEREAL
 #==============================================================================
 def DEBUG():
     elsaprod = os.getenv("ELSAPROD", "")
@@ -32,6 +34,10 @@ def EDOUBLEINT():
 def GDOUBLEINT():
     elsaprod = os.getenv("ELSAPROD", "")
     return _GDOUBLEINT or "_i8" in elsaprod
+
+def ESINGLEREAL():
+    elsaprod = os.getenv("ELSAPROD", "")
+    return _ESINGLEREAL or "_r4" in elsaprod
 
 #==============================================================================
 # System configuration using installBase.json / installBaseUser.json
@@ -59,13 +65,13 @@ def setConfigDict(installDict=None):
     cassProd = None
     # prod est tout d'abord cherche dans le dictionnaire
     if prod is not None:
-        prod = prod.replace('_i8', '').replace('_DBG', '')
+        prod = prod.replace('_i8', '').replace('_r4', '').replace('_DBG', '')
         # check if machine contains a branch name and if so, remove it from the prod
         # this cannot be detected using the ELSAPROD alone as the prefix '_b-' is
         # replaced with '_' in Envs/sh_Cassiopee_local
         mac = os.getenv("MACHINE")
         if mac is not None:
-            mac = mac.replace('_i8', '').replace('_DBG', '').split('_b-')
+            mac = mac.replace('_i8', '').replace('_r4', '').replace('_DBG', '').split('_b-')
             if len(mac) == 2:
                 branchName = mac[1]
                 prod = prod.replace('_' + branchName, '')
@@ -623,7 +629,8 @@ def getDistUtilsCompilers():
 #==============================================================================
 def getPP():
     Cppcompiler = getCppCompiler()
-    sizes = '-DREAL_E="REAL*8"'
+    if ESINGLEREAL(): sizes = '-DREAL_E="REAL*4"'
+    else: sizes = '-DREAL_E="REAL*8"'
     if EDOUBLEINT(): sizes += ' -DINTEGER_E="INTEGER*8"'
     else: sizes += ' -DINTEGER_E="INTEGER*4"'
     if GDOUBLEINT(): sizes += ' -DINTEGER_G="INTEGER*8"'
@@ -941,6 +948,7 @@ def getCArgs():
     options = getCppAdditionalOptions()
     if EDOUBLEINT(): options += ['-DE_DOUBLEINT']
     if GDOUBLEINT(): options += ['-DG_DOUBLEINT']
+    if ESINGLEREAL(): options += ['-DE_SINGLEREAL']
     if Cppcompiler == "icpc" or Cppcompiler == "icc":
         v = getCppVersion()
         if DEBUG():
@@ -1093,7 +1101,7 @@ def getForArgs():
             options += ['-large-address-aware']
         options += simdOptions
         if EDOUBLEINT(): options += ['-fdefault-integer-8']
-        options += ['-fdefault-real-8', '-fdefault-double-8']
+        if not ESINGLEREAL(): options += ['-fdefault-real-8', '-fdefault-double-8']
         return options
     elif f77compiler == "ifort":
         if DEBUG(): options += ['-g', '-O0', '-CB', '-traceback', '-fpe0']
@@ -1109,7 +1117,7 @@ def getForArgs():
         else: options += ['-fPIC']
         options += simdOptions
         if EDOUBLEINT(): options += ['-i8']
-        options += ['-r8']
+        if not ESINGLEREAL(): options += ['-r8']
         return options
     elif f77compiler == "ifx":
         if DEBUG(): options += ['-g', '-O0', '-CB', '-fpe0']
@@ -1120,7 +1128,7 @@ def getForArgs():
         else: options += ['-fPIC']
         options += simdOptions
         if EDOUBLEINT(): options += ['-i8']
-        options += ['-r8']
+        if not ESINGLEREAL(): options += ['-r8']
         return options
     elif f77compiler == "pgfortran":
         if useStatic == 1: options += ['-static']
@@ -1130,7 +1138,7 @@ def getForArgs():
         if useOMP == 1: options += ['-mp=multicore']
         options += simdOptions
         if EDOUBLEINT(): options += ['-i8']
-        options += ['-r8']
+        if not ESINGLEREAL(): options += ['-r8']
         return options
     elif f77compiler == "nvfortran":
         if useStatic == 1: options += ['-static']
@@ -1140,7 +1148,7 @@ def getForArgs():
         if useOMP == 1: options += ['-mp=multicore']
         options += simdOptions
         if EDOUBLEINT(): options += ['-i8']
-        options += ['-r8']
+        if not ESINGLEREAL(): options += ['-r8']
         return options
     elif f77compiler == "x86_64-w64-mingw32-gfortran":
         if DEBUG(): options += ['-g', '-O0']
@@ -1150,7 +1158,7 @@ def getForArgs():
         else: options += ['-fPIC']
         options += simdOptions
         if EDOUBLEINT(): options += ['-fdefault-integer-8']
-        options += ['-fdefault-real-8', '-fdefault-double-8']
+        if not ESINGLEREAL(): options += ['-fdefault-real-8', '-fdefault-double-8']
         return options
     elif f77compiler == "ifort.exe":
         if useOMP == 1: return ['/names:lowercase', '/assume:underscore', '/Qopenmp']
@@ -1163,7 +1171,7 @@ def getForArgs():
         if useOMP == 1: options += ['-fopenmp']
         options += simdOptions
         if EDOUBLEINT(): options += ['-i8']
-        options += ['-r8']
+        if not ESINGLEREAL(): options += ['-r8']
         return options
     elif f77compiler == "ftn":
         if useStatic == 1: options += ['-static']
@@ -1173,7 +1181,7 @@ def getForArgs():
         if useOMP == 1: options += ['-fopenmp']
         options += simdOptions
         if EDOUBLEINT(): options += ['-i8']
-        options += ['-r8']
+        if not ESINGLEREAL(): options += ['-r8']
         return options
     elif f77compiler == "flang":
         if useStatic == 1: options += ['-static']
@@ -1183,7 +1191,7 @@ def getForArgs():
         if useOMP == 1: options += ['-fopenmp']
         options += simdOptions
         if EDOUBLEINT(): options += ['-fdefault-integer-8']
-        options += ['-fdefault-real-8', '-fdefault-double-8']
+        if not ESINGLEREAL(): options += ['-fdefault-real-8', '-fdefault-double-8']
         return options
     else: return options
 

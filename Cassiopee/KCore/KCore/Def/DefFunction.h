@@ -20,6 +20,7 @@
 #define _KCORE_DEF_DEFFUNCTION_H_
 
 #include "Def/DefTypes.h"
+#include <type_traits>
 #include "Def/DefCplusPlusConst.h"
 #include <math.h>
 
@@ -121,6 +122,56 @@ inline E_Int E_max(E_Int a, E_Int b, E_Int c, E_Int d)
 {
   return ( E_max( E_max(a,b), E_max(c,d) ));
 }
+
+#ifndef E_DOUBLEREAL
+// E_Float is float: double overloads so that calls with double literals or
+// double expressions are not ambiguous between the E_Float and E_Int versions
+inline double E_min(double a, double b)
+{
+  return ( (b) < (a) ? (b) : (a) );
+}
+inline double E_max(double a, double b)
+{
+  return ( (b) > (a) ? (b) : (a) );
+}
+inline double E_min(double a, double b, double c)
+{
+  return ( E_min( E_min(a,b), c ));
+}
+inline double E_max(double a, double b, double c)
+{
+  return ( E_max( E_max(a,b), c ));
+}
+inline double E_max(double a, double b, double c, double d)
+{
+  return ( E_max( E_max(a,b), E_max(c,d) ));
+}
+// Mixed float/double arguments (e.g. E_max(x, 1.e-12) with x an E_Float):
+// computed in double, as the implicit promotion would do with E_Float = double
+inline double E_min(E_Float a, double b) { return E_min((double)a, b); }
+inline double E_min(double a, E_Float b) { return E_min(a, (double)b); }
+inline double E_max(E_Float a, double b) { return E_max((double)a, b); }
+inline double E_max(double a, E_Float b) { return E_max(a, (double)b); }
+template <typename A, typename B, typename C,
+          typename = typename std::enable_if<std::is_floating_point<A>::value &&
+                                             std::is_floating_point<B>::value &&
+                                             std::is_floating_point<C>::value &&
+                                             !(std::is_same<A,B>::value && std::is_same<B,C>::value)>::type>
+inline double E_min(A a, B b, C c) { return E_min((double)a, (double)b, (double)c); }
+template <typename A, typename B, typename C,
+          typename = typename std::enable_if<std::is_floating_point<A>::value &&
+                                             std::is_floating_point<B>::value &&
+                                             std::is_floating_point<C>::value &&
+                                             !(std::is_same<A,B>::value && std::is_same<B,C>::value)>::type>
+inline double E_max(A a, B b, C c) { return E_max((double)a, (double)b, (double)c); }
+template <typename A, typename B, typename C, typename D,
+          typename = typename std::enable_if<std::is_floating_point<A>::value &&
+                                             std::is_floating_point<B>::value &&
+                                             std::is_floating_point<C>::value &&
+                                             std::is_floating_point<D>::value &&
+                                             !(std::is_same<A,B>::value && std::is_same<B,C>::value && std::is_same<C,D>::value)>::type>
+inline double E_max(A a, B b, C c, D d) { return E_max((double)a, (double)b, (double)c, (double)d); }
+#endif
 
 /** Absolute value for E_Float */
 inline E_Float E_abs(E_Float a)

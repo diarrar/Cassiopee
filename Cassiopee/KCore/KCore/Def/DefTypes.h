@@ -25,7 +25,11 @@
 #ifndef _KCORE_DEF_DEFTYPES_H_
 #define _KCORE_DEF_DEFTYPES_H_
 
-#define E_DOUBLEREAL
+// Real precision: double (default) or float when E_SINGLEREAL is set
+// by compilation option (ELSAPROD suffix _r4)
+#ifndef E_SINGLEREAL
+  #define E_DOUBLEREAL
+#endif
 //#define E_DOUBLEINT // set by compilation option
 
 // ==========================================================================
@@ -46,7 +50,11 @@
   #else
     #define E_PCM_FLOAT sizeof(E_Float)
   #endif
+  #define E_NPY_FLOAT NPY_DOUBLE
   #define E_MAXFLOAT 1.797693134862315e308
+  typedef int64_t E_FloatAsInt; // integer stored in an E_Float slot (same size)
+  // largest integer N such that all integers of [0,N] are exact in an E_Float
+  #define E_MAXFLOATINT 9007199254740992.
 #else
   typedef float E_Float;
   #ifdef E_MPI
@@ -54,7 +62,12 @@
   #else
     #define E_PCM_FLOAT sizeof(E_Float)
   #endif
+  #define E_NPY_FLOAT NPY_FLOAT32
   #define E_MAXFLOAT 3.4028235e38
+  typedef int32_t E_FloatAsInt; // integer stored in an E_Float slot (same size)
+  // largest integer N such that all integers of [0,N] are exact in an E_Float
+  // (indices stored in real fields are exact up to 2^24 points)
+  #define E_MAXFLOATINT 16777216.
 #endif
 
 // Int (int or long long)
@@ -86,7 +99,15 @@
 
 ///-
 
-#define E_EPSILON 1.e-12
+#ifdef E_DOUBLEREAL
+  #define E_EPSILON 1.e-12
+  // geometric coincidence tolerance given in double: unchanged
+  #define E_REALTOL(x) (x)
+#else
+  #define E_EPSILON 1.e-6
+  // geometric coincidence tolerance given in double: floored at the resolution of float
+  #define E_REALTOL(x) (((x) < 1.e-6) ? 1.e-6 : (x))
+#endif
 
 ///-
 

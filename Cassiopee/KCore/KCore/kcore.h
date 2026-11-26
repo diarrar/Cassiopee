@@ -50,6 +50,7 @@ namespace K_KCORE
   PyObject* indiceStruct2Unstr2(PyObject* self, PyObject* args);
   PyObject* indiceFace2Connect(PyObject* self, PyObject* args);
   PyObject* setOmpMaxThreads(PyObject* self, PyObject* args);
+  PyObject* getRealSize(PyObject* self, PyObject* args);
   PyObject* getOmpMaxThreads(PyObject* self, PyObject* args);
   PyObject* empty(PyObject* self, PyObject* args);
   PyObject* tester(PyObject* self, PyObject* args);
