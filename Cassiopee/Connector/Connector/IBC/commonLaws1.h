@@ -31,7 +31,7 @@ wt = w-wn;
 
 // uext: norme de la composante tangentielle de la vitesse 
 uext = sqrt(ut*ut+vt*vt+wt*wt);
-uext = std::max(uext, 1.e-12);
+uext = std::max(uext, E_Float(1.e-12));
 
 // Calcul du frottement: loi "lineaire" (par defaut)
 utau0 = sqrt(muext*uext/(yext*roext));

@@ -32,7 +32,7 @@ alpha_vec[noind]    = alpha;
 tcible_vec[noind]   = text;
 
 unext               = sqrt(un*un+vn*vn+wn*wn);
-unext               = std::max(unext, 1.e-12);
+unext               = std::max(unext, E_Float(1.e-12));
 
 // du/dt
 tgradU =          (gradxUext*ut/uext  + gradyUext*vt/uext  + gradzUext*wt/uext) *ut/uext;

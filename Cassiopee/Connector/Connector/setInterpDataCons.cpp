@@ -233,7 +233,7 @@ PyObject* K_CONNECTOR::setInterpDataCons(PyObject* self, PyObject* args)
     FldArrayF* fd = fields[noz];//nodes = coordinates
     FldArrayI* cnd = (FldArrayI*)a2[noz]; 
     vector<E_Int> dindices, xr, roids;
-    vector<E_Float> dcoeffs;
+    vector<nuga_real_t> dcoeffs; // Nuga works in double
     // Interpolation de (xr,yr,zr) par le donneur
     E_Int err = 0;
 

@@ -45,8 +45,10 @@ E_Int K_CONNECTOR::setIBCTransfersCommonVar2LBM(E_Int bctype    , E_Int* rcvPts 
   /* lois de paroi */
   E_Float roext, uext, pext, text, muext, yext, yplus, yibc;
   E_Float uscaln, un, vn, wn, ut, vt, wt, utau, utauv, utau0, umod;
-  E_Float aa, bb, dd, fp, tp, f1v;
-  E_Float expy, denoml10,ax,l1,l2, l3;
+  E_Float aa, bb, dd, f1v;
+  // wall law temporaries in double: pow(y+ + 10.6, 9.6) overflows float for y+ > ~9000
+  double fp, tp;
+  double expy, denoml10,ax,l1,l2, l3;
   E_Float ucible0, ucible, vcible, wcible, nutilde, signibc, twall, rowall, muwall;
   E_Float rhocible;
   E_Int npass;

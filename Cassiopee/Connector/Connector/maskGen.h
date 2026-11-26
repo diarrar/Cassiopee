@@ -49,7 +49,7 @@ namespace K_CONNECTOR
       typedef K_FLD::ArrayAccessor<K_FLD::FldArrayF> ACoord_t;
       typedef K_FLD::ArrayAccessor<K_FLD::FldArrayI> AConnec_t;
       
-      maskGen(const K_FLD::FldArrayF& coord,  E_Int px, E_Int py, E_Int pz, const K_FLD::FldArrayI& conn, eType ELT, E_Float tolerance = E_EPSILON)
+      maskGen(const K_FLD::FldArrayF& coord,  E_Int px, E_Int py, E_Int pz, const K_FLD::FldArrayI& conn, eType ELT, nuga_real_t tolerance = E_EPSILON)
               :_coordT4(coord, px, py, pz), _connT4(new K_FLD::ArrayAccessor<K_FLD::FldArrayI>(conn, -1)),//fld indices start at 1
                _tolerance(tolerance), _tree(0), _reoriented(false), _ELType(ELT), _kdtree(0){__init();}
 
@@ -67,7 +67,7 @@ namespace K_CONNECTOR
       K_SEARCH::BbTree3D* getTree(){return _tree;}
       const ACoord_t& coords(){return _coordT4;}
       AConnec_t& connect(){return *_connT4;}
-      E_Float tolerance(){return _tolerance;}
+      nuga_real_t tolerance(){return _tolerance;}
             
     private:
       
@@ -76,7 +76,7 @@ namespace K_CONNECTOR
       void __blank(const ACoord_t& coord, Vector_t<E_Int>& isBlanked);
       ///
       template <typename ELT_t>
-      int is_inside(const E_Float* pt, Vector_t<E_Int>& caught_boxes);
+      int is_inside(const nuga_real_t* pt, Vector_t<E_Int>& caught_boxes);
       
       ///
       void __init();
@@ -94,7 +94,7 @@ namespace K_CONNECTOR
     private:
       ACoord_t _coordT4;
       AConnec_t* _connT4;
-      E_Float _tolerance;
+      nuga_real_t _tolerance;
       Vector_t<K_SEARCH::BBox3D*> _boxes;
       K_SEARCH::BbTree3D         *_tree;
       bool _reoriented;
@@ -113,7 +113,7 @@ namespace K_CONNECTOR
     Vector_t<size_t> elts_to_reorient;
     size_t nb_elts(_connT4->size());
     const E_Int NB_NODES = _connT4->stride();
-    E_Float Ni[3], Nj[3], Nk[3], Nl[3];
+    nuga_real_t Ni[3], Nj[3], Nk[3], Nl[3];
     Vector_t<E_Int> t4(NB_NODES);
     
     for (size_t i = 0; i < nb_elts; ++i)
@@ -125,7 +125,9 @@ namespace K_CONNECTOR
       _coordT4.getEntry(t4[2], Nk);
       _coordT4.getEntry(t4[3], Nl);
       
-      if (K_FUNC::zzdet4(Ni, Nj, Nk, Nl) < -E_EPSILON) //must be reoriented
+      E_Float fNi[3] = {(E_Float)Ni[0], (E_Float)Ni[1], (E_Float)Ni[2]}, fNj[3] = {(E_Float)Nj[0], (E_Float)Nj[1], (E_Float)Nj[2]};
+      E_Float fNk[3] = {(E_Float)Nk[0], (E_Float)Nk[1], (E_Float)Nk[2]}, fNl[3] = {(E_Float)Nl[0], (E_Float)Nl[1], (E_Float)Nl[2]};
+      if (K_FUNC::zzdet4(fNi, fNj, fNk, fNl) < -E_EPSILON) //must be reoriented
         elts_to_reorient.push_back(i);
     }
     
@@ -150,12 +152,12 @@ namespace K_CONNECTOR
   
   ///
   template <> inline
-  int maskGen::is_inside<K_MESH::Tetrahedron>(const E_Float* pt, Vector_t<E_Int>& boxes)
+  int maskGen::is_inside<K_MESH::Tetrahedron>(const nuga_real_t* pt, Vector_t<E_Int>& boxes)
   {
     bool ret = false;
     boxes.clear();
-    E_Float mB[]={pt[0]-E_EPSILON, pt[1]-E_EPSILON, pt[2]-E_EPSILON};//fixme : necessary ?
-    E_Float MB[]={pt[0]+E_EPSILON, pt[1]+E_EPSILON, pt[2]+E_EPSILON};
+    nuga_real_t mB[]={pt[0]-E_EPSILON, pt[1]-E_EPSILON, pt[2]-E_EPSILON};//fixme : necessary ?
+    nuga_real_t MB[]={pt[0]+E_EPSILON, pt[1]+E_EPSILON, pt[2]+E_EPSILON};
     
     _tree->getOverlappingBoxes(mB, MB, boxes);
     size_t sz = boxes.size();
@@ -192,7 +194,7 @@ if (dbg_switch && sz)
 #endif
     
     E_Int t4[4];
-    E_Float Ni[3], Nj[3], Nk[3], Nl[3];
+    nuga_real_t Ni[3], Nj[3], Nk[3], Nl[3];
     
     for (size_t i = 0; (i < sz) && !ret; ++i)
     {
@@ -210,10 +212,10 @@ if (dbg_switch && sz)
   
   ///
   template <> inline
-  int maskGen::is_inside<K_MESH::Triangle>(const E_Float* pt, Vector_t<E_Int>& candidates)
+  int maskGen::is_inside<K_MESH::Triangle>(const nuga_real_t* pt, Vector_t<E_Int>& candidates)
   {
     E_Int Ti[3], tx;
-    E_Float tol(E_EPSILON), tol2(E_EPSILON*E_EPSILON), d2;
+    nuga_real_t tol(E_EPSILON), tol2(E_EPSILON*E_EPSILON), d2;
     
     // Ray tracing from pt using closest node
     E_Int N = _kdtree->getClosest(pt, d2);
@@ -221,7 +223,7 @@ if (dbg_switch && sz)
     if (d2 < tol2)
       return true; //lying on the mask
     
-    E_Float* A = _isoG.col(_ancestors[N]);
+    nuga_real_t* A = _isoG.col(_ancestors[N]);
              
     candidates.clear();
     _tree->getIntersectingBoxes(pt, A, candidates, E_EPSILON, true);//segment intersection
@@ -248,12 +250,12 @@ if (dbg_switch && sz)
     }*/
 #endif
     
-    E_Float Q0[3], Q1[3], Q2[3], u0(K_CONST::E_MAX_FLOAT), u1, mindp(K_CONST::E_MAX_FLOAT), ptA[3];
+    nuga_real_t Q0[3], Q1[3], Q2[3], u0(K_CONST::E_MAX_FLOAT), u1, mindp(K_CONST::E_MAX_FLOAT), ptA[3];
     E_Bool overlap, tol_is_abs(1), coincident;
     size_t nb_visibles(0);
     
-    K_FUNC::diff<3>(A, pt, ptA);
-    K_FUNC::normalize<3>(ptA);
+    NUGA::diff<3>(A, pt, ptA);
+    NUGA::normalize<3>(ptA);
                 
     for (size_t b=0; b < bx_sz; ++b)
     {     
@@ -263,7 +265,7 @@ if (dbg_switch && sz)
       _coordT4.getEntry(Ti[2], Q2);
             
       // in order to prevent numerical errors, do a special treatment for the triangle containing A (when the line is not coincident with the plane).
-      if ( (_ancestors[N] == candidates[b]) && (::fabs(K_FUNC::dot<3>(_normals.col(candidates[b]), ptA)) > E_EPSILON) ) //prevent numerical errors due to isoG computation that does not fall into the plane exactly.
+      if ( (_ancestors[N] == candidates[b]) && (::fabs(NUGA::dot<3>(_normals.col(candidates[b]), ptA)) > E_EPSILON) ) //prevent numerical errors due to isoG computation that does not fall into the plane exactly.
         u0 = 1.;
       else
       { 
@@ -295,7 +297,7 @@ if (dbg_switch && sz)
     _coordT4.getEntry(Ti[1], Q1);
     _coordT4.getEntry(Ti[2], Q2);
     
-    bool orient0= (K_FUNC::dot<3>(_normals.col(candidates[0]), ptA) > 0.);
+    bool orient0= (NUGA::dot<3>(_normals.col(candidates[0]), ptA) > 0.);
       
     if (nb_visibles > 1)
     {
@@ -307,7 +309,7 @@ if (dbg_switch && sz)
         _coordT4.getEntry(Ti[1], Q1);
         _coordT4.getEntry(Ti[2], Q2);
       
-        if ((K_FUNC::dot<3>(_normals.col(candidates[i]), ptA) > 0.) != orient0)
+        if ((NUGA::dot<3>(_normals.col(candidates[i]), ptA) > 0.) != orient0)
           return -1;//ambiguous
       }
     }

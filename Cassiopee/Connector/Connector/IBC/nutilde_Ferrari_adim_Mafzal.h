@@ -8,7 +8,7 @@ E_Float Cv1 = 7.1;
 
 for (E_Int noind = 0; noind < ifin-ideb; noind++)
 {
-  utau_vec[noind] = std::max(utau_vec[noind], 1.e-12);
+  utau_vec[noind] = std::max(utau_vec[noind], E_Float(1.e-12));
 
   if (gradP_vec[noind] == 0.) 
   {
@@ -87,7 +87,7 @@ for (E_Int noind = 0; noind < ifin-ideb; noind++)
 
   // uext: norme de la composante tangentielle de la vitesse externe
   uext = sqrt(ut_vec[noind]*ut_vec[noind]+vt_vec[noind]*vt_vec[noind]+wt_vec[noind]*wt_vec[noind]);
-  uext = std::max(uext, 1.e-12);
+  uext = std::max(uext, E_Float(1.e-12));
 
 
   tcible_vec[noind] = tcible_vec[noind] + 0.5*pow(Pr,one_third)/(cv*gamma)*(uext*uext - umod*umod); // Crocco-Busemann

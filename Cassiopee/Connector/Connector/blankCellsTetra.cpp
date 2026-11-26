@@ -536,7 +536,7 @@ inline E_Int __do_the_cell_blanking
 
   Coordinate_t ZoomCentroids;
   ZoomCentroids.reserve(3, connectZoom.getSize());
-  E_Float G[3];
+  nuga_real_t G[3]; // Nuga works in double
   K_FLD::ArrayAccessor<Coordinate_t> ac(fmesh, posx, posy, posz);
   K_FLD::ArrayAccessor<Connectivity_t> acvz(connectZoom, -1);
   K_FLD::IntArray e;
@@ -662,7 +662,7 @@ inline E_Int __do_the_cell_blanking<K_MESH::Polyhedron<UNKNOWN> >
 
   Coordinate_t ZoomCentroids;
   ZoomCentroids.resize(ngZoom.PHs.size(), 3);
-  E_Float G[3];
+  nuga_real_t G[3]; // Nuga works in double
   
   K_FLD::ArrayAccessor<ngon_type> acvz(ngZoom, -1);
   

@@ -29,7 +29,7 @@ vt_vec[noind]       = vt;
 wt_vec[noind]       = wt;
 
 unext               = sqrt(un*un+vn*vn+wn*wn);
-unext               = std::max(unext, 1.e-12);
+unext               = std::max(unext, E_Float(1.e-12));
 
 gradP_vec[noind]    = (gradxPext*ut/uext+gradyPext*vt/uext+gradzPext*wt/uext)*(muwall/(rowall*rowall));
 

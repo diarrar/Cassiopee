@@ -207,9 +207,9 @@ def miseAPlatDonorTree__(t, tc, graph=None, list_graph=None, nbpts_linelets=0):
                     if vx is None:
                         density = Internal.getNodeFromName1(s, 'Density')
                         nIBC    = density[1].shape[0]
-                        vxNP = numpy.zeros((nIBC),numpy.float64)
-                        vyNP = numpy.zeros((nIBC),numpy.float64)
-                        vzNP = numpy.zeros((nIBC),numpy.float64)
+                        vxNP = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                        vyNP = numpy.zeros((nIBC),Internal.E_NpyFloat)
+                        vzNP = numpy.zeros((nIBC),Internal.E_NpyFloat)
                         s[2].append(['VelocityX' , vxNP , [], 'DataArray_t'])
                         s[2].append(['VelocityY' , vyNP , [], 'DataArray_t'])
                         s[2].append(['VelocityZ' , vzNP , [], 'DataArray_t'])
@@ -220,24 +220,24 @@ def miseAPlatDonorTree__(t, tc, graph=None, list_graph=None, nbpts_linelets=0):
                         qloc_1  = Internal.getNodeFromName1(s, ibm_lbm_variables_1 + str(1))
                         if qloc_1 is None:
                             for f_i in range (1,neq_trans+1):
-                                s[2].append([ibm_lbm_variables_1 + str(f_i) , numpy.zeros((nIBC),numpy.float64) , [], 'DataArray_t'])
+                                s[2].append([ibm_lbm_variables_1 + str(f_i) , numpy.zeros((nIBC),Internal.E_NpyFloat) , [], 'DataArray_t'])
                         qloc_1  = Internal.getNodeFromName1(s, ibm_lbm_variables_1 + str(1))
 
                         qloc_2 = Internal.getNodeFromName1(s, ibm_lbm_variables_2 + str(1))
                         if qloc_2 is None:
                             for f_i in range (1,neq_trans+1):
-                                s[2].append([ibm_lbm_variables_2 + str(f_i) , numpy.zeros((nIBC),numpy.float64) , [], 'DataArray_t'])
+                                s[2].append([ibm_lbm_variables_2 + str(f_i) , numpy.zeros((nIBC),Internal.E_NpyFloat) , [], 'DataArray_t'])
                         qloc_2 = Internal.getNodeFromName1(s, ibm_lbm_variables_2 + str(1))
 
                         qloc_3 = Internal.getNodeFromName1(s, ibm_lbm_variables_3 + str(1))
                         if qloc_3 is None:
                             for f_i in range (1,neq_trans+1):
-                                s[2].append([ibm_lbm_variables_3 + str(f_i) , numpy.zeros((nIBC),numpy.float64) , [], 'DataArray_t'])
+                                s[2].append([ibm_lbm_variables_3 + str(f_i) , numpy.zeros((nIBC),Internal.E_NpyFloat) , [], 'DataArray_t'])
                         qloc_3 = Internal.getNodeFromName1(s, ibm_lbm_variables_3 + str(1))
                 # DBX: supp utau en euler
                 #if utau is None:
-                #   utauNP  = numpy.zeros((Nbpts_D),numpy.float64)
-                #   yplusNP = numpy.zeros((Nbpts_D),numpy.float64)
+                #   utauNP  = numpy.zeros((Nbpts_D),Internal.E_NpyFloat)
+                #   yplusNP = numpy.zeros((Nbpts_D),Internal.E_NpyFloat)
                 #   Internal.createUniqueChild(s, 'utau'  , 'DataArray_t', utauNP )
                 #   Internal.createUniqueChild(s, 'yplus' , 'DataArray_t', yplusNP )
                 #   utau =  Internal.getNodeFromName1(s, 'utau')
@@ -376,7 +376,7 @@ def miseAPlatDonorTree__(t, tc, graph=None, list_graph=None, nbpts_linelets=0):
     npass_transfert=1  # valeur par defaut. Pourra valoir 2 si raccord ordre 4 ou 5
 
     param_int  = numpy.empty(size_int + len(graphIDrcv) + len(graphIBCrcv) + 2, dtype=Internal.E_NpyInt)
-    param_real = numpy.empty(size_real, dtype=numpy.float64)
+    param_real = numpy.empty(size_real, dtype=Internal.E_NpyFloat)
     Internal.createUniqueChild(tc, 'Parameter_int' , 'DataArray_t', param_int)
     if size_real != 0:
         Internal.createUniqueChild(tc, 'Parameter_real', 'DataArray_t', param_real)
@@ -1738,7 +1738,7 @@ def miseAPlatDonorZone__(zones, tc, procDict):
 
         size_int = size_int + 2 + (count_IBC + count_ID)*2  # 2: nbr rac ID et IBC, stockage adresse debut raccord et coef
         param_int  = numpy.empty(size_int , dtype=Internal.E_NpyInt)
-        param_real = numpy.empty(size_real, dtype=numpy.float64)
+        param_real = numpy.empty(size_real, dtype=Internal.E_NpyFloat)
         Internal.createUniqueChild(z, 'Parameter_int' , 'DataArray_t', param_int )
         if size_real !=0 :
             Internal.createUniqueChild(z, 'Parameter_real', 'DataArray_t', param_real)# recopie pointlis

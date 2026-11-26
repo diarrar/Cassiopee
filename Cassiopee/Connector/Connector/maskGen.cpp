@@ -99,7 +99,7 @@ namespace K_CONNECTOR
     isBlanked.clear();
     isBlanked.resize(coord.size(), VISIBLE);
     
-    E_Float P[3];
+    nuga_real_t P[3];
     size_t sz(coord.size());
     Vector_t<E_Int> caught_boxes;
     
@@ -176,7 +176,7 @@ namespace K_CONNECTOR
       
       // Pre-compute normals
       _normals.resize(3, sz);
-      E_Float Q0[3], Q1[3], Q2[3];
+      nuga_real_t Q0[3], Q1[3], Q2[3];
       E_Int Ti[3];
       for (E_Int i = 0; i < sz; ++i)
       {
@@ -206,7 +206,7 @@ namespace K_CONNECTOR
     E_Float* xminp = bbox.begin(1); E_Float* xmaxp = bbox.begin(4);
     E_Float* yminp = bbox.begin(2); E_Float* ymaxp = bbox.begin(5);
     E_Float* zminp = bbox.begin(3); E_Float* zmaxp = bbox.begin(6);
-    E_Float minB[3]; E_Float maxB[3];
+    nuga_real_t minB[3]; nuga_real_t maxB[3];
     for (size_t et = 0; et < nb_elts; et++)
     {
       minB[0] = xminp[et]; minB[1] = yminp[et]; minB[2] = zminp[et];

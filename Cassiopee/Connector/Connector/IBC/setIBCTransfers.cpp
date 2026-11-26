@@ -52,8 +52,9 @@ E_Int K_CONNECTOR::setIBCTransfersCommonVar1(
   /* lois de paroi */
   E_Float roext, uext, pext, text, muext, yext, yplus, yibc;
   E_Float uscaln, un, vn, wn, ut, vt, wt, utau0, umod;
-  E_Float expy, denoml10, ax, l1, l2, l3;
-  E_Float fp, tp;
+  // wall law temporaries in double: pow(y+ + 10.6, 9.6) overflows float for y+ > ~9000
+  double expy, denoml10, ax, l1, l2, l3;
+  double fp, tp;
   E_Float ucible0, ucible, vcible, wcible, signibc, twall, rowall, muwall;
   //Lois de paroi : criteres d arret pour estimer le frottement par Newton
   E_Float newtoneps = 1.e-7; // critere d arret pour u+
@@ -696,8 +697,10 @@ E_Int K_CONNECTOR::setIBCTransfersCommonVar2(
   E_Float t_thwaites, a_thwaites, b_thwaites, c_thwaites, lambda_thwaites, m_thwaites;
   E_Float ut_thwaites, vt_thwaites, wt_thwaites, utau_thwaites, x_T, alpha_T;
   E_Float ut_transition, vt_transition, wt_transition;
-  E_Float aa, bb, dd, fp, tp, f1v;
-  E_Float expy, denoml10, ax, px, kx, y1, y2, l1, l2, l3, l4, l5, l11, l12, l13;
+  E_Float aa, bb, dd, f1v;
+  // wall law temporaries in double: pow(y+ + 10.6, 9.6) overflows float for y+ > ~9000
+  double fp, tp;
+  double expy, denoml10, ax, px, kx, y1, y2, l1, l2, l3, l4, l5, l11, l12, l13;
   E_Float ag11, ag12, ag13, bg10, bg11, bg12, bg13, bg14, cg10, cg11, cg12, cg13, cg14;
   E_Float ag22, ag23, bg20, bg21, bg22, bg23, bg24, cg20, cg21, cg22, cg23, cg24;
   E_Float ucible0, ucible, vcible, wcible, tcible, nutilde, signibc, twall, rowall, muwall;
@@ -1391,7 +1394,7 @@ E_Int K_CONNECTOR::setIBCTransfersCommonVar2(
     wt = w-wn;
     // uext: norme de la composante tangentielle de la vitesse externe
     uext = sqrt(ut*ut+vt*vt+wt*wt);
-    uext_vec[noind] = std::max(uext, 1.e-12);
+    uext_vec[noind] = std::max(uext, E_Float(1.e-12));
 
     E_Float nu = mu_vec[noind]/roOut[indR];
 
@@ -2206,7 +2209,7 @@ E_Int K_CONNECTOR::setIBCTransfersCommonVar2(
 
           // uext: norme de la composante tangentielle de la vitesse externe
           uext = sqrt(ut_vec[noind]*ut_vec[noind]+vt_vec[noind]*vt_vec[noind]+wt_vec[noind]*wt_vec[noind]);
-          uext = std::max(uext, 1.e-12);
+          uext = std::max(uext, E_Float(1.e-12));
 
           // For Post (tOut temperature du point image en entree, pt corrige en sortie)
           twall = tOut[indR] + 0.5*pow(Pr,one_third)/(cv*gamma)*(uext_vec[noind]*uext_vec[noind]); // Crocco-Busemann
@@ -2520,8 +2523,10 @@ E_Int K_CONNECTOR::setIBCTransfersCommonVar3(
   /* lois de paroi */
   E_Float roext, uext, pext, text, muext, yext, yplus, yibc;
   E_Float uscaln, un, vn, wn, ut, vt, wt, utauv, utau0, umod;
-  E_Float bb, fp, tp;
-  E_Float expy, denoml10,ax,l1,l2, l3;
+  E_Float bb;
+  // wall law temporaries in double: pow(y+ + 10.6, 9.6) overflows float for y+ > ~9000
+  double fp, tp;
+  double expy, denoml10,ax,l1,l2, l3;
   E_Float ucible0, ucible, vcible, wcible, signibc, twall, rowall, muwall;
   //Lois de paroi : criteres d arret pour estimer le frottement par Newton
   E_Float newtoneps = 1.e-7; // critere d arret pour u+

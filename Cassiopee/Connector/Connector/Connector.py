@@ -3,6 +3,8 @@
 __version__ = "2026.11"
 
 from . import connector
+import KCore
+from KCore import realTol
 
 __all__ = [
     'addLayers', '_addLayers',
@@ -84,15 +86,27 @@ def connectMatch(a1, a2, sameZone=0, tol=1.e-6, dim=3):
     return res
 
 #===============================================================================
+# The opposite indices (tag2) are stored in real fields: in single precision
+# they are exact up to 2^24 points per array
+def _checkTagIndices__(A):
+    if KCore.E_REALSIZE != 4: return
+    for a in A:
+        npts = a[1].shape[1] if not isinstance(a[1], list) else a[1][0].size
+        if npts > 16777216:
+            raise ValueError("identifyMatching: too many points for indices stored in a real field (2^24 in single precision).")
+
 def identifyMatching(A, tol=1.e-6):
+    _checkTagIndices__(A)
     return connector.identifyMatching(A, tol)
 
 #===============================================================================
 def identifyMatchingP(A, AP, tol=1.e-6):
+    _checkTagIndices__(A); _checkTagIndices__(AP)
     return connector.identifyMatchingP(A, AP, tol)
 
 #===============================================================================
 def identifyMatchingNM(AR, AD, tol=1.e-6):
+    _checkTagIndices__(AR); _checkTagIndices__(AD)
     return connector.identifyMatchingNM(AR, AD, tol)
 
 #===============================================================================
@@ -319,7 +333,7 @@ def _blankCells(coords, cellnfields, body, blankingType=1, \
 # OUT: returns the cellN, with cellN=0 for cells intersecting
 # and the cells which are above.
 #==============================================================================
-def blankIntersectingCells(a, cellN, tol=1.e-12):
+def blankIntersectingCells(a, cellN, tol=realTol(1.e-12)):
     """Blank intersecting cells in a zone.
     Usage: blankIntersectingCells(a, cellN, tol)"""
     res = connector.blankIntersectingCells(a, cellN, tol)
@@ -333,7 +347,7 @@ def blankIntersectingCells(a, cellN, tol=1.e-12):
 # IN: tol: geometric tolerance
 # OUT: returns the cellnfields, 0 for cells intersecting or inside the tet mesh
 #==============================================================================
-def blankCellsTetra(coords, cellnfields, meshT4, blankingType=1, tol=1.e-12, cellnval=0, overwrite=0, cellNName='cellN'):
+def blankCellsTetra(coords, cellnfields, meshT4, blankingType=1, tol=realTol(1.e-12), cellnval=0, overwrite=0, cellNName='cellN'):
     """Blank cells in coords (by setting the cellN to cellnval) falling inside a Tetra Mesh mask defined by meshT4.
     If overwrite is enabled (1), cells detected outside have a celln reset to 1.
     Usage: blankCellsTetra(coords, cellnfields, meshT4, connectT4, blankingType, tol, cellnval, overwrite)"""
@@ -366,7 +380,7 @@ def blankCellsTetra(coords, cellnfields, meshT4, blankingType=1, tol=1.e-12, cel
 # IN: tol: geometric tolerance
 # OUT: returns the cellnfields, 0 for cells intersecting or inside the tet mesh
 #==============================================================================
-def blankCellsTri(coords, cellnfields, meshT3, blankingType=1, tol=1.e-12,
+def blankCellsTri(coords, cellnfields, meshT3, blankingType=1, tol=realTol(1.e-12),
                   cellnval=0, overwrite=0, cellNName='cellN'):
     """Blank cells in coords (by setting the cellN to cellnval) falling inside a Triangular surface mesh mask defined by meshT3.
     If overwrite is enabled (1), cells detected outside have a celln reset to 1.
@@ -389,7 +403,7 @@ def blankCellsTri(coords, cellnfields, meshT3, blankingType=1, tol=1.e-12,
     connector.deleteTriMask(mask)
     return cellnt
 
-def getIntersectingDomainsAABB(arrays, tol=1.e-10):
+def getIntersectingDomainsAABB(arrays, tol=realTol(1.e-10)):
     """Return the intersection list of a list of bounding boxes."""
     return connector.getIntersectingDomainsAABB(arrays, tol)
 

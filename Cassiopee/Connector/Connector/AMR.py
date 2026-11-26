@@ -1,5 +1,6 @@
 """Parallel Toolbox for CODA."""
 import Converter
+import KCore
 import Converter.PyTree as C
 import Converter.Internal as Internal
 import Converter.Mpi as Cmpi
@@ -16,6 +17,7 @@ import Generator.Mpi as Gmpi
 import Post.PyTree as P
 import Dist2Walls.PyTree as DTW
 import KCore.test as test
+from KCore import realTol
 import Generator.IBM as G_IBM
 import Generator.AMR as G_AMR
 import Generator.Generator as Generator
@@ -231,7 +233,7 @@ def prepareAMRData(t_case, t, IBM_parameters=None, check=False, dim=3, localDir=
     #====================================================
     # Keep cells outside of Immersed Body
     Cmpi.trace(" Removing blanked cells [start]", master=True, cpu=False)
-    t = G.close(t, tol=1e-12,
+    t = G.close(t, tol=realTol(1e-12),
                 rmOverlappingPts=True, rmOrphanPts=False,
                 rmDuplicatedFaces=False, rmDuplicatedElts=False,
                 rmDegeneratedFaces=False, rmDegeneratedElts=False)
@@ -560,9 +562,9 @@ def extractFrontDP(t, tb2, frontIP_gath, dim, dir_sym, check, distIP, localDir='
         else:
             frontDP = Internal.newZone(name="front", zsize=[[0,0]], ztype="Unstructured")
             gc = Internal.newGridCoordinates(parent=frontDP)
-            Internal.newDataArray('CoordinateX', value=numpy.empty(0), parent=gc)
-            Internal.newDataArray('CoordinateY', value=numpy.empty(0), parent=gc)
-            Internal.newDataArray('CoordinateZ', value=numpy.empty(0), parent=gc)
+            Internal.newDataArray('CoordinateX', value=numpy.empty(0, dtype=Internal.E_NpyFloat), parent=gc)
+            Internal.newDataArray('CoordinateY', value=numpy.empty(0, dtype=Internal.E_NpyFloat), parent=gc)
+            Internal.newDataArray('CoordinateZ', value=numpy.empty(0, dtype=Internal.E_NpyFloat), parent=gc)
         outputTime(startTimeExtract,functionName='extractFrontDP - Robust Approach')
     ## Continue - same as orig.
     frontDP_gath = Cmpi.allgatherZones(frontDP)
@@ -882,7 +884,7 @@ def _recoverBoundaryConditions__(t, t_exteriorFaces, zbcs, bctypes, bcnames):
                     elts = Internal.getNodesFromType1(z, "Elements_t")
                     maxElt = Internal.getNodeFromName(elts[-1], "ElementRange")[1][1]
                     CODABCType = "QuadNQuad"
-                    Internal.newElements(name=CODABCType, etype=7, econnectivity=numpy.empty(0),
+                    Internal.newElements(name=CODABCType, etype=7, econnectivity=numpy.empty(0, dtype=Internal.E_NpyInt),
                                          erange=[maxElt+1, maxElt], eboundary=1, parent=z)
                     C._addBC2Zone(z, CODABCType, "FamilySpecified:"+CODABCType, elementRange=[maxElt+1,maxElt])
                     zone_bc = Internal.getNodeFromType1(z, 'ZoneBC_t')
@@ -1004,7 +1006,9 @@ def checkRelativeOffset__(ip_pts, wallpts, imagepts, forceAlignment=False, local
     y_offsetPointLocation = y_wall + y_facePointWallPointVec * donorPointWallPointDist;
     z_offsetPointLocation = z_wall + z_facePointWallPointVec * donorPointWallPointDist;
 
-    epsDonorPointOffset = 1e-6
+    # relative tolerance on the tangential offset: loosened in single precision
+    if Internal.E_NpyFloat == numpy.float32: epsDonorPointOffset = 1e-4
+    else: epsDonorPointOffset = 1e-6
     offsetcheck = ( (x_offsetPointLocation - x_image)**2 + (y_offsetPointLocation - y_image)**2 + (z_offsetPointLocation - z_image)**2 )**0.5
     array_check =  numpy.where(offsetcheck > (epsDonorPointOffset * donorPointWallPointDist))[0]
     print("Rank: %d :: Check not aligned points: size array=%d"%(Cmpi.rank,array_check.size), flush=True)

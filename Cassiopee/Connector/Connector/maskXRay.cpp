@@ -18,6 +18,7 @@
 */
 
 # include "connector.h"
+# include <cfloat>
 
 using namespace std;
 using namespace K_FLD;
@@ -189,11 +190,16 @@ E_Int K_CONNECTOR::compCharacteristics(
   
   p->indir.malloc(p->ni * p->nj);
   p->tempZ = new vector<E_Float>[p->ni * p->nj];
+  p->seed = -1;
   
   // Technique de perturbation des rayons pour resoudre les
   // facettes ambigues
   E_Int niter = 0;
   E_Int nitermax = 5;
+#ifndef E_DOUBLEREAL
+  // single precision: a ray hits a node exactly far more often, allow more passes
+  nitermax = 20;
+#endif
   // Premier calcul
   FldArrayF epsilon(p->ni * p->nj, 2);
   epsilon.setAllValuesAtNull();
@@ -214,6 +220,14 @@ E_Int K_CONNECTOR::compCharacteristics(
   E_Int nambig = comp; comp = 0;
   while (nambig > 0 && niter <= nitermax)
   {
+#ifndef E_DOUBLEREAL
+    // single precision: forget the pierce points of the previous pass (the
+    // perturbed rays would keep their old points) and draw new perturbations
+    // on each pass (with a fixed seed, a ray hitting a node again would get
+    // the same perturbation forever). The first perturbations are unchanged.
+    for (E_Int r = 0; r < p->ni * p->nj; r++) p->tempZ[r].clear();
+    p->seed = -1 - 7919*(niter+1);
+#endif
     // Compute Z intersections
     for (E_Int zone = 0; zone < nzones; zone++)
     {
@@ -293,7 +307,11 @@ E_Int K_CONNECTOR::triangleOnPlane(E_Int elevationDir,
   E_Float ymin = p->ymin;
   E_Float hi = p->hi;
   E_Float hj = p->hj;
+#ifdef E_DOUBLEREAL
   E_LONG idum = -1;
+#else
+  E_LONG idum = p->seed;
+#endif
 
   // Build triangle coordinates
   E_Float x0 = xt[ind1]; E_Float y0 = yt[ind1]; E_Float z0 = zt[ind1];
@@ -599,7 +617,14 @@ void K_CONNECTOR::compactZ(
     c = start;
     for (j = start+1; j < start+s; j++)
     {
-      if (K_FUNC::E_abs(p->Z[c] - p->Z[j]) > tol)
+      E_Float tolj = tol;
+#ifndef E_DOUBLEREAL
+      // single precision: the same pierce point computed from two triangles
+      // differs by a few ulps (a vertical face split in two triangles gave
+      // 4 points instead of 2 in 2D and the whole ray was lost)
+      tolj = K_FUNC::E_max(tol, 8.*FLT_EPSILON*K_FUNC::E_max(K_FUNC::E_abs(p->Z[c]), K_FUNC::E_abs(p->Z[j])));
+#endif
+      if (K_FUNC::E_abs(p->Z[c] - p->Z[j]) > tolj)
       {
         p->Z[c+1] = p->Z[j]; c++;
       }
@@ -610,7 +635,11 @@ void K_CONNECTOR::compactZ(
     // d'intersection
     if ((c-start)%2 != 0)
     { 
-      p->Z[c] = p->Z[c-1] + 1.e-6;
+      E_Float dz = 1.e-6;
+#ifndef E_DOUBLEREAL
+      dz = K_FUNC::E_max(dz, 8.*FLT_EPSILON*K_FUNC::E_abs(p->Z[c-1]));
+#endif
+      p->Z[c] = p->Z[c-1] + dz;
       c++;
     }
   }
