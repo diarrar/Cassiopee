@@ -278,7 +278,7 @@ void K_POST::readZipperOptions(PyObject* optionList, E_Float& overlapTol,
       // geomTol 
       if ( strcmp(s,"overlapTol") == 0 ) 
       {
-        if ( PyFloat_Check(tpl2) == 0)
+        if (K_PYFLOAT_CHECK(tpl2) == 0)
         {
           printf("Warning: zipper: must be a float. Set to default value 1e-5.\n");
         }
@@ -286,7 +286,7 @@ void K_POST::readZipperOptions(PyObject* optionList, E_Float& overlapTol,
       }
       else if ( strcmp(s, "matchTol") == 0 ) 
       {
-        if ( PyFloat_Check(tpl2) == 0)
+        if (K_PYFLOAT_CHECK(tpl2) == 0)
         {
           printf("Warning: zipper: matchTol must be a float. Set to default value: 1.e-6.\n");
         }

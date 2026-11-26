@@ -288,7 +288,7 @@ E_Float K_PYTREE::getValueF(PyObject* o)
 {
   IMPORTNUMPY;
   PyObject* v = PyList_GetItem(o, 1);
-  if (PyFloat_Check(v) == true) return PyFloat_AsDouble(v);
+  if (K_PYFLOAT_CHECK(v)) return PyFloat_AsDouble(v);
   PyArrayObject* ac = (PyArrayObject*)v;
   E_Float* d = (E_Float*)PyArray_DATA(ac);
   E_Float ret = d[0];
