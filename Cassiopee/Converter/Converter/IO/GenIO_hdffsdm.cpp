@@ -580,7 +580,7 @@ E_Int K_IO::GenIO::hdffsdmread(char* file, PyObject*& tree)
 
   // CoordinateX
   npy_dim_vals[0] = nvertex;
-  PyArrayObject* xc = (PyArrayObject*)PyArray_EMPTY(1, &npy_dim_vals[0], NPY_FLOAT64, 1);
+  PyArrayObject* xc = (PyArrayObject*)PyArray_EMPTY(1, &npy_dim_vals[0], E_NPY_FLOAT, 1);
   E_Float* pxc = (E_Float*)PyArray_DATA(xc);
   for (E_Int i = 0; i < nvertex; i++) pxc[i] = r[3*i];
   PyObject* children6 = PyList_New(0);
@@ -588,7 +588,7 @@ E_Int K_IO::GenIO::hdffsdmread(char* file, PyObject*& tree)
   PyList_Append(children5, nxc); Py_DECREF(nxc);
 
   // CoordinateY
-  PyArrayObject* yc = (PyArrayObject*)PyArray_EMPTY(1, &npy_dim_vals[0], NPY_FLOAT64, 1);
+  PyArrayObject* yc = (PyArrayObject*)PyArray_EMPTY(1, &npy_dim_vals[0], E_NPY_FLOAT, 1);
   E_Float* pyc = (E_Float*)PyArray_DATA(yc);
   for (E_Int i = 0; i < nvertex; i++) pyc[i] = r[3*i+1];
   PyObject* children7 = PyList_New(0);
@@ -596,7 +596,7 @@ E_Int K_IO::GenIO::hdffsdmread(char* file, PyObject*& tree)
   PyList_Append(children5, nyc); Py_DECREF(nyc);
 
   // CoordinateZ
-  PyArrayObject* zc = (PyArrayObject*)PyArray_EMPTY(1, &npy_dim_vals[0], NPY_FLOAT64, 1);
+  PyArrayObject* zc = (PyArrayObject*)PyArray_EMPTY(1, &npy_dim_vals[0], E_NPY_FLOAT, 1);
   E_Float* pzc = (E_Float*)PyArray_DATA(zc);
   for (E_Int i = 0; i < nvertex; i++) pzc[i] = r[3*i+2];
   PyObject* children8 = PyList_New(0);
@@ -781,7 +781,11 @@ E_Int K_IO::GenIO::hdffsdmread(char* file, PyObject*& tree)
 
       dims[0] = ncells; dims[1] = nvars;
       did = H5Screate_simple(2, dims, NULL);
+#ifdef E_DOUBLEREAL
       tid = H5Tcopy(H5T_NATIVE_DOUBLE); H5Tset_precision(tid, 64);
+#else
+      tid = H5Tcopy(H5T_NATIVE_FLOAT); H5Tset_precision(tid, 32); // read in E_Float
+#endif
       hid_t vid = H5Dopen2(node, "Values", H5P_DEFAULT);
 
       hsize_t start[2]; hsize_t scount[2]; E_Int sizel=0;
@@ -806,7 +810,7 @@ E_Int K_IO::GenIO::hdffsdmread(char* file, PyObject*& tree)
         scount[0] = ncells; scount[1] = 1;
         H5Sselect_hyperslab(sid, H5S_SELECT_SET, start, NULL, scount, NULL);
         hid_t memspace = H5Screate_simple(2, scount, NULL);
-        PyArrayObject* f = (PyArrayObject*)PyArray_EMPTY(1, &npy_dim_vals[0], NPY_FLOAT64, 1);
+        PyArrayObject* f = (PyArrayObject*)PyArray_EMPTY(1, &npy_dim_vals[0], E_NPY_FLOAT, 1);
         E_Float* fp = (E_Float*)PyArray_DATA(f);
         H5Dread(vid, tid, memspace, sid, H5P_DEFAULT, fp);
         PyObject* fc = PyList_New(0);
@@ -1261,7 +1265,11 @@ E_Int K_IO::GenIO::hdffsdmwrite(char* file, PyObject* tree)
       hid_t sid = H5Scopy(did);    
       H5Sselect_hyperslab(sid, H5S_SELECT_SET, start, NULL, scount, NULL);
       hid_t memspace = H5Screate_simple(2, scount, NULL);
+#ifdef E_DOUBLEREAL
       H5Dwrite(vid, H5T_NATIVE_DOUBLE, memspace, sid, H5P_DEFAULT, pt);
+#else
+      H5Dwrite(vid, H5T_NATIVE_FLOAT, memspace, sid, H5P_DEFAULT, pt); // E_Float in memory
+#endif
     } 
     H5Sclose(did); H5Dclose(vid);
    

@@ -147,7 +147,12 @@ class GenIOHdf
     PyObject* getArrayR8(hid_t node, hid_t tid, int dim, hsize_t* dims, hid_t mid=H5S_ALL, hid_t sid=H5S_ALL);
     PyObject* getArrayR42R8(hid_t node, hid_t tid, int dim, hsize_t* dims, hid_t mid=H5S_ALL, hid_t sid=H5S_ALL);
     PyObject* getArrayR4Raw(hid_t node, hid_t tid, int dim, hsize_t* dims, hid_t mid=H5S_ALL, hid_t sid=H5S_ALL);
+    // R4 arrays in file: convert to the compiled precision in memory
+    #ifdef E_SINGLEREAL
+    #define getArrayR4 getArrayR4Raw
+    #else
     #define getArrayR4 getArrayR42R8
+    #endif
     PyObject* getArrayI1(hid_t node, hid_t tid, int dim, hsize_t* dims, hid_t mid=H5S_ALL, hid_t sid=H5S_ALL);
     PyObject* getArrayI4Raw(hid_t node, hid_t tid, int dim, hsize_t* dims, hid_t mid=H5S_ALL, hid_t sid=H5S_ALL);
     PyObject* getArrayI42I8(hid_t node, hid_t tid, int dim, hsize_t* dims, hid_t mid=H5S_ALL, hid_t sid=H5S_ALL);

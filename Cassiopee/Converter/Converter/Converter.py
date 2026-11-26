@@ -11,8 +11,12 @@ import KCore
 
 # INT size for numpys connectivities
 from KCore.Dist import EDOUBLEINT
+from KCore import realTol
 if EDOUBLEINT(): E_NpyInt = numpy.int64
 else: E_NpyInt = numpy.int32
+# REAL size for numpy fields (compiled precision of E_Float, asked to the binary)
+if KCore.getRealSize() == 4: E_NpyFloat = numpy.float32
+else: E_NpyFloat = numpy.float64
 
 __all__ = [
     'array', 'getApi', 'addVars', '_addVars', 'addVars2',
@@ -62,16 +66,16 @@ def arrayS(vars, ni, nj, nk, api=1):
         print("Warning: array: your var string is suspicious.")
     vl = vars.split(','); v = len(vl)
     if api == 1:
-        a = numpy.zeros((v, ni*nj*nk), numpy.float64)
+        a = numpy.zeros((v, ni*nj*nk), E_NpyFloat)
         for i in range(v):
             if vl[i] == 'cellN' or vl[i] == 'cellNF': a[i,:] = 1.
     else:
         a = []
         for i in range(v):
             if vl[i] == 'cellN' or vl[i] == 'cellNF':
-                a.append(numpy.ones((ni*nj*nk), numpy.float64))
+                a.append(numpy.ones((ni*nj*nk), E_NpyFloat))
             else:
-                a.append(numpy.zeros((ni*nj*nk), numpy.float64))
+                a.append(numpy.zeros((ni*nj*nk), E_NpyFloat))
     return [vars, a, ni, nj, nk]
 
 # -- Create an unstructured array --
@@ -97,28 +101,28 @@ def arrayNS(vars, npoints, nelts, eltType, api=1):
 
     if eltType[-1] == '*':
         if api == 1:
-            a = numpy.zeros((v, nelts), numpy.float64)
+            a = numpy.zeros((v, nelts), E_NpyFloat)
             for i in range(v):
                 if vl[i] == 'cellN' or vl[i] == 'cellNF': a[i,:] = 1.
         else:
             a = []
             for i in range(v):
                 if vl[i] == 'cellN' or vl[i] == 'cellNF':
-                    a.append(numpy.ones((nelts), numpy.float64))
+                    a.append(numpy.ones((nelts), E_NpyFloat))
                 else:
-                    a.append(numpy.zeros((nelts), numpy.float64))
+                    a.append(numpy.zeros((nelts), E_NpyFloat))
     else:
         if api == 1:
-            a = numpy.zeros((v, npoints), numpy.float64)
+            a = numpy.zeros((v, npoints), E_NpyFloat)
             for i in range(v):
                 if vl[i] == 'cellN' or vl[i] == 'cellNF': a[i,:] = 1.
         else:
             a = []
             for i in range(v):
                 if vl[i] == 'cellN' or vl[i] == 'cellNF':
-                    a.append(numpy.ones((npoints), numpy.float64))
+                    a.append(numpy.ones((npoints), E_NpyFloat))
                 else:
-                    a.append(numpy.zeros((npoints), numpy.float64))
+                    a.append(numpy.zeros((npoints), E_NpyFloat))
 
     if api == 1: c = numpy.ones((nt, nelts), E_NpyInt)
     else: c = [numpy.ones((nelts, nt), E_NpyInt)]
@@ -206,6 +210,18 @@ def getNCells__(a):
                 ncells = a[2][0,offset+2]
             else: ncells = a[2].shape[1]
     return ncells
+
+# Convert the field numpys of an array to the compiled real precision
+# (pickled arrays may have been written by a build of another precision)
+def _adaptArrayFloatType__(a):
+    if not isinstance(a, list) or len(a) < 4: return
+    if isinstance(a[1], list): # array2/3
+        for c, k in enumerate(a[1]):
+            if isinstance(k, numpy.ndarray) and k.dtype != E_NpyFloat and k.dtype.kind == 'f':
+                a[1][c] = KCore.castFloatArray(k, E_NpyFloat)
+    elif isinstance(a[1], numpy.ndarray):
+        if a[1].dtype != E_NpyFloat and a[1].dtype.kind == 'f':
+            a[1] = KCore.castFloatArray(a[1], E_NpyFloat)
 
 # -- Copy an array --
 def copy(array):
@@ -352,7 +368,7 @@ def _addVars__(a, varNames):
             if KCore.isNamePresent(a, v) == -1:
                 a[0] += ','+v
                 s = a[1][0].shape
-                a[1].append(numpy.zeros(s, dtype=numpy.float64, order='F'))
+                a[1].append(numpy.zeros(s, dtype=E_NpyFloat, order='F'))
     else: # array1
         lg = 0
         for v in varNames:
@@ -361,7 +377,7 @@ def _addVars__(a, varNames):
                 lg += 1
         s = a[1].shape[1]
         nfld = a[1].shape[0]
-        n = numpy.zeros((nfld+lg, s), dtype=numpy.float64)
+        n = numpy.zeros((nfld+lg, s), dtype=E_NpyFloat)
         for i in range(nfld): n[i,:] = a[1][i,:]
         a[1] = n
     return None
@@ -380,7 +396,7 @@ def _addVars2__(a):
         for i in rest: a0[0] += ','+i[0]
         nfld = a0[1].shape[0]
         for i in rest: nfld += i[1].shape[0]
-        n = numpy.empty((nfld, a0[1].shape[1]), dtype=numpy.float64)
+        n = numpy.empty((nfld, a0[1].shape[1]), dtype=E_NpyFloat)
         nfld = a0[1].shape[0]
         for j in range(nfld):
             n[j,:] = a0[1][j,:]
@@ -694,7 +710,9 @@ def _initVarByEq2__(a, eq):
 # Get index field
 def getIndexField__(a):
     npts = getNPts(a)
-    n = numpy.arange(0, npts, dtype=numpy.float64)
+    if E_NpyFloat == numpy.float32 and npts > 16777216:
+        raise ValueError("getIndexField: too many points for indices stored in a real field (2^24 in single precision).")
+    n = numpy.arange(0, npts, dtype=E_NpyFloat)
     # structure/non structure/array1/array2
     if len(a) == 5: # structure
         if isinstance(a[1], list): return ['index', [n], a[2], a[3], a[4]] # array2
@@ -811,6 +829,7 @@ def convertFile2Arrays(fileName, format=None, nptsCurve=20, nptsLine=2,
                         else: # array1
                             if i[2].dtype != E_NpyInt:
                                 i[2] = i[2].astype(E_NpyInt, order='K')
+                    _adaptArrayFloatType__(i)
             else:
                 if len(a) == 4:
                     if isinstance(a[2], list): # array2/3
@@ -818,6 +837,7 @@ def convertFile2Arrays(fileName, format=None, nptsCurve=20, nptsLine=2,
                             if k.dtype != E_NpyInt: a[2][c] = k.astype(E_NpyInt, order='K')
                     else: # array1
                         if a[2].dtype != E_NpyInt: a[2] = a[2].astype(E_NpyInt, order='K')
+                _adaptArrayFloatType__(a)
 
             print('done.')
             return a
@@ -988,7 +1008,7 @@ def diffArrays(arrays1, arrays2, arrays3=[], atol=1.e11, rtol=0.):
     else:
         return converter.diffArrays(arrays1, arrays2, atol, rtol)
 
-def diffArraysGeom(array1, array2, atol=1.e-10, rtol=0.):
+def diffArraysGeom(array1, array2, atol=realTol(1.e-10), rtol=0.):
     """Diff arrays defining solutions, geometrically. Return the delta field."""
     if isinstance(array1[0], list):
         ret = []
@@ -1000,7 +1020,7 @@ def diffArraysGeom(array1, array2, atol=1.e-10, rtol=0.):
     else:
         return diffArraysGeom__(array1, array2, atol, rtol)
 
-def diffArraysGeom__(array1, array2, atol=1.e-10, rtol=0.):
+def diffArraysGeom__(array1, array2, atol=realTol(1.e-10), rtol=0.):
     hook = createHook(array1, 'nodes')
     ids = identifyNodes(hook, array2, tol=atol)
     if numpy.any(ids == -1):
@@ -1748,7 +1768,7 @@ def freeHook(hook):
 #==============================================================================
 # Geometric identification functions
 #==============================================================================
-def identifyNodes(hook, a, tol=1.e-11, rtol=1.e-12):
+def identifyNodes(hook, a, tol=realTol(1.e-11), rtol=realTol(1.e-12)):
     """Identify nodes of a in KDT. return identified indices.
     Usage: identifyNodes(hook, a)"""
     if isinstance(a[0], list):
@@ -1759,7 +1779,7 @@ def identifyNodes(hook, a, tol=1.e-11, rtol=1.e-12):
     else:
         return converter.identifyNodes(hook, a, tol, rtol)
 
-def identifyFaces(hook, a, tol=1.e-11, rtol=1.e-12):
+def identifyFaces(hook, a, tol=realTol(1.e-11), rtol=realTol(1.e-12)):
     """Identify face centers of a in KDT. return identified indices.
     Usage: identifyFaces(hook, a)"""
     if isinstance(a[0], list):
@@ -1770,7 +1790,7 @@ def identifyFaces(hook, a, tol=1.e-11, rtol=1.e-12):
     else:
         return converter.identifyFaces(hook, convertArray2NGon(a), tol, rtol)
 
-def identifyElements(hook, a, tol=1.e-11, rtol=1.e-12):
+def identifyElements(hook, a, tol=realTol(1.e-11), rtol=realTol(1.e-12)):
     """Identify element centers of a in KDT. return identified indices.
     Usage: identifyElement(hook, a)"""
     if isinstance(a[0], list):

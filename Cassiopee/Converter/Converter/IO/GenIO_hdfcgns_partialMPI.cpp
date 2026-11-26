@@ -637,7 +637,7 @@ PyObject* K_IO::GenIOHdf::createNodePartialContigous(hid_t&    node,
   }
   else if (strcmp(_dtype, L3T_R8) == 0)
   {
-    data = getArrayContigous(node, tid, dim, _dims2, NPY_DOUBLE, mid, sid, data);
+    data = getArrayContigous(node, tid, dim, _dims2, E_NPY_FLOAT, mid, sid, data);
   }
   else if (strcmp(_dtype, L3T_C1) == 0)
   {

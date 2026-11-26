@@ -21,6 +21,7 @@
 #include <iostream>
 #include <memory>
 #include <vector>
+#include <list>
 
 #define K_ARRAY_UNIQUE_SYMBOL
 #include "Expression/ast.hpp"
@@ -93,6 +94,44 @@ namespace
 #endif
     }
     // -----------------------------------------------------------------------------------------
+    // The expression engine works in double precision. These helpers give double views on
+    // Cassiopee fields: direct when E_Float is double, through temporary buffers (copied back
+    // after evaluation) when E_Float is float. Python buffers of floats are also converted.
+    struct dbl_buffers {
+        std::list<std::vector<double>> bufs;
+        struct back_t { double* src; E_Float* dst; E_Int n; };
+        std::vector<back_t> backs;
+        template <typename T> double* add(const T* src, E_Int n, E_Float* dst) {
+            bufs.emplace_back(n);
+            double* d = bufs.back().data();
+            for (E_Int i = 0; i < n; i++) d[i] = (double)src[i];
+            if (dst != nullptr) backs.push_back({d, dst, n});
+            return d;
+        }
+        void copyBack() {
+            for (auto& b : backs)
+                for (E_Int i = 0; i < b.n; i++) b.dst[i] = (E_Float)b.src[i];
+        }
+    };
+    static inline vector_view<double> field_view(dbl_buffers& db, E_Float* f, E_Int n) {
+#ifdef E_DOUBLEREAL
+        return vector_view<double>(f, n);
+#else
+        return vector_view<double>(db.add(f, n, f), n);
+#endif
+    }
+    static inline vector_view<double> buffer_view(dbl_buffers& db, Py_buffer* py_buf) {
+        if (py_buf->format[0] == 'f') {
+            E_Int n = py_buf->len / sizeof(float);
+            return vector_view<double>(db.add((const float*)py_buf->buf, n, nullptr), n);
+        }
+        return vector_view<double>((double *)py_buf->buf, py_buf->len / sizeof(double));
+    }
+    static inline E_Int buffer_size(Py_buffer* py_buf) {
+        if (py_buf->format[0] == 'f') return py_buf->len / sizeof(float);
+        return py_buf->len / sizeof(double);
+    }
+    // -----------------------------------------------------------------------------------------
     struct data_array {
         PyObject  *array;
         FldArrayF *f;
@@ -102,6 +141,7 @@ namespace
     PyObject *py_ast_handler_call(py_ast_handler *self, PyObject *args, PyObject *kwds) {
         std::unordered_map<std::string, vector_view<double>> cpp_dico;
         std::vector<double>                                  scal_variables;
+        dbl_buffers                                          dbufs;
         // Preparation de la table des symboles :
         // .......................................
         //auto &st = Expression::symbol_table::get();
@@ -159,7 +199,7 @@ namespace
                 res                 = 1;
                 PyObject * mem_view = PyMemoryView_FromObject(parray);
                 Py_buffer *py_buf   = PyMemoryView_GET_BUFFER(mem_view);
-                npts                = py_buf->len / sizeof(double);
+                npts                = buffer_size(py_buf);
                 nfld                = 1;
                 ni                  = npts;
                 nj                  = 1;
@@ -227,7 +267,7 @@ namespace
                     // La variable est bien utilisee dans l'expression, on
                     // rajoute le "tableau" au dictionnaire C++
                     cpp_dico[key_var] =
-                        vector_view<double>((double *)arrays[iargs].f->begin(ivar + 1), arrays[iargs].f->getSize());
+                        field_view(dbufs, arrays[iargs].f->begin(ivar + 1), arrays[iargs].f->getSize());
                     // Sinon on ignore simplement cette variable
                 }
             }
@@ -275,7 +315,7 @@ namespace
                     }
                     Py_buffer *py_buf = PyMemoryView_GET_BUFFER(mem_view);
                     // On vérifie qu'on a bien des "doubles"
-                    if (py_buf->format[0] != 'd') {
+                    if (py_buf->format[0] != 'd' && py_buf->format[0] != 'f') {
                         std::string s_error =
                             key_str + " has wrong kind of value ( not double precision floats in array )";
                         PyErr_SetString(PyExc_NameError, s_error.c_str());
@@ -283,7 +323,7 @@ namespace
                             RELEASESHAREDB(arrays[jargs].res, arrays[jargs].array, arrays[jargs].f, arrays[jargs].cn);
                         return NULL;
                     }
-                    cpp_dico[key_str] = vector_view<double>((double *)py_buf->buf, py_buf->len / sizeof(double));
+                    cpp_dico[key_str] = buffer_view(dbufs, py_buf);
                 }
             }
         }
@@ -333,10 +373,11 @@ namespace
             E_Float *fnp = fn.begin();
             */
 
-            auto vout = K_MEMORY::vector_view<E_Float>(fnp, npts);
+            auto vout = field_view(dbufs, fnp, npts);
             Py_BEGIN_ALLOW_THREADS;
             self->pt_ast->eval(cpp_dico, vout);
             Py_END_ALLOW_THREADS;
+            dbufs.copyBack();
 
             // new version
             /*
@@ -396,6 +437,7 @@ namespace
     PyObject *py_ast_handler_eval(py_ast_handler *self, PyObject *args, PyObject *kwds) {
         std::unordered_map<std::string, vector_view<double>> cpp_dico;
         std::vector<double>                                  scal_variables;
+        dbl_buffers                                          dbufs;
         // Preparation de la table des symboles :
         // .......................................
         //auto &st          = Expression::symbol_table::get();
@@ -511,7 +553,7 @@ namespace
                     // La variable est bien utilisee dans l'expression, on
                     // rajoute le "tableau" au dictionnaire C++
                     cpp_dico[key_var] =
-                        vector_view<double>((double *)arrays[iargs].f->begin(ivar + 1), arrays[iargs].f->getSize());
+                        field_view(dbufs, arrays[iargs].f->begin(ivar + 1), arrays[iargs].f->getSize());
                     // Sinon on ignore simplement cette variable
                 }
             }
@@ -558,14 +600,14 @@ namespace
                     }
                     Py_buffer *py_buf = PyMemoryView_GET_BUFFER(mem_view);
                     // On vérifie qu'on a bien des "doubles"
-                    if (py_buf->format[0] != 'd') {
+                    if (py_buf->format[0] != 'd' && py_buf->format[0] != 'f') {
                         std::string s_error =
                             key_str + " has wrong kind of value ( not double precision floats in array )";
                         PyErr_SetString(PyExc_NameError, s_error.c_str());
                         RELEASESHAREDB(res, parray, f, cn);
                         return NULL;
                     }
-                    cpp_dico[key_str] = vector_view<double>((double *)py_buf->buf, py_buf->len / sizeof(double));
+                    cpp_dico[key_str] = buffer_view(dbufs, py_buf);
                 }
             }
         }
@@ -583,10 +625,11 @@ namespace
         assert(posvar >=0);
         E_Float* fnp = f->begin(posvar+1);
         assert(fnp != nullptr);
-        auto vout = K_MEMORY::vector_view<E_Float>(fnp, npts);
+        auto vout = field_view(dbufs, fnp, npts);
         Py_BEGIN_ALLOW_THREADS;
         self->pt_ast->eval(cpp_dico, vout);
         Py_END_ALLOW_THREADS;
+        dbufs.copyBack();
 
         for (E_Int jargs = 2; jargs < nb_args_vars; jargs++) {
             RELEASESHAREDB(arrays[jargs].res, arrays[jargs].array, arrays[jargs].f, arrays[jargs].cn);
@@ -616,6 +659,7 @@ namespace
     PyObject *py_ast_handler_run(py_ast_handler *self, PyObject *args, PyObject *kwds) {
         std::unordered_map<std::string, vector_view<double>> cpp_dico;
         std::vector<double>                                  scal_variables;
+        dbl_buffers                                          dbufs;
         // Preparation de la table des symboles :
         // .......................................
         //auto &st = Expression::symbol_table::get();
@@ -722,7 +766,7 @@ namespace
                     // La variable est bien utilisee dans l'expression, on
                     // rajoute le "tableau" au dictionnaire C++
                     cpp_dico[key_var] =
-                        vector_view<double>((double *)arrays[iargs].f->begin(ivar + 1), arrays[iargs].f->getSize());
+                        field_view(dbufs, arrays[iargs].f->begin(ivar + 1), arrays[iargs].f->getSize());
                     // Sinon on ignore simplement cette variable
                 }
             }
@@ -768,14 +812,14 @@ namespace
                     }
                     Py_buffer *py_buf = PyMemoryView_GET_BUFFER(mem_view);
                     // On verifie qu'on a bien des "doubles"
-                    if (py_buf->format[0] != 'd') {
+                    if (py_buf->format[0] != 'd' && py_buf->format[0] != 'f') {
                         std::string s_error =
                             key_str + " has wrong kind of value ( not double precision floats in array )";
                         PyErr_SetString(PyExc_NameError, s_error.c_str());
                         RELEASESHAREDB(res, parray, f, cn);
                         return NULL;
                     }
-                    cpp_dico[key_str] = vector_view<double>((double *)py_buf->buf, py_buf->len / sizeof(double));
+                    cpp_dico[key_str] = buffer_view(dbufs, py_buf);
                 }
             }
         }
@@ -783,6 +827,7 @@ namespace
         Py_BEGIN_ALLOW_THREADS;
         self->pt_ast->eval(cpp_dico);
         Py_END_ALLOW_THREADS;
+        dbufs.copyBack();
 
         for (E_Int jargs = 1; jargs < nb_args_vars; jargs++) 
         {

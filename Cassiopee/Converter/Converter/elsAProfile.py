@@ -166,20 +166,20 @@ def _adaptPeriodicMatch(t, clean=False):
                 rotAngleNode = Internal.getNodeFromName1(periodic, 'RotationAngle')
                 if rotAngleNode is not None:
                     #rotAngle = Internal.getValue(rotAngleNode)
-                    rotAngle = numpy.zeros(3,numpy.float64)
+                    rotAngle = numpy.zeros(3,Internal.E_NpyFloat)
                     rotAngleDeg = Internal.getRotationAngleValueInDegrees(rotAngleNode)
                     for i in range(3): rotAngle[i]=rotAngleDeg[i]
                     Internal._rmNodesByNameAndType(rotAngleNode,'DimensionalUnits','DimensionalUnits_t')
                 else:
-                    rotAngle = numpy.empty(0,numpy.float64)
+                    rotAngle = numpy.empty(0,Internal.E_NpyFloat)
 
                 rotCenter = Internal.getNodeFromName1(periodic, 'RotationCenter')
                 if rotCenter is not None: rotCenter=rotCenter[1]
-                else: rotCenter = numpy.zeros(3,numpy.float64)
+                else: rotCenter = numpy.zeros(3,Internal.E_NpyFloat)
 
                 translation = Internal.getNodeFromName1(periodic, 'Translation')
                 if translation is not None: translation=translation[1]
-                else: translation = numpy.empty(0,numpy.float64)
+                else: translation = numpy.empty(0,Internal.E_NpyFloat)
 
                 solverProperty = c[2][len(c[2])-1]
                 sp  = [Internal.createNode('type','DataArray_t',value=jointype)]
@@ -190,7 +190,7 @@ def _adaptPeriodicMatch(t, clean=False):
                     if len(numpy.where(rotAngle)[0]) != 1:
                         print("Warning: adaptPeriodicMatch__: rotation angle must have one non-zero component.")
                         continue
-                    axis = numpy.zeros(3,numpy.float64)
+                    axis = numpy.zeros(3,Internal.E_NpyFloat)
                     axis[numpy.where(rotAngle)[0][0]]=1.0
                     angle = -rotAngle[numpy.where(rotAngle)[0][0]] # angle of the periodicity by rotation
                     angle1 = int(round(360./angle))
@@ -623,7 +623,7 @@ def _buildMaskFiles(t, keepOversetHoles=True, fileDir='.', prefixBase=False):
                 h = Internal.getValue(pl)
                 dim = Internal.getZoneDim(z)
                 h = Internal.convertIJKArray21DArray(h, dim[1]-1,dim[2]-1,dim[3]-1)
-                hf = numpy.empty(h.shape, dtype=numpy.float64)
+                hf = numpy.empty(h.shape, dtype=Internal.E_NpyFloat)
                 hf[:] = h[:]
                 array = ['cell_index', hf, hf.size, 1, 1]
                 fileName = fileDir+'/hole_'
@@ -921,7 +921,7 @@ def _addTurbulentDistanceIndex(t):
                 if dist is not None:
                     #indexa = numpy.full(dist[1].shape,-1, dtype=Internal.__E_NPY_INT, order='F')
                     #indexa = numpy.empty(dist[1].shape, dtype=Internal.__E_NPY_INT, order='F')
-                    indexa = numpy.empty(dist[1].shape, dtype=numpy.float64, order='F')
+                    indexa = numpy.empty(dist[1].shape, dtype=Internal.E_NpyFloat, order='F')
                     indexa[:] = -1
                     distindex = Internal.createNode("TurbulentDistanceIndex",'DataArray_t',value=indexa,parent=sol)
     return None

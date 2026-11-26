@@ -35,6 +35,9 @@ __all__ = [
 
 from mpi4py import MPI
 import numpy
+# MPI datatype matching the compiled real precision (Internal.E_NpyFloat)
+if Internal.E_NpyFloat == numpy.float32: E_MPI_FLOAT = MPI.FLOAT
+else: E_MPI_FLOAT = MPI.DOUBLE
 import os
 
 COMM_WORLD = MPI.COMM_WORLD
@@ -485,13 +488,13 @@ def bcastZone(z, root=0, coord=True, variables=[]):
         sx, sy, sz = KCOMM.bcast((sx, sy, sz), root)
 
         if rank != root:
-            px = numpy.empty(sx, dtype=numpy.float64, order='F')
-            py = numpy.empty(sy, dtype=numpy.float64, order='F')
-            pz = numpy.empty(sz, dtype=numpy.float64, order='F')
+            px = numpy.empty(sx, dtype=Internal.E_NpyFloat, order='F')
+            py = numpy.empty(sy, dtype=Internal.E_NpyFloat, order='F')
+            pz = numpy.empty(sz, dtype=Internal.E_NpyFloat, order='F')
 
-        KCOMM.Bcast([px,MPI.DOUBLE], root)
-        KCOMM.Bcast([py,MPI.DOUBLE], root)
-        KCOMM.Bcast([pz,MPI.DOUBLE], root)
+        KCOMM.Bcast([px,E_MPI_FLOAT], root)
+        KCOMM.Bcast([py,E_MPI_FLOAT], root)
+        KCOMM.Bcast([pz,E_MPI_FLOAT], root)
 
         if rank != root:
             # Reconstruction de la zone
@@ -514,9 +517,9 @@ def bcastZone(z, root=0, coord=True, variables=[]):
         sv = KCOMM.bcast((sv), root)
 
         if rank != root:
-            pv = numpy.empty(sv, dtype=numpy.float64, order='F')
+            pv = numpy.empty(sv, dtype=Internal.E_NpyFloat, order='F')
 
-        KCOMM.Bcast([pv,MPI.DOUBLE], root)
+        KCOMM.Bcast([pv,E_MPI_FLOAT], root)
 
         if rank != root:
             # Reconstruction de la zone
@@ -743,7 +746,7 @@ def computeGraph(t, type='bbox', t2=None, procDict=None, reduction=True,
 # Calcule l'intersection de deux bbox
 #=============================================================================
 def GetIntersectionBbox(bbox1, bbox2):
-    Ibbox = numpy.zeros(6, dtype=numpy.float64)
+    Ibbox = numpy.zeros(6, dtype=Internal.E_NpyFloat)
     Ibbox[0:3] = [max(bbox1[i],bbox2[i]) for i in range(3)]
     Ibbox[3:6] = [min(bbox1[i],bbox2[i]) for i in range(3,6)]
     return Ibbox
