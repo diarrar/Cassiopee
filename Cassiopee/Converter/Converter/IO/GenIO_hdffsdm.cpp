@@ -1921,7 +1921,8 @@ E_Int K_IO::GenIO::hdffsdmwrite(char* file, PyObject* tree)
         E_Int* p = K_PYTREE::getValueAI(pr, hook);
         if (p[0] >= minFaceNGon && p[0] <= maxFaceNGon) // NGon BC
         {
-          for (E_Int f = p[0]; f < p[1]; f++) size += ngonOffset[f]-ngonOffset[f-1];
+          for (E_Int f = p[0]; f <= p[1]; f++) // local face index f-minFaceNGon, as for PointList
+            size += ngonOffset[f-minFaceNGon+1]-ngonOffset[f-minFaceNGon];
           nc += p[1]-p[0]+1;
         }
       }
@@ -1958,12 +1959,13 @@ E_Int K_IO::GenIO::hdffsdmwrite(char* file, PyObject* tree)
         E_Int* p = K_PYTREE::getValueAI(pr, hook);
         if (p[0] >= minFaceNGon && p[0] <= maxFaceNGon) // NGon BC
         {
-          for (E_Int f = p[0]; f < p[1]; f++) // pour chaque face 
+          for (E_Int f = p[0]; f <= p[1]; f++) // pour chaque face 
           {
-            E_Int size0 = ngonOffset[f+1]-ngonOffset[f];
+            E_Int fl = f-minFaceNGon; // local face index, as for PointList
+            E_Int size0 = ngonOffset[fl+1]-ngonOffset[fl];
             poly2dCount[faceCount] = size0;
             marker[faceCount] = bcCount;
-            for (E_Int j = ngonOffset[f-1]; j < ngonOffset[f]; j++) { poly2d[ptr] = ngon[j]-1; ptr++; }
+            for (E_Int j = ngonOffset[fl]; j < ngonOffset[fl+1]; j++) { poly2d[ptr] = ngon[j]-1; ptr++; }
             faceCount++;
           }
       }
