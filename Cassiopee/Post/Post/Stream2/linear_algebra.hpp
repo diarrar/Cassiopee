@@ -26,13 +26,13 @@ namespace K_POST
     /// Définition d'un vecteur de ℝ²
     using vector2d = std::array<E_Float,2>;
     /// Matrice définie de ℝ² dans ℝ²
-    using matrix_2x2_type = std::array<std::array<double,2>,2>;
+    using matrix_2x2_type = std::array<std::array<E_Float,2>,2>;
     /// Affichage d'un vecteur en deux dimensions (lisible par l'humain)
     std::ostream& operator << ( std::ostream& out, const vector2d& u);
     /// Multiplication matrice ℝ²xℝ² par une vecteur ℝ²
     vector2d operator * ( const matrix_2x2_type& A, const vector2d& u);
     /// Calcul du déterminant d'une matrice ℝ²xℝ²
-    double det(const matrix_2x2_type& A);
+    E_Float det(const matrix_2x2_type& A);
     /// Calcul de la matrice inverse d'une matrice ℝ²xℝ². Si la matrice est non inversible, retourne une exception de type std::invalid_argument
     
     /**
@@ -72,11 +72,11 @@ namespace K_POST
 
 
     /// Matrice définie de ℝ³ dans ℝ³
-    using matrix_3x3_type = std::array<std::array<double,3>,3>;
+    using matrix_3x3_type = std::array<std::array<E_Float,3>,3>;
     /// Produit matrice-vecteur d'une matrice ℝ³xℝ³ avec un vecteur de ℝ³
     vector3d operator * ( const matrix_3x3_type& A, const vector3d& u);
     /// Calcul le déterminant d'une matrice ℝ³xℝ³
-    double det(const matrix_3x3_type& A);
+    E_Float det(const matrix_3x3_type& A);
     /**
      * @brief      Retourne l'inverse d'une matrice ℝ³xℝ³
      *

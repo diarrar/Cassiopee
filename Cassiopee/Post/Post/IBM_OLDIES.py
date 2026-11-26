@@ -364,8 +364,8 @@ def prepareWallReconstruction(tw, tc):
     del tcw_bb
 
     EXTRAP = numpy.array([],numpy.int32)
-    VOL = numpy.array([],numpy.float64)
-    ORPHAN = numpy.array([],numpy.float64)
+    VOL = numpy.array([],Internal.E_NpyFloat)
+    ORPHAN = numpy.array([],Internal.E_NpyFloat)
     datas = {}
 
     for zw in Internal.getZones(tw):

@@ -931,7 +931,7 @@ class Probe:
                 if i[3] == 'DataArray_t':
                     varname, ptf2 = i[0], i[1]
                     pf = Internal.getNodeFromName2(fcont, varname)
-                    if pf is None: pf = Internal.newDataArray(varname, value=numpy.zeros(sizeArray, dtype=numpy.float64, order='F'), parent=fcont)
+                    if pf is None: pf = Internal.newDataArray(varname, value=numpy.zeros(sizeArray, dtype=Internal.E_NpyFloat, order='F'), parent=fcont)
                     ptf = pf[1]
                     self.slice__(ptf, ptf2, cur, sizeTimeCont, ind, dim[2])
             cur += sizeTimeCont
@@ -955,7 +955,7 @@ class Probe:
                     if i[3] == 'DataArray_t':
                         varname, ptf2 = i[0], i[1]
                         pf = Internal.getNodeFromName2(fcont, varname)
-                        if pf is None: pf = Internal.newDataArray(varname, value=numpy.zeros(sizeArray, dtype=numpy.float64, order='F'), parent=fcont)
+                        if pf is None: pf = Internal.newDataArray(varname, value=numpy.zeros(sizeArray, dtype=Internal.E_NpyFloat, order='F'), parent=fcont)
                         ptf = pf[1]
                         self.slice__(ptf, ptf2, cur, sizeTimeCont, ind, dim[2])
                 cur += sizeTimeCont
@@ -1031,7 +1031,7 @@ class Probe:
             z = zoneNames[name][tmin]
             npts = C.getNPts(z)
             ncells = C.getNCells(z)
-            p2 = numpy.zeros( (ncells, ntime), dtype=numpy.float64)
+            p2 = numpy.zeros( (ncells, ntime), dtype=Internal.E_NpyFloat)
             for it in range(tmin, tmax+1):
                 z = zoneNames[name][it]
                 fss = Internal.getNodeFromName1(z, fieldCont)
@@ -1047,7 +1047,7 @@ class Probe:
                 ncells = pin[c].shape[0]
                 ntime1 = pin[c].shape[1]
                 ntime2 = r.shape[1]
-                a = numpy.zeros( (ncells, ntime1+ntime2), dtype=numpy.float64)
+                a = numpy.zeros( (ncells, ntime1+ntime2), dtype=Internal.E_NpyFloat)
                 a[:,0:ntime1] = pin[c][:,0:ntime1]
                 a[:,ntime1:ntime1+ntime2] = r[:,0:ntime2]
                 pin[c] = a

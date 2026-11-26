@@ -167,6 +167,13 @@ namespace K_POST
             {
                 // On va faire une légère perturbation pour voir...
                 vector3d n = this->get_normal();
+#if !defined(E_DOUBLEREAL)
+                // single precision: n is not normalized (its norm is the area of the
+                // face), 1e-6*n moved the origin by less than the resolution of the
+                // coordinates and the indetermination remained. Offset of 1e-3 times
+                // the size of the face along the unit normal.
+                n = (1.E-3*std::sqrt(abs(n))/abs(n)/1.E-6)*n;
+#endif
                 point3d perturb1_origin = origin + (1.E-6)*n;
                 decltype(this->is_intersecting_ray(perturb1_origin, direction)) result;
                 try

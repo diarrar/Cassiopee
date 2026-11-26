@@ -26,12 +26,14 @@ using namespace K_FUNC;
 using namespace K_FLD;
 using namespace std;
 
+// usurp works in its own double precision kind (real(kind=rd) in IntrTypeM.f90),
+// whatever the compiled precision of E_Float
 extern "C"
 {
   void usurp_(const E_Int& nzone, const E_Int* nit, const E_Int* njt,
               const E_Int* nkt, const E_Int* iblank, const E_Int& ncellmax,
-              const E_Float* coord, const E_Int& nptsmax, 
-              E_Float* ratio);
+              const double* coord, const E_Int& nptsmax, 
+              double* ratio);
 }
 // ============================================================================
 /* USURP */
@@ -299,9 +301,25 @@ PyObject* K_POST::usurpF(PyObject* self, PyObject* args)
   //----------------------------------------------
   FldArrayF ratio(ncellmax);
 
+#ifdef E_DOUBLEREAL
   usurp_(nzone, nit.begin(), njt.begin(), nkt.begin(), 
          iblank.begin(), ncellmax, coord.begin(), nptsmax,
          ratio.begin());
+#else
+  // E_Float is float: convert to/from the double precision expected by usurp
+  {
+    E_Int coordSize = coord.getSize()*coord.getNfld();
+    double* coordD = new double [coordSize];
+    double* ratioD = new double [ncellmax];
+    E_Float* coordp = coord.begin();
+    for (E_Int i = 0; i < coordSize; i++) coordD[i] = (double)coordp[i];
+    usurp_(nzone, nit.begin(), njt.begin(), nkt.begin(), 
+           iblank.begin(), ncellmax, coordD, nptsmax, ratioD);
+    E_Float* ratiop = ratio.begin();
+    for (E_Int i = 0; i < ncellmax; i++) ratiop[i] = (E_Float)ratioD[i];
+    delete [] coordD; delete [] ratioD;
+  }
+#endif
 
   //------------------------
   // convert 2 arrays 

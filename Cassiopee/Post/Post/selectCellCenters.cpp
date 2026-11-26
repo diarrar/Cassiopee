@@ -118,7 +118,7 @@ PyObject* K_POST::selectCellCenters(PyObject* self, PyObject* args)
     return NULL;
   }
 
-  E_Float oneEps = 1.-1.e-10;
+  E_Float oneEps = 1.-E_REALTOL(1.e-10); // 1-1e-10 is 1 in float
   E_Float* tagp = tag->begin();
   // no check of coordinates
   E_Int posx = K_ARRAY::isCoordinateXPresent(varString); posx++;

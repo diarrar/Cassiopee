@@ -771,8 +771,8 @@ def concatenateStress(t1, t2, cpt):
 """ def extractSlices(b, psib, radius, ROINF, PINF, ASOUND, MTIP, MU, AR, CHORD):
     global CnM2dict, CmM2dict
     slices = []
-    CnM2dict[psib] = numpy.empty((3,len(radius)), dtype=numpy.float64)
-    CmM2dict[psib] = numpy.empty((3,len(radius)), dtype=numpy.float64)
+    CnM2dict[psib] = numpy.empty((3,len(radius)), dtype=Internal.E_NpyFloat)
+    CmM2dict[psib] = numpy.empty((3,len(radius)), dtype=Internal.E_NpyFloat)
     R._switchGridAndGridInit(b)
     for no, r in enumerate(radius):
         iso = P.isoSurfMC(b, 'CoordinateX', r)
