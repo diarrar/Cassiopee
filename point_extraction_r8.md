@@ -1,4 +1,4 @@
-# Point d'étape : extraction des correctifs indépendants du fp32 (26/11/2026)
+# Point d'étape : extraction des correctifs indépendants du fp32 (26/11/2026, complété le même jour)
 
 ## Contexte
 
@@ -50,6 +50,9 @@ Toutes ces branches sont à jour avec `dev` (`04858e6`) et se fusionnent sans co
 | 3 | **`Converter/Gmsh.py`** : connectivité créée en `numpy.int32` en dur, fausse en i8 | code (ligne 53) | 1 PR d'une ligne (`E_NpyInt`) |
 | 4 | **`spline`** (`evalSpline`, `N`) : un paramètre hors du vecteur de nœuds laisse `k = -1`, et `xt[k-d]` lit avant le début du tableau | code (rare en double) | 1 petite PR |
 | 5 | **`Internal.isValue`** : un nœud float32 comparé à un float Python renvoie toujours `False` (dtype différent) | code (touche les fichiers R4) | 1 petite PR |
+| 9 | **`Transform` `joinAll`** (zones multi-éléments) : `npts += nptsk` dans la boucle sur les connectivités, les points sont comptés une fois par connectivité. La moitié du tableau de sortie n'est pas initialisée (valgrind : 124 lectures non initialisées sur `dev`). Trouvé le 26/11 grâce à l'échec intermittent de `joinPT_t4` en r4 (tous les points fusionnés en un seul) | correctif prêt et testé (r4 et r8 : `joinPT_t4` passe, lectures non initialisées supprimées) | 1 PR |
+| 10 | **`KCore.test.checkObject_`** : `IndexError` quand deux listes comparées n'ont pas la même longueur, au lieu de signaler un écart | sortie de `generateAMRMeshStepPT_t2` en r4 | 1 petite PR (outillage de test) |
+| 11 | **`FldArray<int>::releaseMemory`** lit un membre non initialisé sur les `FldArrayI` multi-éléments créés par `getFromArray3` | valgrind | à examiner |
 
 ## 3. À discuter avec les développeurs avant toute PR
 
