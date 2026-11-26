@@ -63,7 +63,7 @@ private:
 /*
   ///
   static void __computeRadius(const K_FLD::FloatArray& vpos, const K_FLD::IntArray& vE2, const K_FLD::FloatArray& pos,
-                              const std::vector<E_Int>& realID, std::vector<E_Float>& R2);
+                              const std::vector<E_Int>& realID, std::vector<nuga_real_t>& R2);
 */
 protected:
   bool _reorient;

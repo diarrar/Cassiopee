@@ -39,7 +39,7 @@ namespace NUGA
     using outdata_t = typename parent_t::outdata_t;
     using aelt_t    = typename zmesh_t::aelt_t;
 
-    xcellnv(E_Float RTOL) : parent_t(RTOL) {}
+    xcellnv(nuga_real_t RTOL) : parent_t(RTOL) {}
 
     outdata_t __process_X_cells(zmesh_t const & z_mesh, std::vector< bound_mesh_t*> const & mask_bits, wdata_t & wdata)
     {
@@ -58,19 +58,19 @@ namespace NUGA
       {
         color_t const & idata = wdata[i];
 
-        E_Float v = E_Float(idata);
+        nuga_real_t v = nuga_real_t(idata);
         xcelln[i] = v;
         if (v != X) continue;
 
         bits.clear();
         bits.push_back(z_mesh.aelement(i)); // autonomous element directly stolen by bits (rvalue ref) 
         
-        E_Float v0 = bits[0].metrics(); // initial surface&normal (surf)/volume 
+        nuga_real_t v0 = bits[0].metrics(); // initial surface&normal (surf)/volume 
 
         NUGA::CLIP::poly_clip<zmesh_t, bound_mesh_t>(bits, v0, idata.masks, mask_bits, parent_t::_RTOL);
 
         // accumulated volume
-        E_Float vcur = 0.;
+        nuga_real_t vcur = 0.;
         for (size_t b = 0; b < bits.size(); ++b)
           vcur += bits[b].extent();
 
@@ -105,7 +105,7 @@ namespace NUGA
     using outdata_t = typename parent_t::outdata_t; // zmesh_t
     using aelt_t    = typename zmesh_t::aelt_t;
 
-    xcellno(E_Float RTOL) : parent_t(RTOL) {}
+    xcellno(nuga_real_t RTOL) : parent_t(RTOL) {}
 
     void finalize(const zmesh_t& m, outdata_t& outdata)
     {
@@ -131,7 +131,7 @@ namespace NUGA
       for (size_t i = 0; i < ncells; ++i)
       {
         color_t const & idata = wdata[i];
-        E_Float v = E_Float(idata);
+        nuga_real_t v = nuga_real_t(idata);
 
         keep[i] = (v == OUT);
         docomp |= (v != OUT);
@@ -153,13 +153,13 @@ namespace NUGA
       {
         color_t const & idata = wdata[i];
 
-        E_Float v = E_Float(idata);
+        nuga_real_t v = nuga_real_t(idata);
         if (v != X) continue;
 
         bits.clear();
         bits.push_back(z_mesh.aelement(i)); // autonomous element directly stolen by bits (rvalue ref) 
 
-        E_Float v0 = bits[0].metrics(); // initial surface&normal (surf)/volume 
+        nuga_real_t v0 = bits[0].metrics(); // initial surface&normal (surf)/volume 
 
         NUGA::CLIP::poly_clip<zmesh_t, bound_mesh_t>(bits, v0, idata.masks, mask_bits, parent_t::_RTOL);
 
@@ -268,7 +268,7 @@ namespace NUGA
     const std::vector<K_FLD::FloatArray> &mask_crds, const std::vector<K_FLD::IntArray>& mask_cnts,
     std::vector< std::vector<E_Int>> &mask_wall_ids,
     const std::vector<K_SEARCH::BBox3D>& comp_boxes,
-    typename classifyer_t::outdata_t& z_xcelln, E_Float RTOL)
+    typename classifyer_t::outdata_t& z_xcelln, nuga_real_t RTOL)
   {
     //using zmesh_t = typename classifyer_t::zmesh_t;
     using bmesh_t = typename classifyer_t::bmesh_t;
@@ -310,7 +310,7 @@ namespace NUGA
                           const std::vector<E_Int>& comp_id, std::vector<std::pair<E_Int, E_Int>> & priority,
                           const std::vector<K_FLD::FloatArray> &mask_crds, const std::vector<K_FLD::IntArray>& mask_cnts,
                           std::vector< std::vector<E_Int>> &mask_wall_ids,
-                          std::vector<typename classifyer_t::outdata_t > & xcelln, E_Float RTOL)
+                          std::vector<typename classifyer_t::outdata_t > & xcelln, nuga_real_t RTOL)
   {
     //priority map
     prior_t sorted_comps_per_comp;

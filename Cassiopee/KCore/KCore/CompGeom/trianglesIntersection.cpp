@@ -31,12 +31,19 @@ E_Int K_COMPGEOM::crossIntersectionOfTriangles(
   E_Float* ptA2, E_Float* ptB2, E_Float* ptC2,
   E_Float eps)
 {
+  // Nuga works in double: copy the six points
+  nuga_real_t ptA1d[3] = {ptA1[0], ptA1[1], ptA1[2]};
+  nuga_real_t ptB1d[3] = {ptB1[0], ptB1[1], ptB1[2]};
+  nuga_real_t ptC1d[3] = {ptC1[0], ptC1[1], ptC1[2]};
+  nuga_real_t ptA2d[3] = {ptA2[0], ptA2[1], ptA2[2]};
+  nuga_real_t ptB2d[3] = {ptB2[0], ptB2[1], ptB2[2]};
+  nuga_real_t ptC2d[3] = {ptC2[0], ptC2[1], ptC2[2]};
   E_Bool tol_is_absolute = false;
-  E_Float u00, u01; E_Int tx;
+  nuga_real_t u00, u01; E_Int tx;
   E_Bool overlap;
   E_Float tolu = 1.e-6; // tolerance sur u00 correspondant a AP = u00.A2B2 
   //test triangle A1B1C1 avec edge A2B2
-  bool intersect = K_MESH::Triangle::intersect<3>(ptA1, ptB1, ptC1, ptA2, ptB2,
+  bool intersect = K_MESH::Triangle::intersect<3>(ptA1d, ptB1d, ptC1d, ptA2d, ptB2d,
                                                   eps, tol_is_absolute, 
                                                   u00, u01, tx, overlap);
   if (intersect == true) 
@@ -48,7 +55,7 @@ E_Int K_COMPGEOM::crossIntersectionOfTriangles(
     }
   }
   //test triangle A1B1C1 avec edge B2C2
-  intersect = K_MESH::Triangle::intersect<3>(ptA1, ptB1, ptC1, ptB2, ptC2, 
+  intersect = K_MESH::Triangle::intersect<3>(ptA1d, ptB1d, ptC1d, ptB2d, ptC2d, 
                                              eps, tol_is_absolute, 
                                              u00, u01, tx, overlap);
   if (intersect == true) 
@@ -59,7 +66,7 @@ E_Int K_COMPGEOM::crossIntersectionOfTriangles(
     }
   }
   //test triangle A1B1C1 avec edge C2A2
-  intersect = K_MESH::Triangle::intersect<3>(ptA1, ptB1, ptC1, ptC2, ptA2, 
+  intersect = K_MESH::Triangle::intersect<3>(ptA1d, ptB1d, ptC1d, ptC2d, ptA2d, 
                                              eps, tol_is_absolute, 
                                              u00, u01, tx, overlap);
   if (intersect == true)
@@ -71,7 +78,7 @@ E_Int K_COMPGEOM::crossIntersectionOfTriangles(
   }
 
   //test triangle A2B2C2 avec edge A1B1
-  intersect = K_MESH::Triangle::intersect<3>(ptA2, ptB2, ptC2, ptA1, ptB1, 
+  intersect = K_MESH::Triangle::intersect<3>(ptA2d, ptB2d, ptC2d, ptA1d, ptB1d, 
                                              eps, tol_is_absolute, 
                                              u00, u01, tx, overlap);
   if (intersect == true)
@@ -79,7 +86,7 @@ E_Int K_COMPGEOM::crossIntersectionOfTriangles(
     if (overlap == false && u00 > tolu && u00 < 1-tolu) return -1;
   }
   //test triangle A2B2C2 avec edge B1C1
-  intersect = K_MESH::Triangle::intersect<3>(ptA2, ptB2, ptC2, ptB1, ptC1, 
+  intersect = K_MESH::Triangle::intersect<3>(ptA2d, ptB2d, ptC2d, ptB1d, ptC1d, 
                                              eps, tol_is_absolute, 
                                              u00, u01, tx, overlap);
   if (intersect == true)
@@ -87,7 +94,7 @@ E_Int K_COMPGEOM::crossIntersectionOfTriangles(
     if (overlap == false && u00 > tolu && u00 < 1-tolu) return -1;
   }
   //test triangle A2B2C2 avec edge C1A1
-  intersect = K_MESH::Triangle::intersect<3>(ptA2, ptB2, ptC2, ptC1, ptA1, 
+  intersect = K_MESH::Triangle::intersect<3>(ptA2d, ptB2d, ptC2d, ptC1d, ptA1d, 
                                              eps, tol_is_absolute, 
                                              u00, u01, tx, overlap);
   if (intersect == true) 

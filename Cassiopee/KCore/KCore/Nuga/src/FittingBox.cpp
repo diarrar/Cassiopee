@@ -32,7 +32,7 @@ using namespace NUGA;
 ///
 void
 FittingBox::computeNormalToContour
-(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, E_Float* W)
+(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, nuga_real_t* W)
 {
   NUGA::int_vector_type nodes;
   E_Int nb_nodes, nb_elts(connect.cols()), Ni, Nj;
@@ -43,7 +43,7 @@ FittingBox::computeNormalToContour
   nb_nodes = nodes.size();
 
   // Compute the Barycenter
-  E_Float G[] = {0., 0., 0.};
+  nuga_real_t G[] = {0., 0., 0.};
   for (E_Int i = 0; i < nb_nodes; ++i)
     NUGA::sum<3>(pos.col(nodes[i]), G, G);
 
@@ -51,7 +51,7 @@ FittingBox::computeNormalToContour
     G[i] /= nb_nodes;
 
   // Compute an approximate normal W to the contour's surface (oriented toward outside).
-  E_Float V1[3], V2[3], w[3];
+  nuga_real_t V1[3], V2[3], w[3];
   for (E_Int i = 0; i < 3; ++i) W[i] = 0.;
 
   for (E_Int c = 0; c < nb_elts; ++c)
@@ -79,7 +79,7 @@ FittingBox::computeNormalToContour
 void
 FittingBox::computeFittingFrame
 (const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect,
- const E_Float* W, K_FLD::FloatArray& P)
+ const nuga_real_t* W, K_FLD::FloatArray& P)
 {
   P.clear();
 
@@ -92,7 +92,7 @@ FittingBox::computeFittingFrame
 
   K_FLD::FloatArray wPos(pos);
   transform (wPos, iP);
-  //E_Float minB[3], maxB[3];
+  //nuga_real_t minB[3], maxB[3];
   //NUGA::MeshTool::boundingBox(wPos, connect, minB, maxB);
   //drawBox(wPos, connect, minB, maxB);
 
@@ -106,10 +106,10 @@ FittingBox::computeOptimalViewFrame
 (const K_FLD::FloatArray& posE2, const K_FLD::IntArray& connectE2, K_FLD::FloatArray& P)
 {
   K_FLD::FloatArray posFrame, iP(3,3), R(3, 3);
-  E_Float W[3];
+  nuga_real_t W[3];
   E_Int err;
-  E_Float alphamax = NUGA::PI_2;
-  E_Float alpha(2.* alphamax/E_Float(_maxStep));
+  nuga_real_t alphamax = NUGA::PI_2;
+  nuga_real_t alpha(2.* alphamax/nuga_real_t(_maxStep));
 
   FittingBox::computeNormalToContour(posE2, connectE2, W);
 
@@ -143,16 +143,16 @@ FittingBox::computeOptimalViewFrame
 ///
 E_Int
 FittingBox::__computeOptimalViewFrame
-(const K_FLD::FloatArray& posE2, const K_FLD::IntArray& connectE2, const E_Float* W0, const K_FLD::FloatArray& R, K_FLD::FloatArray& P)
+(const K_FLD::FloatArray& posE2, const K_FLD::IntArray& connectE2, const nuga_real_t* W0, const K_FLD::FloatArray& R, K_FLD::FloatArray& P)
 {
-  E_Float W[3];
+  nuga_real_t W[3];
   bool carry_on = true;
   E_Int error(0), err, iter(0);
   K_FLD::FloatArray posFrame, iP(3,3);
 
   DELAUNAY::MesherMode mode;
   mode.mesh_mode = mode.TRIANGULATION_MODE;
-  DELAUNAY::T3Mesher<E_Float> mesher(mode);
+  DELAUNAY::T3Mesher<nuga_real_t> mesher(mode);
 
   for (E_Int k = 0; k < 3; ++k) W[k] = W0[k];
 
@@ -204,11 +204,11 @@ void
 FittingBox::__fitByRotating
 (const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, K_FLD::FloatArray& P)
 {
-  E_Float             minB[3], maxB[3], s0,s1, min_s;
-  E_Float             alpha(NUGA::PI_4/_maxStep);
-  E_Float             G[] = {0., 0., 0.};
+  nuga_real_t             minB[3], maxB[3], s0,s1, min_s;
+  nuga_real_t             alpha(NUGA::PI_4/_maxStep);
+  nuga_real_t             G[] = {0., 0., 0.};
   K_FLD::FloatArray   wpos0(pos), wpos;
-  E_Float             sign = +1., a(0);
+  nuga_real_t             sign = +1., a(0);
   K_FLD::FloatArray   R(3,3, 0.), best_R(3,3,0.);
 
   /* Init */
@@ -271,7 +271,7 @@ FittingBox::__fitByRotating
 
 #ifdef E_DEBUG
 
-void FittingBox::drawBox(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, const E_Float* mB, const E_Float* MB)
+void FittingBox::drawBox(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, const nuga_real_t* mB, const nuga_real_t* MB)
 {
   K_FLD::FloatArray pp1(pos), pp;
   K_FLD::IntArray cc1(connect), cc;
@@ -283,7 +283,7 @@ void FittingBox::drawBox(const K_FLD::FloatArray& pos, const K_FLD::IntArray& co
   meshIO::write("box.mesh", pp1, cc1);
 }
 
-void FittingBox::make_box(const E_Float* minB, const E_Float* maxB, K_FLD::FloatArray& boxPs, K_FLD::IntArray& boxC)
+void FittingBox::make_box(const nuga_real_t* minB, const nuga_real_t* maxB, K_FLD::FloatArray& boxPs, K_FLD::IntArray& boxC)
 {
   boxPs.resize(3, 8);
   boxC.resize(2, 12);

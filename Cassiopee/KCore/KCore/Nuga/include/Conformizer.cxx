@@ -121,7 +121,7 @@ E_Int Conformizer<DIM, Element_t>::__removeDegenerated
 ///
 template <short DIM, typename Element_t>
 E_Int Conformizer<DIM, Element_t>::run
-(K_FLD::FloatArray& pos, K_FLD::IntArray& connect, std::vector<E_Int>& ancestors, Vector_t<E_Int>* priority, E_Float tolerance, E_Int X0, E_Int itermax)
+(K_FLD::FloatArray& pos, K_FLD::IntArray& connect, std::vector<E_Int>& ancestors, Vector_t<E_Int>* priority, nuga_real_t tolerance, E_Int X0, E_Int itermax)
 {
   E_Int                         iter(1), xnb;
   bool                          carry_on(false);
@@ -196,7 +196,7 @@ E_Int Conformizer<DIM, Element_t>::run
     // If not specified by the user, update (if bigger) the tolerance based only on the intersecting ORIGINAL triangles set.
    if ( (_iter == 1) && (tolerance == 0.) && !_one_pass_mode ) // First pass.
    {
-     //E_Float oldtol=_tolerance;
+     //nuga_real_t oldtol=_tolerance;
      __update_tolerance(pos, xc, ancestors);
      //if (_tolerance > oldtol) fixme : doesn't work. But something might be done here to clear small elements...
        //this->__simplify_and_clean(pos, _tolerance, connect, ancestors, xc);
@@ -234,7 +234,7 @@ E_Int Conformizer<DIM, Element_t>::run
 
   if (_initialrows > 0) //fixme : can we exit with a real 2D coordinate matrix ?
   {
-    E_Float zero = 0.;
+    nuga_real_t zero = 0.;
     pos.resize(_initialrows, pos.cols(), &zero);
   }
   
@@ -254,7 +254,7 @@ E_Int Conformizer<DIM, Element_t>::run
 template <short DIM, typename Element_t>
 void
 Conformizer<DIM, Element_t>::__initialize
-(const K_FLD::FloatArray& pos, K_FLD::IntArray& connect, E_Float tolerance,
+(const K_FLD::FloatArray& pos, K_FLD::IntArray& connect, nuga_real_t tolerance,
  std::vector<E_Int>& ancestors, NUGA::bool_vector_type& xc, E_Int X0)
 {
   _X0 = X0;
@@ -287,7 +287,7 @@ Conformizer<DIM, Element_t>::__initialize
   xc.resize(connect.cols(), true); // done to ensure that tolerance is computed taking into account everything
 
   // Initialize tolerances
-  E_Float Lmin, Lmax;
+  nuga_real_t Lmin, Lmax;
   __compute_min_edge_length(pos, connect, xc, Lmin, Lmax);
     
   this->__set_tolerances(Lmin, Lmax, tolerance);
@@ -317,7 +317,7 @@ Conformizer<DIM, Element_t>::__initialize
 template <short DIM, typename Element_t>
 E_Int
 Conformizer<DIM, Element_t>::__merge_clean
-(E_Float tol, const K_FLD::FloatArray& pos, K_FLD::IntArray& connect, std::vector<E_Int>& ancestors, 
+(nuga_real_t tol, const K_FLD::FloatArray& pos, K_FLD::IntArray& connect, std::vector<E_Int>& ancestors, 
  std::vector<E_Int>& new_IDs, NUGA::bool_vector_type* xc, E_Int fromIdx)
 {
   K_FLD::ArrayAccessor<K_FLD::FloatArray> posAcc(pos);
@@ -358,7 +358,7 @@ Conformizer<DIM, Element_t>::__merge_clean
 template <short DIM, typename Element_t>
 E_Int
 Conformizer<DIM, Element_t>::__merge_clean
-(E_Float tol, const K_FLD::FloatArray& pos, K_FLD::IntArray& connect, std::vector<E_Int>& ancestors, 
+(nuga_real_t tol, const K_FLD::FloatArray& pos, K_FLD::IntArray& connect, std::vector<E_Int>& ancestors, 
  std::vector<E_Int>& new_IDs, NUGA::bool_vector_type* xc, const NUGA::int_vector_type& source, const NUGA::int_vector_type& target)
 {
     K_FLD::ArrayAccessor<K_FLD::FloatArray> posAcc(pos);   
@@ -406,7 +406,7 @@ Conformizer<DIM, Element_t>::__clean
 template<short DIM, typename Element_t>
 E_Int Conformizer<DIM, Element_t>::__run
 (K_FLD::FloatArray& pos, K_FLD::IntArray& connect, std::vector<E_Int>& ancestors,
- NUGA::bool_vector_type& xc, E_Float tolerance)
+ NUGA::bool_vector_type& xc, nuga_real_t tolerance)
 {
 
 #ifdef FLAG_STEP
@@ -718,9 +718,9 @@ Conformizer<DIM, Element_t>::__update_tolerance(const K_FLD::FloatArray& coord, 
     xc0[ancestors[i]] = xc[i];
   }
   //medith::write("X.mesh", pos, _connect0, 0/*elt type*/, &xc0);
-  E_Float Lmin, Lmax;
+  nuga_real_t Lmin, Lmax;
   __compute_min_edge_length(coord, _connect0, xc0, Lmin, Lmax);
-  E_Float new_tol = MAX_PERCENT*Lmin;
+  nuga_real_t new_tol = MAX_PERCENT*Lmin;
   _tolerance = K_FUNC::E_max(new_tol, _tolerance);
   
 #ifdef DEBUG_CONFORMIZER
@@ -733,9 +733,9 @@ Conformizer<DIM, Element_t>::__update_tolerance(const K_FLD::FloatArray& coord, 
 template <short DIM, typename Element_t>
 void
 Conformizer<DIM, Element_t>::__compute_min_edge_length
-(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, const NUGA::bool_vector_type& xc, E_Float &Lmin, E_Float& Lmax)
+(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, const NUGA::bool_vector_type& xc, nuga_real_t &Lmin, nuga_real_t& Lmax)
 {
-  E_Float  min_d(EPSILON), max_d;
+  nuga_real_t  min_d(EPSILON), max_d;
   K_FLD::IntArray relevant_elts;
   E_Int ROWS(connect.rows());
 
@@ -755,7 +755,7 @@ Conformizer<DIM, Element_t>::__compute_min_edge_length
 template <short DIM, typename Element_t>
 E_Int
 Conformizer<DIM, Element_t>::__compute_intersections_w_localizer
-(K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, NUGA::bool_vector_type& xc, E_Float tolerance)
+(K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, NUGA::bool_vector_type& xc, nuga_real_t tolerance)
 {
   E_Int i, j, nb_boxes, nb_elts(xc.size()), nbX(0)/*, v1(-1), v2(-1), nbO(0)*/;
   std::vector<E_Int> bs;
@@ -894,7 +894,7 @@ Conformizer<DIM, Element_t>::__compute_intersections_w_localizer
 template <short DIM, typename Element_t>
 E_Int
 Conformizer<DIM, Element_t>::__compute_intersections_brute
-(K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, NUGA::bool_vector_type& xc, E_Float tolerance)
+(K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, NUGA::bool_vector_type& xc, nuga_real_t tolerance)
 {
   NUGA::bool_vector_type new_xc(xc.size(), false);
 

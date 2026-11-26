@@ -49,9 +49,9 @@ inline void stable_unique_values
 struct triplet_t
 {
   triplet_t()=default;
-  triplet_t(E_Float id, E_Int iNi, E_Int iNj):d(id), Ni(iNi), Nj(iNj){}
+  triplet_t(nuga_real_t id, E_Int iNi, E_Int iNj):d(id), Ni(iNi), Nj(iNj){}
 
-  E_Float d; E_Int Ni, Nj;
+  nuga_real_t d; E_Int Ni, Nj;
 };
 
 inline bool lower_than(const triplet_t& p1, const triplet_t& p2)
@@ -61,7 +61,7 @@ inline bool lower_than(const triplet_t& p1, const triplet_t& p2)
 template <typename ArrayType>
 void 
 merge_no_order_omp
-(const K_FLD::ArrayAccessor<ArrayType>& coordAcc, E_Float tol,
+(const K_FLD::ArrayAccessor<ArrayType>& coordAcc, nuga_real_t tol,
  NUGA::int_vector_type& new_IDs)
 {
   K_SEARCH::KdTree<ArrayType> tree(coordAcc, EPSILON, true/*do_omp*/);
@@ -74,12 +74,12 @@ merge_no_order_omp
     new_IDs[i] = i;
   }
 
-  E_Float tol2 = tol*tol;
+  nuga_real_t tol2 = tol*tol;
 
   std::vector< std::vector<E_Int> > allnodes(npts);
 #pragma omp parallel default(shared)
     {
-      E_Float Xn[3]; 
+      nuga_real_t Xn[3]; 
      
 #pragma omp for schedule(dynamic)
       for (E_Int i = 0; i < npts; i++)
@@ -89,8 +89,8 @@ merge_no_order_omp
       }
     }
 
-    E_Int m; E_Float d2;
-    E_Float Xn[3]; E_Float Xm[3];
+    E_Int m; nuga_real_t d2;
+    nuga_real_t Xn[3]; nuga_real_t Xm[3];
     E_Int mID;  size_t size; 
     
     for (E_Int i = 0; i < npts; i++)
@@ -129,7 +129,7 @@ merge_no_order_omp
 template <typename ArrayType>
 E_Int
 __merge
-(const K_FLD::ArrayAccessor<ArrayType>& coordAcc, E_Float tol,
+(const K_FLD::ArrayAccessor<ArrayType>& coordAcc, nuga_real_t tol,
  NUGA::int_vector_type& umoving,
  NUGA::int_vector_type& utarget,
  NUGA::int_vector_type& new_IDs)
@@ -147,12 +147,12 @@ __merge
   // build the KdTree on moving nodes.
   K_SEARCH::KdTree<ArrayType> moving_tree(coordAcc, umoving);
   
-  //E_Float d2, tol2(tol*tol);
+  //nuga_real_t d2, tol2(tol*tol);
   typedef std::vector<triplet_t > palmares_t;
   palmares_t palma;
 
   std::vector<E_Int> onodes;
-  std::vector<E_Float> dist2;
+  std::vector<nuga_real_t> dist2;
 
   // loop on target nodes and get all moving nodes in sphere of radius tol.
   size_t osz;
@@ -203,7 +203,7 @@ __merge
 template <typename ArrayType>
 E_Int
 __merge_omp
-(const K_FLD::ArrayAccessor<ArrayType>& coordAcc, E_Float tol,
+(const K_FLD::ArrayAccessor<ArrayType>& coordAcc, nuga_real_t tol,
   NUGA::int_vector_type& umoving,
   NUGA::int_vector_type& utarget,
   NUGA::int_vector_type& new_IDs)
@@ -228,11 +228,11 @@ __merge_omp
   palmares_t palma;
 
   std::vector<std::vector<E_Int>> onodes_thrd(__NUMTHREADS__);
-  std::vector<std::vector<E_Float>> dist2_thrd(__NUMTHREADS__);
+  std::vector<std::vector<nuga_real_t>> dist2_thrd(__NUMTHREADS__);
 
   E_Int id, Fi, Fj;
   size_t i, j, osz;
-  E_Float d2;
+  nuga_real_t d2;
 
   // loop on target nodes and get all moving nodes in sphere of radius tol.
 #pragma omp parallel shared(tsz, moving_tree, palma, utarget, tol, palma_thrd, dist2_thrd, onodes_thrd) private (i, j, id, osz, Fi, Fj, d2) default(none)
@@ -307,7 +307,7 @@ __merge_omp
 // template <typename ArrayType>
 // E_Int
 // __merge_omp
-// (const K_FLD::ArrayAccessor<ArrayType>& coordAcc, E_Float tol,
+// (const K_FLD::ArrayAccessor<ArrayType>& coordAcc, nuga_real_t tol,
 //   NUGA::int_vector_type& umoving,
 //   NUGA::int_vector_type& utarget,
 //   NUGA::int_vector_type& new_IDs)
@@ -335,7 +335,7 @@ __merge_omp
 //   palmares_t palma;
 
 //   std::vector<std::vector<E_Int>> onodes_thrd(NB_CHUNKS);
-//   std::vector<std::vector<E_Float>> dist2_thrd(NB_CHUNKS);
+//   std::vector<std::vector<nuga_real_t>> dist2_thrd(NB_CHUNKS);
 
 //   std::vector<E_Int> ibeg(NB_CHUNKS), iend(NB_CHUNKS);
 //   for (size_t k=0; k<NB_CHUNKS; ++k)
@@ -346,7 +346,7 @@ __merge_omp
 
 //   E_Int id, Fi, Fj;
 //   size_t i, j, osz, c;
-//   E_Float d2;
+//   nuga_real_t d2;
 
 //   // loop on target nodes and get all moving nodes in sphere of radius tol.
 // #pragma omp parallel shared(tsz, moving_tree, palma, utarget, tol, palma_thrd, dist2_thrd, onodes_thrd, NB_CHUNKS, ibeg, iend) private (c, i, j, id, osz, Fi, Fj, d2) default(none)
@@ -427,8 +427,8 @@ template <typename ArrayType>
 E_Int
 __merge
 (const K_FLD::ArrayAccessor<ArrayType>& coordAcc,
- const std::vector<E_Float>& nodal_metric2, 
- E_Float RTOL,
+ const std::vector<nuga_real_t>& nodal_metric2, 
+ nuga_real_t RTOL,
  NUGA::int_vector_type& umoving,
  NUGA::int_vector_type& utarget,
  NUGA::int_vector_type& new_IDs)
@@ -446,12 +446,12 @@ __merge
   // build the KdTree on moving nodes.
   K_SEARCH::KdTree<ArrayType> moving_tree(coordAcc, umoving);
 
-  //E_Float d2, tol2(tol*tol);
+  //nuga_real_t d2, tol2(tol*tol);
   typedef std::vector<triplet_t> palmares_t;
   palmares_t palma;
 
   std::vector<E_Int> onodes;
-  std::vector<E_Float> dist2;
+  std::vector<nuga_real_t> dist2;
 
   // loop on target nodes and get all moving nodes in sphere of radius tol.
   size_t osz;
@@ -468,7 +468,7 @@ __merge
       continue;
     }
     
-    E_Float TOLi = sqrt(nodal_metric2[Fi]) * RTOL;
+    nuga_real_t TOLi = sqrt(nodal_metric2[Fi]) * RTOL;
 
     moving_tree.getInSphere(Fi, TOLi, onodes, dist2);
     osz = onodes.size();
@@ -482,7 +482,7 @@ __merge
         continue;
       }
 
-      E_Float TOLj2 = nodal_metric2[Fj] * RTOL * RTOL;
+      nuga_real_t TOLj2 = nodal_metric2[Fj] * RTOL * RTOL;
 
       if (TOLj2 < dist2[j])
       {
@@ -532,8 +532,8 @@ template <typename ArrayType>
 E_Int
 __merge_omp
 (const K_FLD::ArrayAccessor<ArrayType>& coordAcc,
- const std::vector<E_Float>& nodal_metric2, 
- E_Float RTOL,
+ const std::vector<nuga_real_t>& nodal_metric2, 
+ nuga_real_t RTOL,
  NUGA::int_vector_type& umoving,
  NUGA::int_vector_type& utarget,
  NUGA::int_vector_type& new_IDs)
@@ -559,7 +559,7 @@ __merge_omp
   palmares_t palma;
 
   std::vector<std::vector<E_Int>> onodes_thrd(__NUMTHREADS__);
-  std::vector<std::vector<E_Float>> dist2_thrd(__NUMTHREADS__);
+  std::vector<std::vector<nuga_real_t>> dist2_thrd(__NUMTHREADS__);
 
   // loop on target nodes and get all moving nodes in sphere of radius tol.
 //#pragma omp parallel shared(tsz, moving_tree, palma, utarget, palma_thrd, dist2_thrd, onodes_thrd, RTOL, nodal_metric2) private (i, j, id, osz, Fi, Fj, d2, TOLi, TOLj2) default(none)
@@ -567,7 +567,7 @@ __merge_omp
   {
     E_Int id, Fi, Fj;
     size_t i, j, osz;
-    E_Float d2, TOLi, TOLj2;
+    nuga_real_t d2, TOLi, TOLj2;
 
     id = __CURRENT_THREAD__;
 
@@ -670,7 +670,7 @@ __merge_omp
 template <typename ArrayType>
 E_Int
 merge
-(const K_FLD::ArrayAccessor<ArrayType>& coordAcc, E_Float tol,
+(const K_FLD::ArrayAccessor<ArrayType>& coordAcc, nuga_real_t tol,
  const NUGA::int_vector_type& moving,
  const NUGA::int_vector_type& target,
  NUGA::int_vector_type& new_IDs, bool do_omp=false)
@@ -695,7 +695,7 @@ merge
 template <typename ArrayType>
 E_Int
 merge
-(const K_FLD::ArrayAccessor<ArrayType>& coordAcc, E_Float tol,
+(const K_FLD::ArrayAccessor<ArrayType>& coordAcc, nuga_real_t tol,
  NUGA::int_vector_type& new_IDs, bool do_omp=false)
 {
   NUGA::int_vector_type nodes(coordAcc.size());
@@ -710,7 +710,7 @@ merge
 template <typename ArrayType>
 E_Int
 merge
-(const K_FLD::ArrayAccessor<ArrayType>& coordAcc, const std::vector<E_Float>&nodal_metric2,  E_Float RTOL,
+(const K_FLD::ArrayAccessor<ArrayType>& coordAcc, const std::vector<nuga_real_t>&nodal_metric2,  nuga_real_t RTOL,
   NUGA::int_vector_type& new_IDs, bool do_omp=false)
 {
   NUGA::int_vector_type nodes(coordAcc.size());
@@ -763,7 +763,7 @@ void getNodeToNodes
 template <typename CoordType, typename ConnectType>
 E_Int
 merge
-(const K_FLD::ArrayAccessor<CoordType>& coordAcc, const K_FLD::ArrayAccessor<ConnectType>& connectAcc, E_Float tol,
+(const K_FLD::ArrayAccessor<CoordType>& coordAcc, const K_FLD::ArrayAccessor<ConnectType>& connectAcc, nuga_real_t tol,
  const NUGA::int_vector_type& moving, const NUGA::int_vector_type& target,
  NUGA::int_vector_type& new_IDs)
 {  
@@ -795,7 +795,7 @@ merge
   
   // loop on target nodes and get all connected nodes closer than tol.
   size_t osz;
-  E_Float d2, tol2(tol*tol);
+  nuga_real_t d2, tol2(tol*tol);
   for (size_t i = 0; i < tsz; ++i)
   {
     const E_Int& Fi = utarget[i];

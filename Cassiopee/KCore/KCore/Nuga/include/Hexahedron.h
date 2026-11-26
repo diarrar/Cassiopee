@@ -67,7 +67,7 @@ public:
   inline void set(const K_FLD::ArrayAccessor<Connectivity_t>& connect, E_Int K)
   {connect.getEntry(K, _nodes);}
   
-  E_Int volume(const K_FLD::FloatArray& crd, E_Float& v);
+  E_Int volume(const K_FLD::FloatArray& crd, nuga_real_t& v);
   
   void compact(const K_FLD::FloatArray& crdi, ngon_unit& pgs, K_FLD::FloatArray&crd);
   
@@ -105,7 +105,7 @@ public:
   
   static void get_edges(const E_Int* nodes, Vector_t<K_MESH::NO_Edge>& edges);
   
-  static bool cross(const ngon_t<K_FLD::IntArray>& ng, const K_FLD::FloatArray& crd, const E_Int* face, E_Int nb_faces, K_FLD::FloatArray& data, E_Float* P0, E_Float* P1, E_Float& lambda0, E_Float& lambda1, E_Float tolerance);
+  static bool cross(const ngon_t<K_FLD::IntArray>& ng, const K_FLD::FloatArray& crd, const E_Int* face, E_Int nb_faces, K_FLD::FloatArray& data, nuga_real_t* P0, nuga_real_t* P1, nuga_real_t& lambda0, nuga_real_t& lambda1, nuga_real_t tolerance);
   
   inline void getBoundary(E_Int n, boundary_type& b) const {
     
@@ -166,14 +166,14 @@ public:
   
   ///
   template <typename CoordAcc>
-  inline void iso_barycenter(const CoordAcc& coord, E_Float* G);
+  inline void iso_barycenter(const CoordAcc& coord, nuga_real_t* G);
   
   template <typename ngunit_t>
-  static inline void iso_barycenter(const K_FLD::FloatArray& crd, const ngunit_t & PGs, const E_Int* first_pg, E_Int nb_pgs, E_Int index_start, E_Float* G);
+  static inline void iso_barycenter(const K_FLD::FloatArray& crd, const ngunit_t & PGs, const E_Int* first_pg, E_Int nb_pgs, E_Int index_start, nuga_real_t* G);
   
-  static inline void iso_barycenter(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int idx_start, E_Float* G);
+  static inline void iso_barycenter(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int idx_start, nuga_real_t* G);
 
-  E_Float quality(const K_FLD::FloatArray& crd, E_Float* Vol){return 1;}
+  nuga_real_t quality(const K_FLD::FloatArray& crd, nuga_real_t* Vol){return 1;}
 
 private:
   
@@ -700,7 +700,7 @@ template <typename ngunit_t>
 }                                                                        
 
 template <typename CoordAcc> inline
-void Hexahedron::iso_barycenter(const CoordAcc& coord, E_Float* G)
+void Hexahedron::iso_barycenter(const CoordAcc& coord, nuga_real_t* G)
 { 
   //
   for (size_t d=0; d < 3; ++d) G[d]=0.;
@@ -714,7 +714,7 @@ void Hexahedron::iso_barycenter(const CoordAcc& coord, E_Float* G)
     }
   }
   
-  E_Float k = 1./(E_Float)NB_NODES;
+  nuga_real_t k = 1./(nuga_real_t)NB_NODES;
   
   for (size_t i = 0; i < 3; ++i) G[i] *= k;
   //std::cout << "G : " << G[0] << "/" << G[1] << "/" << G[2] << std::endl;
@@ -722,7 +722,7 @@ void Hexahedron::iso_barycenter(const CoordAcc& coord, E_Float* G)
 }
 
   template <typename ngunit_t>
-  inline void Hexahedron::iso_barycenter(const K_FLD::FloatArray& crd, const ngunit_t & PGs, const E_Int* first_pg, E_Int nb_pgs, E_Int index_start, E_Float* G)
+  inline void Hexahedron::iso_barycenter(const K_FLD::FloatArray& crd, const ngunit_t & PGs, const E_Int* first_pg, E_Int nb_pgs, E_Int index_start, nuga_real_t* G)
   {
     //WARNING : assuming reodrederd pgs : first is bottom, second is top
     
@@ -740,18 +740,18 @@ void Hexahedron::iso_barycenter(const CoordAcc& coord, E_Float* G)
     K_MESH::Polyhedron<STAR_SHAPED>::iso_barycenter(crd, new_bary, 8, 1, G);
   }
 
-  inline void Hexahedron::iso_barycenter(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int idx_start, E_Float* G)
+  inline void Hexahedron::iso_barycenter(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int idx_start, nuga_real_t* G)
   {
     K_MESH::Polyhedron<STAR_SHAPED>::iso_barycenter(crd, nodes, 8, idx_start, G);
   }
   
   ///
-  inline E_Int Hexahedron::volume(const K_FLD::FloatArray& crd, E_Float& v)
+  inline E_Int Hexahedron::volume(const K_FLD::FloatArray& crd, nuga_real_t& v)
   {    
     K_FLD::IntArray cT3(3, 12);
     for (E_Int i=0; i < 12; ++i)
       this->triangle(i, cT3.col(i));
-    E_Float G[3];
+    nuga_real_t G[3];
     K_MESH::Polyhedron<UNKNOWN>::metrics(crd, cT3, v, G);
     return 0;
     

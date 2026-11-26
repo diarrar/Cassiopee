@@ -38,7 +38,7 @@ BAR_BooleanOperator::~BAR_BooleanOperator(void)
 BAR_BooleanOperator::BAR_BooleanOperator
 (const K_FLD::FloatArray& coord1, const K_FLD::IntArray& cB1,
  const K_FLD::FloatArray& coord2, const K_FLD::IntArray& cB2,
- E_Float tolerance):parent_type(coord1, cB1, coord2, cB2, tolerance, new BAR_Conformizer<3>()), _dT3(0)
+ nuga_real_t tolerance):parent_type(coord1, cB1, coord2, cB2, tolerance, new BAR_Conformizer<3>()), _dT3(0)
 {
   _normal[0]=_normal[1]=_normal[2]=0.;
 }
@@ -128,12 +128,12 @@ E_Int
 BAR_BooleanOperator::check_sanity()
 {
   // Compute the normal to contours
-  E_Float normal2[] = {0.,0.,0.};
+  nuga_real_t normal2[] = {0.,0.,0.};
   FittingBox::computeNormalToContour(_coord, _connects[0], _normal);
   FittingBox::computeNormalToContour(_coord, _connects[1], normal2);
   
   //check normals equality
-  E_Float x = NUGA::dot<3>(_normal, normal2);
+  nuga_real_t x = NUGA::dot<3>(_normal, normal2);
   
   if (fabs(x + 1.) < EPSILON) // opposite orientation, one needs a reverse
   {
@@ -145,17 +145,17 @@ BAR_BooleanOperator::check_sanity()
   if (fabs(x - 1.) > EPSILON) return 1; //not on the same plane
   
   // check planarity
-  E_Float Pt[3];
+  nuga_real_t Pt[3];
   for (E_Int i=0; i < _connects[0].cols(); ++i)
   {
     NUGA::diff<3>(_coord.col(_connects[0](1,i)), _coord.col(_connects[0](0,i)), Pt);
-    E_Float x = NUGA::dot<3>(_normal, Pt);
+    nuga_real_t x = NUGA::dot<3>(_normal, Pt);
     if ((x < -EPSILON)||(x > EPSILON)) return 1;
   }
   for (E_Int i=0; i < _connects[1].cols(); ++i)
   {
     NUGA::diff<3>(_coord.col(_connects[1](1,i)), _coord.col(_connects[1](0,i)), Pt);
-    E_Float x = NUGA::dot<3>(_normal, Pt);
+    nuga_real_t x = NUGA::dot<3>(_normal, Pt);
     if ((x < -EPSILON)||(x > EPSILON)) return 1;
   }
   
@@ -185,7 +185,7 @@ BAR_BooleanOperator::compute_zones()
   DELAUNAY::MesherMode mode;
   mode.mesh_mode = DELAUNAY::MesherMode::TRIANGULATION_MODE;
   mode.remove_holes = false;
-  DELAUNAY::T3Mesher<E_Float> mesher(mode);
+  DELAUNAY::T3Mesher<nuga_real_t> mesher(mode);
   mesher.seed_random(1);
   if (mesher.run(*_dT3))
     return 1;

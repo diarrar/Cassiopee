@@ -44,8 +44,8 @@ class HRayClipper2D {
     };
 
     ///
-    HRayClipper2D(const E_Float* xs,
-                  const E_Float* ys,
+    HRayClipper2D(const nuga_real_t* xs,
+                  const nuga_real_t* ys,
                   const Connectivity_t& cnt,        //ngon or conhyb
                         bool     conhyb,
                         E_Int    index_start,       // nodes indices minimum in cnt (0 or 1)
@@ -53,8 +53,8 @@ class HRayClipper2D {
                         E_Int    nb_tot_facets,     // nb of polygons in cnt
                   const E_Int*   to_process,        // list of faces to process (0-based)
                         E_Int    sz_to_process,     // size of the above list
-                        E_Float  TOL,
-                  const E_Float* rays,
+                        nuga_real_t  TOL,
+                  const nuga_real_t* rays,
                         E_Int    nrays,
                         bool     force_inclusion=false)
     : _xs(xs), _ys(ys),
@@ -79,39 +79,39 @@ class HRayClipper2D {
     }
 
     /// Main function
-    void run(const E_Float* w, E_Int nfield, E_Float* Wb, E_Float* Sb);
+    void run(const nuga_real_t* w, E_Int nfield, nuga_real_t* Wb, nuga_real_t* Sb);
 
   private:
     /// Computes rays vector and node colors
-    void __init(bool force_inclusion, const E_Float * rays, E_Int nrays, E_Int facets_start=0, E_Int nb_facets=0);
+    void __init(bool force_inclusion, const nuga_real_t * rays, E_Int nrays, E_Int facets_start=0, E_Int nb_facets=0);
     /// Resizes appropriately the pg_t array for clipped bits.
     void __init_clip_data(E_Int n);
     /// Refines the input polygon
-    void __intersect_hray(const E_Int* pK, E_Int nK, const E_Float* xs, const E_Float* ys, const std::vector<E_Float>& colors,
-                         std::vector<E_Float>& hrays, E_Int nrays, E_Float TOL, K_FLD::FloatArray &refine_crd,
-                         std::vector<E_Float>& refine_colors, E_Int& nbands, E_Int & C0);
+    void __intersect_hray(const E_Int* pK, E_Int nK, const nuga_real_t* xs, const nuga_real_t* ys, const std::vector<nuga_real_t>& colors,
+                         std::vector<nuga_real_t>& hrays, E_Int nrays, nuga_real_t TOL, K_FLD::FloatArray &refine_crd,
+                         std::vector<nuga_real_t>& refine_colors, E_Int& nbands, E_Int & C0);
     /// Clips the polygon by the rays set
-    void __clip(const K_FLD::FloatArray& refinedPG, const std::vector<E_Float>& colors, E_Int C0, E_Int nbands);
+    void __clip(const K_FLD::FloatArray& refinedPG, const std::vector<nuga_real_t>& colors, E_Int C0, E_Int nbands);
     // Computes a polygon surface
-    E_Float __surface(const E_Float* xs, const E_Float* ys, const E_Int* nodes, E_Int nb_nodes);
+    nuga_real_t __surface(const nuga_real_t* xs, const nuga_real_t* ys, const E_Int* nodes, E_Int nb_nodes);
     /// Sets the colors for each non-already-colored nodes.
-    void __set_colors(const E_Int* pK, E_Int nK, const E_Float* ys, std::vector<E_Float>& colors, const std::vector<E_Float>& hrays, E_Int nrays, E_Float TOL);
+    void __set_colors(const E_Int* pK, E_Int nK, const nuga_real_t* ys, std::vector<nuga_real_t>& colors, const std::vector<nuga_real_t>& hrays, E_Int nrays, nuga_real_t TOL);
     /// Inner recursive function to pick by dichotomy the right band, i.e the right color
-    E_Float __recurse_col(const std::vector<E_Float>& hrays, E_Float y0, E_Float TOL, E_Int first, E_Int last);
+    nuga_real_t __recurse_col(const std::vector<nuga_real_t>& hrays, nuga_real_t y0, nuga_real_t TOL, E_Int first, E_Int last);
     /// if rays are assumed to surround the full input mesh, this changes the end rays in order to avoid extra clipping
     void force_inclusion_in_rays();
 
   //
   private:
-    const E_Float *_xs, *_ys;
+    const nuga_real_t *_xs, *_ys;
     const E_Int* _ngon;
     const E_Int* _to_process;
     E_Int _sz_to_process;
-    E_Float _tolerance;
+    nuga_real_t _tolerance;
     E_Int _nrays;
     bool _conhyb;
     E_Int _index_start;
-    std::vector<E_Float> _colors, _hrays;
+    std::vector<nuga_real_t> _colors, _hrays;
     std::vector<E_Int> _facets;
 
     pg_t* _clip_data;
@@ -120,14 +120,14 @@ class HRayClipper2D {
 
 ///
 template <typename Connectivity_t>
-void HRayClipper2D<Connectivity_t>::run(const E_Float* w, E_Int nfield, E_Float* Wb, E_Float* Sb)
+void HRayClipper2D<Connectivity_t>::run(const nuga_real_t* w, E_Int nfield, nuga_real_t* Wb, nuga_real_t* Sb)
 {
   //
   E_Int nK, C0, xbands/*intersected bands*/;
   const E_Int* pK;
   K_FLD::FloatArray refine_crd;
-  std::vector<E_Float> refine_colors;
-  E_Float s0, si;
+  std::vector<nuga_real_t> refine_colors;
+  nuga_real_t s0, si;
 
   E_Int NBANDS=_nrays-1;
 
@@ -218,7 +218,7 @@ void HRayClipper2D<Connectivity_t>::run(const E_Float* w, E_Int nfield, E_Float*
 
 ///
 template <typename Connectivity_t>
-void HRayClipper2D<Connectivity_t>::__init(bool force_inclusion, const E_Float * rays, E_Int nrays, E_Int facets_start, E_Int nb_tot_facets){
+void HRayClipper2D<Connectivity_t>::__init(bool force_inclusion, const nuga_real_t * rays, E_Int nrays, E_Int facets_start, E_Int nb_tot_facets){
 
 
   // Init ngon facets
@@ -321,8 +321,8 @@ void HRayClipper2D<Connectivity_t>::__init_clip_data(E_Int xbands)
 }
 
 template <typename Connectivity_t>
-E_Float HRayClipper2D<Connectivity_t>::__recurse_col
-(const std::vector<E_Float>& hrays, E_Float y0, E_Float TOL, E_Int first, E_Int last)
+nuga_real_t HRayClipper2D<Connectivity_t>::__recurse_col
+(const std::vector<nuga_real_t>& hrays, nuga_real_t y0, nuga_real_t TOL, E_Int first, E_Int last)
 {
   if (last==(first+1))
   {
@@ -342,22 +342,22 @@ E_Float HRayClipper2D<Connectivity_t>::__recurse_col
 }
 
 template <typename Connectivity_t>
-void HRayClipper2D<Connectivity_t>::__set_colors(const E_Int* pK, E_Int nK, const E_Float* ys, std::vector<E_Float>& colors, const std::vector<E_Float>& hrays, E_Int nrays, E_Float TOL)
+void HRayClipper2D<Connectivity_t>::__set_colors(const E_Int* pK, E_Int nK, const nuga_real_t* ys, std::vector<nuga_real_t>& colors, const std::vector<nuga_real_t>& hrays, E_Int nrays, nuga_real_t TOL)
 {
   for (size_t i=0; i < nK; ++i)
   {
     E_Int N = *(pK+i)-_index_start;
-    E_Float y0 = ys[N];
+    nuga_real_t y0 = ys[N];
     if (colors[N] < 0.) colors[N] = __recurse_col(hrays, y0, TOL, 0, nrays);
   }
 }
 /*
 template <typename Connectivity_t>
 void HRayClipper2D<Connectivity_t>::__set_colors
-(const E_Int* pK, E_Int nK, const E_Float* ys, std::vector<E_Float>& colors, const E_Float* hrays, E_Int nrays, E_Float TOL)
+(const E_Int* pK, E_Int nK, const nuga_real_t* ys, std::vector<nuga_real_t>& colors, const nuga_real_t* hrays, E_Int nrays, nuga_real_t TOL)
 {
   E_Int istart=-1, Ni, i0, i1, h0;
-  E_Float y0, c0, y1;
+  nuga_real_t y0, c0, y1;
 
   for (size_t i=0; i < nK; ++i)
   {
@@ -380,7 +380,7 @@ void HRayClipper2D<Connectivity_t>::__set_colors
     i0 = (istart+i)%nK;
     i1 = (i0+1)%nK;
     c0 = colors[*(pK+i0)-_index_start];
-    E_Float &c1 = colors[*(pK+i1)-_index_start];
+    nuga_real_t &c1 = colors[*(pK+i1)-_index_start];
     if (c1 >-1.)
       continue;
     y0 = ys[*(pK+i0)-_index_start];
@@ -406,9 +406,9 @@ void HRayClipper2D<Connectivity_t>::__set_colors
 
 template <typename Connectivity_t>
 void HRayClipper2D<Connectivity_t>::__intersect_hray
-(const E_Int* pK, E_Int nK, const E_Float* xs, const E_Float* ys, const std::vector<E_Float>& colors,
- std::vector<E_Float>& hrays, E_Int nrays, E_Float TOL, K_FLD::FloatArray &refine_crd,
- std::vector<E_Float>& refine_colors, E_Int& nbands, E_Int & C0)
+(const E_Int* pK, E_Int nK, const nuga_real_t* xs, const nuga_real_t* ys, const std::vector<nuga_real_t>& colors,
+ std::vector<nuga_real_t>& hrays, E_Int nrays, nuga_real_t TOL, K_FLD::FloatArray &refine_crd,
+ std::vector<nuga_real_t>& refine_colors, E_Int& nbands, E_Int & C0)
 {
   //
   nbands = 1; // number of bands covering the polygon
@@ -416,7 +416,7 @@ void HRayClipper2D<Connectivity_t>::__intersect_hray
   E_Int C1 = -1; // greatest band color for this polygon ==> nband = C1 - C0
 
   E_Int Ni, Nip1, Nstart, nr, Cb/*bottom ray color*/, Ct/*top ray color*/, Cbi;
-  E_Float dcol, u[2], Pt[2], uyinv;
+  nuga_real_t dcol, u[2], Pt[2], uyinv;
   bool reversed;
 
   refine_crd.clear();
@@ -499,7 +499,7 @@ void HRayClipper2D<Connectivity_t>::__intersect_hray
 ///
 template <typename Connectivity_t>
 void HRayClipper2D<Connectivity_t>::__clip
-(const K_FLD::FloatArray& refinedPG, const std::vector<E_Float>& colors, E_Int C0, E_Int nbands)
+(const K_FLD::FloatArray& refinedPG, const std::vector<nuga_real_t>& colors, E_Int C0, E_Int nbands)
 {
   E_Int sz(refinedPG.cols());
 
@@ -525,9 +525,9 @@ void HRayClipper2D<Connectivity_t>::__clip
 
 ///
 template <typename Connectivity_t>
-E_Float HRayClipper2D<Connectivity_t>::__surface(const E_Float* xs, const E_Float* ys, const E_Int* nodes, E_Int nb_nodes)
+nuga_real_t HRayClipper2D<Connectivity_t>::__surface(const nuga_real_t* xs, const nuga_real_t* ys, const E_Int* nodes, E_Int nb_nodes)
 {
-  E_Float s(0.);
+  nuga_real_t s(0.);
   E_Int N2, N3;
   // N1 = origin = (xs[0], ys[0])
   for (size_t n=0; n < nb_nodes; ++n)
@@ -545,7 +545,7 @@ template <typename Connectivity_t>
 void HRayClipper2D<Connectivity_t>::force_inclusion_in_rays()
 {
   E_Int id;
-  E_Float miny(NUGA::FLOAT_MAX), maxy(-NUGA::FLOAT_MAX),y;
+  nuga_real_t miny(NUGA::FLOAT_MAX), maxy(-NUGA::FLOAT_MAX),y;
   
   if (!_conhyb)
   {

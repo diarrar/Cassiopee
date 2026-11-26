@@ -28,8 +28,8 @@
 #define Vector_t std::vector
 
 
-static const E_Float aa = 0.25*(1. - 1./sqrt(5.));
-static const E_Float bb = 1. -3.*aa;//(5. + 3.*sqrt(5.)) / 20.;
+static const nuga_real_t aa = 0.25*(1. - 1./sqrt(5.));
+static const nuga_real_t bb = 1. -3.*aa;//(5. + 3.*sqrt(5.)) / 20.;
 
 namespace K_MESH
 {
@@ -101,7 +101,7 @@ class Tetrahedron
     {
       E_Int ns[4], nods[4][4];
       K_MESH::Triangle::eDegenType ftype[4];
-      E_Float FACTOR = 3;
+      nuga_real_t FACTOR = 3;
       
       nods[0][0] = _nodes[0];
       nods[0][1] = _nodes[1];
@@ -216,12 +216,12 @@ class Tetrahedron
 
       if (NB_SPIKES >= 2) // SLICE1, SLICE2 or SPIKE ?
       {
-        const E_Float* P0 = crd.col(_nodes[0]);
-        const E_Float* P1 = crd.col(_nodes[1]);
-        const E_Float* P2 = crd.col(_nodes[2]);
-        const E_Float* P3 = crd.col(_nodes[3]);
+        const nuga_real_t* P0 = crd.col(_nodes[0]);
+        const nuga_real_t* P1 = crd.col(_nodes[1]);
+        const nuga_real_t* P2 = crd.col(_nodes[2]);
+        const nuga_real_t* P3 = crd.col(_nodes[3]);
 
-        std::pair<E_Float, int> palma[4];
+        std::pair<nuga_real_t, int> palma[4];
 
         palma[0] = std::make_pair(K_MESH::Triangle::surface<3>(P0, P1, P2), 1);
         palma[1] = std::make_pair(K_MESH::Triangle::surface<3>(P0, P1, P3), 2);
@@ -359,13 +359,13 @@ class Tetrahedron
     
     void setNodes(E_Int* nodes){for (size_t i = 0; i< 4; ++i)_nodes[i]=*(nodes++);}
     
-    static bool is_inside(const E_Float* Ni, const E_Float* Nj, const E_Float* Nk, const E_Float* Nl, const E_Float* pt);
+    static bool is_inside(const nuga_real_t* Ni, const nuga_real_t* Nj, const nuga_real_t* Nk, const nuga_real_t* Nl, const nuga_real_t* pt);
     
     void triangulate(E_Int* target);
     
-    E_Float quality(const K_FLD::FloatArray& crd, E_Float* Vol);
+    nuga_real_t quality(const K_FLD::FloatArray& crd, nuga_real_t* Vol);
     
-    void edge_length_extrema(const K_FLD::FloatArray& crd, E_Float& Lmin2, E_Float& Lmax2);
+    void edge_length_extrema(const K_FLD::FloatArray& crd, nuga_real_t& Lmin2, nuga_real_t& Lmax2);
     
     //dummies for generecity
     ///
@@ -397,7 +397,7 @@ class Tetrahedron
     
     
     ///
-    static inline E_Float volume(const E_Float* p1, const E_Float* p2, const E_Float* p3, const E_Float* p4)
+    static inline nuga_real_t volume(const nuga_real_t* p1, const nuga_real_t* p2, const nuga_real_t* p3, const nuga_real_t* p4)
     {return (NUGA::zzdet4(p1, p2, p3, p4)/6.);}
     
     inline void getBoundary(E_Int n, boundary_type& b) const {
@@ -413,7 +413,7 @@ class Tetrahedron
   }
     
   template <typename CoordAcc> inline
-  void iso_barycenter(const CoordAcc& coord, E_Float* G)
+  void iso_barycenter(const CoordAcc& coord, nuga_real_t* G)
   { 
     //
     for (size_t d=0; d < 3; ++d) G[d]=0.;
@@ -427,7 +427,7 @@ class Tetrahedron
       }
     }
   
-    E_Float k = 1./(E_Float)NB_NODES;
+    nuga_real_t k = 1./(nuga_real_t)NB_NODES;
   
     for (size_t i = 0; i < 3; ++i) G[i] *= k;
     //std::cout << "G : " << G[0] << "/" << G[1] << "/" << G[2] << std::endl;
@@ -435,7 +435,7 @@ class Tetrahedron
   }
   
   template <typename ngunit_t>
-  static inline void iso_barycenter(const K_FLD::FloatArray& crd, const ngunit_t & PGs, const E_Int* first_pg, E_Int nb_pgs, E_Int index_start, E_Float* G)
+  static inline void iso_barycenter(const K_FLD::FloatArray& crd, const ngunit_t & PGs, const E_Int* first_pg, E_Int nb_pgs, E_Int index_start, nuga_real_t* G)
   {    
     Tetrahedron t(PGs, first_pg);
     using acrd_t = K_FLD::ArrayAccessor<K_FLD::FloatArray>;
@@ -529,8 +529,8 @@ class Tetrahedron
       
     }*/
         
-    static void eval(const E_Float* p0, const E_Float* p1, const E_Float* p2, const E_Float* p3,
-                     E_Float u, E_Float v, E_Float w, E_Float t, E_Float* X)
+    static void eval(const nuga_real_t* p0, const nuga_real_t* p1, const nuga_real_t* p2, const nuga_real_t* p3,
+                     nuga_real_t u, nuga_real_t v, nuga_real_t w, nuga_real_t t, nuga_real_t* X)
     {            
       X[0] = u*p0[0] + v*p1[0] + w*p2[0] + t*p3[0];
       X[1] = u*p0[1] + v*p1[1] + w*p2[1] + t*p3[1];
@@ -539,12 +539,12 @@ class Tetrahedron
     
 
     
-    static void integ_O2(const E_Float* p0, const E_Float* p1, const E_Float* p2, const E_Float* p3,
-                         const E_Float* X0, E_Float f0, const E_Float* grad0, E_Float& val)
+    static void integ_O2(const nuga_real_t* p0, const nuga_real_t* p1, const nuga_real_t* p2, const nuga_real_t* p3,
+                         const nuga_real_t* X0, nuga_real_t f0, const nuga_real_t* grad0, nuga_real_t& val)
     {
       val = 0.;
       
-      E_Float X[3], X0X[3], gradf, f;;
+      nuga_real_t X[3], X0X[3], gradf, f;;
       
       eval(p0,p1,p2,p3, aa, aa, aa, bb, X);
       NUGA::diff<3>(X, X0, X0X);
@@ -577,14 +577,14 @@ class Tetrahedron
       
     }
     
-    typedef E_Float (*pFunc)(E_Float x, E_Float y, E_Float z);
+    typedef nuga_real_t (*pFunc)(nuga_real_t x, nuga_real_t y, nuga_real_t z);
     
-    static void integ_O2(const E_Float* p0, const E_Float* p1, const E_Float* p2, const E_Float* p3,
-                               pFunc func, E_Float& val)
+    static void integ_O2(const nuga_real_t* p0, const nuga_real_t* p1, const nuga_real_t* p2, const nuga_real_t* p3,
+                               pFunc func, nuga_real_t& val)
     {
       val = 0.;
       
-      E_Float X[3];
+      nuga_real_t X[3];
       
       eval(p0,p1,p2,p3, aa, aa, aa, bb, X); 
       val +=func(X[0], X[1], X[2]);
@@ -602,12 +602,12 @@ class Tetrahedron
       
     }
     
-    static void integ_O3(const E_Float* p0, const E_Float* p1, const E_Float* p2, const E_Float* p3,
-                               pFunc func, E_Float& val)
+    static void integ_O3(const nuga_real_t* p0, const nuga_real_t* p1, const nuga_real_t* p2, const nuga_real_t* p3,
+                               pFunc func, nuga_real_t& val)
     {
       val = 0.;
       
-      E_Float X[3];
+      nuga_real_t X[3];
       eval(p0,p1,p2,p3, 0.25, 0.25, 0.25, 0.25, X); 
       val +=(-4./5.)*func(X[0], X[1], X[2]);
       

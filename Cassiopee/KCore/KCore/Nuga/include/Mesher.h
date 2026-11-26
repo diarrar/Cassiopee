@@ -120,7 +120,7 @@ namespace DELAUNAY
 
   private:
 
-    E_Int __compute_bounding_box(const int_vector_type& cloud, E_Float& minX, E_Float& minY, E_Float& maxX, E_Float& maxY);
+    E_Int __compute_bounding_box(const int_vector_type& cloud, nuga_real_t& minX, nuga_real_t& minY, nuga_real_t& maxX, nuga_real_t& maxY);
 
     E_Int __getPipe(size_type N0, size_type N1, const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect,
       const K_FLD::IntArray& neighbors, const int_vector_type& ancestors, int_set_type& pipe,
@@ -128,7 +128,7 @@ namespace DELAUNAY
     
     E_Int __get_xedge_on_shell
     (size_type N0, size_type N1, const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect,
-     const K_FLD::IntArray& neighbors, const int_vector_type& ancestors, E_Int& S, E_Int& n, E_Float &tolerance);
+     const K_FLD::IntArray& neighbors, const int_vector_type& ancestors, E_Int& S, E_Int& n, nuga_real_t &tolerance);
 
     E_Int __forceEdge(size_type N0, size_type N1, /*int_set_type& pipe,*/ int_pair_vector_type& Xedges, 
       const K_FLD::FloatArray& pos, K_FLD::IntArray& connect, K_FLD::IntArray& neighbors,
@@ -396,22 +396,22 @@ namespace DELAUNAY
       K_CONNECT::IdTool::init_inc(_data->hnids, idmax+1);
 
     // Build the initial mesh.
-    E_Float minX, minY, maxX, maxY, L;
+    nuga_real_t minX, minY, maxX, maxY, L;
     __compute_bounding_box(_data->hardNodes, minX, minY, maxX, maxY);
 
     L = K_FUNC::E_max(maxY-minY, maxX-minX);
 
-    E_Float factor = 0.1;
+    nuga_real_t factor = 0.1;
 
     minX -= factor*L;
     minY -= factor*L;
     maxX += factor*L;
     maxY += factor*L;
 
-    E_Float c1[2] = {minX,minY};
-    E_Float c2[2] = {maxX,minY};
-    E_Float c3[2] = {maxX,maxY};
-    E_Float c4[2] = {minX,maxY};
+    nuga_real_t c1[2] = {minX,minY};
+    nuga_real_t c2[2] = {maxX,minY};
+    nuga_real_t c3[2] = {maxX,maxY};
+    nuga_real_t c4[2] = {minX,maxY};
 
     size_type C1,C2,C3,C4;
     assert(_data->pos->rows() == 2);
@@ -895,7 +895,7 @@ namespace DELAUNAY
   template <typename T, typename MetricType>
   E_Int
     Mesher<T, MetricType>::__compute_bounding_box
-    (const int_vector_type& cloud, E_Float& minX, E_Float& minY, E_Float& maxX, E_Float& maxY)
+    (const int_vector_type& cloud, nuga_real_t& minX, nuga_real_t& minY, nuga_real_t& maxX, nuga_real_t& maxY)
   {
     minX = minY = NUGA::FLOAT_MAX;
     maxX = maxY = - NUGA::FLOAT_MAX;
@@ -926,7 +926,7 @@ namespace DELAUNAY
     size_type ni, S(IDX_NONE), n(IDX_NONE), count(0), nopp, nstart, Ni, Nj;
     K_FLD::IntArray::const_iterator pS;
     E_Bool done(false), intersect;
-    E_Float tolerance(_tool->getTolerance())/*fixmetol*/, tol2(tolerance*tolerance)/*fixmetol*//*, u00, u01, u10, u11, bestu=-1.;*//*used in case of poor ancestors to pick the right one*/;
+    nuga_real_t tolerance(_tool->getTolerance())/*fixmetol*/, tol2(tolerance*tolerance)/*fixmetol*//*, u00, u01, u10, u11, bestu=-1.;*//*used in case of poor ancestors to pick the right one*/;
     size_type dim = pos.rows();
 
     pipe.clear();
@@ -981,15 +981,15 @@ namespace DELAUNAY
   }
   
   // Return sign of P0P1 ^ P0P.z in 2D
-  inline E_Int sign2D(const E_Float* P0, const E_Float* P1, const E_Float* P)
+  inline E_Int sign2D(const nuga_real_t* P0, const nuga_real_t* P1, const nuga_real_t* P)
   {
-    E_Float perpdot = (P0[1]-P1[1])*(P[0]-P0[0]) + (P1[0]-P0[0])*(P[1]-P0[1]);
+    nuga_real_t perpdot = (P0[1]-P1[1])*(P[0]-P0[0]) + (P1[0]-P0[0])*(P[1]-P0[1]);
     //return (perpdot < -EPSILON) ? -1 : (perpdot > EPSILON) ? 1 : 0;
     return (perpdot < 0.) ? -1 : (perpdot > 0.) ? 1 : 0;
   }
   
   // Return P0P1.P0P
-  inline E_Float proj(const E_Float* P0, const E_Float* P1, const E_Float* P)
+  inline nuga_real_t proj(const nuga_real_t* P0, const nuga_real_t* P1, const nuga_real_t* P)
   {
     return (P1[0]-P0[0])*(P[0]-P0[0]) + (P1[1]-P0[1])*(P[1]-P0[1]);
   }
@@ -998,19 +998,19 @@ namespace DELAUNAY
   template <typename T, typename MetricType>
   E_Int Mesher<T, MetricType>::__get_xedge_on_shell
   (size_type N0, size_type N1, const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect,
-   const K_FLD::IntArray& neighbors, const int_vector_type& ancestors, E_Int& Sx, E_Int& nx, E_Float &tolerance)
+   const K_FLD::IntArray& neighbors, const int_vector_type& ancestors, E_Int& Sx, E_Int& nx, nuga_real_t &tolerance)
   {
     int_vector_type Ancs;
     size_type Si, ni, Ni, Nj;
     K_FLD::IntArray::const_iterator pS;
     //E_Bool done(false), intersect, overlap;
-    E_Float dum1,dum2,dum3;
+    nuga_real_t dum1,dum2,dum3;
     E_Bool dum4;
             
     if (ancestors[N0] == IDX_NONE) return 4;
     
-    const E_Float* P0 = pos.col(N0);
-    const E_Float* P1 = pos.col(N1);
+    const nuga_real_t* P0 = pos.col(N0);
+    const nuga_real_t* P1 = pos.col(N1);
 
     pS = connect.col(ancestors[N0]);
     _tool->getAncestors(N0, connect, ancestors, neighbors, std::back_inserter(Ancs));
@@ -1018,7 +1018,7 @@ namespace DELAUNAY
     // Get the ancestor(s) intersecting N0N1. Should be only one, numerical error otherwise.
     size_type AncNb = (size_type)Ancs.size();
     E_Int SIGNi(-2), SIGNip1(-2);
-    E_Float ux0=-NUGA::FLOAT_MAX, ux;
+    nuga_real_t ux0=-NUGA::FLOAT_MAX, ux;
     for (size_type i = 0; i < AncNb; ++i)
     {
       Si = Ancs[i];
@@ -1075,7 +1075,7 @@ namespace DELAUNAY
     size_t nb_try(0);
     K_FLD::IntArray::iterator pS, pSn;
     E_Bool isConvex;
-    E_Float tolerance(_tool->getTolerance()), s1, s2, tol2(tolerance*tolerance);
+    nuga_real_t tolerance(_tool->getTolerance()), s1, s2, tol2(tolerance*tolerance);
     const size_type& NB_NODES = element_type::NB_NODES;
 
     while (!Xedges.empty()  && (nb_try < 10*Xedges.size()))
@@ -1167,8 +1167,8 @@ namespace DELAUNAY
       // If the three nodes of the new S (or Sn) are in the same side of N0N1, remove S(or Sn).
       // Otherwise insert swapE in Xedges. 
       size_type count = 0;
-      E_Float N0N1[2], V[2], v;
-      const E_Float* P0 = pos.col(N00);
+      nuga_real_t N0N1[2], V[2], v;
+      const nuga_real_t* P0 = pos.col(N00);
       NUGA::diff<2> (P0, pos.col(N11), N0N1);
 
       for (size_type i = 0; i < NB_NODES; ++i)

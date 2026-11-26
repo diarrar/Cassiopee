@@ -88,7 +88,7 @@ struct Struc<K_MESH::Edge>
 class ConformizerRoot{
 public:
   virtual E_Int run(K_FLD::FloatArray& coord, K_FLD::IntArray& cBAR, std::vector<E_Int>& ancestor, std::vector<E_Int>* ovlp_priority=0, 
-            E_Float tolerance = -1., E_Int X0=0, E_Int itermax=10) = 0;
+            nuga_real_t tolerance = -1., E_Int X0=0, E_Int itermax=10) = 0;
   virtual ~ConformizerRoot(){}
 protected:
   ConformizerRoot(){}
@@ -107,7 +107,7 @@ class Conformizer : public ConformizerRoot {
 public:
   /// Main method.
   E_Int run(K_FLD::FloatArray& coord, K_FLD::IntArray& cBAR, std::vector<E_Int>& ancestor, std::vector<E_Int>* ovlp_priority=0,
-            E_Float tolerance = -1., E_Int X0 = 0, E_Int itermax=10);
+            nuga_real_t tolerance = -1., E_Int X0 = 0, E_Int itermax=10);
   ///
   const std::vector<E_Int>& get_node_history(){return _node_history;}
   ///
@@ -127,7 +127,7 @@ protected:
   // Methods to override : interface to implement
 protected:
   ///
-  virtual void __set_tolerances(E_Float Lmin, E_Float Lmax, E_Float  user_tolerance) = 0;
+  virtual void __set_tolerances(nuga_real_t Lmin, nuga_real_t Lmax, nuga_real_t  user_tolerance) = 0;
   ///
   virtual void __prepare_data(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect);
 
@@ -138,7 +138,7 @@ public:
 #endif
   ///
   virtual E_Int __intersect(K_FLD::FloatArray& pos, const K_FLD::IntArray& connect,
-                             typename Struc<Element_t>::Type& t1, typename Struc<Element_t>::Type& t2, E_Float tol) = 0;
+                             typename Struc<Element_t>::Type& t1, typename Struc<Element_t>::Type& t2, nuga_real_t tol) = 0;
   ///
   virtual void __update_data(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, const std::vector<E_Int>& newIDs) = 0;
   ///
@@ -147,16 +147,16 @@ public:
                                 NUGA::int_vector_type& ancestors) = 0;
   
   /// Hook inside __run to merge toward the intersection line (TRI)
-  virtual E_Int __simplify_and_clean(const K_FLD::FloatArray& pos, E_Float tolerance, K_FLD::IntArray& connect,
+  virtual E_Int __simplify_and_clean(const K_FLD::FloatArray& pos, nuga_real_t tolerance, K_FLD::IntArray& connect,
                                      NUGA::int_vector_type& ancestors, NUGA::bool_vector_type& xc){return 0;}
   /// Hook inside __run to merge toward the intersection line (TRI)
-  virtual E_Int __simplify_and_clean2(const K_FLD::FloatArray& pos, E_Float tolerance, K_FLD::IntArray& connect,
+  virtual E_Int __simplify_and_clean2(const K_FLD::FloatArray& pos, nuga_real_t tolerance, K_FLD::IntArray& connect,
     NUGA::int_vector_type& ancestors, NUGA::bool_vector_type& xc){return 0;}
   /// Hook inside run after the loop to manage overlapping zones
   virtual void __run_correction_beta(const K_FLD::FloatArray& pos, K_FLD::IntArray& connect,
                                      NUGA::int_vector_type& ancestors, 
                                      NUGA::bool_vector_type& xc,
-                                     E_Float tolerance){}
+                                     nuga_real_t tolerance){}
   /// Hook inside run after the loop to manage overlapping zones
   virtual void __run_correction_gamma(const std::set<K_MESH::NO_Edge>&xpairs, NUGA::int_vector_type&colors,
                                       NUGA::int_vector_type&xr, K_FLD::IntArray& connect,
@@ -174,11 +174,11 @@ public:
 #endif
   
  ///
- E_Int __merge_clean (E_Float tol, const K_FLD::FloatArray& pos, K_FLD::IntArray& connect, std::vector<E_Int>& ancestors, 
+ E_Int __merge_clean (nuga_real_t tol, const K_FLD::FloatArray& pos, K_FLD::IntArray& connect, std::vector<E_Int>& ancestors, 
                std::vector<E_Int>& newIDs, NUGA::bool_vector_type* xc, E_Int fromIdx);
  ///
  E_Int __merge_clean
- (E_Float tol, const K_FLD::FloatArray& pos, K_FLD::IntArray& connect, std::vector<E_Int>& ancestors, 
+ (nuga_real_t tol, const K_FLD::FloatArray& pos, K_FLD::IntArray& connect, std::vector<E_Int>& ancestors, 
  std::vector<E_Int>& new_IDs, NUGA::bool_vector_type* xc, 
  const NUGA::int_vector_type& source, const NUGA::int_vector_type& target);
  
@@ -206,25 +206,25 @@ public:
 #endif
   ///
   E_Int __merge_duplicated_nodes(const K_FLD::FloatArray& pos, K_FLD::IntArray& connect,
-                                        E_Float tolerance, E_Int fromIdx = 0);
+                                        nuga_real_t tolerance, E_Int fromIdx = 0);
   ///
-  void __initialize(const K_FLD::FloatArray& pos, K_FLD::IntArray& connect, E_Float tolerance,
+  void __initialize(const K_FLD::FloatArray& pos, K_FLD::IntArray& connect, nuga_real_t tolerance,
                     std::vector<E_Int>& ancestors, NUGA::bool_vector_type& xc, E_Int X0);
   ///
   void __finalize();
   ///
   E_Int __run(K_FLD::FloatArray& pos, K_FLD::IntArray& connect,
-              std::vector<E_Int>& ancestors, NUGA::bool_vector_type& xc, E_Float tolerance = -1.); 
+              std::vector<E_Int>& ancestors, NUGA::bool_vector_type& xc, nuga_real_t tolerance = -1.); 
   ///
   E_Int __compute_intersections_w_localizer(K_FLD::FloatArray& pos, const K_FLD::IntArray& connect,
-                                        NUGA::bool_vector_type& xc, E_Float tolerance);
+                                        NUGA::bool_vector_type& xc, nuga_real_t tolerance);
 
   ///
   E_Int __compute_intersections_brute(K_FLD::FloatArray& pos, const K_FLD::IntArray& connect,
-    NUGA::bool_vector_type& xc, E_Float tolerance);
+    NUGA::bool_vector_type& xc, nuga_real_t tolerance);
   ///
   void __compute_min_edge_length (const K_FLD::FloatArray& pos,
-                                  const K_FLD::IntArray& connect, const NUGA::bool_vector_type& xc, E_Float &Lmin, E_Float& Lmax);
+                                  const K_FLD::IntArray& connect, const NUGA::bool_vector_type& xc, nuga_real_t &Lmin, nuga_real_t& Lmax);
   
   ///
   void __update_tolerance(const K_FLD::FloatArray& coord, NUGA::bool_vector_type& xc, const std::vector<E_Int>& ancestors);
@@ -240,10 +240,10 @@ public:
   K_SEARCH::BoundingBox<DIM>* _pool;
   K_SEARCH::BbTree<DIM> *_tree;
   std::vector<typename Struc<Element_t>::Type> _elements;
-  E_Float _tolerance, _tol_x, _tol_clean;
+  nuga_real_t _tolerance, _tol_x, _tol_clean;
   E_Int _iter;
   bool _absolute_tol;
-  std::vector<std::pair<E_Float, E_Int> > _sorterFI;
+  std::vector<std::pair<nuga_real_t, E_Int> > _sorterFI;
   E_Int _initialrows;
   bool _with_history;
   std::vector<E_Int> _node_history;

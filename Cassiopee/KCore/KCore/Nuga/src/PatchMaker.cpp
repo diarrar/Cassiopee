@@ -44,7 +44,7 @@ using namespace NUGA;
 void
 PatchMaker::run
 (const K_FLD::FloatArray& posS, const K_FLD::IntArray& connectS, const int_vector_type & pairs,
- E_Float angle_tolerance, std::vector<K_FLD::IntArray> & connectBout)
+ nuga_real_t angle_tolerance, std::vector<K_FLD::IntArray> & connectBout)
 {
 #ifdef E_TIME
   NUGA::chrono c;
@@ -245,7 +245,7 @@ PatchMaker::__update_normals
   E_Int                           Ni, Nj, B0, B1, err;
   size_t                          i, nb_nodes, nb_bound(connectB.cols());
   K_FLD::IntArray::const_iterator pS;
-  E_Float                         B[3], E[3], W[3], L, *p;
+  nuga_real_t                         B[3], E[3], W[3], L, *p;
   NUGA::int_vector_type     nodesS;
   NUGA::int_set_type        hN;
   K_FLD::FloatArray               new_normals(normals);
@@ -329,9 +329,9 @@ PatchMaker::__update_normals
 }
 
 ///
-E_Float PatchMaker::__getAngle(const E_Float* n1, const E_Float* n2)
+nuga_real_t PatchMaker::__getAngle(const nuga_real_t* n1, const nuga_real_t* n2)
 {
-  E_Float n[3], c, s;
+  nuga_real_t n[3], c, s;
   NUGA::crossProduct<3>(n1, n2, n);
   s = NUGA::normalize<3>(n);
   c = NUGA::dot<3>(n1, n2);
@@ -343,7 +343,7 @@ E_Float PatchMaker::__getAngle(const E_Float* n1, const E_Float* n2)
 void
 PatchMaker::__flag_critical_nodes
 (const K_FLD::FloatArray& normals,
- E_Float critical_angle,
+ nuga_real_t critical_angle,
  const std::vector<E_Int> & pairs,
  const std::vector<E_Int> & colors,
  std::vector< std::vector<E_Int> > & sorted_nodes,
@@ -423,11 +423,11 @@ PatchMaker::__flag_critical_nodes
 E_Int
 PatchMaker::__flag_critical_nodes_on_contour
 (const std::vector<E_Int>& nodes, E_Int N0, const K_FLD::FloatArray& normals,
- E_Float critical_angle, const std::vector<E_Int>& pairs, const std::vector<E_Int>& colors,
+ nuga_real_t critical_angle, const std::vector<E_Int>& pairs, const std::vector<E_Int>& colors,
  std::vector<E_Int> & flag)
 {
   E_Int istart = 0, Ni, Nj, Nstart = N0;
-  E_Float alpha;
+  nuga_real_t alpha;
 
   std::map<E_Int, E_Int> colors_to_join;
   std::map<E_Int, E_Int>::iterator it;
@@ -437,7 +437,7 @@ PatchMaker::__flag_critical_nodes_on_contour
   size_t k, sz = nodes.size();
   for (k = 1; k < sz; ++k)
   {
-    const E_Float* D = normals.col(Nstart);
+    const nuga_real_t* D = normals.col(Nstart);
 
     Ni = nodes[(istart+k)%sz];
 

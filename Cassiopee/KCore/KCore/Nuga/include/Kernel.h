@@ -152,14 +152,14 @@ public:
  size_type _Nmatch;
 #ifdef E_TIME
 public:
-  E_Float inval_time;
-  E_Float remesh_time;
-  E_Float cavity_time;
-  E_Float init_cavity_time;
-  E_Float sorting_bound_time;
-  E_Float fix_cavity_time;
-  E_Float _base_time;
-  E_Float _append_time;
+  nuga_real_t inval_time;
+  nuga_real_t remesh_time;
+  nuga_real_t cavity_time;
+  nuga_real_t init_cavity_time;
+  nuga_real_t sorting_bound_time;
+  nuga_real_t fix_cavity_time;
+  nuga_real_t _base_time;
+  nuga_real_t _append_time;
 #endif
 
 };

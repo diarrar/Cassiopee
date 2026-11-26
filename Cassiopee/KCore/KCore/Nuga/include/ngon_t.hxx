@@ -1021,7 +1021,7 @@ struct ngon_t
   }
 
   /// Remove hatty PGs (chinese hats when 3 nodes) from a mesh => open mesh to fix with close_phs
-  static void remove_hatty_PGs(ngon_t& ngio, const K_FLD::FloatArray& crd, E_Float ARTOL)
+  static void remove_hatty_PGs(ngon_t& ngio, const K_FLD::FloatArray& crd, nuga_real_t ARTOL)
   {
     ngio.PGs.updateFacets();
 
@@ -1055,7 +1055,7 @@ struct ngon_t
 
     using dint_t = std::deque<E_Int>;
 
-    std::vector < std::pair<E_Float, E_Int>> sorter;
+    std::vector < std::pair<nuga_real_t, E_Int>> sorter;
     std::map<K_MESH::NO_Edge, dint_t > edge_to_refine_nodesTMP, edge_to_refine_nodes;
     using edge_t = std::set<K_MESH::NO_Edge>;
     edge_t free_edges;
@@ -1183,7 +1183,7 @@ struct ngon_t
   }
   
   /// Change the node indice to reference the same when duplicated exist
-  E_Int join_phs(const K_FLD::FloatArray& coord, E_Float tolerance = EPSILON, bool do_omp=false)
+  E_Int join_phs(const K_FLD::FloatArray& coord, nuga_real_t tolerance = EPSILON, bool do_omp=false)
   {
     if (PGs.size() == 0) return 0;
     
@@ -1198,7 +1198,7 @@ struct ngon_t
   }
 
   /// Change the node indice to reference the same when duplicated exist (Relative tolerance version)
-  E_Int join_phs(const K_FLD::FloatArray& coord, const std::vector<E_Float>&nodal_metric2,  E_Float RTOL, bool do_omp=false)
+  E_Int join_phs(const K_FLD::FloatArray& coord, const std::vector<nuga_real_t>&nodal_metric2,  nuga_real_t RTOL, bool do_omp=false)
   {
     if (PGs.size() == 0) return 0;
 
@@ -1213,7 +1213,7 @@ struct ngon_t
   }
   
   /// Change the node indice to reference the same when duplicated exist (FldArrayF)
-  void join_phs(const K_FLD::FldArrayF& coord, E_Int px, E_Int py, E_Int pz, E_Float tolerance = EPSILON, bool do_omp=false)
+  void join_phs(const K_FLD::FldArrayF& coord, E_Int px, E_Int py, E_Int pz, nuga_real_t tolerance = EPSILON, bool do_omp=false)
   {
     if (PGs.size() == 0)
       return;
@@ -1227,7 +1227,7 @@ struct ngon_t
       PGs.change_indices(nids, true/*zero based*/);
   }
 
-  void join_phs(const K_FLD::FldArrayF& coord, E_Int px, E_Int py, E_Int pz, const std::vector<E_Float>&nodal_metric2, E_Float RTOL, bool do_omp=false)
+  void join_phs(const K_FLD::FldArrayF& coord, E_Int px, E_Int py, E_Int pz, const std::vector<nuga_real_t>&nodal_metric2, nuga_real_t RTOL, bool do_omp=false)
   {
     if (PGs.size() == 0)
       return;
@@ -1241,7 +1241,7 @@ struct ngon_t
       PGs.change_indices(nids, true/*zero based*/);
   }
 
-  /*E_Int join_phs2(const K_FLD::FldArrayF& coord, E_Int px, E_Int py, E_Int pz, const std::vector<E_Float>&nodal_metric2, E_Float RTOL)
+  /*E_Int join_phs2(const K_FLD::FldArrayF& coord, E_Int px, E_Int py, E_Int pz, const std::vector<nuga_real_t>&nodal_metric2, nuga_real_t RTOL)
   {
     if (PGs.size() == 0) return 0;
 
@@ -1435,7 +1435,7 @@ struct ngon_t
 
     PGs.updateFacets();
 
-    E_Float P[3];
+    nuga_real_t P[3];
 
     E_Int sz = PGs.size();
 
@@ -1548,7 +1548,7 @@ struct ngon_t
     PGs.updateFacets();
     E_Int nb_pgs(PGs.size());
 
-    E_Float G[3];
+    nuga_real_t G[3];
     K_FLD::FloatArray barys;
     barys.reserve(3, PGs.size());
 
@@ -1603,14 +1603,14 @@ struct ngon_t
   }
 
   ///
-  bool collapse_micro_edge(const K_FLD::FloatArray& crd, E_Float edge_ratio, E_Float Lmax, std::vector<E_Int>& nids)
+  bool collapse_micro_edge(const K_FLD::FloatArray& crd, nuga_real_t edge_ratio, nuga_real_t Lmax, std::vector<E_Int>& nids)
   {
     bool has_changed=false;
 
     if (edge_ratio > 1.) edge_ratio = 1./edge_ratio;
     if (edge_ratio <= 0.) return false;
 
-    E_Float edge_ratio2 = edge_ratio*edge_ratio;
+    nuga_real_t edge_ratio2 = edge_ratio*edge_ratio;
 
     nids.clear();
     K_CONNECT::IdTool::init_inc(nids, crd.cols()); 
@@ -1633,19 +1633,19 @@ struct ngon_t
         E_Int Ni   = pnodes[n]-1;
         E_Int Nip1 = pnodes[(n+1) % nnodes]-1;
 
-        E_Float NiNj[3];
+        nuga_real_t NiNj[3];
         NUGA::diff<3>(crd.col(Ni), crd.col(Nip1), NiNj);
-        E_Float Lref = sqrt(NUGA::sqrNorm<3>(NiNj));
+        nuga_real_t Lref = sqrt(NUGA::sqrNorm<3>(NiNj));
 
-        const E_Float& emin2 = L(0, Ni);
-        const E_Float& emax2 = L(1, Ni);
+        const nuga_real_t& emin2 = L(0, Ni);
+        const nuga_real_t& emax2 = L(1, Ni);
         if (emin2 < edge_ratio2*emax2) ++n_bad_nodes;
 
-        const E_Float& emin21 = L(0, Nip1);
-        const E_Float& emax21 = L(1, Nip1);
+        const nuga_real_t& emin21 = L(0, Nip1);
+        const nuga_real_t& emax21 = L(1, Nip1);
         if (emin21 < edge_ratio2*emax21) ++n_bad_nodes;
 
-        E_Float emin = sqrt(K_FUNC::E_min(emin2, emin21));
+        nuga_real_t emin = sqrt(K_FUNC::E_min(emin2, emin21));
         if (Lmax > 0. && emin > Lmax) continue; // consider only edges under Lmax (if valid value)
 
         bool small_edge = fabs(emin - Lref) < 1.e-6 * emin ; // NiNj is (or very near) the smallest incident edge
@@ -1684,7 +1684,7 @@ struct ngon_t
     PGs.updateFacets();
     
     E_Int nb_pgs, nb_phs(PHs.size()), pgi, count(0);
-    E_Float G[3];
+    nuga_real_t G[3];
     K_FLD::FloatArray barys;
     barys.reserve(3, PGs.size());
         
@@ -1849,7 +1849,7 @@ struct ngon_t
     PGs.updateFacets();
     
     E_Int nb_pgs, nb_phs(PHs.size()), pgi;
-    E_Float g[3], G[3], K;
+    nuga_real_t g[3], G[3], K;
     K_FLD::FloatArray barys;
     barys.reserve(3, nb_phs);
     
@@ -1868,7 +1868,7 @@ struct ngon_t
         for (size_t k=0; k < 3; ++k)
           G[k] += g[k];
       }
-      K = 1./(E_Float)nb_pgs;
+      K = 1./(nuga_real_t)nb_pgs;
       for (size_t k=0; k < 3; ++k)
         G[k] *= K;
         
@@ -1883,7 +1883,7 @@ struct ngon_t
   }
 
   ///
-  static E_Int detect_concave_PHs(const K_FLD::FloatArray& crd, const ngon_t& ng, const ngon_unit& orient, E_Float concavity_ratio, E_Float convexity_ratio, std::vector<E_Int>& PHlist)
+  static E_Int detect_concave_PHs(const K_FLD::FloatArray& crd, const ngon_t& ng, const ngon_unit& orient, nuga_real_t concavity_ratio, nuga_real_t convexity_ratio, std::vector<E_Int>& PHlist)
   {
     bool f;
     E_Int nb_phs = ng.PHs.size();
@@ -1917,7 +1917,7 @@ struct ngon_t
 
   ///
   static E_Int detect_concave_PGs
-  (const K_FLD::FloatArray& crd, const ngon_unit& pgs, E_Float convexity_tol, std::vector<bool>& flag)
+  (const K_FLD::FloatArray& crd, const ngon_unit& pgs, nuga_real_t convexity_tol, std::vector<bool>& flag)
   {
     typedef K_FLD::ArrayAccessor<K_FLD::FloatArray> acrd_t;
     acrd_t acrd(crd);
@@ -1926,7 +1926,7 @@ struct ngon_t
 
     flag.clear();
     flag.resize(nb_pgs, false);
-    E_Float normal[3];
+    nuga_real_t normal[3];
     for (E_Int PGi = 0; PGi < nb_pgs; ++PGi)
     {
       const E_Int* nodes = pgs.get_facets_ptr(PGi);
@@ -2015,10 +2015,10 @@ struct ngon_t
 //      medith::write("patho.plt", crd, cnto, "NGON");
 //    
 //      DELAUNAY::Triangulator t;
-//      E_Float v, centroid[3];
+//      nuga_real_t v, centroid[3];
 //      K_MESH::Polyhedron<UNKNOWN>::metrics2<DELAUNAY::Triangulator>(t, crd, ng.PGs, ng.PHs.get_facets_ptr(PHi), ng.PHs.stride(PHi), v, centroid);
 //          
-//      E_Float isoG[3];
+//      nuga_real_t isoG[3];
 //      typedef K_FLD::ArrayAccessor<K_FLD::FloatArray> acrd_t;
 //      acrd_t acrd(crd);
 //      std::vector<E_Int> phnodes;
@@ -2059,7 +2059,7 @@ struct ngon_t
     
     typedef K_FLD::ArrayAccessor<K_FLD::FloatArray > acrd_t;
     acrd_t acrd(crd);
-    E_Float W[3];
+    nuga_real_t W[3];
 
 #ifndef DEBUG_NGON_T
 #pragma omp parallel for private(err, dt, cT3, W) reduction(+:normal_err_hat_count, normal_err_spike_count, normal_err_unknown_count, delaunay_err_count)
@@ -2071,17 +2071,17 @@ struct ngon_t
       
       // test normal computation
       K_MESH::Polygon::normal<acrd_t, 3>(acrd, nodes, nb_nodes, 1, W);
-      E_Float l2 = sqrt(W[0]*W[0]+W[1]*W[1]+W[2]*W[2]);
+      nuga_real_t l2 = sqrt(W[0]*W[0]+W[1]*W[1]+W[2]*W[2]);
       
       if (fabs(l2 - 1.) >= EPSILON) // NORMAL CALCULATION FAILED
       {
-        /*E_Float Lmin=NUGA::FLOAT_MAX;
-        E_Float Lmax = -1;
+        /*nuga_real_t Lmin=NUGA::FLOAT_MAX;
+        nuga_real_t Lmax = -1;
         for (E_Int n=0; n < nb_nodes; ++n)
         {
           E_Int ni = *(nodes+n)-1;
           E_Int nj = *(nodes+(n+1)%nb_nodes)-1;
-          E_Float d2 = NUGA::sqrDistance(crd.col(ni), crd.col(nj), 3);
+          nuga_real_t d2 = NUGA::sqrDistance(crd.col(ni), crd.col(nj), 3);
           Lmin = K_FUNC::E_min(Lmin, d2);
           Lmax = K_FUNC::E_max(Lmax, d2);
         }
@@ -2203,7 +2203,7 @@ static void detect_uncomputable_phs(const K_FLD::FloatArray& crd, const ngon_t& 
 
 ///
 template <typename TriangulatorType>
-static E_Int detect_bad_volumes(const K_FLD::FloatArray& crd, const ngon_t& ngi, const ngon_unit& neighborsi, E_Float vmin, E_Float vratio, Vector_t<E_Int>& PHlist)
+static E_Int detect_bad_volumes(const K_FLD::FloatArray& crd, const ngon_t& ngi, const ngon_unit& neighborsi, nuga_real_t vmin, nuga_real_t vratio, Vector_t<E_Int>& PHlist)
 {
   ngi.PGs.updateFacets();
   ngi.PHs.updateFacets();
@@ -2215,13 +2215,13 @@ static E_Int detect_bad_volumes(const K_FLD::FloatArray& crd, const ngon_t& ngi,
   
   E_Int nb_phs = ngi.PHs.size();
  
-  std::vector<E_Float> vols;
+  std::vector<nuga_real_t> vols;
   ngon_t::volumes<TriangulatorType>(crd, ngi, vols, false/*i.e. not all cvx*/, true/* ! new algo*/);
   
-  using pair_t = std::pair<E_Float, E_Int>;
+  using pair_t = std::pair<nuga_real_t, E_Int>;
   std::vector<pair_t> v_to_id;
 
-  E_Float vi, vj;
+  nuga_real_t vi, vj;
   
   for (E_Int i=0; i < nb_phs; ++i)
   {
@@ -2262,7 +2262,7 @@ static E_Int detect_bad_volumes(const K_FLD::FloatArray& crd, const ngon_t& ngi,
   std::stable_sort(v_to_id.begin(), v_to_id.end(), 
   [](const pair_t& a, const pair_t& b)
   {
-    E_Float tol = (std::max(a.first, b.first) < 1.e-15) ? 1.e-30 : 1.e-15;
+    nuga_real_t tol = (std::max(a.first, b.first) < 1.e-15) ? 1.e-30 : 1.e-15;
     return (a.first < (b.first + tol));
   }
   );
@@ -2696,7 +2696,7 @@ static E_Int discard_by_box(const K_FLD::FloatArray& coord, ngon_t& ngi, bool ho
 template <typename TriangulatorType>
 static E_Int stats_bad_volumes
 (const K_FLD::FloatArray& crd, const ngon_t& ngi, const ngon_unit& neighborsi, 
- const std::vector<E_Float>&vols, E_Float vmin, Vector_t<E_Float>& aspect_ratio)
+ const std::vector<nuga_real_t>&vols, nuga_real_t vmin, Vector_t<nuga_real_t>& aspect_ratio)
 {
   ngi.PGs.updateFacets();
   ngi.PHs.updateFacets();
@@ -2707,7 +2707,7 @@ static E_Int stats_bad_volumes
   aspect_ratio.resize(nb_phs, 0.);
  
   
-  E_Float vi, vj;
+  nuga_real_t vi, vj;
   
   for (E_Int i=0; i < nb_phs; ++i)
   {
@@ -2718,7 +2718,7 @@ static E_Int stats_bad_volumes
 
     E_Int nb_neighs = neighborsi.stride(i);
     
-    E_Float ar = NUGA::FLOAT_MAX;
+    nuga_real_t ar = NUGA::FLOAT_MAX;
     
     for (E_Int n=0; n < nb_neighs; ++n)
     {
@@ -3074,9 +3074,9 @@ E_Int remove_unreferenced_pgs(Vector_t<E_Int>& pgnids, Vector_t<E_Int>& phnids)
   
   /// Warning : The coordinates are not cleaned, only the connectivity.
   static E_Int clean_connectivity
-  (ngon_t& NG, const K_FLD::FloatArray& f, E_Int ngon_dim, E_Float tolerance, bool remove_dup_phs, bool do_omp,
+  (ngon_t& NG, const K_FLD::FloatArray& f, E_Int ngon_dim, nuga_real_t tolerance, bool remove_dup_phs, bool do_omp,
    std::vector<E_Int>* pgnids=nullptr, std::vector<E_Int>* phnids=nullptr,
-   std::vector<E_Float>* Lmin2=nullptr)
+   std::vector<nuga_real_t>* Lmin2=nullptr)
   {   
     bool histo = false;
     if (pgnids!=nullptr) histo = true;
@@ -3122,7 +3122,7 @@ E_Int remove_unreferenced_pgs(Vector_t<E_Int>& pgnids, Vector_t<E_Int>& phnids)
     else //if (tolerance < 0.)
     {
       //std::cout << "RELATIVE TOL" << std::endl;
-      std::vector<E_Float> nodal_metric2;
+      std::vector<nuga_real_t> nodal_metric2;
       if (Lmin2 == nullptr)
       {
         NUGA::MeshTool::computeNodalDistance2<K_FLD::FloatArray, ngon_unit>(f, NG.PGs, nodal_metric2);
@@ -3131,7 +3131,7 @@ E_Int remove_unreferenced_pgs(Vector_t<E_Int>& pgnids, Vector_t<E_Int>& phnids)
 
       //std::cout << "Limn2 size vs crd : " << Lmin2->size() << "/" << f.cols() << std::endl;
       
-      E_Float RTOL = -tolerance;
+      nuga_real_t RTOL = -tolerance;
       nb_merges = NG.join_phs(f, *Lmin2, RTOL, do_omp);
     }
 
@@ -3210,12 +3210,12 @@ E_Int remove_unreferenced_pgs(Vector_t<E_Int>& pgnids, Vector_t<E_Int>& phnids)
     return nb_merges + (nb_phs0-nb_phs1) + (nb_pgs0-nb_pgs1);
   }
   
-  static void surface_extrema(const ngon_unit& PGs, const K_FLD::FloatArray& crd, E_Float& smin, E_Int& imin, E_Float& smax, E_Int& imax)
+  static void surface_extrema(const ngon_unit& PGs, const K_FLD::FloatArray& crd, nuga_real_t& smin, E_Int& imin, nuga_real_t& smax, E_Int& imax)
   {
     //
     E_Int nb_pgs = PGs.size();
     E_Int i, id;
-    E_Float s;
+    nuga_real_t s;
     
     smin = NUGA::FLOAT_MAX;
     imin = IDX_NONE;
@@ -3225,9 +3225,9 @@ E_Int remove_unreferenced_pgs(Vector_t<E_Int>& pgnids, Vector_t<E_Int>& phnids)
     E_Int nb_max_threads = __NUMTHREADS__;
     
     std::vector<E_Int> im(nb_max_threads, IDX_NONE);
-    std::vector<E_Float> sm(nb_max_threads, NUGA::FLOAT_MAX);
+    std::vector<nuga_real_t> sm(nb_max_threads, NUGA::FLOAT_MAX);
     std::vector<E_Int> iM(nb_max_threads, IDX_NONE);
-    std::vector<E_Float> sM(nb_max_threads, -1.);
+    std::vector<nuga_real_t> sM(nb_max_threads, -1.);
 
 #pragma omp parallel shared(sm, im, PGs, crd, nb_pgs) private (i, s, id)
     {
@@ -3268,7 +3268,7 @@ E_Int remove_unreferenced_pgs(Vector_t<E_Int>& pgnids, Vector_t<E_Int>& phnids)
   
   ///
   template <typename Triangulator_t>
-  static void volume_extrema(ngon_t& ngi, const K_FLD::FloatArray& crd, E_Float& vmin, E_Int& imin, E_Float& vmax, E_Int& imax)
+  static void volume_extrema(ngon_t& ngi, const K_FLD::FloatArray& crd, nuga_real_t& vmin, E_Int& imin, nuga_real_t& vmax, E_Int& imax)
   {
     vmin = NUGA::FLOAT_MAX;
     imin = imax = IDX_NONE;
@@ -3314,16 +3314,16 @@ E_Int remove_unreferenced_pgs(Vector_t<E_Int>& pgnids, Vector_t<E_Int>& phnids)
     }
   
     //
-    E_Float G[3], v;
+    nuga_real_t G[3], v;
     K_FLD::IntArray cT3;
     E_Int T[3], id, i, f;
     
     E_Int nb_max_threads = __NUMTHREADS__;
     
     std::vector<E_Int> im(nb_max_threads, IDX_NONE);
-    std::vector<E_Float> vm(nb_max_threads, NUGA::FLOAT_MAX);
+    std::vector<nuga_real_t> vm(nb_max_threads, NUGA::FLOAT_MAX);
     std::vector<E_Int> iM(nb_max_threads, IDX_NONE);
-    std::vector<E_Float> vM(nb_max_threads, -1.);
+    std::vector<nuga_real_t> vM(nb_max_threads, -1.);
     
     //std::cout << "Volumes..." << std::endl;
     
@@ -3384,14 +3384,14 @@ E_Int remove_unreferenced_pgs(Vector_t<E_Int>& pgnids, Vector_t<E_Int>& phnids)
    }
   }
 
-  static void edge_length_extrema(ngon_unit& PGs, const K_FLD::FloatArray& crd, E_Float& Lmin, E_Int& imin, E_Float& Lmax, E_Int& imax)
+  static void edge_length_extrema(ngon_unit& PGs, const K_FLD::FloatArray& crd, nuga_real_t& Lmin, E_Int& imin, nuga_real_t& Lmax, E_Int& imax)
   {
     Lmin = NUGA::FLOAT_MAX;
     Lmax = -1.;
     imin=imax=IDX_NONE;
 
     E_Int nb_pgs = PGs.size(), nb_nodes;
-    E_Float L2;
+    nuga_real_t L2;
 
     for (E_Int i = 0; i < nb_pgs; ++i)
     {
@@ -3691,7 +3691,7 @@ static E_Int __find_reference_orientation_triangle
   
   {
   K_FLD::IntArray::const_iterator pS;
-  E_Float Ni[3], P0[3], P1[3];
+  nuga_real_t Ni[3], P0[3], P1[3];
   E_Int dirp, dirm, PGi, PGj, PGprocessed;
   bool intersect;
   size_t sz = T3_to_nPG.size();
@@ -3717,7 +3717,7 @@ static E_Int __find_reference_orientation_triangle
     dirp=dirm=0;
     PGprocessed = IDX_NONE;
     
-    E_Float lambda, UV[2], min_d;
+    nuga_real_t lambda, UV[2], min_d;
     E_Bool  coincident, parallel;
     
     for (size_t Tj = 0; Tj < sz; ++Tj)
@@ -3731,9 +3731,9 @@ static E_Int __find_reference_orientation_triangle
       const E_Int& N2 = connectT3(1,Tj);
       const E_Int& N3 = connectT3(2,Tj);
       
-      const E_Float* q0 = coord.col(N1);
-      const E_Float* q1 = coord.col(N2);
-      const E_Float* q2 = coord.col(N3);
+      const nuga_real_t* q0 = coord.col(N1);
+      const nuga_real_t* q1 = coord.col(N2);
+      const nuga_real_t* q2 = coord.col(N3);
       
       K_MESH::Triangle::planeLineMinDistance<3>(q0, q1, q2, P0, P1, EPSILON, true/*tol_is_absolute*/, lambda, UV, parallel, coincident, min_d);
       //intersect = K_MESH::Triangle::intersect<3>(q0, q1, q2, P0, P1, EPSILON, true, u0, u1, tx, overlap);
@@ -4288,7 +4288,7 @@ static E_Int flag_neighbors(const ngon_t& ng, Vector_t<bool>& flag, bool overwri
 
 ///
 template<typename TriangulatorType>
-static E_Int volumes (const K_FLD::FloatArray& crd, const ngon_t& ng, std::vector<E_Float>& vols, bool all_pgs_cvx, bool new_algo)
+static E_Int volumes (const K_FLD::FloatArray& crd, const ngon_t& ng, std::vector<nuga_real_t>& vols, bool all_pgs_cvx, bool new_algo)
 {
   ng.PGs.updateFacets();
   ng.PHs.updateFacets();
@@ -4298,10 +4298,10 @@ static E_Int volumes (const K_FLD::FloatArray& crd, const ngon_t& ng, std::vecto
   vols.clear();
   vols.resize(nb_phs, -1.);
 
-  E_Float Gdum[3];
+  nuga_real_t Gdum[3];
   TriangulatorType dt;
 
-  E_Float v;
+  nuga_real_t v;
   E_Int err, errcount(0);
 
   
@@ -4336,10 +4336,10 @@ static E_Int volumes (const K_FLD::FloatArray& crd, const ngon_t& ng, std::vecto
 
 ///
 template<typename TriangulatorType>
-static E_Int volume (const K_FLD::FloatArray& crd, const ngon_t& ng, E_Float& total_vol, std::vector<E_Float>* coefs = 0, bool new_algo=true)
+static E_Int volume (const K_FLD::FloatArray& crd, const ngon_t& ng, nuga_real_t& total_vol, std::vector<nuga_real_t>* coefs = 0, bool new_algo=true)
 {
   total_vol = 0.;
-  std::vector<E_Float> vols;
+  std::vector<nuga_real_t> vols;
 
   E_Int err = volumes<TriangulatorType>(crd, ng, vols, new_algo);
   
@@ -4394,9 +4394,9 @@ static E_Int centroids(const ngon_t& ng, const K_FLD::FloatArray& crd, K_FLD::Fl
   centroids.clear();
   centroids.resize(3, nb_phs, 0.);
 
-  E_Float v;
+  nuga_real_t v;
   E_Int err;
-  std::vector<E_Float> vols(nb_phs);
+  std::vector<nuga_real_t> vols(nb_phs);
   TriangulatorType dt;
 
   if (!new_algo)
@@ -4507,26 +4507,26 @@ E_Int remove_phs(const std::set<E_Int>& PHslist)
   return 0;
 }*/
 
-  static E_Float toto_surface(const std::vector<E_Int>& indices, const K_FLD::FloatArray& crd)
+  static nuga_real_t toto_surface(const std::vector<E_Int>& indices, const K_FLD::FloatArray& crd)
   {
     K_SEARCH::BBox3D box;
 
     box.compute(crd, indices);
 
-    E_Float dx = box.maxB[0] - box.minB[0];
-    E_Float dy = box.maxB[1] - box.minB[1];
-    E_Float dz = box.maxB[2] - box.minB[2];
+    nuga_real_t dx = box.maxB[0] - box.minB[0];
+    nuga_real_t dy = box.maxB[1] - box.minB[1];
+    nuga_real_t dz = box.maxB[2] - box.minB[2];
     
     return std::max(dx*dy, std::max(dx*dz, dy*dz));
 
   }
 
-  static E_Int update_PGs_flags_for_aggregating(ngon_t& ng, E_Float vmin, const Vector_t<E_Float>& vs, const K_FLD::FloatArray& crd, ngon_unit& neighbors)
+  static E_Int update_PGs_flags_for_aggregating(ngon_t& ng, nuga_real_t vmin, const Vector_t<nuga_real_t>& vs, const K_FLD::FloatArray& crd, ngon_unit& neighbors)
   {
     E_Int nb_mates = 0;
 
     E_Int nb_phs = ng.PHs.size();
-    Vector_t<E_Float> surfaces_per_K(nb_phs, 0.), surfaces(ng.PGs.size(), 0.);
+    Vector_t<nuga_real_t> surfaces_per_K(nb_phs, 0.), surfaces(ng.PGs.size(), 0.);
     Vector_t<E_Int> indices;
     Vector_t<E_Int> attractor(nb_phs, IDX_NONE);
 
@@ -4552,7 +4552,7 @@ E_Int remove_phs(const std::set<E_Int>& PHslist)
         if (Kn == IDX_NONE) continue;
 
         // append to the surface between K and Kn
-        E_Float & sn = surfaces[Fn];
+        nuga_real_t & sn = surfaces[Fn];
         if (sn == 0.) //compute it. fixme better crterium as it can be really 0.
         {
           indices.clear();
@@ -4566,7 +4566,7 @@ E_Int remove_phs(const std::set<E_Int>& PHslist)
       
       // now get the best
       E_Int jmax(IDX_NONE);
-      E_Float smax = -NUGA::FLOAT_MAX;
+      nuga_real_t smax = -NUGA::FLOAT_MAX;
       for (E_Int j = 0; j < nb_pgs; ++j)
       {
         const E_Int& Kn = *(pKn + j);
@@ -4953,7 +4953,7 @@ static void ph_shell(const ngon_t& ng, E_Int PHi, const ngon_unit& neighbors, Ve
   
 ///
 static E_Int extrude_faces
-(K_FLD::FloatArray& coord, ngon_t& wNG, const Vector_t<E_Int>& PGlist, E_Float height_factor, bool build_cells, 
+(K_FLD::FloatArray& coord, ngon_t& wNG, const Vector_t<E_Int>& PGlist, nuga_real_t height_factor, bool build_cells, 
  eExtrudeStrategy strategy = CST_ABS, E_Int smooth_iters = 0, Vector_t<E_Int>* topPGlist = 0)
 {
   
@@ -4990,10 +4990,10 @@ static E_Int extrude_faces
   // Fix uncomputed normals by averaging
 
   // Compute layer's height
-  std::vector<E_Float> heightv(coord.cols(), height_factor);
+  std::vector<nuga_real_t> heightv(coord.cols(), height_factor);
   if (strategy != CST_ABS)
   {
-    E_Float Lcomp(0.);
+    nuga_real_t Lcomp(0.);
     height_factor = K_FUNC::E_min(1., height_factor); // 100% max
     K_FLD::FloatArray L;
     NUGA::MeshTool::computeIncidentEdgesSqrLengths(coord, ghost_pgs, L);
@@ -5026,9 +5026,9 @@ static E_Int extrude_faces
   {
     for (E_Int i = 0; i < nb_normals; ++i)
     {
-      const E_Float* norm = normals.col(i);
+      const nuga_real_t* norm = normals.col(i);
       if (norm[0] == NUGA::FLOAT_MAX) continue;
-      E_Float* p = coord.col(i);
+      nuga_real_t* p = coord.col(i);
       NUGA::sum<3>(1., p, heightv[i], norm, p); // move point
     }
     return 0;
@@ -5048,12 +5048,12 @@ static E_Int extrude_faces
   
   for (E_Int i = 0; i < nb_normals; ++i)
   {
-    const E_Float* norm = normals.col(i);
+    const nuga_real_t* norm = normals.col(i);
     if (norm[0] == NUGA::FLOAT_MAX) continue;
-    const E_Float* p = coord.col(i);
-    //E_Float Lmax = sqrt(L(1, i));
-    //E_Float Lmin = sqrt(L(0, i));
-    //E_Float Lref = FACTOR*Lmean;//std::min(FACTOR*Lmin, Lmax);
+    const nuga_real_t* p = coord.col(i);
+    //nuga_real_t Lmax = sqrt(L(1, i));
+    //nuga_real_t Lmin = sqrt(L(0, i));
+    //nuga_real_t Lref = FACTOR*Lmean;//std::min(FACTOR*Lmin, Lmax);
     NUGA::sum<3>(1., p, heightv[i], norm, coord.col(nid)); // creating image point
     img[i] = nid++;
   }
@@ -5165,13 +5165,13 @@ static E_Int extrude_faces
 }
 
 static E_Int extrude_revol_faces
-(K_FLD::FloatArray& coord, ngon_t& wNG, const Vector_t<E_Int>& PGlist, const E_Float* ax, const E_Float* ax_pt,
-  E_Float angle, Vector_t<E_Int>* topPGlist = 0)
+(K_FLD::FloatArray& coord, ngon_t& wNG, const Vector_t<E_Int>& PGlist, const nuga_real_t* ax, const nuga_real_t* ax_pt,
+  nuga_real_t angle, Vector_t<E_Int>* topPGlist = 0)
 {
   if (PGlist.empty()) return 0;
 
-  //E_Float axis[] = {0., 0., 1.};
-  E_Float* axis_pt = nullptr;
+  //nuga_real_t axis[] = {0., 0., 1.};
+  nuga_real_t* axis_pt = nullptr;
   
 #ifdef DEBUG_NGON_T
   E_Int minid = *std::min_element(PGlist.begin(), PGlist.end());
@@ -5199,9 +5199,9 @@ static E_Int extrude_revol_faces
   Vector_t<E_Int> obids; //initial bottom ids  : for indirection when building ghost cells at the end
   wNG.PGs.extract(PGlist, ghost_pgs, obids);
 
-  E_Float x0 = axis_pt[0];
-  E_Float y0 = axis_pt[1];
-  std::vector<E_Float> angles, radius;
+  nuga_real_t x0 = axis_pt[0];
+  nuga_real_t y0 = axis_pt[1];
+  std::vector<nuga_real_t> angles, radius;
   E_Int nb_new_points = NUGA::MeshTool::computeNodeRadiusAndAngles(coord, ghost_pgs, x0, y0, radius, angles);
 
   // a. conversion NGON3D -> NGON2D
@@ -5220,13 +5220,13 @@ static E_Int extrude_revol_faces
   
   for (E_Int i = 0; i < nb_points; ++i)
   {
-    E_Float& a = angles[i];
+    nuga_real_t& a = angles[i];
     if (a == NUGA::FLOAT_MAX) continue; // not a point to be rotated
     a += angle;
 
-    const E_Float* p = coord.col(i);
+    const nuga_real_t* p = coord.col(i);
 
-    E_Float* newp = coord.col(nid);
+    nuga_real_t* newp = coord.col(nid);
 
     newp[0] = radius[i] * cos(a);
     newp[1] = radius[i] * sin(a);
@@ -5638,19 +5638,19 @@ static int validate_moves_by_fluxes
   //E_Int err = 
   build_orientation_ngu<TriangulatorType>(crd, ngio, orient);//fixme hpc : should be deduced from the input PH orientation
 
-  std::vector<E_Float> fluxes0(ngio.PHs.size(), NUGA::FLOAT_MAX);
-  std::vector<E_Float> vols0  (ngio.PHs.size(), NUGA::FLOAT_MAX);
+  std::vector<nuga_real_t> fluxes0(ngio.PHs.size(), NUGA::FLOAT_MAX);
+  std::vector<nuga_real_t> vols0  (ngio.PHs.size(), NUGA::FLOAT_MAX);
 
   //computes initial flux at cells
   for (size_t i = 0; i < PHlist.size(); ++i)
   {
     E_Int PHi = PHlist[i];
     K_MESH::Polyhedron<0> PH0(ngio, PHi);
-    E_Float fluxvec[3];
+    nuga_real_t fluxvec[3];
     PH0.flux(crd, orient.get_facets_ptr(PHi), fluxvec);
 
-    E_Float f = sqrt(NUGA::sqrNorm<3>(fluxvec));
-    E_Float s = PH0.surface(crd);
+    nuga_real_t f = sqrt(NUGA::sqrNorm<3>(fluxvec));
+    nuga_real_t s = PH0.surface(crd);
     f /= s;
 
     fluxes0[PHi] = f;
@@ -5704,8 +5704,8 @@ static int validate_moves_by_fluxes
 
     ph_shell(ngio, PHi, neighborsi, shellPHs, boundPGs, wprocessed);
 
-    E_Float maxflux = fluxes0[PHi];
-    E_Float minvol  = NUGA::FLOAT_MAX;
+    nuga_real_t maxflux = fluxes0[PHi];
+    nuga_real_t minvol  = NUGA::FLOAT_MAX;
 
     for (size_t u = 0; u < shellPHs.size(); ++u)
     {
@@ -5735,21 +5735,21 @@ static int validate_moves_by_fluxes
     build_orientation_ngu<TriangulatorType>(crd, ngshell, orientshell);
 
     // compute new max flux : must decrease to validate
-    E_Float newmaxflux = -1.;
-    E_Float newminvol = NUGA::FLOAT_MAX;
+    nuga_real_t newmaxflux = -1.;
+    nuga_real_t newminvol = NUGA::FLOAT_MAX;
     TriangulatorType dt;
     for (E_Int u = 0; u < ngshell.PHs.size(); ++u)
     {
       K_MESH::Polyhedron<0> PH0(ngshell, u);
-      E_Float fluxvec[3];
+      nuga_real_t fluxvec[3];
       PH0.flux(crd, orientshell.get_facets_ptr(u), fluxvec);
 
-      E_Float f = sqrt(NUGA::sqrNorm<3>(fluxvec));
-      E_Float s = PH0.surface(crd);
+      nuga_real_t f = sqrt(NUGA::sqrNorm<3>(fluxvec));
+      nuga_real_t s = PH0.surface(crd);
       f /= s;
 
       newmaxflux = std::max(newmaxflux, f);
-      E_Float v;
+      nuga_real_t v;
       PH0.volume<TriangulatorType>(crd, orientshell.get_facets_ptr(u), v, dt);
       if (v < newminvol) newminvol = v;
     }

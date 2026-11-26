@@ -172,7 +172,7 @@ E_Int iodata::read(const char* filename, DELAUNAY::MeshData& data)
   std::ifstream                file (filename);
   std::set<std::string>        keys;
   E_Int                        rows{ 0 }, cols{ 0 };
-  E_Float                      P[3];
+  nuga_real_t                      P[3];
   E_Int                        K[3], i;
 
   if (!file.is_open())

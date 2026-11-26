@@ -102,7 +102,7 @@ class ngon_unit
     }
 
     ///
-    E_Float operator[](const E_Int i){return _NGON[i];}
+    nuga_real_t operator[](const E_Int i){return _NGON[i];}
     /// Refresh the facets starts.
     void updateFacets() const;
     

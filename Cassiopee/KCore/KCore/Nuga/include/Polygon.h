@@ -142,12 +142,12 @@ public:
   ///
   template <typename acrd_t>
   static inline void star_triangulate(const acrd_t& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, 
-                                      const E_Float* G, K_FLD::FloatArray& aT3)
+                                      const nuga_real_t* G, K_FLD::FloatArray& aT3)
   {
     for (E_Int i=0; i < nb_nodes; ++i)
     {
-      const E_Float* p1 = crd.col(nodes[i] - index_start);
-      const E_Float* p2 = crd.col(nodes[(i+1)%nb_nodes] - index_start);
+      const nuga_real_t* p1 = crd.col(nodes[i] - index_start);
+      const nuga_real_t* p2 = crd.col(nodes[(i+1)%nb_nodes] - index_start);
 
       aT3.pushBack(G, G + 3);
       aT3.pushBack(p1, p1 + 3);
@@ -181,77 +181,77 @@ public:
   ///
   static E_Int get_sharp_edges
     (const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, const E_Int* orient, const ngon_unit& lneighbors,
-     std::set<K_MESH::NO_Edge>& sharp_edges, E_Float angular_threshold, const E_Float** normals = 0);
+     std::set<K_MESH::NO_Edge>& sharp_edges, nuga_real_t angular_threshold, const nuga_real_t** normals = 0);
 
   ///
   static E_Int update_neighbor_with_sharp_edges
     (const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, const E_Int* orient, ngon_unit& lneighbors,
-    E_Float angular_threshold, const E_Float** normals = 0);
+    nuga_real_t angular_threshold, const nuga_real_t** normals = 0);
 
   ///
   static E_Int full_agglomerate
-    (const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, E_Float angular_tol, 
-     const E_Int* orient, ngon_unit& agglo_pgs, std::vector<E_Int>& nids, const E_Float** normals = 0);
+    (const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, nuga_real_t angular_tol, 
+     const E_Int* orient, ngon_unit& agglo_pgs, std::vector<E_Int>& nids, const nuga_real_t** normals = 0);
   
   ///todo
   template <typename TriangulatorType>
-  static E_Int convex_agglomerate(const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, E_Float angular_tol, ngon_unit& agglo_pgs, std::vector<E_Int>& nids);
+  static E_Int convex_agglomerate(const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, nuga_real_t angular_tol, ngon_unit& agglo_pgs, std::vector<E_Int>& nids);
   
   ///
   static E_Int build_pg_neighborhood(const ngon_unit& PGS, ngon_unit& neighbor, const E_Int* first_pg = 0, E_Int nb_pgs = 0,
                                      const std::set<K_MESH::NO_Edge>* wall = 0/*extra specified walls*/);
   ///
   template <typename CoordAcc, short DIM>
-  inline void iso_barycenter(const CoordAcc& coord, E_Float* G);
+  inline void iso_barycenter(const CoordAcc& coord, nuga_real_t* G);
   
   // Center of gravity of the summit : the polygon is seen as a cloud . INACURATE FOR IRREGULAR DISTRIBUTION OF NODES
   template <typename CoordAcc, short DIM>
-  static inline void iso_barycenter(const CoordAcc& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, E_Float* G);
+  static inline void iso_barycenter(const CoordAcc& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, nuga_real_t* G);
 
-  static inline void iso_barycenter(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, E_Float* G);
+  static inline void iso_barycenter(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, nuga_real_t* G);
 
   // Center of gravity using the topology (weighted with triangles area)
   template <short DIM>
-  static inline void centroid(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, E_Float* G);
+  static inline void centroid(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, nuga_real_t* G);
   
   // Center of gravity using the topology (weighted with edge length-based) TODO
   //template <short DIM>
-  //static inline void center_of_mass(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, E_Float* G);
+  //static inline void center_of_mass(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, nuga_real_t* G);
   
-  void edge_length_extrema(const K_FLD::FloatArray& crd, E_Float& Lmin2, E_Float& Lmax2) const
+  void edge_length_extrema(const K_FLD::FloatArray& crd, nuga_real_t& Lmin2, nuga_real_t& Lmax2) const
   {
     Lmin2 = NUGA::FLOAT_MAX;
     Lmax2 = -1.;
   
     for (E_Int i=0; i < _nb_nodes; ++i)
     {
-      const E_Float* Pi = crd.col(node(i));
-      const E_Float* Pj = crd.col(node((i+1)%_nb_nodes));
+      const nuga_real_t* Pi = crd.col(node(i));
+      const nuga_real_t* Pj = crd.col(node((i+1)%_nb_nodes));
       
-      E_Float L2 = NUGA::sqrDistance(Pi,Pj, 3);
+      nuga_real_t L2 = NUGA::sqrDistance(Pi,Pj, 3);
       Lmin2 = MIN(Lmin2, L2);
       Lmax2 = MAX(Lmax2, L2);
     }
   }
 
-  E_Float Lref2(const K_FLD::FloatArray& crd, NUGA::eMetricType MTYPE=NUGA::ISO_MIN) const
+  nuga_real_t Lref2(const K_FLD::FloatArray& crd, NUGA::eMetricType MTYPE=NUGA::ISO_MIN) const
   {
-    E_Float Lmin2, Lmax2;
+    nuga_real_t Lmin2, Lmax2;
     edge_length_extrema(crd, Lmin2, Lmax2);
     if (MTYPE == NUGA::ISO_MIN) return Lmin2;
     if (MTYPE == NUGA::ISO_MAX) return Lmax2;
-    E_Float d = 0.5*(sqrt(Lmin2) + sqrt(Lmax2));
+    nuga_real_t d = 0.5*(sqrt(Lmin2) + sqrt(Lmax2));
     return d * d;//ISO_MEAN
   }
 
-  E_Float Lref2(const std::vector<E_Float>& nodal_tol2) const
+  nuga_real_t Lref2(const std::vector<nuga_real_t>& nodal_tol2) const
   {
     return Lref2(_nodes, _nb_nodes, nodal_tol2, _shift);
   }
 
-  static E_Float Lref2(const E_Int* nodes, E_Int nb_nodes, const std::vector<E_Float>& nodal_tol2, E_Int shift)
+  static nuga_real_t Lref2(const E_Int* nodes, E_Int nb_nodes, const std::vector<nuga_real_t>& nodal_tol2, E_Int shift)
   {
-    E_Float val = NUGA::FLOAT_MAX;
+    nuga_real_t val = NUGA::FLOAT_MAX;
     for (E_Int n = 0; n < nb_nodes; ++n)
     {
       E_Int Ni = *(nodes + n) + shift;
@@ -286,36 +286,36 @@ public:
   
   /// Computes the surface vector
   template <typename CoordAcc, short DIM>
-  static inline void ndS(const CoordAcc& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, E_Float* ndS);
+  static inline void ndS(const CoordAcc& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, nuga_real_t* ndS);
 
   // Compute the surface : norm of ndS
   template <short DIM>
-  inline void ndS(const K_FLD::FloatArray& crd, E_Float* nds)
+  inline void ndS(const K_FLD::FloatArray& crd, nuga_real_t* nds)
   {
     ndS<K_FLD::FloatArray, DIM>(crd, _nodes, _nb_nodes, -_shift, nds);
   }
   
   template <typename mesh_t>
-  static inline void compute_dir(const mesh_t& mesh, const E_Float* origin, E_Float* dir);
+  static inline void compute_dir(const mesh_t& mesh, const nuga_real_t* origin, nuga_real_t* dir);
     
   /// Compute the surface : norm of ndS
   template <typename Coord_t, short DIM>
-  static E_Float surface(const Coord_t& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start);
+  static nuga_real_t surface(const Coord_t& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start);
 
   // Computes the normal : normalized ndS
   template <typename CoordAcc, short DIM>
-  static inline void normal(const CoordAcc& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, E_Float* W);
+  static inline void normal(const CoordAcc& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, nuga_real_t* W);
 
   // Computes the normal : normalized ndS
   template <typename CoordAcc, short DIM>
-  inline void normal(const CoordAcc& crd, E_Float* W) const
+  inline void normal(const CoordAcc& crd, nuga_real_t* W) const
   {
     normal<CoordAcc, DIM>(crd, _nodes, _nb_nodes, -_shift, W);
   }
 
   // Compute the surface : norm of ndS
   template <short DIM>
-  inline E_Float surface(const K_FLD::FloatArray& crd)
+  inline nuga_real_t surface(const K_FLD::FloatArray& crd)
   {
     return surface<K_FLD::FloatArray, DIM>(crd, _nodes, _nb_nodes, -_shift);
   }
@@ -323,43 +323,43 @@ public:
 
 
   //
-  static E_Int get_oriented_normal(const K_FLD::FloatArray& crd, const ngon_unit& pgs, E_Int PGi/*glob id : sync with normals*/, bool reverse, E_Float* Normi, const E_Float** normals = 0);
+  static E_Int get_oriented_normal(const K_FLD::FloatArray& crd, const ngon_unit& pgs, E_Int PGi/*glob id : sync with normals*/, bool reverse, nuga_real_t* Normi, const nuga_real_t** normals = 0);
   
   /// Tells if the input Polygon is star-shaped in regard with queryP.
   template <short DIM>
-  static bool is_star_shaping(const E_Float* queryP, const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start);
+  static bool is_star_shaping(const nuga_real_t* queryP, const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start);
 
   // returns the worst reflex info (K0, n0)
   static bool is_convex
     (const K_FLD::FloatArray& coord, const E_Int* nodes, E_Int nb_nodes, E_Int index_start,
-    const E_Float* normal, E_Float convexity_tol, E_Int& iworst, E_Int& ibest);
+    const nuga_real_t* normal, nuga_real_t convexity_tol, E_Int& iworst, E_Int& ibest);
 
   template <typename acrd_t>
   static bool is_convex(const acrd_t& acrd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start,
-                   const E_Float* normal, E_Float convexity_tol, E_Int& iworst, E_Int& ibest);
+                   const nuga_real_t* normal, nuga_real_t convexity_tol, E_Int& iworst, E_Int& ibest);
 
   // predicate
   static bool is_convex
     (const K_FLD::FloatArray& coord, const E_Int* nodes, E_Int nb_nodes, E_Int index_start,
-    const E_Float* normal, E_Float convexity_tol);
+    const nuga_real_t* normal, nuga_real_t convexity_tol);
   
   template <typename InputIterator>
   static bool is_hatty
-  (const K_FLD::FloatArray& crd, InputIterator nodes, E_Int nb_nodes, E_Int idx_start, E_Int& is, E_Int& ie, E_Float ARTOL=0.);
+  (const K_FLD::FloatArray& crd, InputIterator nodes, E_Int nb_nodes, E_Int idx_start, E_Int& is, E_Int& ie, nuga_real_t ARTOL=0.);
 
   template <typename TriangulatorType, short DIM>
-  inline int fast_is_in_pred(const TriangulatorType& dt, const K_FLD::FloatArray& crd, const E_Float* P, bool& pt_is_in, E_Float ATOL=EPSILON);
+  inline int fast_is_in_pred(const TriangulatorType& dt, const K_FLD::FloatArray& crd, const nuga_real_t* P, bool& pt_is_in, nuga_real_t ATOL=EPSILON);
 
   // Polygon-Edge intersection
   template <typename TriangulatorType>
   bool intersect
-  (const K_FLD::FloatArray&crd, const E_Float* Q0, const E_Float* Q1,
-    E_Float tol, E_Bool tol_is_absolute, E_Float& u0, E_Float& u1, E_Bool& overlap);
+  (const K_FLD::FloatArray&crd, const nuga_real_t* Q0, const nuga_real_t* Q1,
+    nuga_real_t tol, E_Bool tol_is_absolute, nuga_real_t& u0, nuga_real_t& u1, E_Bool& overlap);
 
   static void sync_join(const K_FLD::FloatArray&crd1, const E_Int* nodes1, E_Int idx_strt1, const K_FLD::FloatArray&crd2, E_Int* nodes2, E_Int idx_strt2, E_Int nb_nodes, bool do_reverse = false);
   static void shift_geom(const K_FLD::FloatArray&crd, E_Int* nodes, E_Int nnodes, E_Int idx_strt);
 
-  static void imprint(K_FLD::FloatArray& crd1, const E_Int* pnodes1, E_Int nnodes1, const K_FLD::FloatArray& crd2, E_Float RTOL, std::vector<E_Int>& molec);
+  static void imprint(K_FLD::FloatArray& crd1, const E_Int* pnodes1, E_Int nnodes1, const K_FLD::FloatArray& crd2, nuga_real_t RTOL, std::vector<E_Int>& molec);
 
 private: 
   Polygon(const Polygon& orig);
@@ -430,7 +430,7 @@ E_Int Polygon::triangulate
   K_MESH::Triangle T;
    
   E_Int Ei[4], shft (index_start);
-  //E_Float n1[3], n2[3], NjNk[3], NjNi[3];
+  //nuga_real_t n1[3], n2[3], NjNk[3], NjNi[3];
   assert (nb_nodes > 2);//should have been cleaned before
       
   switch (nb_nodes)
@@ -444,9 +444,9 @@ E_Int Polygon::triangulate
     }
     /*case 4:fixme !!
     {
-      const E_Float* Ni = coord.col(nodes[0]-shft);
-      const E_Float* Nj = coord.col(nodes[1]-shft);
-      const E_Float* Nk = coord.col(nodes[2]-shft);
+      const nuga_real_t* Ni = coord.col(nodes[0]-shft);
+      const nuga_real_t* Nj = coord.col(nodes[1]-shft);
+      const nuga_real_t* Nk = coord.col(nodes[2]-shft);
       
       NUGA::diff<3>(Nk, Nj, NjNk);
       NUGA::diff<3>(Ni, Nj, NjNi);
@@ -454,12 +454,12 @@ E_Int Polygon::triangulate
       NUGA::crossProduct<3>(NjNk, NjNi, n1);
       E_Int k=1;
       bool convex=true;
-      E_Float s1(0.), s2;
+      nuga_real_t s1(0.), s2;
       for (; (k < 4); ++k)
       {
-        const E_Float* Ni = coord.col(nodes[k]-shft);
-        const E_Float* Nj = coord.col(nodes[(k+1)%4]-shft);
-        const E_Float* Nk = coord.col(nodes[(k+2)%4]-shft);
+        const nuga_real_t* Ni = coord.col(nodes[k]-shft);
+        const nuga_real_t* Nj = coord.col(nodes[(k+1)%4]-shft);
+        const nuga_real_t* Nk = coord.col(nodes[(k+2)%4]-shft);
         
         NUGA::diff<3>(Nk, Nj, NjNk);
         NUGA::diff<3>(Ni, Nj, NjNi);
@@ -556,7 +556,7 @@ E_Int Polygon::cvx_triangulate (const acrd_t& crd) const
     return 0;
   }
 
-  //E_Float n[3];
+  //nuga_real_t n[3];
   //fixme
   //Polygon::normal<K_FLD::FloatArray, 3>(crd, _nodes, _nb_nodes, -_shift/*index start*/, n);
   //E_Int iworst, ibest;
@@ -595,7 +595,7 @@ inline void Polygon::split<NUGA::ISO_HEX>(const E_Int* refE, E_Int n, ngon_unit&
 
 ///
 template <> inline
-void Polygon::iso_barycenter<K_FLD::FloatArray, 3>(const K_FLD::FloatArray& coord, E_Float* G)
+void Polygon::iso_barycenter<K_FLD::FloatArray, 3>(const K_FLD::FloatArray& coord, nuga_real_t* G)
 { 
   //
   for (size_t d=0; d < 3; ++d) G[d]=0.;
@@ -609,7 +609,7 @@ void Polygon::iso_barycenter<K_FLD::FloatArray, 3>(const K_FLD::FloatArray& coor
     }
   }
   
-  E_Float k = 1./(E_Float)_nb_nodes;
+  nuga_real_t k = 1./(nuga_real_t)_nb_nodes;
   
   for (size_t i = 0; i < 3; ++i) G[i] *= k;
   //std::cout << "G : " << G[0] << "/" << G[1] << "/" << G[2] << std::endl;
@@ -618,7 +618,7 @@ void Polygon::iso_barycenter<K_FLD::FloatArray, 3>(const K_FLD::FloatArray& coor
 
 ///
 template <typename CoordAcc, short DIM> inline
-void Polygon::iso_barycenter(const CoordAcc& coord, E_Float* G)
+void Polygon::iso_barycenter(const CoordAcc& coord, nuga_real_t* G)
 { 
   //
   for (size_t d=0; d < DIM; ++d) G[d]=0.;
@@ -632,7 +632,7 @@ void Polygon::iso_barycenter(const CoordAcc& coord, E_Float* G)
     }
   }
   
-  E_Float k = 1./(E_Float)_nb_nodes;
+  nuga_real_t k = 1./(nuga_real_t)_nb_nodes;
   
   for (size_t i = 0; i < DIM; ++i) G[i] *= k;
   //std::cout << "G : " << G[0] << "/" << G[1] << "/" << G[2] << std::endl;
@@ -641,7 +641,7 @@ void Polygon::iso_barycenter(const CoordAcc& coord, E_Float* G)
 
 ///
 template <typename CoordAcc, short DIM> inline
-void Polygon::iso_barycenter(const CoordAcc& coord, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, E_Float* G) 
+void Polygon::iso_barycenter(const CoordAcc& coord, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, nuga_real_t* G) 
 { 
   //
   for (size_t d=0; d < DIM; ++d) G[d]=0.;
@@ -654,7 +654,7 @@ void Polygon::iso_barycenter(const CoordAcc& coord, const E_Int* nodes, E_Int nb
     }
   }
   
-  E_Float k = 1./(E_Float)nb_nodes;
+  nuga_real_t k = 1./(nuga_real_t)nb_nodes;
   
   for (size_t i = 0; i < DIM; ++i) G[i] *= k;
   //std::cout << "G : " << G[0] << "/" << G[1] << "/" << G[2] << std::endl;
@@ -663,20 +663,20 @@ void Polygon::iso_barycenter(const CoordAcc& coord, const E_Int* nodes, E_Int nb
 
 ///
 template <> inline
-void Polygon::iso_barycenter<K_FLD::FloatArray, 3>(const K_FLD::FloatArray& coord, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, E_Float* G) 
+void Polygon::iso_barycenter<K_FLD::FloatArray, 3>(const K_FLD::FloatArray& coord, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, nuga_real_t* G) 
 {
   //
   G[0]=G[1]=G[2]=0.;
   
   for (E_Int i=0; i < nb_nodes; ++i)
   {
-    const E_Float* P = coord.col(nodes[i]-index_start);
+    const nuga_real_t* P = coord.col(nodes[i]-index_start);
     G[0]+=P[0];
     G[1]+=P[1];
     G[2]+=P[2];
   }
   
-  E_Float k = 1./(E_Float)nb_nodes;
+  nuga_real_t k = 1./(nuga_real_t)nb_nodes;
   
   G[0] *= k;
   G[1] *= k;
@@ -684,16 +684,16 @@ void Polygon::iso_barycenter<K_FLD::FloatArray, 3>(const K_FLD::FloatArray& coor
 }
 
 ///
-void Polygon::iso_barycenter(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, E_Float* G)
+void Polygon::iso_barycenter(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, nuga_real_t* G)
 {
   K_MESH::Polygon::iso_barycenter<K_FLD::FloatArray, 3>(crd, nodes, nb_nodes, index_start, G);
 }
 
 ///
 template <typename CoordAcc, short DIM> inline
-void Polygon::ndS(const CoordAcc& acrd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, E_Float* ndS)
+void Polygon::ndS(const CoordAcc& acrd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, nuga_real_t* ndS)
 {
-  E_Float G[3], Pi[3], Pj[3], V1[3], V2[3], w[3];
+  nuga_real_t G[3], Pi[3], Pj[3], V1[3], V2[3], w[3];
 
   K_MESH::Polygon::iso_barycenter<CoordAcc, DIM >(acrd, nodes, nb_nodes, index_start, G);
   
@@ -726,9 +726,9 @@ void Polygon::ndS(const CoordAcc& acrd, const E_Int* nodes, E_Int nb_nodes, E_In
 
 ///
 template <> inline
-void Polygon::ndS<K_FLD::FloatArray,3>(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, E_Float* ndS)
+void Polygon::ndS<K_FLD::FloatArray,3>(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, nuga_real_t* ndS)
 {
-  E_Float G[3], V1[3], V2[3], w[3];
+  nuga_real_t G[3], V1[3], V2[3], w[3];
   
   K_MESH::Polygon::iso_barycenter<K_FLD::FloatArray, 3 >(crd, nodes, nb_nodes, index_start, G);
   
@@ -741,8 +741,8 @@ void Polygon::ndS<K_FLD::FloatArray,3>(const K_FLD::FloatArray& crd, const E_Int
     Ni = nodes[n] - index_start;
     Nj = nodes[(n+1)%nb_nodes] - index_start;
     
-    const E_Float* Pi = crd.col(Ni);
-    const E_Float* Pj = crd.col(Nj);
+    const nuga_real_t* Pi = crd.col(Ni);
+    const nuga_real_t* Pj = crd.col(Nj);
 
     NUGA::diff<3>(Pi, G, V1);
     NUGA::diff<3>(Pj, G, V2);
@@ -761,9 +761,9 @@ void Polygon::ndS<K_FLD::FloatArray,3>(const K_FLD::FloatArray& crd, const E_Int
 
 ///
 template <typename mesh_t> inline
-void Polygon::compute_dir(const mesh_t& poly_line/*0-based*/, const E_Float* origin, E_Float* dir)
+void Polygon::compute_dir(const mesh_t& poly_line/*0-based*/, const nuga_real_t* origin, nuga_real_t* dir)
 {
-  E_Float V1[3], V2[3], w[3];
+  nuga_real_t V1[3], V2[3], w[3];
   
   // Compute an approximate normal W to the contour's surface (oriented toward outside).
   dir[0] = dir[1] = dir[2] = 0.;
@@ -775,8 +775,8 @@ void Polygon::compute_dir(const mesh_t& poly_line/*0-based*/, const E_Float* ori
     E_Int Ni = poly_line.cnt(0,n); 
     E_Int Nj = poly_line.cnt(1,n);
     
-    const E_Float* Pi = poly_line.crd.col(Ni);
-    const E_Float* Pj = poly_line.crd.col(Nj);
+    const nuga_real_t* Pi = poly_line.crd.col(Ni);
+    const nuga_real_t* Pj = poly_line.crd.col(Nj);
 
     NUGA::diff<3>(Pi, origin, V1);
     NUGA::diff<3>(Pj, origin, V2);
@@ -795,7 +795,7 @@ void Polygon::compute_dir(const mesh_t& poly_line/*0-based*/, const E_Float* ori
 
 ///
 template <short DIM> inline
-void Polygon::centroid(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, E_Float* cM)
+void Polygon::centroid(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, nuga_real_t* cM)
 {
   // A TESTER
   
@@ -805,12 +805,12 @@ void Polygon::centroid(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int n
   
   cM[0] = cM[1] = cM[2] = 0.;
   
-  E_Float G[DIM]/*iso_bar*/, n[DIM]/*normal*/, S/*surface*/;
+  nuga_real_t G[DIM]/*iso_bar*/, n[DIM]/*normal*/, S/*surface*/;
   iso_barycenter<K_FLD::FloatArray, 3>(crd, nodes, nb_nodes, index_start, G);
   K_MESH::Polygon::ndS<K_FLD::FloatArray, 3>(crd, nodes, nb_nodes, index_start, n);
   S = NUGA::normalize<DIM>(n);
 
-  E_Float vsi[DIM], si, gi[DIM], w;
+  nuga_real_t vsi[DIM], si, gi[DIM], w;
   
   for (E_Int i = 0; i < nb_nodes; ++i)
   {
@@ -836,11 +836,11 @@ void Polygon::centroid(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int n
 }
 
 template <> inline 
-E_Float Polygon::surface<K_FLD::FloatArray,2>(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start)
+nuga_real_t Polygon::surface<K_FLD::FloatArray,2>(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start)
 {
-  E_Float O[]={0.,0.}, s(0.);
-//  E_Float /*O[]={0.,0.},*/ s(0.); using iso_barycenter doesn not seem better in term of precision...
-//  E_Float O[2];
+  nuga_real_t O[]={0.,0.}, s(0.);
+//  nuga_real_t /*O[]={0.,0.},*/ s(0.); using iso_barycenter doesn not seem better in term of precision...
+//  nuga_real_t O[2];
 //  aDynCrd_t acrd(crd);
 //  iso_barycenter<aDynCrd_t, 2>(acrd, nodes, nb_nodes, index_start, O);
   for (E_Int n=0; n < nb_nodes; ++n)
@@ -850,17 +850,17 @@ E_Float Polygon::surface<K_FLD::FloatArray,2>(const K_FLD::FloatArray& crd, cons
 
 ///
 template <> inline 
-E_Float Polygon::surface<K_FLD::FloatArray,3>(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start)
+nuga_real_t Polygon::surface<K_FLD::FloatArray,3>(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start)
 {
-  E_Float ndS[3];
+  nuga_real_t ndS[3];
   K_MESH::Polygon::ndS<K_FLD::FloatArray, 3>(crd, nodes, nb_nodes, index_start, ndS);
   return sqrt(NUGA::sqrNorm<3>(ndS));
 }
 
 template <> inline 
-E_Float Polygon::surface<K_FLD::ArrayAccessor<K_FLD::FldArrayF>,2>(const K_FLD::ArrayAccessor<K_FLD::FldArrayF>& acrd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start)
+nuga_real_t Polygon::surface<K_FLD::ArrayAccessor<K_FLD::FldArrayF>,2>(const K_FLD::ArrayAccessor<K_FLD::FldArrayF>& acrd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start)
 {
-  E_Float O[]={0.,0.}, s(0.), Pn[2], Pnp1[2];
+  nuga_real_t O[]={0.,0.}, s(0.), Pn[2], Pnp1[2];
   for (E_Int n=0; n < nb_nodes; ++n)
   {
     acrd.getEntry(*(nodes+n)-index_start, Pn);
@@ -873,9 +873,9 @@ E_Float Polygon::surface<K_FLD::ArrayAccessor<K_FLD::FldArrayF>,2>(const K_FLD::
 }
 
 template <> inline 
-E_Float Polygon::surface<K_FLD::ArrayAccessor<K_FLD::FloatArray>,2>(const K_FLD::ArrayAccessor<K_FLD::FloatArray>& acrd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start)
+nuga_real_t Polygon::surface<K_FLD::ArrayAccessor<K_FLD::FloatArray>,2>(const K_FLD::ArrayAccessor<K_FLD::FloatArray>& acrd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start)
 {
-  E_Float O[]={0.,0.}, s(0.), Pn[2], Pnp1[2];
+  nuga_real_t O[]={0.,0.}, s(0.), Pn[2], Pnp1[2];
   for (E_Int n=0; n < nb_nodes; ++n)
   {
     acrd.getEntry(*(nodes+n)-index_start, Pn);
@@ -888,7 +888,7 @@ E_Float Polygon::surface<K_FLD::ArrayAccessor<K_FLD::FloatArray>,2>(const K_FLD:
 }
 
 template <typename CoordAcc, short DIM> inline
-void Polygon::normal(const CoordAcc& acrd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, E_Float* n)
+void Polygon::normal(const CoordAcc& acrd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, nuga_real_t* n)
 {
   //
   K_MESH::Polygon::ndS<CoordAcc, DIM>(acrd, nodes, nb_nodes, index_start, n);
@@ -896,7 +896,7 @@ void Polygon::normal(const CoordAcc& acrd, const E_Int* nodes, E_Int nb_nodes, E
 }
 
 template <> inline
-void Polygon::normal<K_FLD::FloatArray, 3>(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, E_Float* n)
+void Polygon::normal<K_FLD::FloatArray, 3>(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, nuga_real_t* n)
 {
   K_MESH::Polygon::ndS<K_FLD::FloatArray, 3>(crd, nodes, nb_nodes, index_start, n);
   NUGA::normalize<3>(n);
@@ -905,9 +905,9 @@ void Polygon::normal<K_FLD::FloatArray, 3>(const K_FLD::FloatArray& crd, const E
 ///
 template <short DIM> inline
 bool Polygon::is_star_shaping
-(const E_Float* queryP, const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start)
+(const nuga_real_t* queryP, const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start)
 {
-  E_Float ndS[DIM], vsi[DIM];
+  nuga_real_t ndS[DIM], vsi[DIM];
   K_MESH::Polygon::ndS<K_FLD::FloatArray, DIM>(crd, nodes, nb_nodes, index_start, ndS);
   
   for (E_Int i = 0; i < nb_nodes; ++i)
@@ -926,8 +926,8 @@ bool Polygon::is_star_shaping
 
 template <typename TriangulatorType>
 bool Polygon::intersect
-(const K_FLD::FloatArray&crd, const E_Float* Q0, const E_Float* Q1, 
-  E_Float tol, E_Bool tol_is_absolute, E_Float& u0, E_Float& u1, E_Bool& overlap)
+(const K_FLD::FloatArray&crd, const nuga_real_t* Q0, const nuga_real_t* Q1, 
+  nuga_real_t tol, E_Bool tol_is_absolute, nuga_real_t& u0, nuga_real_t& u1, E_Bool& overlap)
 {
   TriangulatorType dt;
   E_Int err = this->triangulate(dt, crd);
@@ -938,9 +938,9 @@ bool Polygon::intersect
   for (E_Int i = 0; i < ntris; ++i)
   {
     this->triangle(i, T);
-    const E_Float* P0 = crd.col(T[0]);
-    const E_Float* P1 = crd.col(T[1]);
-    const E_Float* P2 = crd.col(T[2]);
+    const nuga_real_t* P0 = crd.col(T[0]);
+    const nuga_real_t* P1 = crd.col(T[1]);
+    const nuga_real_t* P2 = crd.col(T[2]);
     E_Int tx;
     if (K_MESH::Triangle::intersect<3>(P0, P1, P2, Q0, Q1, tol, tol_is_absolute, u0, u1, tx, overlap))
       return true;
@@ -952,7 +952,7 @@ bool Polygon::intersect
 ///
 inline void Polygon::sync_join(const K_FLD::FloatArray&crd1, const E_Int* nodes1, E_Int idx_strt1, const K_FLD::FloatArray&crd2, E_Int* nodes2, E_Int idx_strt2, E_Int nb_nodes, bool do_reverse)
 {
-  E_Float n1[3], n2[3];
+  nuga_real_t n1[3], n2[3];
   normal<K_FLD::FloatArray, 3>(crd1, nodes1, nb_nodes, 1, n1);
   normal<K_FLD::FloatArray, 3>(crd2, nodes2, nb_nodes, 1, n2);
 
@@ -963,12 +963,12 @@ inline void Polygon::sync_join(const K_FLD::FloatArray&crd1, const E_Int* nodes1
   }
 
   //look for nodes1[0] in nodes2
-  const E_Float* P0{ crd1.col(nodes1[0]-idx_strt1) };
-  E_Float zerom2{ ZERO_M*ZERO_M };
+  const nuga_real_t* P0{ crd1.col(nodes1[0]-idx_strt1) };
+  nuga_real_t zerom2{ ZERO_M*ZERO_M };
   E_Int i0{ IDX_NONE };
   for (E_Int i=0; i < nb_nodes; ++i)
   {
-    const E_Float* Pi = crd2.col(nodes2[i] - idx_strt2);
+    const nuga_real_t* Pi = crd2.col(nodes2[i] - idx_strt2);
     if (NUGA::sqrDistance(P0, Pi, 3) < zerom2)
     {
       i0 = i;
@@ -984,7 +984,7 @@ inline void Polygon::sync_join(const K_FLD::FloatArray&crd1, const E_Int* nodes1
 
 inline void Polygon::shift_geom(const K_FLD::FloatArray&crd, E_Int* nodes, E_Int nnodes, E_Int idx_strt)
 {
-  using palma_t = std::vector<std::pair<E_Float, E_Int>>;
+  using palma_t = std::vector<std::pair<nuga_real_t, E_Int>>;
 
   std::vector<E_Int> cands;
   K_CONNECT::IdTool::init_inc(cands, nnodes);
@@ -1062,29 +1062,29 @@ inline void Polygon::shift_geom(const K_FLD::FloatArray&crd, E_Int* nodes, E_Int
   return;
 }
 
-inline void Polygon::imprint(K_FLD::FloatArray& crd1, const E_Int* pnodes1, E_Int nnodes1, const K_FLD::FloatArray& crd2, E_Float RTOL, std::vector<E_Int>& molec)
+inline void Polygon::imprint(K_FLD::FloatArray& crd1, const E_Int* pnodes1, E_Int nnodes1, const K_FLD::FloatArray& crd2, nuga_real_t RTOL, std::vector<E_Int>& molec)
 {
   molec.clear();
 
-  std::map <E_Int, std::vector<E_Float>> lambdas;
+  std::map <E_Int, std::vector<nuga_real_t>> lambdas;
 
 #define EQUAL(a,b) (::fabs(a-b) < 1.e-5)
 
   for (E_Int i = 0; i < crd2.cols(); ++i)
   {
-    const E_Float* P = crd2.col(i);
+    const nuga_real_t* P = crd2.col(i);
 
     for (E_Int j = 0; j < nnodes1; ++j)
     {
       E_Int Ni = pnodes1[j] - 1;
       E_Int Nj = pnodes1[(j + 1) % nnodes1] - 1;
-      const E_Float* Pi = crd1.col(Ni);
-      const E_Float* Pj = crd1.col(Nj);
+      const nuga_real_t* Pi = crd1.col(Ni);
+      const nuga_real_t* Pj = crd1.col(Nj);
       
-      E_Float L2 = (Pj[0] - Pi[0])*(Pj[0] - Pi[0]) + (Pj[1] - Pi[1])*(Pj[1] - Pi[1]) + (Pj[2] - Pi[2])*(Pj[2] - Pi[2]);
+      nuga_real_t L2 = (Pj[0] - Pi[0])*(Pj[0] - Pi[0]) + (Pj[1] - Pi[1])*(Pj[1] - Pi[1]) + (Pj[2] - Pi[2])*(Pj[2] - Pi[2]);
 
-      E_Float l;
-      E_Float d2 = K_MESH::Edge::linePointMinDistance2<3>(Pi, Pj, P, l) / L2;
+      nuga_real_t l;
+      nuga_real_t d2 = K_MESH::Edge::linePointMinDistance2<3>(Pi, Pj, P, l) / L2;
 
       if (d2 > EPSILON) continue;
 
@@ -1122,15 +1122,15 @@ inline void Polygon::imprint(K_FLD::FloatArray& crd1, const E_Int* pnodes1, E_In
 
     E_Int Ni = pnodes1[n] - 1;
     E_Int Nj = pnodes1[(n + 1) % nnodes1] - 1;
-    const E_Float* Pi = crd1.col(Ni);
-    const E_Float* Pj = crd1.col(Nj);
-    E_Float v[3];
+    const nuga_real_t* Pi = crd1.col(Ni);
+    const nuga_real_t* Pj = crd1.col(Nj);
+    nuga_real_t v[3];
     NUGA::diff<3>(Pj, Pi, v);
 
     for (size_t j = 0; j < lms.size(); ++j)
     {
-      E_Float& lambda = lms[j];
-      E_Float P[3];
+      nuga_real_t& lambda = lms[j];
+      nuga_real_t P[3];
       NUGA::sum<3>(lambda, v, Pi, P);
       crd1.pushBack(P, P + 3);
       molec.push_back(crd1.cols());
@@ -1140,7 +1140,7 @@ inline void Polygon::imprint(K_FLD::FloatArray& crd1, const E_Int* pnodes1, E_In
 
 template <typename InputIterator>
 bool Polygon::is_hatty
-(const K_FLD::FloatArray& crd, InputIterator nodes, E_Int nb_nodes, E_Int idx_start, E_Int& is, E_Int& ie, E_Float ARTOL)
+(const K_FLD::FloatArray& crd, InputIterator nodes, E_Int nb_nodes, E_Int idx_start, E_Int& is, E_Int& ie, nuga_real_t ARTOL)
 {
   is = IDX_NONE;
   ie = IDX_NONE;
@@ -1158,10 +1158,10 @@ bool Polygon::is_hatty
     E_Int np1 = (n + 1) % nb_nodes;
     E_Int nip1 = nodes[np1];
     E_Int nip2 = nodes[(n + 2) % nb_nodes];
-    E_Float v1[3], v2[3];
+    nuga_real_t v1[3], v2[3];
     NUGA::diff<3>(crd.col(nip1 - idx_start), crd.col(ni - idx_start), v1);
     NUGA::diff<3>(crd.col(nip2 - idx_start), crd.col(nip1 - idx_start), v2);
-    E_Float ps = NUGA::dot<3>(v1, v2);
+    nuga_real_t ps = NUGA::dot<3>(v1, v2);
 
     if (ps < 0.)
     {
@@ -1182,13 +1182,13 @@ bool Polygon::is_hatty
     if (ARTOL < 0.) // relative
       ARTOL *= - sqrt(e.Lref2(crd)); // turn to absolute
 
-    E_Float dmax{ -1. };
+    nuga_real_t dmax{ -1. };
     for (E_Int n = 0; n < nb_nodes; ++n)
     {
       if (n == is || n == ie) continue;
       E_Int Ni = nodes[n] - idx_start;
-      E_Float lambda;
-      E_Float d = K_MESH::Edge::edgePointMinDistance<3>(crd.col(e.node(0)), crd.col(e.node(1)), crd.col(Ni), lambda);
+      nuga_real_t lambda;
+      nuga_real_t d = K_MESH::Edge::edgePointMinDistance<3>(crd.col(e.node(0)), crd.col(e.node(1)), crd.col(Ni), lambda);
       if (d > dmax)
         dmax = d;
     }
@@ -1202,14 +1202,14 @@ bool Polygon::is_hatty
 template <typename acrd_t>
 bool Polygon::is_convex
 (const acrd_t& acrd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start,
-const E_Float* normal, E_Float convexity_tol, E_Int& iworst, E_Int& ibest)
+const nuga_real_t* normal, nuga_real_t convexity_tol, E_Int& iworst, E_Int& ibest)
 {
   //
-  E_Float Ei[3], Ej[3];
+  nuga_real_t Ei[3], Ej[3];
   bool convex = true;
   ibest = iworst = IDX_NONE;
   
-  E_Float Z[3], det_min(-convexity_tol), det_max(0.);
+  nuga_real_t Z[3], det_min(-convexity_tol), det_max(0.);
   for (E_Int i = 1; i < nb_nodes + 1; ++i)
   {
     E_Int ei = nodes[i%nb_nodes] - index_start;
@@ -1220,7 +1220,7 @@ const E_Float* normal, E_Float convexity_tol, E_Int& iworst, E_Int& ibest)
     NUGA::diff<3>(acrd.col(eip1), acrd.col(ei), &Ej[0]);
     NUGA::sum<3>(normal, acrd.col(ei), Z);
 
-    E_Float det = NUGA::zzdet4(acrd.col(eim1), acrd.col(ei), acrd.col(eip1), Z);
+    nuga_real_t det = NUGA::zzdet4(acrd.col(eim1), acrd.col(ei), acrd.col(eip1), Z);
 
     det /= (NUGA::normalize<3>(Ei)*NUGA::normalize<3>(Ej)); //normalization to really have a angular-based test.
 
@@ -1243,7 +1243,7 @@ const E_Float* normal, E_Float convexity_tol, E_Int& iworst, E_Int& ibest)
 }
 
 template <typename TriangulatorType, short DIM>
-inline int Polygon::fast_is_in_pred(const TriangulatorType& dt, const K_FLD::FloatArray& crd, const E_Float* P, bool & pt_is_in, E_Float ATOL)
+inline int Polygon::fast_is_in_pred(const TriangulatorType& dt, const K_FLD::FloatArray& crd, const nuga_real_t* P, bool & pt_is_in, nuga_real_t ATOL)
 {
   pt_is_in = false;
 
@@ -1264,9 +1264,9 @@ inline int Polygon::fast_is_in_pred(const TriangulatorType& dt, const K_FLD::Flo
     assert(T[1] < crd.cols()); // if false => corrupted element
     assert(T[2] < crd.cols()); // if false => corrupted element
 
-    const E_Float* pt0 = crd.col(T[0]);
-    const E_Float* pt1 = crd.col(T[1]);
-    const E_Float* pt2 = crd.col(T[2]);
+    const nuga_real_t* pt0 = crd.col(T[0]);
+    const nuga_real_t* pt1 = crd.col(T[1]);
+    const nuga_real_t* pt2 = crd.col(T[2]);
 
     pt_is_in = K_MESH::Triangle::fast_is_in_pred<DIM>(P, pt0, pt1, pt2, ATOL);
   }
@@ -1331,7 +1331,7 @@ E_Int Polygon::get_boundary
     std::vector<int> uunodes{ ALL(unodes) };
 
     K_FLD::ArrayAccessor<K_FLD::FloatArray> acc(crd);
-    E_Float totol = ZERO_M;
+    nuga_real_t totol = ZERO_M;
     std::vector<int> nids;
     int nb_merges = merge(acc, totol, uunodes, uunodes, nids);
 

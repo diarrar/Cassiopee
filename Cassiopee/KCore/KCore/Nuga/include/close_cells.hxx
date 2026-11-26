@@ -94,7 +94,7 @@ namespace NUGA
       auto& nodal_metric2 = meshes[i]->get_nodal_metric2(eMetricType::ISO_MIN, true/*because coincident points exist here*/); //fixme hpc : currently nodal_metric2 recomputed each time. should be extended instead 
 
 #ifdef DEBUG_CLOSECELLS
-      E_Float minm = *std::min_element(ALL(nodal_metric2));
+      nuga_real_t minm = *std::min_element(ALL(nodal_metric2));
       assert (minm > 0.); // mandatory : to ensure coincident vertices will be merged
 #endif
       
@@ -195,7 +195,7 @@ namespace NUGA
       {
         for (E_Int n = 0; n < nnodes; ++n)
         {
-          const E_Float* p = crd.col(pnodes[n] - 1);
+          const nuga_real_t* p = crd.col(pnodes[n] - 1);
           plan.pushBack(p, p + 3);
         }
       }
@@ -203,7 +203,7 @@ namespace NUGA
       {
         for (E_Int n = 0; n < nnodes; ++n)
         {
-          const E_Float* p = crd.col(pnodes[nnodes - n - 1] - 1);
+          const nuga_real_t* p = crd.col(pnodes[nnodes - n - 1] - 1);
           plan.pushBack(p, p + 3);
         }
       }

@@ -48,7 +48,7 @@ namespace NUGA
     enum eOPER { INTERSECTION, DIFFERENCE, UNION };
         
     template <typename acrd_t, typename ELT1, typename ELT2>
-    void discard_overlaps(const acrd_t& acrd1, ELT1& oe1, bool inward1, const acrd_t& acrd2, ELT2& oe2, E_Float RTOL, const K_FLD::FloatArray& L, E_Float ps_min, E_Int& contact, bool dbg)
+    void discard_overlaps(const acrd_t& acrd1, ELT1& oe1, bool inward1, const acrd_t& acrd2, ELT2& oe2, nuga_real_t RTOL, const K_FLD::FloatArray& L, nuga_real_t ps_min, E_Int& contact, bool dbg)
     {
       using PG1_t = typename ELT1::boundary_type;
       using PG2_t = typename ELT2::boundary_type;
@@ -69,15 +69,15 @@ namespace NUGA
 
         PG1_t PG1(nodes1, nb_nodes1, -1);
 
-        E_Float n1[3];
+        nuga_real_t n1[3];
         PG1.template normal<acrd_t, 3>(acrd1, nodes1, nb_nodes1, 1, n1); //watchme : base
 
         // Tolerance hypothese : constant per PG : take the min over the polygon nodes
-        E_Float Lref = NUGA::FLOAT_MAX;
+        nuga_real_t Lref = NUGA::FLOAT_MAX;
         for (E_Int n=0; n < nb_nodes1;++n)
           Lref = MIN(Lref, L(0,nodes1[n]-1));
 
-        E_Float abstol = MAX(EPSILON, RTOL*sqrt(Lref));
+        nuga_real_t abstol = MAX(EPSILON, RTOL*sqrt(Lref));
 
         for (E_Int i2=0; i2 < nb_faces2; ++i2)
         {
@@ -86,10 +86,10 @@ namespace NUGA
 
           PG2_t PG2(nodes2, nb_nodes2, -1);
 
-          E_Float n2[3];
+          nuga_real_t n2[3];
           PG2.template normal<acrd_t, 3>(acrd2, nodes2, nb_nodes2, 1, n2); //watchme : base
 
-          E_Float ps = NUGA::dot<3>(n1,n2);
+          nuga_real_t ps = NUGA::dot<3>(n1,n2);
           if (fabs(ps) < ps_min) continue;
 
           //std::cout << "ps : " << ps << std::endl;
@@ -139,7 +139,7 @@ namespace NUGA
     
     ///
     template <typename acrd_t, typename ELT1, typename ELT2>
-    E_Int isolated_clip(const acrd_t& acrd1, const ELT1& subj, bool inward1, const acrd_t& acrd2, ELT2& cutter, E_Float ps_min, E_Float RTOL, NUGA::haPolyhedron<UNKNOWN>& result, E_Int& contact, bool& true_clip, bool dbg)
+    E_Int isolated_clip(const acrd_t& acrd1, const ELT1& subj, bool inward1, const acrd_t& acrd2, ELT2& cutter, nuga_real_t ps_min, nuga_real_t RTOL, NUGA::haPolyhedron<UNKNOWN>& result, E_Int& contact, bool& true_clip, bool dbg)
     {
       E_Int err(0);
 
@@ -203,7 +203,7 @@ namespace NUGA
       K_FLD::IntArray cT3;
       K_FLD::FloatArray normalsT3(3, nb_tris1 + nb_tris2, NUGA::FLOAT_MAX);
       E_Int T[3];
-      E_Float nT3[3];
+      nuga_real_t nT3[3];
       for (E_Int i=0; i < nb_tris1; ++i)
       {
         subj.triangle(i, T); //watchme : base ?
@@ -211,7 +211,7 @@ namespace NUGA
 
         //normals
         K_MESH::Triangle::normal(acrd1.array(), &T[0], nT3);
-        E_Float l2 = sqrt(nT3[0] * nT3[0] + nT3[1] * nT3[1] + nT3[2] * nT3[2]);
+        nuga_real_t l2 = sqrt(nT3[0] * nT3[0] + nT3[1] * nT3[1] + nT3[2] * nT3[2]);
         if (fabs(l2 - 1.) >= EPSILON) // DEGEN
           K_MESH::Polygon::normal<acrd_t, 3>(acrd1, subj.m_pgs.get_facets_ptr(ancPG1[i]), subj.m_pgs.stride(ancPG1[i]), 1, nT3);
         normalsT3(0, i) = nT3[0];
@@ -233,7 +233,7 @@ namespace NUGA
         assert (T[1] < acrd2.array().cols());
         assert (T[2] < acrd2.array().cols());
         K_MESH::Triangle::normal(acrd2.array(), T, nT3);
-        E_Float l2 = sqrt(nT3[0] * nT3[0] + nT3[1] * nT3[1] + nT3[2] * nT3[2]);
+        nuga_real_t l2 = sqrt(nT3[0] * nT3[0] + nT3[1] * nT3[1] + nT3[2] * nT3[2]);
         if (fabs(l2 - 1.) >= EPSILON) // DEGEN
           K_MESH::Polygon::normal<acrd_t, 3>(acrd2, cutter.m_pgs.get_facets_ptr(ancPG2[i]), cutter.m_pgs.stride(ancPG2[i]), 1, nT3);
 
@@ -267,7 +267,7 @@ namespace NUGA
 #endif
 
       // compute an overall abstol
-      E_Float min_d, max_d, abstol;
+      nuga_real_t min_d, max_d, abstol;
       NUGA::MeshTool::computeMinMaxEdgeSqrLength<3>(crd, cT3, min_d, max_d);
       abstol= sqrt(min_d) * RTOL;
 
@@ -311,7 +311,7 @@ namespace NUGA
       for (E_Int i = 0; i < cT3.cols(); ++i)
       {
         K_MESH::Triangle::normal(crd, cT3.col(i), nT3);
-         E_Float l2 = sqrt(nT3[0] * nT3[0] + nT3[1] * nT3[1] + nT3[2] * nT3[2]);
+         nuga_real_t l2 = sqrt(nT3[0] * nT3[0] + nT3[1] * nT3[1] + nT3[2] * nT3[2]);
         if (fabs(l2 - 1.) >= EPSILON) // DEGEN
         {
           nT3[0] = normalsT3(0, ancT3[i]);
@@ -413,8 +413,8 @@ namespace NUGA
       algoT3::getBoundToElements(acT3, noE_to_oTs);
       nb_t3 = cT3.cols();
       std::vector<bool> reversed;
-      Vector_t<std::pair<E_Float, E_Int> > palmares;
-      E_Float ERRORVAL(2.*NUGA::PI);
+      Vector_t<std::pair<nuga_real_t, E_Int> > palmares;
+      nuga_real_t ERRORVAL(2.*NUGA::PI);
       for (auto it = noE_to_oTs.begin(); it != noE_to_oTs.end(); ++it)
       {
         const K_MESH::Triangle::boundary_type& E = it->first;
@@ -440,7 +440,7 @@ namespace NUGA
         if (*(pS+(i0+1)%3) != E1)
           std::swap(E0,E1); // Now E0E1 is oriented as in T0
         
-        //const E_Float* norm0 = normals.col(K0);
+        //const nuga_real_t* norm0 = normals.col(K0);
         
         for (size_t j=1; j < T3s.size(); ++j)
         {
@@ -453,7 +453,7 @@ namespace NUGA
             reversed[j]=true;
           
           assert(Kj > -1 && Kj < normalsT3.cols());
-          E_Float normj[] = {normalsT3(0, Kj), normalsT3(1, Kj), normalsT3(2,Kj)};
+          nuga_real_t normj[] = {normalsT3(0, Kj), normalsT3(1, Kj), normalsT3(2,Kj)};
           
           if (reversed[j])
           {
@@ -463,7 +463,7 @@ namespace NUGA
           }
           
           assert(K0 > -1 && K0 < normalsT3.cols());
-          E_Float q = NUGA::angle_measure(normalsT3.col(K0), normj, crd.col(E0), crd.col(E1));
+          nuga_real_t q = NUGA::angle_measure(normalsT3.col(K0), normj, crd.col(E0), crd.col(E1));
           if (q == ERRORVAL)
           {
 #if defined (DEBUG_CLIPPER)

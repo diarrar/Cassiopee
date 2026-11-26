@@ -21,6 +21,7 @@
 #define __BAR_CONFORMIZER_CXX__
 
 #include "BAR_Conformizer.h"
+#include "Nuga/include/defs.h"
 
 namespace NUGA
 {
@@ -68,14 +69,14 @@ std::vector<std::pair<E_Int,E_Int>> BAR_Conformizer<DIM>::get_x_history()
 ///
 template <short DIM>
 void
-BAR_Conformizer<DIM>::__set_tolerances(E_Float Lmin, E_Float Lmax, E_Float  user_tolerance)
+BAR_Conformizer<DIM>::__set_tolerances(nuga_real_t Lmin, nuga_real_t Lmax, nuga_real_t  user_tolerance)
 {  
     
   // min edge length (MEL) : Lmin
   
   // The current accpeted range for tolerance is between 1e-10% and 1.% of MEL
-  E_Float tol_min = EPSILON*Lmin;
-  E_Float tol_max = 0.01*Lmin;
+  nuga_real_t tol_min = EPSILON*Lmin;
+  nuga_real_t tol_max = 0.01*Lmin;
   
   if (user_tolerance < 0.)
     user_tolerance = -user_tolerance*Lmin;
@@ -96,14 +97,14 @@ BAR_Conformizer<DIM>::__set_tolerances(E_Float Lmin, E_Float Lmax, E_Float  user
 template <short DIM>
 E_Int
 BAR_Conformizer<DIM>::__intersect
-(K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, E2& e1, E2& e2, E_Float tolerance)
+(K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, E2& e1, E2& e2, nuga_real_t tolerance)
 {
   
   K_FLD::IntArray::const_iterator pS1 = connect.col(e1.id);
   K_FLD::IntArray::const_iterator pS2 = connect.col(e2.id);
   
   E_Bool overlap;
-  E_Float u[4];
+  nuga_real_t u[4];
   E_Int N[]={*pS1, *(pS1+1), *pS2, *(pS2+1)};
   E2* EE[] = {&e1,&e2};
   
@@ -112,11 +113,11 @@ BAR_Conformizer<DIM>::__intersect
   if (!intersect)
     return false;
   
-  E_Float /*Edge[DIM][2], */IP[DIM], Edg1[DIM], Edg2[DIM];
+  nuga_real_t /*Edge[DIM][2], */IP[DIM], Edg1[DIM], Edg2[DIM];
   NUGA::diff<DIM>(pos.col(*(pS1+1)), pos.col(*pS1), /*Edge[0]*/Edg1);
   NUGA::diff<DIM>(pos.col(*(pS2+1)), pos.col(*pS2), /*Edge[1]*/Edg2);
   
-  E_Float tol[] ={tolerance, tolerance};
+  nuga_real_t tol[] ={tolerance, tolerance};
   if (parent_type::_absolute_tol)
   {
     tol[0] /= sqrt(NUGA::sqrNorm<DIM>(/*Edge[0]*/Edg1));
@@ -176,7 +177,7 @@ BAR_Conformizer<DIM>::__update_data
       pool.insert(newIDs[e.nodes[j]]);
     e.nodes.clear();
     e.nodes.insert(e.nodes.begin(), pool.begin(), pool.end());
-    const E_Float *P0 = pos.col(connect(0,e.id));
+    const nuga_real_t *P0 = pos.col(connect(0,e.id));
     __reorder_nodes_on_edge(pos, e.nodes, P0);
   }
 }
@@ -184,9 +185,9 @@ BAR_Conformizer<DIM>::__update_data
 template <short DIM>
 void
 BAR_Conformizer<DIM>::__reorder_nodes_on_edge
-(const K_FLD::FloatArray& pos, std::vector<E_Int>& nodes, const E_Float *P0)
+(const K_FLD::FloatArray& pos, std::vector<E_Int>& nodes, const nuga_real_t *P0)
 {
-  E_Float L;
+  nuga_real_t L;
   E_Int   E[2];
 
   size_t nb_nodes = nodes.size();

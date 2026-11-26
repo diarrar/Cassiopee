@@ -27,7 +27,7 @@
 // ============================================================================
 template <typename CoordArrayType>
 K_SEARCH::KdTree<CoordArrayType>::KdTree(const coord_access_type& posAcc,
-                                         E_Float tolerance, bool do_omp)
+                                         nuga_real_t tolerance, bool do_omp)
 :_posAcc(posAcc), _tree_sz(0), _dim(posAcc.stride()), _tolerance(tolerance*tolerance)
 {
   size_type none = IDX_NONE;
@@ -64,7 +64,7 @@ K_SEARCH::KdTree<CoordArrayType>::KdTree(const coord_access_type& posAcc,
 template <typename CoordArrayType>
 K_SEARCH::KdTree<CoordArrayType>::KdTree(const coord_access_type& posAcc, 
                                          std::vector<size_type> indices/*passed by value*/,
-                                         E_Float tolerance, bool do_omp)
+                                         nuga_real_t tolerance, bool do_omp)
  :_posAcc(posAcc), _tree_sz(0), _dim(posAcc.stride()), _tolerance(tolerance*tolerance)
 {
   size_type none = IDX_NONE;
@@ -105,7 +105,7 @@ void K_SEARCH::KdTree<CoordArrayType>::clear()
 /// Refill an existing tree
 // ============================================================================
 template <typename CoordArrayType>
-void K_SEARCH::KdTree<CoordArrayType>::build(std::vector<size_type>* indices, E_Float tolerance)
+void K_SEARCH::KdTree<CoordArrayType>::build(std::vector<size_type>* indices, nuga_real_t tolerance)
 {
   _tolerance = tolerance*tolerance;
 
@@ -233,10 +233,10 @@ void K_SEARCH::KdTree<CoordArrayType>::insert (size_type N)
 // ============================================================================
 template <typename CoordArrayType>
 E_Int
-K_SEARCH::KdTree<CoordArrayType>::getClose(const E_Float* point) const
+K_SEARCH::KdTree<CoordArrayType>::getClose(const nuga_real_t* point) const
 {
   size_type m(IDX_NONE);
-  E_Float dist2;
+  nuga_real_t dist2;
   __getClosest_through_path(point, m, dist2);
   return m;
 }
@@ -246,7 +246,7 @@ K_SEARCH::KdTree<CoordArrayType>::getClose(const E_Float* point) const
 // ============================================================================
 template <typename CoordArrayType>
 E_Int
-K_SEARCH::KdTree<CoordArrayType>::getClose(const E_Float* point, E_Float& dist2) const
+K_SEARCH::KdTree<CoordArrayType>::getClose(const nuga_real_t* point, nuga_real_t& dist2) const
 {
   size_type m(IDX_NONE);
   __getClosest_through_path(point, m, dist2);
@@ -262,7 +262,7 @@ E_Int
 K_SEARCH::KdTree<CoordArrayType>::getClose(E_Int n) const
 {
   size_type m(IDX_NONE);
-  E_Float dist2;
+  nuga_real_t dist2;
   __getClosest_through_path(n, m, dist2);
   return m;
 }
@@ -272,10 +272,10 @@ K_SEARCH::KdTree<CoordArrayType>::getClose(E_Int n) const
 // the distance between them.
 // ============================================================================
 template <typename CoordArrayType>
-E_Int K_SEARCH::KdTree<CoordArrayType>::getClose(E_Int n, E_Float& dist2) const
+E_Int K_SEARCH::KdTree<CoordArrayType>::getClose(E_Int n, nuga_real_t& dist2) const
 {
   size_type m(IDX_NONE);
-  E_Float Xn[3];
+  nuga_real_t Xn[3];
   _posAcc.getEntry(n, Xn);
   __getClosest_through_path(n, Xn, m, dist2);
   return m;
@@ -286,9 +286,9 @@ E_Int K_SEARCH::KdTree<CoordArrayType>::getClose(E_Int n, E_Float& dist2) const
 // ============================================================================
 template <typename CoordArrayType>
 E_Int
-K_SEARCH::KdTree<CoordArrayType>::getClosest(const E_Float* point) const
+K_SEARCH::KdTree<CoordArrayType>::getClosest(const nuga_real_t* point) const
 {
-  E_Float dist2;
+  nuga_real_t dist2;
   size_type m = getClose(point, dist2);
   if (_tolerance < dist2)
     __seek_closest(point, 0/*root col*/, 0/*axis*/, dist2, m);
@@ -301,7 +301,7 @@ K_SEARCH::KdTree<CoordArrayType>::getClosest(const E_Float* point) const
 // ============================================================================
 template <typename CoordArrayType>
 E_Int
-K_SEARCH::KdTree<CoordArrayType>::getClosest(const E_Float* point, E_Float& dist2) const
+K_SEARCH::KdTree<CoordArrayType>::getClosest(const nuga_real_t* point, nuga_real_t& dist2) const
 {
   size_type m = getClose(point, dist2);
   if (_tolerance < dist2)
@@ -317,12 +317,12 @@ template <typename CoordArrayType>
 E_Int
 K_SEARCH::KdTree<CoordArrayType>::getClosest(E_Int n) const 
 {
-  E_Float dist2;
+  nuga_real_t dist2;
   size_type m = getClose(n, dist2);
   
   if (_tolerance < dist2)
   {
-    E_Float Xn[3];
+    nuga_real_t Xn[3];
     _posAcc.getEntry(n, Xn);
     __seek_closest(n, Xn, 0/*root col*/, 0/*axis*/, dist2, m);
   }
@@ -335,13 +335,13 @@ K_SEARCH::KdTree<CoordArrayType>::getClosest(E_Int n) const
 // ============================================================================
 template <typename CoordArrayType>
 E_Int
-K_SEARCH::KdTree<CoordArrayType>::getClosest(E_Int n, E_Float& dist2) const 
+K_SEARCH::KdTree<CoordArrayType>::getClosest(E_Int n, nuga_real_t& dist2) const 
 {
   size_type m = getClose(n, dist2);
   
   if (_tolerance < dist2)
   {
-    E_Float Xn[3];
+    nuga_real_t Xn[3];
     _posAcc.getEntry(n, Xn);
     __seek_closest(n, Xn, 0/*root col*/, 0/*axis*/, dist2, m);
   }
@@ -354,14 +354,14 @@ K_SEARCH::KdTree<CoordArrayType>::getClosest(E_Int n, E_Float& dist2) const
 // ============================================================================
 template <typename CoordArrayType>
 E_Int
-K_SEARCH::KdTree<CoordArrayType>::getClosest(E_Int n, const E_Float& guessed_d2, E_Float& dist2) const 
+K_SEARCH::KdTree<CoordArrayType>::getClosest(E_Int n, const nuga_real_t& guessed_d2, nuga_real_t& dist2) const 
 {
   size_type m = IDX_NONE;  
   dist2 = guessed_d2;
 
   if (_tolerance < dist2)
   {
-    E_Float Xn[3];
+    nuga_real_t Xn[3];
     _posAcc.getEntry(n, Xn);
     __seek_closest(n, Xn, 0/*root col*/, 0/*axis*/, dist2, m);
   }
@@ -374,7 +374,7 @@ K_SEARCH::KdTree<CoordArrayType>::getClosest(E_Int n, const E_Float& guessed_d2,
 // ============================================================================
 template <typename CoordArrayType>
 E_Int
-K_SEARCH::KdTree<CoordArrayType>::getClosest(const E_Float* point, const E_Float& guessed_d2, E_Float& dist2) const 
+K_SEARCH::KdTree<CoordArrayType>::getClosest(const nuga_real_t* point, const nuga_real_t& guessed_d2, nuga_real_t& dist2) const 
 {
   size_type m = IDX_NONE;  
   dist2 = guessed_d2;
@@ -390,7 +390,7 @@ K_SEARCH::KdTree<CoordArrayType>::getClosest(const E_Float* point, const E_Float
 // ============================================================================
 template <typename CoordArrayType>
 void K_SEARCH::KdTree<CoordArrayType>::getInBox
-(const E_Float* minB, const E_Float* maxB, std::vector<size_type>& out) const
+(const nuga_real_t* minB, const nuga_real_t* maxB, std::vector<size_type>& out) const
 {
   // Check that the box is not ill posed
   bool ok = true;
@@ -407,9 +407,9 @@ void K_SEARCH::KdTree<CoordArrayType>::getInBox
 // ============================================================================
 template <typename CoordArrayType>
 void K_SEARCH::KdTree<CoordArrayType>::getInSphere
-(const E_Float* C, E_Float radius, std::vector<size_type>& out) const
+(const nuga_real_t* C, nuga_real_t radius, std::vector<size_type>& out) const
 {
-  E_Float mB[3], MB[3];
+  nuga_real_t mB[3], MB[3];
   for (E_Int i = 0; i < _dim; ++i)
   {
     MB[i] = C[i]+radius;
@@ -420,7 +420,7 @@ void K_SEARCH::KdTree<CoordArrayType>::getInSphere
   __getInBox(0/*root*/, 0/*axis*/, mB, MB, out);
 
   //
-  E_Float d2;
+  nuga_real_t d2;
   size_t sz = out.size();
   for (size_t i = 0; i < sz;)
   {
@@ -442,9 +442,9 @@ void K_SEARCH::KdTree<CoordArrayType>::getInSphere
 template <typename CoordArrayType>
 void
 K_SEARCH::KdTree<CoordArrayType>::getInSphere
-(const E_Float* C, E_Float radius, std::vector<size_type>& out, std::vector<E_Float>& dist2) const
+(const nuga_real_t* C, nuga_real_t radius, std::vector<size_type>& out, std::vector<nuga_real_t>& dist2) const
 {
-  E_Float mB[3], MB[3];
+  nuga_real_t mB[3], MB[3];
   for (size_t i = 0; i < _dim; ++i)
   {
     MB[i] = C[i]+radius;
@@ -455,7 +455,7 @@ K_SEARCH::KdTree<CoordArrayType>::getInSphere
   __getInBox(0/*root*/, 0/*axis*/, mB, MB, out);
 
   // Reduce caught nodes to the open sphere (C, radius)
-  E_Float d2, r2(radius*radius);
+  nuga_real_t d2, r2(radius*radius);
   size_t sz = out.size();
   dist2.reserve(sz);
   for (size_t i = 0; i < sz;)
@@ -478,10 +478,10 @@ K_SEARCH::KdTree<CoordArrayType>::getInSphere
 template <typename CoordArrayType>
 void
 K_SEARCH::KdTree<CoordArrayType>::getInSphere
-(E_Int N, E_Float radius, std::vector<size_type>& out) const
+(E_Int N, nuga_real_t radius, std::vector<size_type>& out) const
 {
 
-  E_Float Xn[3], mB[3], MB[3];
+  nuga_real_t Xn[3], mB[3], MB[3];
   _posAcc.getEntry(N, Xn);
 
   for (size_t i = 0; i < _dim; ++i)
@@ -494,7 +494,7 @@ K_SEARCH::KdTree<CoordArrayType>::getInSphere
   __getInBox(0/*root*/, 0/*axis*/, mB, MB, out);
 
   // Reduce caught nodes to the open sphere (C, radius)
-  E_Float d2, r2(radius*radius);
+  nuga_real_t d2, r2(radius*radius);
   size_t sz = out.size();
   for (size_t i = 0; i < sz;)
   {
@@ -513,9 +513,9 @@ K_SEARCH::KdTree<CoordArrayType>::getInSphere
 template <typename CoordArrayType>
 void
 K_SEARCH::KdTree<CoordArrayType>::getInSphere
-(E_Int N, E_Float radius, std::vector<size_type>& out, std::vector<E_Float>& dist2) const
+(E_Int N, nuga_real_t radius, std::vector<size_type>& out, std::vector<nuga_real_t>& dist2) const
 {
-  E_Float Xn[3], mB[3], MB[3];
+  nuga_real_t Xn[3], mB[3], MB[3];
   _posAcc.getEntry(N, Xn);
 
   for (E_Int i = 0; i < _dim; ++i)
@@ -528,7 +528,7 @@ K_SEARCH::KdTree<CoordArrayType>::getInSphere
   __getInBox(0/*root*/, 0/*axis*/, mB, MB, out);
 
   // Reduce caught nodes to the open sphere (C, radius)
-  E_Float d2;
+  nuga_real_t d2;
   size_t sz = out.size();
   dist2.reserve(sz);
   for (size_t i = 0; i < sz;)
@@ -571,11 +571,11 @@ void K_SEARCH::KdTree<CoordArrayType>::__insert(size_type n)
 }
 
 template <typename CoordArrayType>
-void K_SEARCH::KdTree<CoordArrayType>::__getClosest_through_path(const E_Float* pt, size_type& m, E_Float& d2) const
+void K_SEARCH::KdTree<CoordArrayType>::__getClosest_through_path(const nuga_real_t* pt, size_type& m, nuga_real_t& d2) const
 {
   size_type i(0), axis(0);
   const size_type * Ni, *tbegin(_tree.begin());
-  E_Float d2tmp, D;
+  nuga_real_t d2tmp, D;
 
   m = IDX_NONE;
   d2 = NUGA::FLOAT_MAX;
@@ -601,12 +601,12 @@ void K_SEARCH::KdTree<CoordArrayType>::__getClosest_through_path(const E_Float* 
 }
 
 template <typename CoordArrayType>
-void K_SEARCH::KdTree<CoordArrayType>::__getClosest_through_path(size_type n, const E_Float *Xn, size_type& m, E_Float& d2) const
+void K_SEARCH::KdTree<CoordArrayType>::__getClosest_through_path(size_type n, const nuga_real_t *Xn, size_type& m, nuga_real_t& d2) const
 {
   size_type i(0), axis(0);
   const size_type *Ni, *tbegin(_tree.begin());
 
-  E_Float d2tmp;
+  nuga_real_t d2tmp;
 
   m = IDX_NONE;
   d2 = NUGA::FLOAT_MAX;
@@ -628,12 +628,12 @@ void K_SEARCH::KdTree<CoordArrayType>::__getClosest_through_path(size_type n, co
 
 // template <typename CoordArrayType>
 // void K_SEARCH::KdTree<CoordArrayType>::__seek_closest
-// (size_type n, const E_Float *Xn, size_type ci, size_type axis, E_Float& d2, size_type& m) const
+// (size_type n, const nuga_real_t *Xn, size_type ci, size_type axis, nuga_real_t& d2, size_type& m) const
 // {
 //   if (ci == IDX_NONE) return;
 //   const size_type* Ni = _tree.begin() + 3 * ci;// pointer to the ith _tree's node.
   
-//   E_Float D = (Xn[axis] - _posAcc.getVal(*Ni, axis));
+//   nuga_real_t D = (Xn[axis] - _posAcc.getVal(*Ni, axis));
 
 //   if ((D*D) >= d2)
 //   {
@@ -644,7 +644,7 @@ void K_SEARCH::KdTree<CoordArrayType>::__getClosest_through_path(size_type n, co
 //   }
 //   else
 //   {
-//     E_Float di2 = _posAcc.dist2(n, *Ni);
+//     nuga_real_t di2 = _posAcc.dist2(n, *Ni);
 //     if ((di2 < d2) && ( n != *Ni))
 //     {
 // 		  d2 = di2;
@@ -657,8 +657,8 @@ void K_SEARCH::KdTree<CoordArrayType>::__getClosest_through_path(size_type n, co
 
 template <typename CoordArrayType>
 void K_SEARCH::KdTree<CoordArrayType>::__seek_closest(
-  size_type n, const E_Float *Xn, size_type root, size_type axis,
-  E_Float& d2, size_type& m) const
+  size_type n, const nuga_real_t *Xn, size_type root, size_type axis,
+  nuga_real_t& d2, size_type& m) const
 {
   if (root == IDX_NONE) return;
 
@@ -682,7 +682,7 @@ void K_SEARCH::KdTree<CoordArrayType>::__seek_closest(
 
     const size_type* Ni = _tree.begin() + 3 * ci;
     size_type ax = current.axis;
-    E_Float D = Xn[ax] - _posAcc.getVal(*Ni, ax);
+    nuga_real_t D = Xn[ax] - _posAcc.getVal(*Ni, ax);
 
     size_type left  = *(Ni+1);
     size_type right = *(Ni+2);
@@ -697,7 +697,7 @@ void K_SEARCH::KdTree<CoordArrayType>::__seek_closest(
     else
     {
       // Check current node
-      E_Float di2 = _posAcc.dist2(n, *Ni);
+      nuga_real_t di2 = _posAcc.dist2(n, *Ni);
       if ((di2 < d2) && (n != *Ni))
       {
         d2 = di2;
@@ -713,12 +713,12 @@ void K_SEARCH::KdTree<CoordArrayType>::__seek_closest(
 
 // template <typename CoordArrayType>
 // void K_SEARCH::KdTree<CoordArrayType>::__seek_closest
-// (const E_Float *pt, size_type ci, size_type axis, E_Float& d2, size_type& m) const
+// (const nuga_real_t *pt, size_type ci, size_type axis, nuga_real_t& d2, size_type& m) const
 // {
 // 	if (ci == IDX_NONE) return;
 
 // 	const size_type* Ni = _tree.begin() + 3 * ci;// pointer to the ith _tree's node.
-//   E_Float D = (pt[axis] - _posAcc.getVal(*Ni, axis));
+//   nuga_real_t D = (pt[axis] - _posAcc.getVal(*Ni, axis));
  
 //   if ((D*D) >= d2)
 //   {
@@ -729,7 +729,7 @@ void K_SEARCH::KdTree<CoordArrayType>::__seek_closest(
 //   }
 //   else
 //   {
-//     E_Float di2 = _posAcc.dist2(pt, *Ni);
+//     nuga_real_t di2 = _posAcc.dist2(pt, *Ni);
 //     if (di2 < d2)
 //     {
 // 		  d2 = di2;
@@ -742,7 +742,7 @@ void K_SEARCH::KdTree<CoordArrayType>::__seek_closest(
 
 template <typename CoordArrayType>
 void K_SEARCH::KdTree<CoordArrayType>::__seek_closest
-(const E_Float *pt, size_type root, size_type axis, E_Float& d2, size_type& m) const
+(const nuga_real_t *pt, size_type root, size_type axis, nuga_real_t& d2, size_type& m) const
 {
   if (root == IDX_NONE) return;
 
@@ -766,7 +766,7 @@ void K_SEARCH::KdTree<CoordArrayType>::__seek_closest
 
     const size_type* Ni = _tree.begin() + 3 * ci;
     size_type ax = current.axis;
-    E_Float D = pt[ax] - _posAcc.getVal(*Ni, ax);
+    nuga_real_t D = pt[ax] - _posAcc.getVal(*Ni, ax);
     size_type left  = *(Ni+1);
     size_type right = *(Ni+2);
     size_type nextAxis = (ax+1 == _dim ? 0 : ax+1);
@@ -780,7 +780,7 @@ void K_SEARCH::KdTree<CoordArrayType>::__seek_closest
     else
     {
       // Check current point
-      E_Float di2 = _posAcc.dist2(pt, *Ni);
+      nuga_real_t di2 = _posAcc.dist2(pt, *Ni);
       if (di2 < d2) { d2 = di2; m = *Ni; }
 
       // Search both branches
@@ -792,7 +792,7 @@ void K_SEARCH::KdTree<CoordArrayType>::__seek_closest
 
 template <typename CoordArrayType>
 void K_SEARCH::KdTree<CoordArrayType>::__getInBox(
-  size_type root, size_type axis, const E_Float* mBox, const E_Float* MBox,
+  size_type root, size_type axis, const nuga_real_t* mBox, const nuga_real_t* MBox,
   std::vector<size_type>& out) const
 {
   if (root == IDX_NONE) return;
@@ -816,7 +816,7 @@ void K_SEARCH::KdTree<CoordArrayType>::__getInBox(
 
     const size_type* Ni = _tree.begin() + 3 * ci;
     size_type ax = current.axis;
-    E_Float xi = _posAcc.getVal(*Ni, ax);
+    nuga_real_t xi = _posAcc.getVal(*Ni, ax);
 
     E_Bool do_left = mBox[ax] <= xi;
     E_Bool do_right = xi <= MBox[ax];
@@ -829,7 +829,7 @@ void K_SEARCH::KdTree<CoordArrayType>::__getInBox(
 
       for (E_Int j = 0; j < _dim-1; j++)
       {
-        E_Float v = _posAcc.getVal(*Ni, ax2);
+        nuga_real_t v = _posAcc.getVal(*Ni, ax2);
         if (v < mBox[ax2] || v > MBox[ax2]) { is_in = false; break; }
         ax2++;
         if (ax2 == _dim) ax2 = 0;

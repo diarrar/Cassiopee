@@ -55,7 +55,7 @@ public:
   FILE * fp = fopen(filename, "r");
   int                          nb_entities, nb_read;
   std::vector<K_FLD::IntArray> connects;
-  E_Float                       P[3];
+  nuga_real_t                       P[3];
   int                          nb_nodes[5], S[8], nods, dim(3);
 
   pos.clear();
@@ -233,7 +233,7 @@ static E_Int read(const char* filename, T1*& pcrd, T2& dim, T2& npts, bool& call
   fprintf(file, "Vertices\n");
   fprintf(file, SF_D_"\n", nb_pts);
   
-  const E_Float* pP;
+  const nuga_real_t* pP;
 
   if (dim == 3)
   {
@@ -537,13 +537,13 @@ static E_Int read(const char* filename, T1*& pcrd, T2& dim, T2& npts, bool& call
   }
 
   ///
-  static void draw_wired_PG(const char* fname, const K_FLD::FloatArray& coord, const ngon_unit& PGs, E_Int ith, E_Float *normal)
+  static void draw_wired_PG(const char* fname, const K_FLD::FloatArray& coord, const ngon_unit& PGs, E_Int ith, nuga_real_t *normal)
   {
     typedef K_FLD::ArrayAccessor<K_FLD::FloatArray> acrd_t;
     acrd_t acrd(coord);
     K_FLD::IntArray connectE;
     //E_Int n0, n1;
-    E_Float P0[3], P1[3], Lmin(NUGA::FLOAT_MAX), L2;
+    nuga_real_t P0[3], P1[3], Lmin(NUGA::FLOAT_MAX), L2;
 
     E_Int nb_nodes, E[2];
     const E_Int* pNi = PGs.get_facets_ptr(ith);
@@ -564,7 +564,7 @@ static E_Int read(const char* filename, T1*& pcrd, T2& dim, T2& npts, bool& call
 
     K_FLD::FloatArray crd(coord);
 
-    E_Float Norm[3];
+    nuga_real_t Norm[3];
     if (normal == nullptr)
     {
       K_MESH::Polygon::normal<acrd_t, 3>(acrd, pNi, nb_nodes, 1, Norm);
@@ -604,10 +604,10 @@ static E_Int read(const char* filename, T1*& pcrd, T2& dim, T2& npts, bool& call
 #define white_space(c) ((c) == ' ' || (c) == '\t')
 #define valid_digit(c) ((c) >= '0' && (c) <= '9')
 
-  static E_Float fast_atof(const char *p)
+  static nuga_real_t fast_atof(const char *p)
   {
     int frac;
-    E_Float sign, value, scale;
+    nuga_real_t sign, value, scale;
 
     // Skip leading white space, if any.
 
@@ -641,7 +641,7 @@ static E_Int read(const char* filename, T1*& pcrd, T2& dim, T2& npts, bool& call
 
     if (*p == '.') 
     {
-      E_Float pow10 = 10.0;
+      nuga_real_t pow10 = 10.0;
       p += 1;
       while (valid_digit(*p)) 
       {

@@ -32,7 +32,7 @@
 
 using namespace NUGA;
 
-NUGA::MeshTool::MeshTool(const tree_type& tree, E_Float tolerance):
+NUGA::MeshTool::MeshTool(const tree_type& tree, nuga_real_t tolerance):
 _tree(&tree), _tolerance(tolerance)
 {
 }
@@ -48,7 +48,7 @@ void NUGA::MeshTool::clear()
   _inval.clear();
 }
 
-void NUGA::MeshTool::set(const tree_type& tree, E_Float tolerance)
+void NUGA::MeshTool::set(const tree_type& tree, nuga_real_t tolerance)
 {
   clear();
 
@@ -64,7 +64,7 @@ NUGA::MeshTool::~MeshTool(void)
 
 E_Int
 NUGA::MeshTool::__getContainingElement
-(const E_Float* point, const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect,
+(const nuga_real_t* point, const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect,
  const K_FLD::IntArray& neighbors, const NUGA::bool_vector_type& mask, size_type Kseed) const
 {
   E_Bool      brute_force(Kseed == IDX_NONE), found(false);
@@ -96,7 +96,7 @@ NUGA::MeshTool::__getContainingElement
 
 E_Int
 NUGA::MeshTool::__searchDirection
-(size_type K, const E_Float* point, const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, E_Bool random) const
+(size_type K, const nuga_real_t* point, const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, E_Bool random) const
 {
   size_type                         b(0), Ni, Nj;
   K_FLD::IntArray::const_iterator    pK = connect.col(K);
@@ -350,7 +350,7 @@ NUGA::MeshTool::computeNodeNormals
 (const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, K_FLD::FloatArray& normals)
 {
   NUGA::int_vector_type     nodes, count;
-  E_Float                         zero(0), normal[3], *p;
+  nuga_real_t                         zero(0), normal[3], *p;
   K_FLD::IntArray                 connectElts;
   K_FLD::IntArray::const_iterator pS;
   E_Int                           nb_elts;
@@ -396,7 +396,7 @@ NUGA::MeshTool::computeNodeNormalsFromPGNormals
 (const K_FLD::FloatArray& PG_normals, const ngon_unit& pgs, K_FLD::FloatArray& node_normals)
 {
   NUGA::int_vector_type     count;
-  E_Float                         *p;
+  nuga_real_t                         *p;
   E_Int nb_pgs = pgs.size();
   
   if (nb_pgs == 0)
@@ -445,7 +445,7 @@ NUGA::MeshTool::computeNodeNormals
   // First Compute A Valid PG normal field : if a normal failed, look around
   E_Int nb_pgs = pgs.size();
   K_FLD::FloatArray PGnormals(3, nb_pgs, 0.);
-  E_Float normal[3];
+  nuga_real_t normal[3];
   std::vector<bool> is_degen(nb_pgs, false);
   E_Int nb_degen=0;
   
@@ -457,7 +457,7 @@ NUGA::MeshTool::computeNodeNormals
     const E_Int* nodes = pgs.get_facets_ptr(i);
     E_Int nb_nodes = pgs.stride(i);
     K_MESH::Polygon::normal<acrd_t, 3>(acrd, nodes, nb_nodes, 1, normal);
-    E_Float l2 = sqrt(normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]);
+    nuga_real_t l2 = sqrt(normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]);
     
     is_degen[i] = (fabs(l2 - 1.) >= EPSILON); // DEGEN
     
@@ -526,8 +526,8 @@ NUGA::MeshTool::computeNodeNormals
 
 // assume z is (0,0,1)
 E_Int NUGA::MeshTool::computeNodeRadiusAndAngles
-(K_FLD::FloatArray& coord, const ngon_unit& pgs, E_Float x0, E_Float y0, 
-  std::vector<E_Float>& radius, std::vector<E_Float>& angles)
+(K_FLD::FloatArray& coord, const ngon_unit& pgs, nuga_real_t x0, nuga_real_t y0, 
+  std::vector<nuga_real_t>& radius, std::vector<nuga_real_t>& angles)
 {
   radius.clear();
   radius.resize(coord.cols(), NUGA::FLOAT_MAX);
@@ -542,12 +542,12 @@ E_Int NUGA::MeshTool::computeNodeRadiusAndAngles
     for (E_Int n = 0; n < nnodes; ++n)
     {
       E_Int Ni = nodes[n] - 1;
-      const E_Float* pt = coord.col(Ni);
+      const nuga_real_t* pt = coord.col(Ni);
 
       radius[Ni] = sqrt( ((pt[0] - x0)*(pt[0] - x0)) + ((pt[1] - y0)*(pt[1] - y0)) );
 
-      E_Float c = pt[0]/radius[Ni];
-      E_Float s = pt[1]/radius[Ni];
+      nuga_real_t c = pt[0]/radius[Ni];
+      nuga_real_t s = pt[1]/radius[Ni];
 
       angles[Ni] = atan2(s, c); 
 
@@ -576,7 +576,7 @@ E_Int NUGA::MeshTool::smoothNodeNormals(const ngon_unit& pgs, K_FLD::FloatArray&
     const E_Int* nodes = pgs.get_facets_ptr(i);
     E_Int nb_nodes = pgs.stride(i);
     
-    E_Float incr[3], FACTOR = 0.5;
+    nuga_real_t incr[3], FACTOR = 0.5;
     
     for (E_Int n = 0; n < nb_nodes; ++n)
     {
@@ -589,7 +589,7 @@ E_Int NUGA::MeshTool::smoothNodeNormals(const ngon_unit& pgs, K_FLD::FloatArray&
       
       NUGA::normalize<3>(incr);
       
-      E_Float l2 = sqrt(incr[0] * incr[0] + incr[1] * incr[1] + incr[2] * incr[2]);
+      nuga_real_t l2 = sqrt(incr[0] * incr[0] + incr[1] * incr[1] + incr[2] * incr[2]);
       if (fabs(l2 - 1.) >= EPSILON) // DEGEN
         continue;
       
@@ -618,7 +618,7 @@ void NUGA::MeshTool::compute_or_transfer_normals
   K_FLD::FloatArray PGnormals;
   
   E_Int t3[3], PGi, Normi;
-  E_Float p0[3], p1[3], p2[3], normal[3];
+  nuga_real_t p0[3], p1[3], p2[3], normal[3];
     
   //
   for (size_t i = 0; i < nb_t3s; ++i)
@@ -630,7 +630,7 @@ void NUGA::MeshTool::compute_or_transfer_normals
     
     K_MESH::Triangle::normal(p0, p1, p2, normal); 
     
-    E_Float l2 = sqrt(normal[0]*normal[0]+normal[1]*normal[1]+normal[2]*normal[2]);
+    nuga_real_t l2 = sqrt(normal[0]*normal[0]+normal[1]*normal[1]+normal[2]*normal[2]);
     
     if (fabs(l2 - 1.) < EPSILON) // NOT degen
       T3normals.pushBack(normal, normal+3);
@@ -651,7 +651,7 @@ void NUGA::MeshTool::compute_or_transfer_normals
       }
       
       Normi = pgid_to_PGnorm[PGi];
-      const E_Float* pg_normal = PGnormals.col(Normi);
+      const nuga_real_t* pg_normal = PGnormals.col(Normi);
       
       T3normals.pushBack(pg_normal, pg_normal+3);
     }
@@ -745,7 +745,7 @@ NUGA::MeshTool::compact_to_mesh
   lpos.reserve(stride, nb_nodes);
   for (E_Int i=0; i < nb_nodes; ++i)
   {
-    const E_Float* Pt = pos.col(nodes[i]-idx_start);
+    const nuga_real_t* Pt = pos.col(nodes[i]-idx_start);
     lpos.pushBack(Pt, Pt+stride);
   }
 }
@@ -754,12 +754,12 @@ NUGA::MeshTool::compact_to_mesh
 void
 NUGA::MeshTool::boundingBox
 (const K_FLD::FloatArray& pos, const K_FLD::IntArray& connectE2,
- E_Float* minB, E_Float* maxB)
+ nuga_real_t* minB, nuga_real_t* maxB)
 {
   E_Int COLS(connectE2.cols());
   K_FLD::IntArray::const_iterator pS;
   E_Int Ni;
-  const E_Float* Pi;
+  const nuga_real_t* Pi;
 
   for (E_Int k = 0; k < 3; ++k)
   {
@@ -793,8 +793,8 @@ NUGA::MeshTool::boundingBox
   E_Int COLS(connect.cols()), ROWS(connect.rows());
   K_FLD::IntArray::const_iterator pS;
   E_Int Ni;
-  const E_Float* Pi;
-  E_Float minB[3], maxB[3];
+  const nuga_real_t* Pi;
+  nuga_real_t minB[3], maxB[3];
 
   for (E_Int k = 0; k < 3; ++k)
   {
@@ -844,7 +844,7 @@ NUGA::MeshTool::flipT3(K_FLD::IntArray& connectT3)
 
 void
 NUGA::MeshTool::metricAnisoE22D
-(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connectE2, E_Float kn, K_FLD::FloatArray& M)
+(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connectE2, nuga_real_t kn, K_FLD::FloatArray& M)
 {
   M.clear();
   M.resize(3, pos.cols());
@@ -864,7 +864,7 @@ NUGA::MeshTool::metricAnisoE22D
   }
 
   
-  E_Float h, m11, m22, Vt[2], Vn[2];
+  nuga_real_t h, m11, m22, Vt[2], Vn[2];
   for (E_Int i = 0; i < NBEDGES; ++i)
   {
     Ni = connectE2(0,i);
@@ -1033,7 +1033,7 @@ E_Int NUGA::MeshTool::get_polygonal_boundary
 }
 
 E_Int  NUGA::MeshTool::aggregate_convex
-(const K_FLD::FloatArray& crd, const K_FLD::IntArray& connectT3, const E_Float* normal, ngon_unit& agg_pgs, E_Float convexity_tol)
+(const K_FLD::FloatArray& crd, const K_FLD::IntArray& connectT3, const nuga_real_t* normal, ngon_unit& agg_pgs, nuga_real_t convexity_tol)
 {
   typedef K_FLD::ArrayAccessor<K_FLD::FloatArray> acrd_t;
   acrd_t acrd(crd);
@@ -1157,7 +1157,7 @@ E_Int  NUGA::MeshTool::aggregate_convex
 
 ///
 E_Int NUGA::MeshTool::cut_mesh_convex_line
-(const K_FLD::FloatArray& crd, const K_FLD::IntArray& connectT3, const E_Float* normal, const K_FLD::IntArray& connectB,
+(const K_FLD::FloatArray& crd, const K_FLD::IntArray& connectT3, const nuga_real_t* normal, const K_FLD::IntArray& connectB,
 E_Int K0, E_Int n0, K_FLD::IntArray& neighbors,
 K_FLD::IntArray& connectT31, K_FLD::IntArray& connectT32)
 {
@@ -1167,7 +1167,7 @@ K_FLD::IntArray& connectT31, K_FLD::IntArray& connectT32)
   bnodes.clear();
   for (E_Int i = 0; i < connectB.cols(); ++i) bnodes.insert(connectB(0, i));
 
-  E_Float Eip1Aip1[3], Ek[3], Dir[3], ps;
+  nuga_real_t Eip1Aip1[3], Ek[3], Dir[3], ps;
   E_Int Ai = 0, Aip1, Ki(K0), Kip1, Kim1(K0), ni((n0 + 1) % 3), nim1 = 0, Ei(connectT3((n0 + 1) % 3, K0)), Eip1(connectT3((n0 + 2) % 3, K0));
   K_FLD::IntArray::const_iterator pKi;
 
@@ -1250,9 +1250,9 @@ K_FLD::IntArray& connectT31, K_FLD::IntArray& connectT32)
 }
 
 E_Int NUGA::MeshTool::starify_from_node
-(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, E_Int istar, K_FLD::IntArray& connectT3, K_FLD::IntArray& neighbors, const E_Float* normal, E_Float convexity_tol)
+(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, E_Int istar, K_FLD::IntArray& connectT3, K_FLD::IntArray& neighbors, const nuga_real_t* normal, nuga_real_t convexity_tol)
 {
-  E_Float tol2(1.e-4);
+  nuga_real_t tol2(1.e-4);
   E_Int Nw = nodes[istar] - index_start; // worst concavity
   //get its ancestors
   std::vector<E_Int> local_id(connectT3.cols(), IDX_NONE); //tell if it's an ancestor and Nw local node id in it
@@ -1295,14 +1295,14 @@ E_Int NUGA::MeshTool::starify_from_node
     
     // Lref for Adim
     box.compute(crd, nodes, nb_nodes, 1);
-    E_Float Lref2 = K_FUNC::E_max(box.maxB[0]-box.minB[0], box.maxB[1]-box.minB[1]);
+    nuga_real_t Lref2 = K_FUNC::E_max(box.maxB[0]-box.minB[0], box.maxB[1]-box.minB[1]);
     Lref2 = K_FUNC::E_max(box.maxB[2]-box.minB[2], Lref2);
     Lref2 *= Lref2;
     
     // Convexity test : skip if the pair of element (S, Sn) is not convex (i.e. edge swapping is not doable).
     // Test done by visibility criterion.
-    E_Float s1 = element_type::surface(crd.col(Ni), crd.col(Nj), crd.col(Nk), 3);
-    E_Float s2 = element_type::surface(crd.col(Ni), crd.col(Nk), crd.col(Nl), 3);
+    nuga_real_t s1 = element_type::surface(crd.col(Ni), crd.col(Nj), crd.col(Nk), 3);
+    nuga_real_t s2 = element_type::surface(crd.col(Ni), crd.col(Nk), crd.col(Nl), 3);
     bool isConvex  = (s1 > tol2*Lref2) && (s2 > tol2*Lref2);
     if (!isConvex)
       continue;
@@ -1332,11 +1332,11 @@ E_Int NUGA::MeshTool::starify_from_node
 }
 
 E_Int 
-NUGA::MeshTool::get_edges_lying_on_plane(const K_FLD::FloatArray& crd, E_Int index_start, const std::set<K_MESH::NO_Edge>& edges, E_Int Np, const E_Float* normal, E_Float abstol, std::set<K_MESH::NO_Edge>& lyingEs)
+NUGA::MeshTool::get_edges_lying_on_plane(const K_FLD::FloatArray& crd, E_Int index_start, const std::set<K_MESH::NO_Edge>& edges, E_Int Np, const nuga_real_t* normal, nuga_real_t abstol, std::set<K_MESH::NO_Edge>& lyingEs)
 {
   typedef std::set<K_MESH::NO_Edge> eset_t;
   eset_t::const_iterator itE;
-  E_Float Eij[3], u[3], abstol2(abstol*abstol);
+  nuga_real_t Eij[3], u[3], abstol2(abstol*abstol);
 
   lyingEs.clear();
 
@@ -1350,15 +1350,15 @@ NUGA::MeshTool::get_edges_lying_on_plane(const K_FLD::FloatArray& crd, E_Int ind
     
     bool quasi_aligned = (fabs(NUGA::dot<3>(Eij, normal)) < 0.25);
     if (!quasi_aligned) continue;
-    //E_Float L2 = NUGA::sqrNorm<3>(Eij);
+    //nuga_real_t L2 = NUGA::sqrNorm<3>(Eij);
     //if (L2 < EPSILON) L2 = 1.;
 
     // is Ni close enoough to the plane ?
     NUGA::diff<3>(crd.col(Ni), crd.col(Np), u);
 
-    E_Float h2 = NUGA::dot<3>(u, normal);
+    nuga_real_t h2 = NUGA::dot<3>(u, normal);
     h2 *= h2;
-    //E_Float seuil = L2*tol_rel*tol_rel;
+    //nuga_real_t seuil = L2*tol_rel*tol_rel;
     //if (h2 > L2*tol_rel*tol_rel)
     //continue;
     if (h2 > abstol2) continue;
@@ -1504,11 +1504,11 @@ void NUGA::MeshTool::burn_free_branches(K_FLD::IntArray& cntE2, std::map<E_Int, 
 }
 
 ///
-E_Float NUGA::MeshTool::get_max_deviation
+nuga_real_t NUGA::MeshTool::get_max_deviation
 (const K_FLD::FloatArray& crd, const K_FLD::IntArray& cT3, const K_FLD::IntArray& neighT3)
 {
-  E_Float amax=0.;
-  E_Float ni[3], nj[3];
+  nuga_real_t amax=0.;
+  nuga_real_t ni[3], nj[3];
 
   K_FLD::IntArray::const_iterator pKi;
 
@@ -1521,8 +1521,8 @@ E_Float NUGA::MeshTool::get_max_deviation
     {
       E_Int e0 = *(pKi + n);
       E_Int e1 = *(pKi + (n + 1) % 3);
-      const E_Float* E0 = crd.col(e0);
-      const E_Float* E1 = crd.col(e1);
+      const nuga_real_t* E0 = crd.col(e0);
+      const nuga_real_t* E1 = crd.col(e1);
 
       E_Int j = neighT3(n, i);
       if (j == IDX_NONE)
@@ -1530,7 +1530,7 @@ E_Float NUGA::MeshTool::get_max_deviation
 
       K_MESH::Triangle::normal(crd, cT3.col(j), nj);
 
-      E_Float alpha = NUGA::angle_measure(ni, nj, E0, E1);
+      nuga_real_t alpha = NUGA::angle_measure(ni, nj, E0, E1);
       amax = K_FUNC::E_max(amax, fabs(NUGA::PI - alpha)); // max deviation from flatness
     }
   }
@@ -1540,15 +1540,15 @@ E_Float NUGA::MeshTool::get_max_deviation
 
 ///
 void NUGA::MeshTool::extrude_line
-(K_FLD::FloatArray& crd, const K_FLD::IntArray& cntE, const E_Float* dir, E_Float H, K_FLD::IntArray& cntQ4)
+(K_FLD::FloatArray& crd, const K_FLD::IntArray& cntE, const nuga_real_t* dir, nuga_real_t H, K_FLD::IntArray& cntQ4)
 {
   E_Int nbe = cntE.cols();
   E_Int nbp = crd.cols();
 
   // 1. EDGE NORMALS
   K_FLD::FloatArray normE(3, nbe);
-  E_Float Lmean(0.);
-  E_Float Ei[3], ni[3];
+  nuga_real_t Lmean(0.);
+  nuga_real_t Ei[3], ni[3];
 
   for (E_Int i = 0; i < nbe; ++i)
   {
@@ -1559,7 +1559,7 @@ void NUGA::MeshTool::extrude_line
     NUGA::normalize<3>(normE.col(i));
 
     // min edge length
-    E_Float L = NUGA::sqrNorm<3>(Ei);
+    nuga_real_t L = NUGA::sqrNorm<3>(Ei);
     Lmean += sqrt(L);
   }
 
@@ -1580,7 +1580,7 @@ void NUGA::MeshTool::extrude_line
   // 3. NEW POINTS (stored line by line)
   // greater than one
 #ifdef E_ADOUBLE
-  E_Float val = H / Lmean;
+  nuga_real_t val = H / Lmean;
   E_Int nbr = E_Int(val.value()) + 2; 
 #else
   E_Int nbr = E_Int(H / Lmean) + 2; 
@@ -1589,13 +1589,13 @@ void NUGA::MeshTool::extrude_line
   // add space to crd
   crd.resize(3, nbp*nbr);
 
-  E_Float k = H / nbr;
+  nuga_real_t k = H / nbr;
   for (E_Int r = 0; r < nbr - 1; ++r)
   {
     for (E_Int i = 0; i < nbp; ++i)
     {
-      E_Float* Pi = crd.col(i + r * nbp);
-      E_Float* newPi = crd.col(i + (r + 1)*nbp);
+      nuga_real_t* Pi = crd.col(i + r * nbp);
+      nuga_real_t* newPi = crd.col(i + (r + 1)*nbp);
       NUGA::sum<3>(k, normN.col(i), Pi, newPi);
     }
   }

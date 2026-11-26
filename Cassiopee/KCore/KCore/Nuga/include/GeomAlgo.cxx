@@ -37,7 +37,7 @@
 
 ///
 template <short DIM>
-static void iso_barycenter(const K_FLD::FloatArray& coords, E_Float* isob)
+static void iso_barycenter(const K_FLD::FloatArray& coords, nuga_real_t* isob)
 {
   for (size_t i = 0; i < DIM; ++i) isob[i]=0.;
   
@@ -48,7 +48,7 @@ static void iso_barycenter(const K_FLD::FloatArray& coords, E_Float* isob)
    for (size_t j = 0; j < DIM; ++j)
      isob[j] += coords(j,i);
   
-  E_Float k = 1./(E_Float)coords.cols();
+  nuga_real_t k = 1./(nuga_real_t)coords.cols();
   
   for (size_t i = 0; i < DIM; ++i)
     isob[i] *= k;
@@ -63,7 +63,7 @@ NUGA::GeomAlgo<ElementType>::neighboring
  Connectivity_t& neighbors)
 {
   size_t ELTS(conn.size()), sz, count(0), nbounds;
-  E_Float point[DIM], isob[DIM];
+  nuga_real_t point[DIM], isob[DIM];
   K_FLD::FloatArray crds;;
   ElementType E;
   typename ElementType::boundary_type B;
@@ -165,7 +165,7 @@ inline bool is_a_ref(const K_FLD::FloatArray& crd, const K_FLD::IntArray& cnt, E
   // Check if ith elt can be used as a ref, and how it is oriented
     
   outward=true;
-  E_Float G[3], P[3], N[3];
+  nuga_real_t G[3], P[3], N[3];
   
   
   //Build a point almost lying on the centroid but just above (EPS distance)
@@ -211,13 +211,13 @@ inline bool is_a_ref(const K_FLD::FloatArray& crd, const K_FLD::IntArray& cnt, E
           
     K_MESH::Triangle Ti(cnt.col(boxes[b]));
           
-    const E_Float *Q0, *Q1, *Q2;
+    const nuga_real_t *Q0, *Q1, *Q2;
     Q0 = crd.col(Ti.node(0));
     Q1 = crd.col(Ti.node(1));
     Q2= crd.col(Ti.node(2));
           
     E_Bool parallel, coincident;
-    E_Float lambda, min_d, UV[2];
+    nuga_real_t lambda, min_d, UV[2];
     K_MESH::Triangle::planeLineMinDistance<3>(Q0, Q1, Q2, G, P, EPSILON, true/*tol_is_absolute*/, lambda, UV, parallel, coincident, min_d);
     
     bool intersect= (((1. - UV[0] -  UV[1]) >= -EPSILON)  && (UV[0] >= -EPSILON) && (UV[1] >= -EPSILON));
@@ -351,10 +351,10 @@ inline void GeomAlgo<K_MESH::Triangle>::reversi_chimera_skin
 template <>
 inline void GeomAlgo<K_MESH::Triangle>::get_swapE
  (const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, const K_FLD::IntArray& neighbors, 
-  const std::set<K_MESH::NO_Edge>& hE, E_Float tol, std::vector<std::pair<E_Int, E_Int> >& swapE)
+  const std::set<K_MESH::NO_Edge>& hE, nuga_real_t tol, std::vector<std::pair<E_Int, E_Int> >& swapE)
  {
   //
-  E_Float dj,d2[3], lambda, q11, q12, q21, q22;
+  nuga_real_t dj,d2[3], lambda, q11, q12, q21, q22;
   const E_Int *pS;
   E_Int ROWS(pos.rows()), Sn, bn;
   size_t j;
@@ -399,7 +399,7 @@ inline void GeomAlgo<K_MESH::Triangle>::get_swapE
       if ((lambda < 0.) || (lambda > 1.))
         continue;
       
-//      E_Float L2 = NUGA::sqrDistance(pos.col(*(pS+(j+1)%3)), pos.col(*(pS+(j+2)%3)), 3);
+//      nuga_real_t L2 = NUGA::sqrDistance(pos.col(*(pS+(j+1)%3)), pos.col(*(pS+(j+2)%3)), 3);
 //      if ((L2*lambda*lambda < _tolerance*_tolerance) || (L2 * (1.-lambda) * (1. - lambda) < _tolerance*_tolerance))
 //        std::cout << "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" << std::endl;
     
@@ -424,14 +424,14 @@ inline void GeomAlgo<K_MESH::Triangle>::get_swapE
     q21 = (ROWS == 3) ? K_MESH::Triangle::qualityG<3>(pos.col(Ni), pos.col(Nj), pos.col(Nk)) : K_MESH::Triangle::qualityG<2>(pos.col(Ni), pos.col(Nj), pos.col(Nk));
     q22 = (ROWS == 3) ? K_MESH::Triangle::qualityG<3>(pos.col(Ni), pos.col(Nk), pos.col(Nl)) : K_MESH::Triangle::qualityG<2>(pos.col(Ni), pos.col(Nk), pos.col(Nl));
 
-    E_Float qmin0 = MIN2(q11,q12); 
-    E_Float rmin = (qmin0 == 0.) ? NUGA::FLOAT_MAX : MIN2(q21, q22) / qmin0;
+    nuga_real_t qmin0 = MIN2(q11,q12); 
+    nuga_real_t rmin = (qmin0 == 0.) ? NUGA::FLOAT_MAX : MIN2(q21, q22) / qmin0;
 
     if (rmin < 1.) //worst cannot get even worst
       continue;
 
-    E_Float qmax0 = MAX(q11,q12); 
-    E_Float rmax = (qmax0 == 0.) ? NUGA::FLOAT_MAX : MAX(q21, q22) / qmax0;
+    nuga_real_t qmax0 = MAX(q11,q12); 
+    nuga_real_t rmax = (qmax0 == 0.) ? NUGA::FLOAT_MAX : MAX(q21, q22) / qmax0;
 
     // We want the quality improvement for the total
     // But if the worst improves much than the best deteriorates, it s OK
@@ -447,7 +447,7 @@ inline void GeomAlgo<K_MESH::Triangle>::get_swapE
 ///
 template <>
 inline void GeomAlgo<K_MESH::Triangle>::min_quality
-(const K_FLD::FloatArray& crd, const K_FLD::IntArray& cnt, E_Float& minq, E_Int& imin)
+(const K_FLD::FloatArray& crd, const K_FLD::IntArray& cnt, nuga_real_t& minq, E_Int& imin)
 {
   minq = NUGA::FLOAT_MAX;
   imin = IDX_NONE;
@@ -460,7 +460,7 @@ inline void GeomAlgo<K_MESH::Triangle>::min_quality
     E_Int Nj = *(pS + 1);
     E_Int Nk = *(pS + 2);
 
-    E_Float q = K_MESH::Triangle::qualityG<3>(crd.col(Ni), crd.col(Nj), crd.col(Nk));
+    nuga_real_t q = K_MESH::Triangle::qualityG<3>(crd.col(Ni), crd.col(Nj), crd.col(Nk));
 
     if (q < minq)
     {

@@ -91,16 +91,16 @@ E_Int Polygon::getOrientation
 // ///
 // bool Polygon:: is_convex
 // (const K_FLD::FloatArray& coord, const E_Int* nodes, E_Int nb_nodes, E_Int index_start,
-// const E_Float* normal, E_Float PI_ratio, E_Int& iworst)
+// const nuga_real_t* normal, nuga_real_t PI_ratio, E_Int& iworst)
 // {
 //   //
-//   E_Float Ei[3], Ej[3];
+//   nuga_real_t Ei[3], Ej[3];
 //   bool convex = true;
 //   iworst = IDX_NONE;
   
-//   E_Float angle_max = NUGA::PI* PI_ratio; // a fraction betwen 0 and Pi
-//   E_Float cos_min = cos(angle_max); // cos is decreasing on [0; Pi]
-//   E_Float Z[3];
+//   nuga_real_t angle_max = NUGA::PI* PI_ratio; // a fraction betwen 0 and Pi
+//   nuga_real_t cos_min = cos(angle_max); // cos is decreasing on [0; Pi]
+//   nuga_real_t Z[3];
 //   for (E_Int i = 1; i < nb_nodes + 1; ++i)
 //   {
 //     E_Int ei = nodes[i%nb_nodes] - index_start;
@@ -111,14 +111,14 @@ E_Int Polygon::getOrientation
 //     NUGA::diff<3>(coord.col(eip1), coord.col(ei), &Ej[0]);
 //     NUGA::sum<3>(normal, coord.col(ei), Z);
 
-//     E_Float det = NUGA::zzdet4(coord.col(eim1), coord.col(ei), coord.col(eip1), Z);
+//     nuga_real_t det = NUGA::zzdet4(coord.col(eim1), coord.col(ei), coord.col(eip1), Z);
     
 //     if (det >= 0.) continue; // convex
     
 //     NUGA::normalize<3>(Ei);
 //     NUGA::normalize<3>(Ej);
 
-//     E_Float c = NUGA::dot<3>(Ei, Ej);
+//     nuga_real_t c = NUGA::dot<3>(Ei, Ej);
     
 //     if (c < cos_min) // angle > anle max
 //     {
@@ -134,14 +134,14 @@ E_Int Polygon::getOrientation
 ///
 bool Polygon:: is_convex
 (const K_FLD::FloatArray& coord, const E_Int* nodes, E_Int nb_nodes, E_Int index_start,
-const E_Float* normal, E_Float convexity_tol, E_Int& iworst, E_Int& ibest)
+const nuga_real_t* normal, nuga_real_t convexity_tol, E_Int& iworst, E_Int& ibest)
 {
   //
-  E_Float Ei[3], Ej[3];
+  nuga_real_t Ei[3], Ej[3];
   bool convex = true;
   ibest = iworst = IDX_NONE;
   
-  E_Float Z[3], det_min(-convexity_tol), det_max(0.);
+  nuga_real_t Z[3], det_min(-convexity_tol), det_max(0.);
   for (E_Int i = 1; i < nb_nodes + 1; ++i)
   {
     E_Int ei = nodes[i%nb_nodes] - index_start;
@@ -152,7 +152,7 @@ const E_Float* normal, E_Float convexity_tol, E_Int& iworst, E_Int& ibest)
     NUGA::diff<3>(coord.col(eip1), coord.col(ei), &Ej[0]);
     NUGA::sum<3>(normal, coord.col(ei), Z);
 
-    E_Float det = NUGA::zzdet4(coord.col(eim1), coord.col(ei), coord.col(eip1), Z);
+    nuga_real_t det = NUGA::zzdet4(coord.col(eim1), coord.col(ei), coord.col(eip1), Z);
 
     det /= (NUGA::normalize<3>(Ei)*NUGA::normalize<3>(Ej)); //normalization to really have a angular-based test.
     //std::cout << det << std::endl;
@@ -175,9 +175,9 @@ const E_Float* normal, E_Float convexity_tol, E_Int& iworst, E_Int& ibest)
 
 /// Predicate
 bool Polygon::is_convex
-(const K_FLD::FloatArray& coord, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, const E_Float *normal, E_Float convexity_tol)
+(const K_FLD::FloatArray& coord, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, const nuga_real_t *normal, nuga_real_t convexity_tol)
 {
-  E_Float Z[3], Ei[3], Ej[3];
+  nuga_real_t Z[3], Ei[3], Ej[3];
   for (E_Int i = 1; i < nb_nodes + 1; ++i)
   {
     E_Int ei = nodes[i%nb_nodes] - index_start;
@@ -195,7 +195,7 @@ bool Polygon::is_convex
     */
     NUGA::sum<3>(normal, coord.col(ei), Z);
 
-    E_Float uu = NUGA::zzdet4(coord.col(eim1), coord.col(ei), coord.col(eip1), Z);
+    nuga_real_t uu = NUGA::zzdet4(coord.col(eim1), coord.col(ei), coord.col(eip1), Z);
     /*
     if ((ps*uu < 0.) && (fabs(ps) > EPSILON) && (fabs(uu) > EPSILON))
     {
@@ -332,14 +332,14 @@ const std::set<K_MESH::NO_Edge>* wall/*extra specified walls*/)
 ///
 E_Int Polygon::get_sharp_edges
 (const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, const E_Int* orient, const ngon_unit& lneighbors,
- std::set<K_MESH::NO_Edge>& sharp_edges, E_Float angular_threshold, const E_Float** normals)
+ std::set<K_MESH::NO_Edge>& sharp_edges, nuga_real_t angular_threshold, const nuga_real_t** normals)
 {
   // WARNING : node are 1-based uupon exit (in reflex_edge and convex_edges))
 
   typedef K_FLD::ArrayAccessor<K_FLD::FloatArray> acrd_t;
   acrd_t acrd(crd);
 
-  E_Float ni[3], nj[3];
+  nuga_real_t ni[3], nj[3];
 
   for (E_Int i = 0; i < nb_pgs; ++i)
   {
@@ -360,8 +360,8 @@ E_Int Polygon::get_sharp_edges
       if (reversed)
         std::swap(e0, e1);
 
-      const E_Float* E0 = crd.col(e0 - 1);
-      const E_Float* E1 = crd.col(e1 - 1);
+      const nuga_real_t* E0 = crd.col(e0 - 1);
+      const nuga_real_t* E1 = crd.col(e1 - 1);
 
       E_Int j = *(pKn + n);
       if (j == IDX_NONE)
@@ -377,7 +377,7 @@ E_Int Polygon::get_sharp_edges
       if (er) continue; // degen element so we consider its edges as permeable
 
       // Concave or not ?
-      E_Float alpha = NUGA::angle_measure(ni, nj, E0, E1);
+      nuga_real_t alpha = NUGA::angle_measure(ni, nj, E0, E1);
       alpha = fabs(NUGA::PI - alpha);
 
       if (alpha >= angular_threshold)
@@ -391,14 +391,14 @@ E_Int Polygon::get_sharp_edges
 ///
 E_Int Polygon::update_neighbor_with_sharp_edges
 (const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, const E_Int* orient, ngon_unit& lneighbors,
- E_Float angular_threshold, const E_Float** normals)
+ nuga_real_t angular_threshold, const nuga_real_t** normals)
 {
   // WARNING : node are 1-based uupon exit (in reflex_edge and convex_edges))
 
   typedef K_FLD::ArrayAccessor<K_FLD::FloatArray> acrd_t;
   acrd_t acrd(crd);
 
-  E_Float ni[3], nj[3];
+  nuga_real_t ni[3], nj[3];
 
   for (E_Int i = 0; i < nb_pgs; ++i)
   {
@@ -419,8 +419,8 @@ E_Int Polygon::update_neighbor_with_sharp_edges
       if (reversed)
         std::swap(e0, e1);
 
-      const E_Float* E0 = crd.col(e0 - 1);
-      const E_Float* E1 = crd.col(e1 - 1);
+      const nuga_real_t* E0 = crd.col(e0 - 1);
+      const nuga_real_t* E1 = crd.col(e1 - 1);
 
       E_Int j = *(pKn + n);
       if (j == IDX_NONE)
@@ -435,7 +435,7 @@ E_Int Polygon::update_neighbor_with_sharp_edges
       if (er) continue; // degen element so we consider its edges as permeable
 
       // Concave or not ?
-      E_Float alpha = NUGA::angle_measure(ni, nj, E0, E1);
+      nuga_real_t alpha = NUGA::angle_measure(ni, nj, E0, E1);
       alpha = fabs(NUGA::PI - alpha);
 
       if (alpha < angular_threshold)
@@ -450,7 +450,7 @@ E_Int Polygon::update_neighbor_with_sharp_edges
 
 
 ///
-E_Int Polygon::get_oriented_normal(const K_FLD::FloatArray& crd, const ngon_unit& pgs, E_Int PGi/*glob id : sync with normals*/, bool reverse, E_Float* Normi, const E_Float** normals)
+E_Int Polygon::get_oriented_normal(const K_FLD::FloatArray& crd, const ngon_unit& pgs, E_Int PGi/*glob id : sync with normals*/, bool reverse, nuga_real_t* Normi, const nuga_real_t** normals)
 {
   typedef K_FLD::ArrayAccessor<K_FLD::FloatArray> acrd_t;
   acrd_t acrd(crd);
@@ -474,14 +474,14 @@ E_Int Polygon::get_oriented_normal(const K_FLD::FloatArray& crd, const ngon_unit
     Normi[2] = -Normi[2];
   }
 
-  E_Float l2 = sqrt(Normi[0] * Normi[0] + Normi[1] * Normi[1] + Normi[2] * Normi[2]);
+  nuga_real_t l2 = sqrt(Normi[0] * Normi[0] + Normi[1] * Normi[1] + Normi[2] * Normi[2]);
   if (fabs(l2 - 1.) < EPSILON) // NOT DEGEN
     return 0;
   return 1;
 }
 
 E_Int Polygon::full_agglomerate
-(const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, E_Float angular_tol, const E_Int* orient, ngon_unit& agg_pgs, std::vector<E_Int>& nids, const E_Float** normals)
+(const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, nuga_real_t angular_tol, const E_Int* orient, ngon_unit& agg_pgs, std::vector<E_Int>& nids, const nuga_real_t** normals)
 {
   
   // Some face will be agglomerated, some not so a PG have 3 states : unchanged/deleted/created

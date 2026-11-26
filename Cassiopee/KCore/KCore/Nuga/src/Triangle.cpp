@@ -23,8 +23,8 @@
 const E_Int K_MESH::Triangle::NB_NODES = 3;
 const E_Int K_MESH::Triangle::NB_TRIS = 1;
 //=============================================================================
-E_Float K_MESH::Triangle::surface(const E_Float* p1, const E_Float* p2, 
-                                  const E_Float* p3, size_type dim)
+nuga_real_t K_MESH::Triangle::surface(const nuga_real_t* p1, const nuga_real_t* p2, 
+                                  const nuga_real_t* p3, size_type dim)
 {
   if (dim == 2)
     return surface<2>(p1, p2, p3);
@@ -112,19 +112,19 @@ E_Int K_MESH::Triangle::getOrientation(const Triangle&  T,
   return -1;
 }
 
-K_MESH::Triangle::eDegenType K_MESH::Triangle::degen_type(const K_FLD::FloatArray& crd, E_Int N0, E_Int N1, E_Int N2, E_Float tol2, E_Float lambdac, E_Int& ns)
+K_MESH::Triangle::eDegenType K_MESH::Triangle::degen_type(const K_FLD::FloatArray& crd, E_Int N0, E_Int N1, E_Int N2, nuga_real_t tol2, nuga_real_t lambdac, E_Int& ns)
 {
   ns = IDX_NONE;// ns for "special node" : the pick for a spike, the hat node for a hat
   //
-  E_Float normal[3];
+  nuga_real_t normal[3];
   K_MESH::Triangle::normal(crd.col(N0), crd.col(N1), crd.col(N2), normal);
-  E_Float l2 = sqrt(normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]);
+  nuga_real_t l2 = sqrt(normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]);
   //
   if (fabs(l2 - 1.) < EPSILON) return OK;
 
   // we have a degen !
 
-  std::pair<E_Float, E_Int> palma[3];
+  std::pair<nuga_real_t, E_Int> palma[3];
   E_Int N[] = { N0, N1, N2 };
 
   palma[0] = std::make_pair(NUGA::sqrDistance(crd.col(N0), crd.col(N1), 3), 2);
@@ -137,14 +137,14 @@ K_MESH::Triangle::eDegenType K_MESH::Triangle::degen_type(const K_FLD::FloatArra
   // Ntop is the node to project on the base
   E_Int n = palma[2].second;
   E_Int& Ntop = N[n];
-  E_Float& Lbase = palma[2].first;
+  nuga_real_t& Lbase = palma[2].first;
 
   //if the biggest is too small, all of them are and this element need to be collapsed
   // the factor 4 is for implicit small : if the projected point cut in 2 pieces smaller than tol <=> Lbase < 2* tol
   if (Lbase*Lbase < 4.*tol2) return SMALL; 
 
-  E_Float lambda;
-  //E_Float d = 
+  nuga_real_t lambda;
+  //nuga_real_t d = 
   K_MESH::Edge::edgePointMinDistance<3>(crd.col(N[(n + 1) % 3]), crd.col(N[(n + 2) % 3]), crd.col(Ntop), lambda);
 
   //assert(lambda >= -1.e-15 && lambda <= 1. + 1.e-15);
@@ -165,25 +165,25 @@ K_MESH::Triangle::eDegenType K_MESH::Triangle::degen_type(const K_FLD::FloatArra
   return HAT;
 }
 
-K_MESH::Triangle::eDegenType K_MESH::Triangle::degen_type_angular(const K_FLD::FloatArray& crd, E_Int N0, E_Int N1, E_Int N2, E_Float FACTOR, E_Int& ns)
+K_MESH::Triangle::eDegenType K_MESH::Triangle::degen_type_angular(const K_FLD::FloatArray& crd, E_Int N0, E_Int N1, E_Int N2, nuga_real_t FACTOR, E_Int& ns)
 {
   eDegenType type = OK;
   ns = IDX_NONE;
 
-  const E_Float* P0 = crd.col(N0);
-  const E_Float* P1 = crd.col(N1);
-  const E_Float* P2 = crd.col(N2);
+  const nuga_real_t* P0 = crd.col(N0);
+  const nuga_real_t* P1 = crd.col(N1);
+  const nuga_real_t* P2 = crd.col(N2);
   
-  E_Float P0P1[3], P1P2[3], P2P0[3];
+  nuga_real_t P0P1[3], P1P2[3], P2P0[3];
   NUGA::diff<3>(P1, P0, P0P1);
   NUGA::diff<3>(P2, P1, P1P2);
   NUGA::diff<3>(P0, P2, P2P0);
 
-  E_Float a0 = NUGA::PI - NUGA::normals_angle(P2P0, P0P1);
-  E_Float a1 = NUGA::PI - NUGA::normals_angle(P0P1, P1P2);
-  E_Float a2 = NUGA::PI - NUGA::normals_angle(P1P2, P2P0);
+  nuga_real_t a0 = NUGA::PI - NUGA::normals_angle(P2P0, P0P1);
+  nuga_real_t a1 = NUGA::PI - NUGA::normals_angle(P0P1, P1P2);
+  nuga_real_t a2 = NUGA::PI - NUGA::normals_angle(P1P2, P2P0);
 
-  std::pair<E_Float, int> palma[3];
+  std::pair<nuga_real_t, int> palma[3];
   
   palma[0] = std::make_pair(a0, 0);
   palma[1] = std::make_pair(a1, 1);
@@ -191,8 +191,8 @@ K_MESH::Triangle::eDegenType K_MESH::Triangle::degen_type_angular(const K_FLD::F
 
   std::sort(&palma[0], &palma[0] + 3);
 
-  E_Float ratio1 = palma[1].first / palma[0].first;
-  E_Float ratio2 = palma[2].first / palma[1].first;
+  nuga_real_t ratio1 = palma[1].first / palma[0].first;
+  nuga_real_t ratio2 = palma[2].first / palma[1].first;
 
   if (FACTOR * ratio1 < ratio2) // ratio1 << ratio2 : the greatest angle is far from the 2 others
   {

@@ -79,11 +79,11 @@ class geom_sensor : public sensor<mesh_t, sensor_input_t>
 
   private:
     
-    E_Int get_highest_lvl_cell(const E_Float* p, E_Int PHi) const ;
+    E_Int get_highest_lvl_cell(const nuga_real_t* p, E_Int PHi) const ;
     
-    E_Int get_higher_lvl_cell(const E_Float* p, E_Int PHi) const ;
+    E_Int get_higher_lvl_cell(const nuga_real_t* p, E_Int PHi) const ;
     
-    E_Int detect_child(const E_Float* p, E_Int PHi, const E_Int* children) const ;
+    E_Int detect_child(const nuga_real_t* p, E_Int PHi, const E_Int* children) const ;
 
   protected:
     
@@ -202,7 +202,7 @@ void geom_sensor<mesh_t, sensor_input_t>::locate_points()
 {
   // locate every source points in a given mesh
  
-  E_Float tol = 10. * ZERO_M;
+  nuga_real_t tol = 10. * ZERO_M;
   
   E_Int nb_src_pts =parent_t::_data.getSize();
   // for each source points, give the highest cell containing it if there is one, otherwise IDX_NONE
@@ -211,12 +211,12 @@ void geom_sensor<mesh_t, sensor_input_t>::locate_points()
   Vector_t<E_Int> ids;
 
   bool found=false;
-  E_Float minB[3];
-  E_Float maxB[3];
+  nuga_real_t minB[3];
+  nuga_real_t maxB[3];
   //
   for (E_Int i = 0; i < nb_src_pts; i++)
   {
-    const E_Float* p =parent_t::_data.get(i);
+    const nuga_real_t* p =parent_t::_data.get(i);
     
     for (E_Int j = 0; j < 3;j++)
     {
@@ -246,7 +246,7 @@ void geom_sensor<mesh_t, sensor_input_t>::locate_points()
 
 ///
 template <typename mesh_t, typename sensor_input_t>
-E_Int geom_sensor<mesh_t, sensor_input_t>::get_higher_lvl_cell(const E_Float* p, E_Int PHi) const 
+E_Int geom_sensor<mesh_t, sensor_input_t>::get_higher_lvl_cell(const nuga_real_t* p, E_Int PHi) const 
 {
   // returns in the PHi's sons where a given source point is
   
@@ -270,7 +270,7 @@ E_Int geom_sensor<mesh_t, sensor_input_t>::get_higher_lvl_cell(const E_Float* p,
 
 ///
 template <typename mesh_t, typename sensor_input_t>
-E_Int geom_sensor<mesh_t, sensor_input_t>::get_highest_lvl_cell(const E_Float* p, E_Int PHi) const 
+E_Int geom_sensor<mesh_t, sensor_input_t>::get_highest_lvl_cell(const nuga_real_t* p, E_Int PHi) const 
 {
   // will find, in the tree (starting at PHi cell), the highest level cell (ie smallest cell) cointaining a given source point
 
@@ -302,24 +302,24 @@ E_Int geom_sensor<mesh_t, sensor_input_t>::get_highest_lvl_cell(const E_Float* p
 
 ///
 template <typename mesh_t, typename sensor_input_t>
-E_Int geom_sensor<mesh_t, sensor_input_t>::detect_child(const E_Float* p, E_Int PHi, const E_Int* children) const
+E_Int geom_sensor<mesh_t, sensor_input_t>::detect_child(const nuga_real_t* p, E_Int PHi, const E_Int* children) const
 {
   E_Int nb_children = parent_t::_hmesh._PHtree.nb_children(PHi);
     
   // find the closest child
   E_Int closest_child = 0;
-  E_Float center[3];
+  nuga_real_t center[3];
   parent_t::_hmesh.get_cell_center(children[0], center);
-  E_Float min = NUGA::sqrDistance(p, center,3);
+  nuga_real_t min = NUGA::sqrDistance(p, center,3);
 
-  E_Float tmp[3];
+  nuga_real_t tmp[3];
   tmp[0] = K_CONST::E_MAX_FLOAT; 
   tmp[1] = K_CONST::E_MAX_FLOAT; 
   tmp[2] = K_CONST::E_MAX_FLOAT; 
   for (E_Int i = 1; i < nb_children; ++i)
   {
     parent_t::_hmesh.get_cell_center(children[i], tmp);
-    E_Float d = NUGA::sqrDistance(p, tmp, 3);
+    nuga_real_t d = NUGA::sqrDistance(p, tmp, 3);
 
     if (d < min)
     {
@@ -350,7 +350,7 @@ bool geom_sensor<mesh_t, sensor_input_t>::update()
     if (PHi == IDX_NONE) continue; //external point
     if (parent_t::_hmesh._PHtree.children(PHi) != nullptr) // we detect the subdivised PH : one of his children has this source point
     {
-      E_Float* p = parent_t::_data.get(i); // in which children of PHi is the point
+      nuga_real_t* p = parent_t::_data.get(i); // in which children of PHi is the point
       E_Int cell = get_higher_lvl_cell(p,PHi);
       _points_to_cell[i] = cell;
     }
@@ -441,9 +441,9 @@ bool geom_sensor<mesh_t, sensor_input_t>::stop()
 //  {
 //    
 //    
-//    E_Float minB[3];
-//    E_Float maxB[3];
-//    const E_Float* p = data.col(i);
+//    nuga_real_t minB[3];
+//    nuga_real_t maxB[3];
+//    const nuga_real_t* p = data.col(i);
 //    
 //    for (int j = 0; j < 3;j++)
 //    {

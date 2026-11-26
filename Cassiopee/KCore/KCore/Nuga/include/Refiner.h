@@ -48,7 +48,7 @@ namespace DELAUNAY
 
   public:
 
-    Refiner(MetricType& metric, E_Float growth_ratio, E_Int nb_smooth_iter, E_Bool symmetrize):_metric(metric), _threshold(0.5), 
+    Refiner(MetricType& metric, nuga_real_t growth_ratio, E_Int nb_smooth_iter, E_Bool symmetrize):_metric(metric), _threshold(0.5), 
             _gr(growth_ratio), _nb_smooth_iter(nb_smooth_iter), _symmetrize(symmetrize), _debug(false) {}
 
     ~Refiner(void){}
@@ -64,8 +64,8 @@ namespace DELAUNAY
   private:
     MetricType& _metric;
     std::vector<size_type> _tmpNodes;
-    E_Float _threshold;
-    E_Float _gr;
+    nuga_real_t _threshold;
+    nuga_real_t _gr;
     E_Int _nb_smooth_iter;
     E_Bool _symmetrize;
   public:
@@ -137,7 +137,7 @@ namespace DELAUNAY
 #endif
     }
     
-    std::vector<std::pair<E_Float, size_type> > length_to_points;
+    std::vector<std::pair<nuga_real_t, size_type> > length_to_points;
     if (_symmetrize && iter == 0)
     {
       // Compute the bone mesh (for a 2D mesh, not a Geom Mesh)
@@ -166,7 +166,7 @@ namespace DELAUNAY
     (MeshData& data, const int_set_type& box_nodes, 
     int_vector_type& refine_nodes, tree_type& filter_tree)
   {
-    E_Float coeff(0.5*sqrt(2.));
+    nuga_real_t coeff(0.5*sqrt(2.));
     int_vector_type tmp(refine_nodes); // copie
     refine_nodes.clear();
 
@@ -175,8 +175,8 @@ namespace DELAUNAY
     //printf("filter sz=%d\n", sz); fflush(stdout);
 
     size_type Ni, nb_nodes;
-    E_Float Ri;
-    E_Float mBox[2], MBox[2];
+    nuga_real_t Ri;
+    nuga_real_t mBox[2], MBox[2];
     int_vector_type nodes; // vecteur local
     
     for (size_type i = 0; i < sz; ++i) // pour chaque point
@@ -204,8 +204,8 @@ namespace DELAUNAY
           continue;
 
         const typename MetricType::value_type& Mn = _metric[nodes[n]];
-        E_Float dmi = _metric.lengthEval(Ni, Mi, nodes[n], Mi);
-        E_Float dmn = _metric.lengthEval(Ni, Mn, nodes[n], Mn);
+        nuga_real_t dmi = _metric.lengthEval(Ni, Mi, nodes[n], Mi);
+        nuga_real_t dmn = _metric.lengthEval(Ni, Mn, nodes[n], Mn);
         discard = (dmi < coeff) || (dmn < coeff); // Regarding Mi or Mn metric
         
 #ifdef DEBUG_METRIC
@@ -244,19 +244,19 @@ namespace DELAUNAY
 /*
   ///
   template <>
-  void Refiner<E_Float>::__compute_refine_points
+  void Refiner<nuga_real_t>::__compute_refine_points
   (size_type Ni, size_type Nj, std::vector<std::pair<E_Int, size_type> >& length_to_points)
   {
-  E_Float d;
-  E_Float NiNj[2];
+  nuga_real_t d;
+  nuga_real_t NiNj[2];
   NUGA::diff<2>(_pos.col(Nj), _pos.col(Ni), NiNj);
   // Geom repartition.fixme
-  E_Float h0 = _metric[Ni], h1 = _metric[Nj];
-  E_Float d0 = sqrt(NUGA::sqrDistance(_pos.col(Ni), _pos.col(Nj), _pos.rows()));
+  nuga_real_t h0 = _metric[Ni], h1 = _metric[Nj];
+  nuga_real_t d0 = sqrt(NUGA::sqrDistance(_pos.col(Ni), _pos.col(Nj), _pos.rows()));
   NiNj[0] /= d0;
   NiNj[1] /= d0;//Normalize
-  E_Float x(h1 / h0), r1 = x;
-  E_Float  r = 1;
+  nuga_real_t x(h1 / h0), r1 = x;
+  nuga_real_t  r = 1;
   size_type n;
   if (::abs(r1 - 1.) < 0.01)
   d = d0 / K_FUNC::E_max(h0, h1);
@@ -277,9 +277,9 @@ namespace DELAUNAY
   if (n == 1) // Saturated
   return;
 
-  E_Float alpha = r*h0;
+  nuga_real_t alpha = r*h0;
   size_type Nstart = Ni;
-  E_Float newP[2], s, h;
+  nuga_real_t newP[2], s, h;
 
   for (size_type i = 0; i < n-1; ++i)
   {

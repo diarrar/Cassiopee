@@ -99,7 +99,7 @@ namespace K_MESH
 
     ///
     template <typename CoordAcc>
-    static inline void iso_barycenter(const CoordAcc& coord, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, E_Float* G)
+    static inline void iso_barycenter(const CoordAcc& coord, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, nuga_real_t* G)
     {
       //
       for (size_t d = 0; d < 3; ++d) G[d] = 0.;
@@ -113,32 +113,32 @@ namespace K_MESH
         }
       }
 
-      E_Float k = 1. / (E_Float)nb_nodes;
+      nuga_real_t k = 1. / (nuga_real_t)nb_nodes;
 
       for (size_t i = 0; i < 3; ++i) G[i] *= k;
       //std::cout << "G : " << G[0] << "/" << G[1] << "/" << G[2] << std::endl;
     }
 
     ///
-    static inline void iso_barycenter(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, E_Float* G)
+    static inline void iso_barycenter(const K_FLD::FloatArray& crd, const E_Int* nodes, E_Int nb_nodes, E_Int index_start, nuga_real_t* G)
     {
       //
       for (size_t d = 0; d < 3; ++d) G[d] = 0.;
 
       for (E_Int i = 0; i < nb_nodes; ++i)
       {
-        const E_Float* p = crd.col(nodes[i] - index_start);
+        const nuga_real_t* p = crd.col(nodes[i] - index_start);
         for (size_t d = 0; d < 3; ++d) G[d] += p[d];
       }
 
-      E_Float k = 1. / (E_Float)nb_nodes;
+      nuga_real_t k = 1. / (nuga_real_t)nb_nodes;
 
       for (size_t i = 0; i < 3; ++i) G[i] *= k;
       //std::cout << "G : " << G[0] << "/" << G[1] << "/" << G[2] << std::endl;
     }
 
     ///
-    static void iso_barycenter(const K_FLD::FloatArray& crd, const ngon_unit & PGs, const E_Int* first_pg, E_Int nb_pgs, E_Int index_start, E_Float* G)
+    static void iso_barycenter(const K_FLD::FloatArray& crd, const ngon_unit & PGs, const E_Int* first_pg, E_Int nb_pgs, E_Int index_start, nuga_real_t* G)
     {
       std::vector<E_Int> uniqnodes;
       unique_nodes(PGs, first_pg, nb_pgs, uniqnodes);
@@ -147,7 +147,7 @@ namespace K_MESH
 
     ///
     template<typename CoordAcc>
-    void iso_barycenter(const CoordAcc& acrd, E_Float* G, E_Int index_start) const
+    void iso_barycenter(const CoordAcc& acrd, nuga_real_t* G, E_Int index_start) const
     {
       for (size_t d = 0; d < 3; ++d) G[d] = 0.;
       E_Int counter = 0;
@@ -166,7 +166,7 @@ namespace K_MESH
         }
       }
 
-      E_Float k = 1. / (E_Float)counter;
+      nuga_real_t k = 1. / (nuga_real_t)counter;
 
       for (size_t i = 0; i < 3; ++i) G[i] *= k;
     }
@@ -306,19 +306,19 @@ namespace K_MESH
     }
 
     ///
-    E_Int flux(const K_FLD::FloatArray& crd, const E_Int* orient, E_Float* fluxVec)
+    E_Int flux(const K_FLD::FloatArray& crd, const E_Int* orient, nuga_real_t* fluxVec)
     {
       fluxVec[0] = fluxVec[1] = fluxVec[2] = 0.;
 
       for (E_Int i = 0; i < _nb_faces; ++i)
       {
         E_Int PGi = *(_faces + i) - 1;
-        E_Float o = orient[i];
+        nuga_real_t o = orient[i];
         const E_Int* nodes = _pgs->get_facets_ptr(PGi);
         E_Int nb_nodes = _pgs->stride(PGi);
 
         // compute nds
-        E_Float nds[] = { 0.,0.,0. };
+        nuga_real_t nds[] = { 0.,0.,0. };
         K_MESH::Polygon::ndS<K_FLD::FloatArray, 3>(crd, nodes, nb_nodes, 1, nds);
 
         fluxVec[0] += o * nds[0];
@@ -330,25 +330,25 @@ namespace K_MESH
 
     }
 
-    E_Float fluxnorm(const K_FLD::FloatArray& crd, const E_Int* orient, bool normalize)
+    nuga_real_t fluxnorm(const K_FLD::FloatArray& crd, const E_Int* orient, bool normalize)
     {
-      E_Float fluxvec[3];
+      nuga_real_t fluxvec[3];
       flux(crd, orient, fluxvec);
 
-      E_Float f = sqrt(NUGA::sqrNorm<3>(fluxvec));
+      nuga_real_t f = sqrt(NUGA::sqrNorm<3>(fluxvec));
 
       if (normalize)
       {
-        E_Float s = surface(crd);
+        nuga_real_t s = surface(crd);
         f /= s;
       }
       return f;
     }
 
     ///
-    E_Float surface(const K_FLD::FloatArray& crd)
+    nuga_real_t surface(const K_FLD::FloatArray& crd)
     {
-      E_Float s{ 0. };
+      nuga_real_t s{ 0. };
       for (E_Int i = 0; i < _nb_faces; ++i)
       {
         E_Int PGi = *(_faces + i) - 1;
@@ -365,7 +365,7 @@ namespace K_MESH
     static E_Int is_concave
     (const K_FLD::FloatArray& crd, const ngon_unit& PGS,
       const E_Int* first_pg, E_Int nb_pgs, bool open, const E_Int* orient,
-      bool & concave, E_Float threshold = EPSILON, const E_Float** normals = 0)
+      bool & concave, nuga_real_t threshold = EPSILON, const nuga_real_t** normals = 0)
     {
       concave = false;
 
@@ -373,7 +373,7 @@ namespace K_MESH
         return 0;
 
       // angular criterion
-      E_Float angle_threshold = NUGA::PI*(1. - threshold);
+      nuga_real_t angle_threshold = NUGA::PI*(1. - threshold);
       angle_threshold = K_FUNC::E_min(NUGA::PI, angle_threshold);
       angle_threshold = K_FUNC::E_max(angle_threshold, EPSILON);
 
@@ -384,7 +384,7 @@ namespace K_MESH
       ngon_unit lneighbors;
       K_MESH::Polygon::build_pg_neighborhood(PGS, lneighbors, first_pg, nb_pgs);
 
-      E_Float ni[3], nj[3];
+      nuga_real_t ni[3], nj[3];
 
       for (E_Int i = 0; i < nb_pgs; ++i)
       {
@@ -405,8 +405,8 @@ namespace K_MESH
           if (reversed)
             std::swap(e0, e1);
 
-          const E_Float* E0 = crd.col(e0 - 1);
-          const E_Float* E1 = crd.col(e1 - 1);
+          const nuga_real_t* E0 = crd.col(e0 - 1);
+          const nuga_real_t* E1 = crd.col(e1 - 1);
 
           E_Int j = *(pKn + n);//0-based and is between 0 and nb_pgs (referring to lpgs : but the same position in ng)
 
@@ -427,7 +427,7 @@ namespace K_MESH
           if (er) continue; // degen element
 
           // Concave or not ?
-          E_Float alpha = NUGA::angle_measure(ni, nj, E0, E1);
+          nuga_real_t alpha = NUGA::angle_measure(ni, nj, E0, E1);
 
           if (alpha < angle_threshold)
           {
@@ -451,7 +451,7 @@ namespace K_MESH
     /// 
     static E_Int min_max_angles
     (const K_FLD::FloatArray& crd, const ngon_unit& PGS,
-      const E_Int* first_pg, E_Int nb_pgs, bool open, const E_Int* orient, E_Float &minA, E_Float& maxA, E_Int & maxAPG1, E_Int& maxAPG2, const E_Float** normals = 0)
+      const E_Int* first_pg, E_Int nb_pgs, bool open, const E_Int* orient, nuga_real_t &minA, nuga_real_t& maxA, E_Int & maxAPG1, E_Int& maxAPG2, const nuga_real_t** normals = 0)
     {
 
       minA = 7.;// just a value more than 2Pi
@@ -464,7 +464,7 @@ namespace K_MESH
       ngon_unit lneighbors;
       K_MESH::Polygon::build_pg_neighborhood(PGS, lneighbors, first_pg, nb_pgs);
 
-      E_Float ni[3], nj[3];
+      nuga_real_t ni[3], nj[3];
 
       for (E_Int i = 0; i < nb_pgs; ++i)
       {
@@ -486,8 +486,8 @@ namespace K_MESH
           if (reversed)
             std::swap(e0, e1);
 
-          const E_Float* E0 = crd.col(e0 - 1);
-          const E_Float* E1 = crd.col(e1 - 1);
+          const nuga_real_t* E0 = crd.col(e0 - 1);
+          const nuga_real_t* E1 = crd.col(e1 - 1);
 
           E_Int j = *(pKn + n);//0-based and is between 0 and nb_pgs (referring to lpgs : but the same position in ng)
 
@@ -508,7 +508,7 @@ namespace K_MESH
           if (er) continue; // degen element
 
           // Concave or not ?
-          E_Float alpha = NUGA::angle_measure(ni, nj, E0, E1);
+          nuga_real_t alpha = NUGA::angle_measure(ni, nj, E0, E1);
 
 #ifdef DEBUG1_POLYHEDRON
           K_FLD::FloatArray crdt(crd);
@@ -553,7 +553,7 @@ namespace K_MESH
     (const K_FLD::FloatArray& crd, const ngon_unit& PGS,
       const E_Int* pgsi, E_Int nb_pgsi, const E_Int* pgsj, E_Int nb_pgsj,
       const E_Int* orienti, const E_Int* orientj,
-      bool & concave, E_Float & commonSurf, E_Float concave_threshold = EPSILON, const E_Float** normals = 0)
+      bool & concave, nuga_real_t & commonSurf, nuga_real_t concave_threshold = EPSILON, const nuga_real_t** normals = 0)
     {
       concave = false;
       commonSurf = 0.;
@@ -562,7 +562,7 @@ namespace K_MESH
         return 0;
 
       // angular criterion
-      E_Float angle_threshold = NUGA::PI*(1. - concave_threshold);
+      nuga_real_t angle_threshold = NUGA::PI*(1. - concave_threshold);
       angle_threshold = K_FUNC::E_min(NUGA::PI, angle_threshold);
       angle_threshold = K_FUNC::E_max(angle_threshold, EPSILON);
 
@@ -626,7 +626,7 @@ namespace K_MESH
       ngon_unit lneighbors;
       K_MESH::Polygon::build_pg_neighborhood(lpgs, lneighbors);
 
-      E_Float ni[3], nj[3];
+      nuga_real_t ni[3], nj[3];
       E_Int nb_tot_pgs = lpgs.size();
       for (E_Int i = 0; i < nb_tot_pgs; ++i)
       {
@@ -647,8 +647,8 @@ namespace K_MESH
           if (reversed)
             std::swap(e0, e1);
 
-          const E_Float* E0 = crd.col(e0 - 1);
-          const E_Float* E1 = crd.col(e1 - 1);
+          const nuga_real_t* E0 = crd.col(e0 - 1);
+          const nuga_real_t* E1 = crd.col(e1 - 1);
 
           E_Int j = *(pKn + n);//0-based
           if (j == IDX_NONE)
@@ -662,7 +662,7 @@ namespace K_MESH
           if (er) continue; // degen element
 
           // Concave or not ?
-          E_Float alpha = NUGA::angle_measure(ni, nj, E0, E1);
+          nuga_real_t alpha = NUGA::angle_measure(ni, nj, E0, E1);
 
           if (alpha < angle_threshold)
           {
@@ -686,9 +686,9 @@ namespace K_MESH
     ///
     static E_Int is_concave
     (const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, bool open, const E_Int* orient, bool & concave,
-      std::map<K_MESH::NO_Edge, E_Float>& relex_edges, std::set<K_MESH::NO_Edge>& convex_edges,
-      E_Float concave_threshold = EPSILON, E_Float convex_threshold = EPSILON,
-      const E_Float** normals = 0)
+      std::map<K_MESH::NO_Edge, nuga_real_t>& relex_edges, std::set<K_MESH::NO_Edge>& convex_edges,
+      nuga_real_t concave_threshold = EPSILON, nuga_real_t convex_threshold = EPSILON,
+      const nuga_real_t** normals = 0)
     {
       // WARNING : node are 1-based uupon exit (in reflex_edge and convex_edges))
 
@@ -698,10 +698,10 @@ namespace K_MESH
         return 0;
 
       // angular criterions
-      E_Float angle_concave = NUGA::PI*(1. - concave_threshold);
+      nuga_real_t angle_concave = NUGA::PI*(1. - concave_threshold);
       angle_concave = K_FUNC::E_min(NUGA::PI, angle_concave);
       angle_concave = K_FUNC::E_max(angle_concave, EPSILON);
-      E_Float angle_convex = NUGA::PI*(1. + convex_threshold);
+      nuga_real_t angle_convex = NUGA::PI*(1. + convex_threshold);
       angle_convex = K_FUNC::E_max(NUGA::PI, angle_convex);
       angle_convex = K_FUNC::E_min(angle_convex, 2.*NUGA::PI - EPSILON);
 
@@ -712,7 +712,7 @@ namespace K_MESH
       ngon_unit lneighbors;
       K_MESH::Polygon::build_pg_neighborhood(PGS, lneighbors, first_pg, nb_pgs);
 
-      E_Float ni[3], nj[3];
+      nuga_real_t ni[3], nj[3];
 
       for (E_Int i = 0; i < nb_pgs; ++i)
       {
@@ -733,8 +733,8 @@ namespace K_MESH
           if (reversed)
             std::swap(e0, e1);
 
-          const E_Float* E0 = crd.col(e0 - 1);
-          const E_Float* E1 = crd.col(e1 - 1);
+          const nuga_real_t* E0 = crd.col(e0 - 1);
+          const nuga_real_t* E1 = crd.col(e1 - 1);
 
           E_Int j = *(pKn + n);
           if (j == IDX_NONE)
@@ -753,7 +753,7 @@ namespace K_MESH
           //if (er) continue; // degen element
 
           // Concave or not ?
-          E_Float alpha = NUGA::angle_measure(ni, nj, E0, E1);
+          nuga_real_t alpha = NUGA::angle_measure(ni, nj, E0, E1);
 
           // adding er test for concave but not convex is a hack : 
           // doesn't hurt to add an extra convex but it does hurt to add a concave edge as we might end up with a falsely-non-manifold discarded chain
@@ -788,8 +788,8 @@ namespace K_MESH
     static E_Int is_concave
     (const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, bool open, const E_Int* orient, bool & concave,
       E_Int& nb_reflex_edges,
-      E_Float concave_threshold = EPSILON, E_Float convex_threshold = EPSILON,
-      const E_Float** normals = 0)
+      nuga_real_t concave_threshold = EPSILON, nuga_real_t convex_threshold = EPSILON,
+      const nuga_real_t** normals = 0)
     {
       // WARNING : node are 1-based uupon exit (in reflex_edge and convex_edges))
 
@@ -801,10 +801,10 @@ namespace K_MESH
         return 0;
 
       // angular criterions
-      E_Float angle_concave = NUGA::PI*(1. - concave_threshold);
+      nuga_real_t angle_concave = NUGA::PI*(1. - concave_threshold);
       angle_concave = K_FUNC::E_min(NUGA::PI, angle_concave);
       angle_concave = K_FUNC::E_max(angle_concave, EPSILON);
-      E_Float angle_convex = NUGA::PI*(1. + convex_threshold);
+      nuga_real_t angle_convex = NUGA::PI*(1. + convex_threshold);
       angle_convex = K_FUNC::E_max(NUGA::PI, angle_convex);
       angle_convex = K_FUNC::E_min(angle_convex, 2.*NUGA::PI - EPSILON);
 
@@ -815,7 +815,7 @@ namespace K_MESH
       ngon_unit lneighbors;
       K_MESH::Polygon::build_pg_neighborhood(PGS, lneighbors, first_pg, nb_pgs);
 
-      E_Float ni[3], nj[3];
+      nuga_real_t ni[3], nj[3];
 
       for (E_Int i = 0; i < nb_pgs; ++i)
       {
@@ -836,8 +836,8 @@ namespace K_MESH
           if (reversed)
             std::swap(e0, e1);
 
-          const E_Float* E0 = crd.col(e0 - 1);
-          const E_Float* E1 = crd.col(e1 - 1);
+          const nuga_real_t* E0 = crd.col(e0 - 1);
+          const nuga_real_t* E1 = crd.col(e1 - 1);
 
           E_Int j = *(pKn + n);
           if (j == IDX_NONE)
@@ -856,7 +856,7 @@ namespace K_MESH
           //if (er) continue; // degen element
 
           // Concave or not ?
-          E_Float alpha = NUGA::angle_measure(ni, nj, E0, E1);
+          nuga_real_t alpha = NUGA::angle_measure(ni, nj, E0, E1);
 
           // adding er test for concave but not convex is a hack : 
           // doesn't hurt to add an extra convex but it does hurt to add a concave edge as we might end up with a falsely-non-manifold discarded chain
@@ -887,7 +887,7 @@ namespace K_MESH
 
     /// is the polyhedron star_shaped regarding the input point ?
     static bool is_star_shaping
-    (const E_Float* point, const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, const E_Int* orient, E_Int& faultyFacet, const E_Float** normals = 0)
+    (const nuga_real_t* point, const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, const E_Int* orient, E_Int& faultyFacet, const nuga_real_t** normals = 0)
     {
       // Idea : the point must be bellow all the PGs pseudo-plans => approximate star-shaping test
       // WARNING : faultyFacet is a loc id
@@ -895,7 +895,7 @@ namespace K_MESH
       typedef K_FLD::ArrayAccessor<K_FLD::FloatArray> acrd_t;
       acrd_t acrd(crd);
 
-      E_Float Normi[3], P0Pt[3];
+      nuga_real_t Normi[3], P0Pt[3];
       E_Int sgn(0);
 
       //
@@ -912,12 +912,12 @@ namespace K_MESH
         E_Int p0 = *(pNi)-1; // first PG point
         NUGA::diff<3>(point, crd.col(p0), P0Pt);
 
-        E_Float d = NUGA::dot<3>(P0Pt, Normi);
+        nuga_real_t d = NUGA::dot<3>(P0Pt, Normi);
 
         if (i == 0)
           sgn = SIGN(d);
 
-        E_Float s = SIGN(d);
+        nuga_real_t s = SIGN(d);
 
         if (s*sgn != 1) //not all giving a consistent answer
         {
@@ -933,7 +933,7 @@ namespace K_MESH
     /// is the polyhedron star_shaped regarding the input point ?
     template <typename TriangulatorType>
     static bool is_star_shaping_PTH3
-    (const E_Float* point, const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, E_Int& faultyFacet)
+    (const nuga_real_t* point, const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, E_Int& faultyFacet)
     {
       // Idea : the point must be bellow all the T3-plans => exact bu not on the real shape
       // WARNING : faultyFacet is a loc id
@@ -955,7 +955,7 @@ namespace K_MESH
 
       E_Int nb_t3s = connectT3.cols();
       K_FLD::IntArray::const_iterator pK;
-      E_Float P0Pt[3], Normi[3];
+      nuga_real_t P0Pt[3], Normi[3];
       E_Int sgn(0);
       //
       for (E_Int i = 0; i < nb_t3s; ++i)
@@ -963,19 +963,19 @@ namespace K_MESH
         pK = connectT3.col(i);
 
         K_MESH::Triangle::normal(crd, pK, Normi);
-        E_Float l2 = sqrt(Normi[0] * Normi[0] + Normi[1] * Normi[1] + Normi[2] * Normi[2]);
+        nuga_real_t l2 = sqrt(Normi[0] * Normi[0] + Normi[1] * Normi[1] + Normi[2] * Normi[2]);
 
         if (fabs(l2 - 1.) >= EPSILON) continue;  // DEGEN : not a good quality triangulation
 
         E_Int p0 = *pK; // first T3 point
         NUGA::diff<3>(point, crd.col(p0), P0Pt);
 
-        E_Float d = NUGA::dot<3>(P0Pt, Normi);
+        nuga_real_t d = NUGA::dot<3>(P0Pt, Normi);
 
         if (i == 0)
           sgn = SIGN(d);
 
-        E_Float s = SIGN(d);
+        nuga_real_t s = SIGN(d);
 
         if (s*sgn != 1) //not all giving a consistent answer
         {
@@ -990,10 +990,10 @@ namespace K_MESH
 
     ///
     static E_Int get_star_shaping_pt
-    (E_Float* point, const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, const E_Int* orient, const E_Float** normals = 0)
+    (nuga_real_t* point, const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, const E_Int* orient, const nuga_real_t** normals = 0)
     {
       // Idea : first guess : isobary, then move the point to try to make it staring.
-      E_Float Normi[3], P0Pt[3];
+      nuga_real_t Normi[3], P0Pt[3];
 
       typedef K_FLD::ArrayAccessor<K_FLD::FloatArray> acrd_t;
       acrd_t acrd(crd);
@@ -1019,7 +1019,7 @@ namespace K_MESH
         E_Int er = Polygon::get_oriented_normal(crd, PGS, PGi, reverse, Normi, normals);
         if (er) continue; // degen element
 
-        E_Float d = NUGA::dot<3>(P0Pt, Normi);
+        nuga_real_t d = NUGA::dot<3>(P0Pt, Normi);
         assert(d >= -EPSILON); //is indeed faulty
 
         NUGA::sum<3>(1., point, -d - 10 * EPSILON/*-d*(1.01)*/, Normi, point); //fixme !!
@@ -1031,9 +1031,9 @@ namespace K_MESH
     /// is the polyhedron star_shaped regarding its centroid ?
     template<typename TriangulatorType>
     static E_Int is_centroid_star_shaped
-    (const TriangulatorType& t, const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, const E_Int* orient, const E_Float** normals = 0)
+    (const TriangulatorType& t, const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, const E_Int* orient, const nuga_real_t** normals = 0)
     {
-      E_Float centroid[3], v;
+      nuga_real_t centroid[3], v;
       E_Int err = metrics2<TriangulatorType>(t, crd, PGS, first_pg, nb_pgs, v, centroid, false/*not all cvx*/);
       if (err) return dDELAUNAY_FAILURE; // cannot tell as the triangulation failed
 
@@ -1047,11 +1047,11 @@ namespace K_MESH
     /// is the polyhedron star_shaped regarding its centroid ?
     template<typename TriangulatorType>
     static E_Int is_centroid_star_shaped_PTH3
-    (const TriangulatorType& t, const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, const E_Float** normals = 0)
+    (const TriangulatorType& t, const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, const nuga_real_t** normals = 0)
     {
       //centroid is tested against PHT3 to be consistent as it is computed on the PHT3 rep
 
-      E_Float centroid[3], V;
+      nuga_real_t centroid[3], V;
       E_Int err = metrics2(t, crd, PGS, first_pg, nb_pgs, V, centroid, false/*not all cvx*/);
       if (err) return dDELAUNAY_FAILURE; // cannot tell as the triangulation failed
 
@@ -1065,11 +1065,11 @@ namespace K_MESH
     /// is the polyhedron star_shaped regarding its centroid ?
     template<typename TriangulatorType>
     static E_Int is_iso_bary_star_shaped
-    (const TriangulatorType& t, const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, const E_Int* orient, const E_Float** normals = 0)
+    (const TriangulatorType& t, const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, const E_Int* orient, const nuga_real_t** normals = 0)
     {
       // isoG tar-shaping is teste against real PH (instaed of PHT3)
 
-      E_Float isoG[3];
+      nuga_real_t isoG[3];
       typedef K_FLD::ArrayAccessor<K_FLD::FloatArray > acrd_t;
       acrd_t acrd(crd);
 
@@ -1204,8 +1204,8 @@ namespace K_MESH
     // more output : reflex edges
     template <typename Triangulator_t>
     static E_Int is_pathological(const Triangulator_t& dt, const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, const E_Int* orient,
-      std::map<K_MESH::NO_Edge, E_Float>& reflex_edges, std::set<K_MESH::NO_Edge>& convex_edges,
-      E_Float concave_threshold = EPSILON, E_Float convex_threshold = EPSILON)
+      std::map<K_MESH::NO_Edge, nuga_real_t>& reflex_edges, std::set<K_MESH::NO_Edge>& convex_edges,
+      nuga_real_t concave_threshold = EPSILON, nuga_real_t convex_threshold = EPSILON)
     {
       //CURRENT RULE :
         // If OPEN => BUG !
@@ -1247,12 +1247,12 @@ namespace K_MESH
     ///
     template<typename TriangulatorType>
     static E_Int metrics
-    (const TriangulatorType& t, const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, E_Float&V, E_Float* G, E_Float* pStar = 0)
+    (const TriangulatorType& t, const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, nuga_real_t&V, nuga_real_t* G, nuga_real_t* pStar = 0)
     {
       G[0] = G[1] = G[2] = 0.;
 
       V = NUGA::FLOAT_MAX;
-      E_Float p4[3], v;
+      nuga_real_t p4[3], v;
       typedef K_FLD::ArrayAccessor<K_FLD::FloatArray> acrd_t;
       acrd_t acrd(crd);
 
@@ -1269,10 +1269,10 @@ namespace K_MESH
 
       if (is_th4)
       {
-        const E_Float* p1 = crd.col(phnodes[0] - 1);
-        const E_Float* p2 = crd.col(phnodes[1] - 1);
-        const E_Float* p3 = crd.col(phnodes[2] - 1);
-        const E_Float* p4 = crd.col(phnodes[3] - 1);
+        const nuga_real_t* p1 = crd.col(phnodes[0] - 1);
+        const nuga_real_t* p2 = crd.col(phnodes[1] - 1);
+        const nuga_real_t* p3 = crd.col(phnodes[2] - 1);
+        const nuga_real_t* p4 = crd.col(phnodes[3] - 1);
 
         V = fabs(::K_MESH::Tetrahedron::volume(p1, p2, p3, p4));
 
@@ -1316,9 +1316,9 @@ namespace K_MESH
       for (E_Int i = 0; i < connectT3.cols(); ++i)
       {
         const K_FLD::IntArray::const_iterator pS = connectT3.col(i);
-        const E_Float* p1 = crd.col(*pS);
-        const E_Float* p2 = crd.col(*(pS + 1));
-        const E_Float* p3 = crd.col(*(pS + 2));
+        const nuga_real_t* p1 = crd.col(*pS);
+        const nuga_real_t* p2 = crd.col(*(pS + 1));
+        const nuga_real_t* p3 = crd.col(*(pS + 2));
 
         v = fabs(Tetrahedron::volume(p1, p2, p3, p4));//must be absolute value when not reorienting as for the star-shaped case
 
@@ -1388,9 +1388,9 @@ namespace K_MESH
       return has_bfl;
     }
 
-    E_Float Lref2(const K_FLD::FloatArray& crd, NUGA::eMetricType MTYPE = NUGA::ISO_MIN) const
+    nuga_real_t Lref2(const K_FLD::FloatArray& crd, NUGA::eMetricType MTYPE = NUGA::ISO_MIN) const
     {
-      E_Float val = (MTYPE == NUGA::ISO_MIN) ? NUGA::FLOAT_MAX : 0.;
+      nuga_real_t val = (MTYPE == NUGA::ISO_MIN) ? NUGA::FLOAT_MAX : 0.;
 
       for (E_Int i = 0; i < _nb_faces; ++i)
       {
@@ -1399,7 +1399,7 @@ namespace K_MESH
         E_Int nb_nodes = _pgs->stride(PGi);
 
         K_MESH::Polygon PG(nodes, nb_nodes, -1);
-        E_Float Lmin2, Lmax2;
+        nuga_real_t Lmin2, Lmax2;
         PG.edge_length_extrema(crd, Lmin2, Lmax2);
 
         if (MTYPE == NUGA::ISO_MIN) val = K_FUNC::E_min(val, Lmin2);
@@ -1417,16 +1417,16 @@ namespace K_MESH
       return val;
     }
 
-    E_Float Lref2(const std::vector<E_Float>& nodal_tol2) const
+    nuga_real_t Lref2(const std::vector<nuga_real_t>& nodal_tol2) const
     {
-      E_Float val = NUGA::FLOAT_MAX;
+      nuga_real_t val = NUGA::FLOAT_MAX;
       for (E_Int i = 0; i < _nb_faces; ++i)
       {
         E_Int PGi = *(_faces + i) - 1;
         const E_Int* nodes = _pgs->get_facets_ptr(PGi);
         E_Int nb_nodes = _pgs->stride(PGi);
 
-        E_Float L2r = K_MESH::Polygon::Lref2(nodes, nb_nodes, nodal_tol2, -1);
+        nuga_real_t L2r = K_MESH::Polygon::Lref2(nodes, nb_nodes, nodal_tol2, -1);
         val = K_FUNC::E_min(val, L2r);
       }
       return val;
@@ -1435,7 +1435,7 @@ namespace K_MESH
     ///
     template<typename TriangulatorType>
     static E_Int metrics2
-    (const TriangulatorType& t, const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, E_Float&V, E_Float* G, bool all_pgs_are_cvx, bool need_reorient = true)
+    (const TriangulatorType& t, const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, nuga_real_t&V, nuga_real_t* G, bool all_pgs_are_cvx, bool need_reorient = true)
     {
       G[0] = G[1] = G[2] = 0.;
 
@@ -1457,10 +1457,10 @@ namespace K_MESH
 
         if (is_th4)
         {
-          const E_Float* p1 = crd.col(phnodes[0]-1);
-          const E_Float* p2 = crd.col(phnodes[1]-1);
-          const E_Float* p3 = crd.col(phnodes[2]-1);
-          const E_Float* p4 = crd.col(phnodes[3]-1);
+          const nuga_real_t* p1 = crd.col(phnodes[0]-1);
+          const nuga_real_t* p2 = crd.col(phnodes[1]-1);
+          const nuga_real_t* p3 = crd.col(phnodes[2]-1);
+          const nuga_real_t* p4 = crd.col(phnodes[3]-1);
 
           V = fabs(::K_MESH::Tetrahedron::volume(p1, p2, p3, p4));
 
@@ -1495,7 +1495,7 @@ namespace K_MESH
         {
           const E_Int* nodes = opgs.get_facets_ptr(i);
           E_Int nb_nodes = opgs.stride(i);
-          E_Float normal[3];
+          nuga_real_t normal[3];
           K_MESH::Polygon::normal<acrd_t, 3>(acrd, nodes, nb_nodes, 1, normal);
           E_Int iworst, ibest;
           K_MESH::Polygon::is_convex(crd, nodes, nb_nodes, 1, normal, 1.e-8/*convexity_tol*/, iworst, ibest);
@@ -1518,17 +1518,17 @@ namespace K_MESH
     }
 
     template<typename TriangulatorType>
-    E_Int volume(const K_FLD::FloatArray&crd, E_Float& v, bool need_reorient) const
+    E_Int volume(const K_FLD::FloatArray&crd, nuga_real_t& v, bool need_reorient) const
     {
       return volume<TriangulatorType>(crd, *_pgs, _faces, _nb_faces, v, need_reorient);
     }
 
     //fixme : proto !
     template<typename TriangulatorType>
-    static E_Int volume(const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, E_Float& v, bool need_reorient)
+    static E_Int volume(const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, nuga_real_t& v, bool need_reorient)
     {
       TriangulatorType t;
-      E_Float G[3];
+      nuga_real_t G[3];
       bool all_pgs_are_cvx = true; //fixme
 
       return metrics2(t, crd, PGS, first_pg, nb_pgs, v, G, all_pgs_are_cvx, need_reorient);
@@ -1536,7 +1536,7 @@ namespace K_MESH
 
     ///
     template<typename TriangulatorType>
-    E_Int volume(const K_FLD::FloatArray& crd, const E_Int* orient, E_Float& v, TriangulatorType& t)
+    E_Int volume(const K_FLD::FloatArray& crd, const E_Int* orient, nuga_real_t& v, TriangulatorType& t)
     {
       v = { -NUGA::FLOAT_MAX };
 
@@ -1557,7 +1557,7 @@ namespace K_MESH
         }
       }
 
-      E_Float G[3];
+      nuga_real_t G[3];
       metrics(aT3, v, G);
 
       return 0;
@@ -1651,7 +1651,7 @@ namespace K_MESH
         }
         else //try again if star-shaped
         {
-          E_Float G[3];
+          nuga_real_t G[3];
           Polygon::iso_barycenter<K_FLD::FloatArray, 3>(crd, nodes, nb_nodes, 1, G);
           bool is_star_shaped = Polygon::is_star_shaping<3>(G, crd, nodes, nb_nodes, 1);
           if (is_star_shaped)
@@ -1700,7 +1700,7 @@ namespace K_MESH
         for (E_Int n = 0; n < stride; ++n) {
           lpgs[n] = n; oids[n] = nodes[n] - 1;
           Pt = crdi.col(nodes[n] - 1);
-          crd.pushBack<E_Float const*>(Pt, Pt + 3);
+          crd.pushBack<nuga_real_t const*>(Pt, Pt + 3);
         }
 
         //std::cout << crd  << std::endl;
@@ -1763,7 +1763,7 @@ namespace K_MESH
         E_Int nb_nodes = _pgs->stride(PGi);
         const E_Int* nodes = _pgs->get_facets_ptr(PGi);
 
-        E_Float normal[3];
+        nuga_real_t normal[3];
         K_MESH::Polygon::normal<crd_t, 3>(crd, nodes, nb_nodes, 1, normal);
         E_Int iworst, ibest{ -1 };
         K_MESH::Polygon::is_convex(crd, nodes, nb_nodes, 1, normal, 1.e-8/*convexity_tol*/, iworst, ibest);
@@ -2000,11 +2000,11 @@ namespace K_MESH
     }
 
     ///
-    inline static void expressions(E_Float w0, E_Float w1, E_Float w2, E_Float &f1, E_Float& f2, E_Float& f3, E_Float& g0, E_Float& g1, E_Float& g2)
+    inline static void expressions(nuga_real_t w0, nuga_real_t w1, nuga_real_t w2, nuga_real_t &f1, nuga_real_t& f2, nuga_real_t& f3, nuga_real_t& g0, nuga_real_t& g1, nuga_real_t& g2)
     {
-      E_Float temp0 = w0 + w1;   f1 = temp0 + w2;
-      E_Float temp1 = w0 * w0;
-      E_Float temp2 = temp1 + w1 * temp0;
+      nuga_real_t temp0 = w0 + w1;   f1 = temp0 + w2;
+      nuga_real_t temp1 = w0 * w0;
+      nuga_real_t temp2 = temp1 + w1 * temp0;
 
       f2 = temp2 + w2 * f1;
       f3 = w0 * temp1 + w1 * temp2 + w2 * f2;
@@ -2014,35 +2014,35 @@ namespace K_MESH
     }
 
     ///
-    inline static void metrics(const K_FLD::FloatArray& crd, const K_FLD::IntArray& cT3, E_Float & volume, E_Float* centroid)
+    inline static void metrics(const K_FLD::FloatArray& crd, const K_FLD::IntArray& cT3, nuga_real_t & volume, nuga_real_t* centroid)
     {
-      const E_Float  mult[10] = { 1. / 6. ,1. / 24. ,1. / 24. ,1. / 24. ,1. / 60. ,1. / 60. ,1. / 60. ,1. / 120. ,1. / 120. ,1. / 120. };
-      E_Float  intg[10] = { 0.,0.,0.,0.,0.,0.,0.,0.,0.,0. };//  order :  1 ,  x ,  y ,  z ,  x ^2 ,  y ^2 ,  z ^2 ,  xy ,  yz ,  zx
+      const nuga_real_t  mult[10] = { 1. / 6. ,1. / 24. ,1. / 24. ,1. / 24. ,1. / 60. ,1. / 60. ,1. / 60. ,1. / 120. ,1. / 120. ,1. / 120. };
+      nuga_real_t  intg[10] = { 0.,0.,0.,0.,0.,0.,0.,0.,0.,0. };//  order :  1 ,  x ,  y ,  z ,  x ^2 ,  y ^2 ,  z ^2 ,  xy ,  yz ,  zx
 
       K_FLD::IntArray::const_iterator pK;
       E_Int i0, i1, i2;
-      E_Float f1x, f2x, f3x, g0x, g1x, g2x, f1y, f2y, f3y, g0y, g1y, g2y, f1z, f2z, f3z, g0z, g1z, g2z;
+      nuga_real_t f1x, f2x, f3x, g0x, g1x, g2x, f1y, f2y, f3y, g0y, g1y, g2y, f1z, f2z, f3z, g0z, g1z, g2z;
 
       for (E_Int i = 0; i < cT3.cols(); ++i)
       {
         pK = cT3.col(i);
         i0 = *(pK); i1 = *(pK + 1); i2 = *(pK + 2);
 
-        const E_Float *p0 = crd.col(i0);
-        const E_Float *p1 = crd.col(i1);
-        const E_Float *p2 = crd.col(i2);
+        const nuga_real_t *p0 = crd.col(i0);
+        const nuga_real_t *p1 = crd.col(i1);
+        const nuga_real_t *p2 = crd.col(i2);
 
-        E_Float a1 = p1[0] - p0[0];
-        E_Float b1 = p1[1] - p0[1];
-        E_Float c1 = p1[2] - p0[2];
+        nuga_real_t a1 = p1[0] - p0[0];
+        nuga_real_t b1 = p1[1] - p0[1];
+        nuga_real_t c1 = p1[2] - p0[2];
 
-        E_Float a2 = p2[0] - p0[0];
-        E_Float b2 = p2[1] - p0[1];
-        E_Float c2 = p2[2] - p0[2];
+        nuga_real_t a2 = p2[0] - p0[0];
+        nuga_real_t b2 = p2[1] - p0[1];
+        nuga_real_t c2 = p2[2] - p0[2];
 
-        E_Float d0 = b1 * c2 - b2 * c1;
-        E_Float d1 = a2 * c1 - a1 * c2;
-        E_Float d2 = a1 * b2 - a2 * b1;
+        nuga_real_t d0 = b1 * c2 - b2 * c1;
+        nuga_real_t d1 = a2 * c1 - a1 * c2;
+        nuga_real_t d2 = a1 * b2 - a2 * b1;
 
         expressions(p0[0], p1[0], p2[0], f1x, f2x, f3x, g0x, g1x, g2x);
         expressions(p0[1], p1[1], p2[1], f1y, f2y, f3y, g0y, g1y, g2y);
@@ -2064,7 +2064,7 @@ namespace K_MESH
 
       volume = intg[0];
 
-      E_Float k = 1. / volume;
+      nuga_real_t k = 1. / volume;
 
       centroid[0] = k * intg[1];
       centroid[1] = k * intg[2];
@@ -2072,30 +2072,30 @@ namespace K_MESH
 
     }
 
-    inline static void metrics(const K_FLD::FloatArray& aT3, E_Float & volume, E_Float* centroid)
+    inline static void metrics(const K_FLD::FloatArray& aT3, nuga_real_t & volume, nuga_real_t* centroid)
     {
-      const E_Float  mult[10] = { 1. / 6. ,1. / 24. ,1. / 24. ,1. / 24. ,1. / 60. ,1. / 60. ,1. / 60. ,1. / 120. ,1. / 120. ,1. / 120. };
-      E_Float  intg[10] = { 0.,0.,0.,0.,0.,0.,0.,0.,0.,0. };//  order :  1 ,  x ,  y ,  z ,  x ^2 ,  y ^2 ,  z ^2 ,  xy ,  yz ,  zx
+      const nuga_real_t  mult[10] = { 1. / 6. ,1. / 24. ,1. / 24. ,1. / 24. ,1. / 60. ,1. / 60. ,1. / 60. ,1. / 120. ,1. / 120. ,1. / 120. };
+      nuga_real_t  intg[10] = { 0.,0.,0.,0.,0.,0.,0.,0.,0.,0. };//  order :  1 ,  x ,  y ,  z ,  x ^2 ,  y ^2 ,  z ^2 ,  xy ,  yz ,  zx
 
-      E_Float f1x, f2x, f3x, g0x, g1x, g2x, f1y, f2y, f3y, g0y, g1y, g2y, f1z, f2z, f3z, g0z, g1z, g2z;
+      nuga_real_t f1x, f2x, f3x, g0x, g1x, g2x, f1y, f2y, f3y, g0y, g1y, g2y, f1z, f2z, f3z, g0z, g1z, g2z;
 
       for (E_Int i = 0; i < aT3.cols(); i += 3)
       {
-        const E_Float *p0 = aT3.col(i);
-        const E_Float *p1 = aT3.col(i + 1);
-        const E_Float *p2 = aT3.col(i + 2);
+        const nuga_real_t *p0 = aT3.col(i);
+        const nuga_real_t *p1 = aT3.col(i + 1);
+        const nuga_real_t *p2 = aT3.col(i + 2);
 
-        E_Float a1 = p1[0] - p0[0];
-        E_Float b1 = p1[1] - p0[1];
-        E_Float c1 = p1[2] - p0[2];
+        nuga_real_t a1 = p1[0] - p0[0];
+        nuga_real_t b1 = p1[1] - p0[1];
+        nuga_real_t c1 = p1[2] - p0[2];
 
-        E_Float a2 = p2[0] - p0[0];
-        E_Float b2 = p2[1] - p0[1];
-        E_Float c2 = p2[2] - p0[2];
+        nuga_real_t a2 = p2[0] - p0[0];
+        nuga_real_t b2 = p2[1] - p0[1];
+        nuga_real_t c2 = p2[2] - p0[2];
 
-        E_Float d0 = b1 * c2 - b2 * c1;
-        E_Float d1 = a2 * c1 - a1 * c2;
-        E_Float d2 = a1 * b2 - a2 * b1;
+        nuga_real_t d0 = b1 * c2 - b2 * c1;
+        nuga_real_t d1 = a2 * c1 - a1 * c2;
+        nuga_real_t d2 = a1 * b2 - a2 * b1;
 
         expressions(p0[0], p1[0], p2[0], f1x, f2x, f3x, g0x, g1x, g2x);
         expressions(p0[1], p1[1], p2[1], f1y, f2y, f3y, g0y, g1y, g2y);
@@ -2117,7 +2117,7 @@ namespace K_MESH
 
       volume = intg[0];
 
-      E_Float k = 1. / volume;
+      nuga_real_t k = 1. / volume;
 
       centroid[0] = k * intg[1];
       centroid[1] = k * intg[2];
@@ -2125,20 +2125,20 @@ namespace K_MESH
 
     }
 
-    //typedef E_Float (*pFunc)(E_Float x, E_Float y, E_Float z);
+    //typedef nuga_real_t (*pFunc)(nuga_real_t x, nuga_real_t y, nuga_real_t z);
     //
     //template<typename TriangulatorType>
-    //static void integ_O3(const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, pFunc func, E_Float& val)
+    //static void integ_O3(const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, pFunc func, nuga_real_t& val)
     //{
     //  val = 0.;
     //  
-    //  E_Float FG[3], CG[3], vol;
+    //  nuga_real_t FG[3], CG[3], vol;
     //  TriangulatorType dt;
     //  
     //
     //  K_MESH::Polyhedron<STAR_SHAPED>::metrics2<TriangulatorType>(dt, crd, PGS, first_pg, nb_pgs, vol, CG);
     //  
-    //  const E_Float* p3 = CG;
+    //  const nuga_real_t* p3 = CG;
     //
     //  for (size_t f = 0; f < nb_pgs; ++f)
     //  {
@@ -2148,13 +2148,13 @@ namespace K_MESH
     //    
     //    K_MESH::Polygon::centroid<3>(crd, nodes, nb_nodes, 1, FG);
     //    
-    //     const E_Float* p0 = FG;
+    //     const nuga_real_t* p0 = FG;
     //    
     //    for (E_Int n=0; n < nb_nodes; ++n)
     //    {
-    //      E_Float v;
-    //      const E_Float* p1 = crd.col(*(nodes+n) - 1);
-    //      const E_Float* p2 = crd.col(*(nodes+(n+1)%nb_nodes) - 1);
+    //      nuga_real_t v;
+    //      const nuga_real_t* p1 = crd.col(*(nodes+n) - 1);
+    //      const nuga_real_t* p2 = crd.col(*(nodes+(n+1)%nb_nodes) - 1);
     //    
     //      K_MESH::Tetrahedron::integ_O3(p0, p1, p2, p3, func, v);
     //     
@@ -2165,29 +2165,29 @@ namespace K_MESH
 
 
     // fixme : valid for cvx only
-    static bool pt_is_inside(E_Int PHi, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, const K_FLD::FloatArray& crd, const K_FLD::IntArray& F2E, const E_Float* pt, E_Float tolerance)
+    static bool pt_is_inside(E_Int PHi, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, const K_FLD::FloatArray& crd, const K_FLD::IntArray& F2E, const nuga_real_t* pt, nuga_real_t tolerance)
     {
 
       for (E_Int i = 0; i < nb_pgs; i++)
       {
         E_Int PGi = first_pg[i] - 1;
         const E_Int* pN = PGS.get_facets_ptr(PGi);
-        E_Float det = NUGA::zzdet4(crd.col(pN[0] - 1), crd.col(pN[1] - 1), crd.col(pN[2] - 1), pt); // approx : consider the first 3 nodes of the PG for defining the plane
+        nuga_real_t det = NUGA::zzdet4(crd.col(pN[0] - 1), crd.col(pN[1] - 1), crd.col(pN[2] - 1), pt); // approx : consider the first 3 nodes of the PG for defining the plane
 
         E_Int s = zSIGN(det, ZERO_M);
 
         if (s == 0) // if det is in the random area, calculate the distance h
         {
-          E_Float u[3];
-          E_Float v[3];
+          nuga_real_t u[3];
+          nuga_real_t v[3];
           for (E_Int j = 0; j < 3; ++j)
           {
             u[j] = crd.col(pN[1] - 1)[j] - crd.col(pN[0] - 1)[j];
             v[j] = crd.col(pN[2] - 1)[j] - crd.col(pN[0] - 1)[j];
           }
 
-          E_Float norm = sqrt(NUGA::sqrCross<3>(u, v));
-          E_Float h = det / norm;
+          nuga_real_t norm = sqrt(NUGA::sqrCross<3>(u, v));
+          nuga_real_t h = det / norm;
 
           s = zSIGN(h, tolerance);
         }
@@ -2304,7 +2304,7 @@ namespace K_MESH
     }
 
     ///
-    static bool is_aniso_HX8(const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, E_Float aniso_ratio, E_Int& bot, E_Int& top)
+    static bool is_aniso_HX8(const K_FLD::FloatArray& crd, const ngon_unit& PGS, const E_Int* first_pg, E_Int nb_pgs, nuga_real_t aniso_ratio, E_Int& bot, E_Int& top)
     {
       if (!is_HX8(PGS, first_pg, nb_pgs)) return false;
 
@@ -2327,10 +2327,10 @@ namespace K_MESH
             const E_Int * nodes = PGS.get_facets_ptr(first_pg[i] - 1);
             E_Int nnodes = PGS.stride(first_pg[i] - 1);
 
-            E_Float Lmin(NUGA::FLOAT_MAX), Lmax = -1.;
+            nuga_real_t Lmin(NUGA::FLOAT_MAX), Lmax = -1.;
             for (E_Int n = 0; n < 4; ++n)
             {
-              E_Float L = NUGA::sqrDistance(crd.col(nodes[n] - 1), crd.col(nodes[(n + 1) % nnodes] - 1), 3);
+              nuga_real_t L = NUGA::sqrDistance(crd.col(nodes[n] - 1), crd.col(nodes[(n + 1) % nnodes] - 1), 3);
               Lmin = K_FUNC::E_min(L, Lmin);
               Lmax = K_FUNC::E_max(L, Lmax);
             }
@@ -2352,11 +2352,11 @@ namespace K_MESH
             const E_Int * nodes = PGS.get_facets_ptr(first_pg[i] - 1);
             //E_Int nnodes = PGS.stride(first_pg[i] - 1);
 
-            E_Float L0 = NUGA::sqrDistance(crd.col(nodes[0] - 1), crd.col(nodes[1] - 1), 3);
-            E_Float L1 = NUGA::sqrDistance(crd.col(nodes[1] - 1), crd.col(nodes[2] - 1), 3);
+            nuga_real_t L0 = NUGA::sqrDistance(crd.col(nodes[0] - 1), crd.col(nodes[1] - 1), 3);
+            nuga_real_t L1 = NUGA::sqrDistance(crd.col(nodes[1] - 1), crd.col(nodes[2] - 1), 3);
 
-            E_Float Lmin = K_FUNC::E_min(L0, L1);
-            E_Float Lmax = K_FUNC::E_max(L0, L1);
+            nuga_real_t Lmin = K_FUNC::E_min(L0, L1);
+            nuga_real_t Lmax = K_FUNC::E_max(L0, L1);
 
             if (Lmin < aniso_ratio*aniso_ratio*Lmax) 
             { //aniso

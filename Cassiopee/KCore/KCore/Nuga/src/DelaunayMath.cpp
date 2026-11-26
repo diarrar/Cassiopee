@@ -24,15 +24,15 @@ namespace K_LINEAR
 {
 //=============================================================================
 void DelaunayMath::eigen_values 
-(E_Float a00, E_Float a11, E_Float a10, E_Float& lambda0, E_Float& lambda1) 
+(nuga_real_t a00, nuga_real_t a11, nuga_real_t a10, nuga_real_t& lambda0, nuga_real_t& lambda1) 
 {
   // eigen values are solution of: x^2 - tr(A)*x + det(A)
   // therefore x=(1/2)*(tr(A) +- sqrt(delta)) where delta=tr(A)^2-4*det(A)
   // Assumption: we always have 2 (not necessarily distinct) solutions.
   //             therefore delta is assumed positive or null.
-   E_Float trA   = a00+a11;
-   E_Float detA  = a00*a11 - a10*a10;
-   E_Float delta = trA*trA - 4.*detA;          
+   nuga_real_t trA   = a00+a11;
+   nuga_real_t detA  = a00*a11 - a10*a10;
+   nuga_real_t delta = trA*trA - 4.*detA;          
    if (delta > 0.) // Valid discriminant.
    {
      delta = sqrt(delta);
@@ -46,7 +46,7 @@ void DelaunayMath::eigen_values
 //=============================================================================
 void DelaunayMath::simultaneous_reduction
 (const K_FLD::FloatArray& M1, const K_FLD::FloatArray& M2,
- E_Float* V1, E_Float* V2)
+ nuga_real_t* V1, nuga_real_t* V2)
 {
 
   K_FLD::FloatArray M1b(M1);
@@ -61,15 +61,15 @@ void DelaunayMath::simultaneous_reduction
   }
   else
   {
-    E_Float lambda1, lambda2;
+    nuga_real_t lambda1, lambda2;
     DelaunayMath::eigen_vectors(NN(0,0), NN(1,1), NN(1,0), lambda1, lambda2, V1, V2);
   }
 }
 
 //=============================================================================
 void DelaunayMath::eigen_vectors 
-(E_Float a00, E_Float a11, E_Float a10, 
- E_Float& lambda0, E_Float& lambda1, E_Float* v0, E_Float* v1) 
+(nuga_real_t a00, nuga_real_t a11, nuga_real_t a10, 
+ nuga_real_t& lambda0, nuga_real_t& lambda1, nuga_real_t* v0, nuga_real_t* v1) 
 {
   eigen_values(a00, a11, a10, lambda0, lambda1);
 
@@ -104,22 +104,22 @@ void DelaunayMath::intersect(const K_FLD::FloatArray& M1,
                              K_FLD::FloatArray& I)
 {
 
-  E_Float lambda1, lambda2, mu1, mu2, V1[2], V2[2];
+  nuga_real_t lambda1, lambda2, mu1, mu2, V1[2], V2[2];
   
   eigen_vectors(M1(0,0), M1(1,1), M1(1,0), lambda1, lambda2, V1, V2);
   eigen_vectors(M2(0,0), M2(1,1), M2(1,0), mu1, mu2, V1, V2);
 
   simultaneous_reduction(M1, M2, V1, V2);
 
-  E_Float l1 = (lambda1 < mu1) ? mu1 : lambda1;
-  E_Float l2 = (lambda2 < mu2) ? mu2 : lambda2;
+  nuga_real_t l1 = (lambda1 < mu1) ? mu1 : lambda1;
+  nuga_real_t l2 = (lambda2 < mu2) ? mu2 : lambda2;
 
-  E_Float b00 = V1[0];
-  E_Float b10 = V1[1];
-  E_Float b01 = V2[0];
-  E_Float b11 = V2[1];
+  nuga_real_t b00 = V1[0];
+  nuga_real_t b10 = V1[1];
+  nuga_real_t b01 = V2[0];
+  nuga_real_t b11 = V2[1];
 
-  E_Float det2i = (b00*b11) - (b10*b01);
+  nuga_real_t det2i = (b00*b11) - (b10*b01);
   det2i = 1. / (det2i*det2i);
 
   I.resize(2,2);
@@ -130,11 +130,11 @@ void DelaunayMath::intersect(const K_FLD::FloatArray& M1,
 
 //=============================================================================
 void DelaunayMath::resoLin
-(E_Float a11, E_Float a12, E_Float a21, E_Float a22,
- E_Float d1, E_Float d2, E_Float& x, E_Float& y)
+(nuga_real_t a11, nuga_real_t a12, nuga_real_t a21, nuga_real_t a22,
+ nuga_real_t d1, nuga_real_t d2, nuga_real_t& x, nuga_real_t& y)
 {
   x = y = NUGA::FLOAT_MAX;
-  E_Float detA = a11*a22 - a12*a21;
+  nuga_real_t detA = a11*a22 - a12*a21;
 
   if (detA <= 0.) return;
   detA = 1./detA;

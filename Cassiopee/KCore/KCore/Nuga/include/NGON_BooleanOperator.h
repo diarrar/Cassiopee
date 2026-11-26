@@ -103,11 +103,11 @@ public:
   //For FldArrays
   NGON_BooleanOperator(const K_FLD::FldArrayF& pos1, E_Int px, E_Int py, E_Int pz, const K_FLD::FldArrayI& cNGON1,
                        const K_FLD::FldArrayF& pos2, E_Int px2, E_Int py2, E_Int pz2, const K_FLD::FldArrayI& cNGON2,
-                       E_Float tolerance, eAggregation aggtype);
+                       nuga_real_t tolerance, eAggregation aggtype);
   //For DynArrays
   NGON_BooleanOperator(const K_FLD::FloatArray& pos1, const K_FLD::IntArray& cNGON1,
                        const K_FLD::FloatArray& pos2, const K_FLD::IntArray& cNGON2,
-                       E_Float tolerance, eAggregation aggtype);
+                       nuga_real_t tolerance, eAggregation aggtype);
   /// Destructor.
   ~NGON_BooleanOperator(void){}
   
@@ -180,18 +180,18 @@ public:
   ///rec_ids[i] gives the i-th receiver, its donnors range from don_ids[xdon[i]] to don_ids[xdon[1+1]-1].
   // Same for coefs : from don_coefs[xdon[i]] to don_coefs[xdon[1+1]-1].
   E_Int volume_coefficients
-       (std::vector<E_Int>& rec_ids, std::vector<E_Int>& xdon, std::vector<E_Int>& don_ids, std::vector<E_Float>& don_coefs);
+       (std::vector<E_Int>& rec_ids, std::vector<E_Int>& xdon, std::vector<E_Int>& don_ids, std::vector<nuga_real_t>& don_coefs);
   ///
   E_Int volume_and_centroid_coefficients
        (E_Int rec_op, std::vector<E_Int>& rec_ids, std::vector<E_Int>& xdon, std::vector<E_Int>& don_ids,
-        std::vector<E_Float>& don_coefs, K_FLD::FloatArray& piece_centroids, K_FLD::FloatArray& crd, ngon_type& ngoper, std::vector<E_Int>& piece_ids);
+        std::vector<nuga_real_t>& don_coefs, K_FLD::FloatArray& piece_centroids, K_FLD::FloatArray& crd, ngon_type& ngoper, std::vector<E_Int>& piece_ids);
   ///
   E_Int conservative_transfer
        (E_Int rec_op /*0 or 1*/, const K_FLD::FloatArray& fields_don, K_FLD::FloatArray& fields_rec, E_Int field = -1 /*-1 means all*/, const K_FLD::FloatArray* grads_don = NULL);
   
   E_Int chim_conservative_transfer(E_Int rec_op /*0 or 1*/, const K_FLD::FloatArray& fields_don, K_FLD::FloatArray& fields_rec, E_Int field = -1/*-1 means all*/);
   ///
-  E_Int total_mass(const K_FLD::FloatArray& crd, const K_FLD::IntArray& ng_cnt, const K_FLD::FloatArray& fields, const std::vector<E_Float>& vols, std::vector<E_Float>& masses);
+  E_Int total_mass(const K_FLD::FloatArray& crd, const K_FLD::IntArray& ng_cnt, const K_FLD::FloatArray& fields, const std::vector<nuga_real_t>& vols, std::vector<nuga_real_t>& masses);
 
   void print_state();
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -648,8 +648,8 @@ private:
   eOperation   _Op;
   bool _build_hard;
   
-  E_Float _tolerance;
-  E_Float _convexity_tol;
+  nuga_real_t _tolerance;
+  nuga_real_t _convexity_tol;
   
   bool _processed;// tell whether __create_boolean_zones() has been run or not.
   const Connectivity_t& _cNGON1;
@@ -674,7 +674,7 @@ public:
   bool _outward;
   int  hard_mode;
   
-  Vector_t<std::pair<E_Float, E_Int> > _palmares;
+  Vector_t<std::pair<nuga_real_t, E_Int> > _palmares;
   std::set<E_Int> _tmp_set_int;
   Vector_t<E_Int> _tmp_vec;
   std::deque<E_Int> _tmp_deq;
@@ -761,7 +761,7 @@ typedef NUGA::NGON_BooleanOperator<K_FLD::FloatArray, K_FLD::IntArray> Dyn_NGON_
 TEMPLATE_COORD_CONNECT
 NGON_BOOLEAN_CLASS::NGON_BooleanOperator
 (const K_FLD::FldArrayF& pos1, E_Int px, E_Int py, E_Int pz, const K_FLD::FldArrayI& cNGON1,
- const K_FLD::FldArrayF& pos2, E_Int px2, E_Int py2, E_Int pz2, const K_FLD::FldArrayI& cNGON2, E_Float tolerance, eAggregation aggtype)
+ const K_FLD::FldArrayF& pos2, E_Int px2, E_Int py2, E_Int pz2, const K_FLD::FldArrayI& cNGON2, nuga_real_t tolerance, eAggregation aggtype)
 : _tolerance(tolerance), _convexity_tol(1.e-2), _AggPol(aggtype), _processed(false),
  _cNGON1(cNGON1), _cNGON2(cNGON2), _aCoords1(pos1, px, py, pz), _crd2(pos2, px2, py2, pz2), _triangulator_do_not_shuffle(true), _triangulator_improve_qual_by_swap(false), _conformizer_split_swap_afterwards(false), simplify_pgs(true), _outward(true), hard_mode(0)
 {}
@@ -770,7 +770,7 @@ NGON_BOOLEAN_CLASS::NGON_BooleanOperator
 TEMPLATE_COORD_CONNECT
 NGON_BOOLEAN_CLASS::NGON_BooleanOperator
 (const K_FLD::FloatArray& pos1, const K_FLD::IntArray& cNGON1,
- const K_FLD::FloatArray& pos2, const K_FLD::IntArray& cNGON2, E_Float tolerance, eAggregation aggtype)
+ const K_FLD::FloatArray& pos2, const K_FLD::IntArray& cNGON2, nuga_real_t tolerance, eAggregation aggtype)
   : _AggPol(aggtype), _tolerance(tolerance),  _convexity_tol(1.e-2), _processed(false),
  _cNGON1(cNGON1), _cNGON2(cNGON2), _aCoords1(pos1), _crd2(pos2), _triangulator_do_not_shuffle(true), _triangulator_improve_qual_by_swap(false), _conformizer_split_swap_afterwards(false), simplify_pgs(true), _outward(true), hard_mode(0)
 {
@@ -1109,12 +1109,12 @@ E_Int NGON_BOOLEAN_CLASS::Union
     
   
   E_Int imin, imax;
-  E_Float smin, smax;
+  nuga_real_t smin, smax;
   ngon_type::surface_extrema(_ngoper->PGs, coord, smin, imin, smax, imax);
   std::cout << "the " << imin << "-th face has the smallest surface : " << smin << std::endl;
   std::cout << "the " << imax << "-th face has the biggest surface : " << smax << std::endl;
 
-  E_Float vmin, vmax;
+  nuga_real_t vmin, vmax;
   ngon_type::template volume_extrema<DELAUNAY::Triangulator>(*_ngoper, coord, vmin, imin, vmax, imax);
   std::cout << "the " << imin << "-th cells has the smallest volume : " << vmin << std::endl;
   std::cout << "the " << imax << "-th cells has the biggest volume : " << vmax << std::endl;
@@ -1201,7 +1201,7 @@ E_Int NGON_BOOLEAN_CLASS::Modified_Solid
 ///
 TEMPLATE_COORD_CONNECT
 E_Int NGON_BOOLEAN_CLASS::volume_coefficients
-(std::vector<E_Int>& rec_ids, std::vector<E_Int>& xdon, std::vector<E_Int>& don_ids, std::vector<E_Float>& don_coefs)
+(std::vector<E_Int>& rec_ids, std::vector<E_Int>& xdon, std::vector<E_Int>& don_ids, std::vector<nuga_real_t>& don_coefs)
 {
   // Mapping : 0 (donnor : left operand) -> 1 (receptor : right operand)
   
@@ -1261,13 +1261,13 @@ E_Int NGON_BOOLEAN_CLASS::volume_coefficients
   }
 #endif
   
-  E_Float v_rec;
+  nuga_real_t v_rec;
   
   //init xdon : recPH delimiter for don_ids and don_coefs
   xdon.resize(recId_to_bitIds.size()+1);
   xdon[0]=0;
   E_Int count(1);
-  E_Float Gdum[3];
+  nuga_real_t Gdum[3];
   DELAUNAY::Triangulator dt;
   //
   for (it = recId_to_bitIds.begin(); it != recId_to_bitIds.end(); ++it, ++count)
@@ -1294,7 +1294,7 @@ E_Int NGON_BOOLEAN_CLASS::volume_coefficients
     else
       v_rec = 1/v_rec;
 
-    E_Float vcumul=0;
+    nuga_real_t vcumul=0;
     //
     for (size_t i=0; i < nb_sources; ++i)
     {
@@ -1303,7 +1303,7 @@ E_Int NGON_BOOLEAN_CLASS::volume_coefficients
       
       don_ids.push_back(don_PHi);
 
-      E_Float v;
+      nuga_real_t v;
       //NENWEK_MESH::Polyhedron<STAR_SHAPED>::metrics<DELAUNAY::Triangulator>(dt, coord, *_ngoper, PHibit, v, Gdum); //volume of the piece of donnor PH
       K_MESH::Polyhedron<STAR_SHAPED>::metrics2<DELAUNAY::Triangulator>(dt, coord, _ngoper->PGs, _ngoper->PHs.get_facets_ptr(PHibit), _ngoper->PHs.stride(PHibit), v, Gdum);
       vcumul += fabs(v);
@@ -1312,7 +1312,7 @@ E_Int NGON_BOOLEAN_CLASS::volume_coefficients
     }
     
 #ifdef DEBUG_BOOLEAN
-    E_Float err = vcumul * v_rec;
+    nuga_real_t err = vcumul * v_rec;
     err = (err - 1.)/ err; //make it relative
     if (fabs(err) > EPSILON)
       std::cout << "erreur relative entre v_rec vs vcumul : " << fabs(err) << std::endl;
@@ -1326,7 +1326,7 @@ E_Int NGON_BOOLEAN_CLASS::volume_coefficients
 ///
 TEMPLATE_COORD_CONNECT
 E_Int NGON_BOOLEAN_CLASS::volume_and_centroid_coefficients
-(E_Int rec_op, std::vector<E_Int>& rec_ids, std::vector<E_Int>& xdon, std::vector<E_Int>& don_ids, std::vector<E_Float>& don_coefs, K_FLD::FloatArray& piece_centroids, K_FLD::FloatArray& crd, ngon_type& ngoper, std::vector<E_Int>& piece_ids)
+(E_Int rec_op, std::vector<E_Int>& rec_ids, std::vector<E_Int>& xdon, std::vector<E_Int>& don_ids, std::vector<nuga_real_t>& don_coefs, K_FLD::FloatArray& piece_centroids, K_FLD::FloatArray& crd, ngon_type& ngoper, std::vector<E_Int>& piece_ids)
 {
   // Mapping (rec_op+1)%2 to rec_op : 0->1 or 1->0
   
@@ -1425,7 +1425,7 @@ E_Int NGON_BOOLEAN_CLASS::volume_and_centroid_coefficients
     std::cout << pcentroids(0,i) << "/" << pcentroids(1,i) << "/" << pcentroids(2,i) << std::endl;
     std::cout << pcentroids2(0,i) << "/" << pcentroids2(1,i) << "/" << pcentroids2(2,i) << std::endl;
     
-    E_Float d = sqrt(NUGA::sqrDistance(pcentroids.col(i), pcentroids2.col(i), 3));
+    nuga_real_t d = sqrt(NUGA::sqrDistance(pcentroids.col(i), pcentroids2.col(i), 3));
     
   }*/
   
@@ -1434,7 +1434,7 @@ E_Int NGON_BOOLEAN_CLASS::volume_and_centroid_coefficients
   ngon_type::template centroids<DELAUNAY::Triangulator>(ng_rec, crd_rec, rec_centroids);
 #endif
 
-  E_Float v_rec, Gdum[3];
+  nuga_real_t v_rec, Gdum[3];
 
   //init xdon : recPH delimiter for don_ids and don_coefs
   xdon.resize(recId_to_bitIds.size()+1);
@@ -1466,8 +1466,8 @@ E_Int NGON_BOOLEAN_CLASS::volume_and_centroid_coefficients
       v_rec = 1./v_rec;
 
 #ifdef DEBUG_BOOLEAN
-    E_Float vcumul=0;
-    E_Float acuG[3];
+    nuga_real_t vcumul=0;
+    nuga_real_t acuG[3];
     acuG[0]=acuG[1]=acuG[2]=0.;
 #endif
     //
@@ -1478,7 +1478,7 @@ E_Int NGON_BOOLEAN_CLASS::volume_and_centroid_coefficients
 
       don_ids.push_back(don_PHi);
 
-      E_Float v;
+      nuga_real_t v;
       //NEWNEW K_MESH::Polyhedron<STAR_SHAPED>::metrics<DELAUNAY::Triangulator>(dt, coord, *_ngoper, PHibit, v, Gdum); //volume of the piece of donnor PH
       K_MESH::Polyhedron<STAR_SHAPED>::metrics2<DELAUNAY::Triangulator>(dt, coord, _ngoper->PGs, _ngoper->PHs.get_facets_ptr(PHibit), _ngoper->PHs.stride(PHibit), v, Gdum);
       v = fabs(v);
@@ -1496,7 +1496,7 @@ E_Int NGON_BOOLEAN_CLASS::volume_and_centroid_coefficients
     }
     
 #ifdef DEBUG_BOOLEAN
-    E_Float err = vcumul * v_rec;
+    nuga_real_t err = vcumul * v_rec;
     err = (err - 1.)/ err; //make it relative
     if (fabs(err) > EPSILON)
       std::cout << "erreur relative entre v_rec vs vcumul : " << fabs(err) << std::endl;
@@ -1505,7 +1505,7 @@ E_Int NGON_BOOLEAN_CLASS::volume_and_centroid_coefficients
     acuG[1] /= vcumul;
     acuG[2] /= vcumul;
     
-    E_Float d = sqrt(NUGA::sqrDistance(acuG, rec_centroids.col(rec_PHi), 3));
+    nuga_real_t d = sqrt(NUGA::sqrDistance(acuG, rec_centroids.col(rec_PHi), 3));
     if (d > EPSILON)
       std::cout << "barycenter calulation is inconsistent" << std::endl;
 #endif
@@ -1545,7 +1545,7 @@ E_Int NGON_BOOLEAN_CLASS::conservative_transfer
 #endif
 
   std::vector<E_Int> rids/*recpetor ids*/, xdon /*delimiter indirection for dids and vcoefs*/, dids, pids;
-  std::vector<E_Float> vcoefs;
+  std::vector<nuga_real_t> vcoefs;
   K_FLD::FloatArray piece_centroids, pcrd;
   ngon_type ngoper;
   E_Int err = volume_and_centroid_coefficients(1, rids, xdon, dids, vcoefs, piece_centroids, pcrd, ngoper, pids);
@@ -1576,19 +1576,19 @@ E_Int NGON_BOOLEAN_CLASS::conservative_transfer
 
 #ifdef DEBUG_BOOLEAN
   K_FLD::FloatArray mass_don_by_pieces(nb_sols, fields_don.cols(), 0.);
-  std::vector<E_Float> accumulated_piece_vols_for_donnor(fields_don.cols(), 0.);
-  std::vector<E_Float> accumulated_piece_vols_for_receptor(fields_rec.cols(), 0.);
+  std::vector<nuga_real_t> accumulated_piece_vols_for_donnor(fields_don.cols(), 0.);
+  std::vector<nuga_real_t> accumulated_piece_vols_for_receptor(fields_rec.cols(), 0.);
   
-  std::vector<E_Float> dvols;
+  std::vector<nuga_real_t> dvols;
   //gcc error: expected primary-expression before '>' token
   ngon_type::template volumes<DELAUNAY::Triangulator>(dcrd, ngd, dvols);
-  std::vector<E_Float> rvols;
+  std::vector<nuga_real_t> rvols;
   //gcc error: expected primary-expression before '>' token
   ngon_type::template volumes<DELAUNAY::Triangulator>(rcrd, ngr, rvols);
-  std::vector<E_Float> pvols;
+  std::vector<nuga_real_t> pvols;
   //gcc error: expected primary-expression before '>' token
   ngon_type::template volumes<DELAUNAY::Triangulator>(pcrd, ngoper, pvols);
-  E_Float V1(0.), V2(0.), VI(0.);
+  nuga_real_t V1(0.), V2(0.), VI(0.);
   for (size_t i=0; i < dvols.size(); ++i) V1 += dvols[i];
   for (size_t i=0; i < rvols.size(); ++i) V2 += rvols[i];
   for (size_t i=0; i < pvols.size(); ++i) VI += pvols[i];
@@ -1604,12 +1604,12 @@ E_Int NGON_BOOLEAN_CLASS::conservative_transfer
   K_FLD::FloatArray rec_centroids;
   //gcc error: expected primary-expression before '>' token
   ngon_type::template centroids<DELAUNAY::Triangulator>(ngr, rcrd, rec_centroids);
-  E_Float recG[3], acuG[3], dmax(0.);
+  nuga_real_t recG[3], acuG[3], dmax(0.);
   typedef K_FLD::ArrayAccessor<K_FLD::FloatArray> acrd_t;
   acrd_t acrd(rcrd);
 #endif
   
-  E_Float GcGcp[3];
+  nuga_real_t GcGcp[3];
   
   // Now tranfer
   for (E_Int i=0; i < rids.size(); ++i)
@@ -1631,20 +1631,20 @@ E_Int NGON_BOOLEAN_CLASS::conservative_transfer
       
       for (E_Int k=xdon[i]; k<xdon[i+1]; ++k)
       {
-        const E_Float* Gc = don_centroids.col(dids[k]); // centroid of the donnor cell
-        const E_Float* Gcp = piece_centroids.col(k); // centroid of the donnor cell's current piece
+        const nuga_real_t* Gc = don_centroids.col(dids[k]); // centroid of the donnor cell
+        const nuga_real_t* Gcp = piece_centroids.col(k); // centroid of the donnor cell's current piece
         NUGA::diff<3>(Gcp, Gc, GcGcp); // vector between the centroid of the donno cell and its current piece
         
-        E_Float gradf = grads_don ? NUGA::dot<3>(GcGcp, grads_don->col(dids[k])) : 0;
+        nuga_real_t gradf = grads_don ? NUGA::dot<3>(GcGcp, grads_don->col(dids[k])) : 0;
         
         //std::cout << "grads : " << grads_don(0, dids[k]) << "/" << grads_don(1, dids[k]) << "/" << grads_don(2, dids[k]) << std::endl;
         fields_rec(fld, reci) += (fields_don(fld, dids[k]) + gradf) * vcoefs[k];
         //std::cout << "gradf/vcoeef : " << gradf << "/" << vcoefs[k] << std::endl;
          
 #ifdef DEBUG_BOOLEAN
-        E_Float vv, GG[3];
+        nuga_real_t vv, GG[3];
         K_MESH::Polyhedron<STAR_SHAPED>::metrics2<DELAUNAY::Triangulator>(dt, pcrd, ngoper.PGs, ngoper.PHs.get_facets_ptr(pids[k]), ngoper.PHs.stride(pids[k]), vv, GG);
-        E_Float vvv= vcoefs[k] * rvols[reci];
+        nuga_real_t vvv= vcoefs[k] * rvols[reci];
         bool vok = (fabs(fabs(vv) - vvv) < EPSILON);
         bool xok = (GG[0] == Gcp[0]);
         bool yok = (GG[1] == Gcp[1]);
@@ -1663,7 +1663,7 @@ E_Int NGON_BOOLEAN_CLASS::conservative_transfer
 //          std::cout << "so we should have : " << vcoefs[k] << "equal " << vv/rvols[reci] << std::endl;
 //        }
         
-        E_Float vpiece = vcoefs[k] * rvols[reci];
+        nuga_real_t vpiece = vcoefs[k] * rvols[reci];
         
         mass_don_by_pieces(fld, dids[k]) += (fields_don(fld, dids[k]) + gradf) * vpiece;
         
@@ -1682,10 +1682,10 @@ E_Int NGON_BOOLEAN_CLASS::conservative_transfer
 
     }
 #ifdef DEBUG_BOOLEAN
-    E_Float recGx = rec_centroids(0, reci);
-    E_Float recGy = rec_centroids(1, reci);
-    E_Float recGz = rec_centroids(2, reci);
-    E_Float d = sqrt(NUGA::sqrDistance(acuG, rec_centroids.col(reci), 3));
+    nuga_real_t recGx = rec_centroids(0, reci);
+    nuga_real_t recGy = rec_centroids(1, reci);
+    nuga_real_t recGz = rec_centroids(2, reci);
+    nuga_real_t d = sqrt(NUGA::sqrDistance(acuG, rec_centroids.col(reci), 3));
     dmax = (d > dmax) ? d: dmax;
     assert (d < EPSILON);
 #endif
@@ -1695,8 +1695,8 @@ E_Int NGON_BOOLEAN_CLASS::conservative_transfer
   //std::cout << "DMAX is " << dmax << std::endl;
   for (size_t i=0; i < fields_rec.cols(); ++i)
   {
-    E_Float vol_rec = rvols[i];
-    E_Float volcumul = accumulated_piece_vols_for_receptor[i];
+    nuga_real_t vol_rec = rvols[i];
+    nuga_real_t volcumul = accumulated_piece_vols_for_receptor[i];
     
     bool error_vol  = (fabs(vol_rec-volcumul)/vol_rec > EPSILON);
     
@@ -1710,12 +1710,12 @@ E_Int NGON_BOOLEAN_CLASS::conservative_transfer
   
   for (size_t i=0; i < fields_don.cols(); ++i)
   {
-    E_Float val_don   = fields_don(0, i);
-    E_Float vol_don = dvols[i];
-    E_Float mass_don = val_don*vol_don;
+    nuga_real_t val_don   = fields_don(0, i);
+    nuga_real_t vol_don = dvols[i];
+    nuga_real_t mass_don = val_don*vol_don;
     
-    E_Float masscumul = mass_don_by_pieces(0, i);
-    E_Float volcumul    = accumulated_piece_vols_for_donnor[i];
+    nuga_real_t masscumul = mass_don_by_pieces(0, i);
+    nuga_real_t volcumul    = accumulated_piece_vols_for_donnor[i];
         
     
     bool error_vol  = (fabs(vol_don-volcumul)/vol_don > EPSILON);
@@ -1738,7 +1738,7 @@ E_Int NGON_BOOLEAN_CLASS::conservative_transfer
 
 ///
 TEMPLATE_COORD_CONNECT
-E_Int NGON_BOOLEAN_CLASS::total_mass(const K_FLD::FloatArray& crd, const K_FLD::IntArray& ng_cnt, const K_FLD::FloatArray& fields, const std::vector<E_Float>& vols, std::vector<E_Float>& masses)
+E_Int NGON_BOOLEAN_CLASS::total_mass(const K_FLD::FloatArray& crd, const K_FLD::IntArray& ng_cnt, const K_FLD::FloatArray& fields, const std::vector<nuga_real_t>& vols, std::vector<nuga_real_t>& masses)
 {
   
   masses.clear();
@@ -2656,7 +2656,7 @@ NGON_BOOLEAN_CLASS::__process_intersections
 #ifdef DEBUG_BOOLEAN
 
   E_Int imin;
-  E_Float minq;
+  nuga_real_t minq;
   NUGA::GeomAlgo<K_MESH::Triangle>::min_quality(_coord, connectT3, minq, imin);
   
   if (minq < _tolerance)
@@ -3344,7 +3344,7 @@ void NGON_BOOLEAN_CLASS::__refine_open_PGs
           K_FLD::IntArray cnt1, cnt2;
 #endif
           // keep the one with the smallest deviation
-          E_Float d22 = 0., lambda;
+          nuga_real_t d22 = 0., lambda;
           size_t szd1 = edge_to_refined_edge[E].size();
           for (size_t k = 0; k < szd1; ++k){
             d22 = std::max(K_MESH::Edge::edgePointMinDistance2<3>(_coord.col(E.node(0)-1), _coord.col(E.node(1)-1), _coord.col(edge_to_refined_edge[E][k]-1), lambda), d22);
@@ -3355,7 +3355,7 @@ void NGON_BOOLEAN_CLASS::__refine_open_PGs
 #endif
           }
           size_t szd2 = polyLine.size();
-          E_Float d21 = 0.;
+          nuga_real_t d21 = 0.;
           for (size_t k = 0; (k < szd2); ++k){
             d21 = std::max(K_MESH::Edge::edgePointMinDistance2<3>(_coord.col(E.node(0)-1), _coord.col(E.node(1)-1), _coord.col(polyLine[k]-1), lambda), d21);
 
@@ -4033,7 +4033,7 @@ E_Int NGON_BOOLEAN_CLASS::__sort_T3_sharing_an_edge
   
   E_Int sz(T3indices.size()), i, N1, err(0);
   const E_Int *pSi;
-  E_Float q, ERRORVAL(2.*NUGA::PI);
+  nuga_real_t q, ERRORVAL(2.*NUGA::PI);
   
   E_Int& K0 = T3indices[0];
   
@@ -4066,11 +4066,11 @@ E_Int NGON_BOOLEAN_CLASS::__sort_T3_sharing_an_edge
     std::cout << "E0 : " << coord(0,E0) << "/" << coord(1,E0) << "/" << coord(2,E0) << std::endl;
     std::cout << "E1 : " << coord(0,E1) << "/" << coord(1,E1) << "/" << coord(2,E1) << std::endl;
     
-    E_Float nk[3];
+    nuga_real_t nk[3];
     NUGA::crossProduct<3>(normals.col(K0), normals.col(Ki), nk);
-    E_Float s2 = NUGA::sqrNorm<3>(nk);
-    E_Float c = NUGA::dot<3>(normals.col(K0), normals.col(Ki));
-    E_Float alpha = atan2(sqrt(s2), c); 
+    nuga_real_t s2 = NUGA::sqrNorm<3>(nk);
+    nuga_real_t c = NUGA::dot<3>(normals.col(K0), normals.col(Ki));
+    nuga_real_t alpha = atan2(sqrt(s2), c); 
     //alpha = NUGA::PI + alpha;
     std::cout << "alpha : " << alpha << std::endl;
     std::cout << std::endl;  
@@ -4085,8 +4085,8 @@ E_Int NGON_BOOLEAN_CLASS::__sort_T3_sharing_an_edge
       std::cout << "ERROR at edge E0E1 : " << E0 << "/" << E1 << std::endl;
       std::cout << "The conformizer missed some intersections there." << std::endl;
       std::cout << "nb of PGs at edge : " << sz << std::endl;
-      E_Float q1 = K_MESH::Triangle::qualityG<3>(coord.col(connectT3(0, K0)), coord.col(connectT3(1, K0)), coord.col(connectT3(2, K0)));
-      E_Float q2 = K_MESH::Triangle::qualityG<3>(coord.col(connectT3(0, Ki)), coord.col(connectT3(1, Ki)), coord.col(connectT3(2, Ki)));
+      nuga_real_t q1 = K_MESH::Triangle::qualityG<3>(coord.col(connectT3(0, K0)), coord.col(connectT3(1, K0)), coord.col(connectT3(2, K0)));
+      nuga_real_t q2 = K_MESH::Triangle::qualityG<3>(coord.col(connectT3(0, Ki)), coord.col(connectT3(1, Ki)), coord.col(connectT3(2, Ki)));
       std::cout << "q  : K0 : " << K0  << "=>" << q1 << std::endl;
       std::cout << "q  : Ki : " << Ki  << "=>" << q2 << std::endl;
       err = 1;
@@ -4134,7 +4134,7 @@ E_Int NGON_BOOLEAN_CLASS::__sort_T3_sharing_an_edge
     T3indices[0] -= shift; // to have a correct display for Wsorted_on_edge_
 
     std::vector<E_Int> PGs;
-    E_Float dmin = NUGA::FLOAT_MAX;
+    nuga_real_t dmin = NUGA::FLOAT_MAX;
     for (size_t i = 0; i < T3indices.size(); ++i)
     {
       sorted_cnt.pushBack(connectT3.col(T3indices[i]), connectT3.col(T3indices[i])+3);
@@ -4147,12 +4147,12 @@ E_Int NGON_BOOLEAN_CLASS::__sort_T3_sharing_an_edge
       E_Int N1 = connectT3(1, t);
       E_Int N2 = connectT3(2, t);
 
-      E_Float q = K_MESH::Triangle::qualityG<3>(coord.col(N0), coord.col(N1), coord.col(N2));
+      nuga_real_t q = K_MESH::Triangle::qualityG<3>(coord.col(N0), coord.col(N1), coord.col(N2));
       std::cout << "q  : K0 : " << t << "=>" << q << std::endl;
 
-      E_Float d1 = NUGA::sqrDistance(coord.col(N0), coord.col(N1), 3);
-      E_Float d2 = NUGA::sqrDistance(coord.col(N0), coord.col(N2), 3);
-      E_Float d3 = NUGA::sqrDistance(coord.col(N1), coord.col(N2), 3);
+      nuga_real_t d1 = NUGA::sqrDistance(coord.col(N0), coord.col(N1), 3);
+      nuga_real_t d2 = NUGA::sqrDistance(coord.col(N0), coord.col(N2), 3);
+      nuga_real_t d3 = NUGA::sqrDistance(coord.col(N1), coord.col(N2), 3);
 
       dmin = K_FUNC::E_min(dmin, d1);
       dmin = K_FUNC::E_min(dmin, d2);
@@ -4187,7 +4187,7 @@ E_Int NGON_BOOLEAN_CLASS::__sort_T3_sharing_an_edge
 
   E_Int sz(T3indices.size()), i, N1;
   const E_Int *pSi;
-  E_Float q, ERRORVAL(2.*NUGA::PI);
+  nuga_real_t q, ERRORVAL(2.*NUGA::PI);
 
   E_Int& K0 = T3indices[0];
 
@@ -4205,7 +4205,7 @@ E_Int NGON_BOOLEAN_CLASS::__sort_T3_sharing_an_edge
 
     N1 = *(pSi + (i + 1) % 3);
 
-    E_Float normi[] = { normals(0,Ki), normals(1,Ki), normals(2,Ki) };
+    nuga_real_t normi[] = { normals(0,Ki), normals(1,Ki), normals(2,Ki) };
 
     if (N1 == E1) // the side to consider is the opposite
     {
@@ -4278,12 +4278,12 @@ TEMPLATE_COORD_CONNECT
 E_Int NGON_BOOLEAN_CLASS::__get_degen_T3
 (const K_FLD::FloatArray& coord, const K_FLD::IntArray& connectT3, E_Int K1, E_Int K2, E_Int& badK, E_Int& k)
 {
-  E_Float q1 = K_MESH::Triangle::qualityG<3>(coord.col(connectT3(0,K1)), coord.col(connectT3(1, K1)), coord.col(connectT3(2, K1)));
-  E_Float q2 = K_MESH::Triangle::qualityG<3>(coord.col(connectT3(0, K2)), coord.col(connectT3(1, K2)), coord.col(connectT3(2, K2)));
+  nuga_real_t q1 = K_MESH::Triangle::qualityG<3>(coord.col(connectT3(0,K1)), coord.col(connectT3(1, K1)), coord.col(connectT3(2, K1)));
+  nuga_real_t q2 = K_MESH::Triangle::qualityG<3>(coord.col(connectT3(0, K2)), coord.col(connectT3(1, K2)), coord.col(connectT3(2, K2)));
 
   badK = (q1 < q2) ? K1 : K2;
 
-  std::pair<E_Float, E_Int> palma[3];
+  std::pair<nuga_real_t, E_Int> palma[3];
   E_Int N[] = { connectT3(0,badK), connectT3(1,badK), connectT3(2,badK) };
 
   palma[0] = std::make_pair(NUGA::sqrDistance(coord.col(N[0]), coord.col(N[1]), 3), 2);
@@ -4942,7 +4942,7 @@ E_Int NGON_BOOLEAN_CLASS::__build_neighbors_table
   //std::cout << maxN << std::endl; 
   
   E_Int K0, E0, E1, N1, sz, Kb, i, j, shift(connectT3.cols());
-  //E_Float q, qb; 
+  //nuga_real_t q, qb; 
   algoT3::BoundToEltType::iterator it, itEnd(noE_to_oTs.end());
   K_FLD::IntArray::const_iterator pS;
   for (it = noE_to_oTs.begin(); it != itEnd; ++it)
@@ -5064,7 +5064,7 @@ bool NGON_BOOLEAN_CLASS::__fix_degen_for_turning_left
   std::vector<bool> freeze(connectT3.cols(), false);
 
   // reorder pair per quality, putting also worst quality triangle first in each pair
-  std::vector<std::pair<E_Float, std::pair<E_Int, E_Int>>> q_to_pairs;
+  std::vector<std::pair<nuga_real_t, std::pair<E_Int, E_Int>>> q_to_pairs;
   for (auto& p : faultyT3_pairs)
   {
     E_Int K1 = p.first;
@@ -5079,8 +5079,8 @@ bool NGON_BOOLEAN_CLASS::__fix_degen_for_turning_left
     E_Int N21 = connectT3(1, K2);
     E_Int N22 = connectT3(2, K2);
 
-    E_Float q1 = K_MESH::Triangle::qualityG<3>(coord.col(N10), coord.col(N11), coord.col(N12));
-    E_Float q2 = K_MESH::Triangle::qualityG<3>(coord.col(N20), coord.col(N21), coord.col(N22));
+    nuga_real_t q1 = K_MESH::Triangle::qualityG<3>(coord.col(N10), coord.col(N11), coord.col(N12));
+    nuga_real_t q2 = K_MESH::Triangle::qualityG<3>(coord.col(N20), coord.col(N21), coord.col(N22));
 
     //special treatment for duplicates
     if (fabs(q1 - q2) < ZERO_M)
@@ -5110,7 +5110,7 @@ bool NGON_BOOLEAN_CLASS::__fix_degen_for_turning_left
   //
   for (auto& q2p : q_to_pairs)
   {
-    //E_Float q = q2p.first;
+    //nuga_real_t q = q2p.first;
     E_Int worstK = q2p.second.first;
     E_Int K2     = q2p.second.second;
 
@@ -5120,9 +5120,9 @@ bool NGON_BOOLEAN_CLASS::__fix_degen_for_turning_left
     E_Int N1 = connectT3(1, worstK);
     E_Int N2 = connectT3(2, worstK);
 
-    E_Float d1 = NUGA::sqrDistance(coord.col(N0), coord.col(N1), 3);
-    E_Float d2 = NUGA::sqrDistance(coord.col(N0), coord.col(N2), 3);
-    E_Float d3 = NUGA::sqrDistance(coord.col(N1), coord.col(N2), 3);
+    nuga_real_t d1 = NUGA::sqrDistance(coord.col(N0), coord.col(N1), 3);
+    nuga_real_t d2 = NUGA::sqrDistance(coord.col(N0), coord.col(N2), 3);
+    nuga_real_t d3 = NUGA::sqrDistance(coord.col(N1), coord.col(N2), 3);
 
     if (d1 <= d2 && d1 <= d3)
     {
@@ -5362,7 +5362,7 @@ E_Int NGON_BOOLEAN_CLASS::__check_PHT3s_closure
       const E_Int & n1=connectT3o(1,Tj);
       const E_Int & n2=connectT3o(2,Tj);*/
 #endif
-      //E_Float h;
+      //nuga_real_t h;
       for (size_t n=0; n < 3; ++n)
       {
         noE.setNodes(*(pS+n), *(pS+(n+1)%3));
@@ -5910,7 +5910,7 @@ E_Int NGON_BOOLEAN_CLASS::__cut_mesh_convex_line
   bnodes.clear();
   for (E_Int i = 0; i < connectB.cols(); ++i) bnodes.insert(connectB(0,i));
   
-  E_Float Eip1Aip1[3], Ek[3], Dir[3], ps;
+  nuga_real_t Eip1Aip1[3], Ek[3], Dir[3], ps;
   E_Int Ai=IDX_NONE, Aip1, Ki(K0), Kip1, Kim1(K0), ni((n0+1)%3), nim1=0, Ei(connectT3((n0+1)%3, K0)), Eip1(connectT3((n0+2)%3, K0));
   K_FLD::IntArray::const_iterator pKi;
   
@@ -6008,15 +6008,15 @@ bool NGON_BOOLEAN_CLASS::__is_convex
        std::deque<E_Int>& sorted_contour, E_Int& K0, E_Int& n0, E_Int& Eip1)
 {
   E_Int eim1, eip1, ei, K, n;
-  E_Float worst_ps = 1., Ei[3], Ej[3] /*,Ek[3],ps */;
+  nuga_real_t worst_ps = 1., Ei[3], Ej[3] /*,Ek[3],ps */;
   bool convex = true;
   Eip1=K0=n0=IDX_NONE;
   std::map< E_Int, std::pair<E_Int, E_Int> >::const_iterator itN;
   
-  E_Float angle_max = NUGA::PI* _convexity_tol; // a fraction betwen 0 and Pi
-  E_Float cos_min = cos(angle_max); // cos is decreasing on [0; Pi]
+  nuga_real_t angle_max = NUGA::PI* _convexity_tol; // a fraction betwen 0 and Pi
+  nuga_real_t cos_min = cos(angle_max); // cos is decreasing on [0; Pi]
   
-  E_Float Z[3];
+  nuga_real_t Z[3];
   for (size_t i = 0; i < boundaries.size(); ++i)
   {
     K = boundaries[i].first;
@@ -6031,14 +6031,14 @@ bool NGON_BOOLEAN_CLASS::__is_convex
     NUGA::diff<3>(coord.col(eip1), coord.col(ei), &Ej[0]);
     NUGA::sum<3>(normals.col(globalId[K]), coord.col(ei), Z);
     
-    E_Float det = NUGA::zzdet4(coord.col(eim1), coord.col(ei), coord.col(eip1), Z);
+    nuga_real_t det = NUGA::zzdet4(coord.col(eim1), coord.col(ei), coord.col(eip1), Z);
     
     if (det >= 0.) continue; // convex
     
     NUGA::normalize<3>(Ei);
     NUGA::normalize<3>(Ej);
 
-    E_Float c = NUGA::dot<3>(Ei, Ej);
+    nuga_real_t c = NUGA::dot<3>(Ei, Ej);
     
     if (c < cos_min) // angle > anle max
     {
@@ -6507,7 +6507,7 @@ void NGON_BOOLEAN_CLASS::print_state()
   std::cout << "_conformizer_split_swap_afterwards : " << _conformizer_split_swap_afterwards << std::endl;
   
   
-  // Vector_t<std::pair<E_Float, E_Int> > _palmares;
+  // Vector_t<std::pair<nuga_real_t, E_Int> > _palmares;
   // std::set<E_Int> _tmp_set_int;
   // Vector_t<E_Int> _tmp_vec;
   // std::deque<E_Int> _tmp_deq;

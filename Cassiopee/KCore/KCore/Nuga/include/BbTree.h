@@ -36,13 +36,17 @@ class BoundingBox{
 
 public:
   /// Constructors
-  BoundingBox(const E_Float* mB, const E_Float* MB)
+  BoundingBox(const nuga_real_t* mB, const nuga_real_t* MB)
   {for (E_Int i = 0; i < DIM; ++i){minB[i] = *(mB++); maxB[i] = *(MB++);}}
+  // bounds given in another real type (E_Float when it is float)
+  template <typename U, NUGA_OTHER_REAL(U)>
+  BoundingBox(const U* mB, const U* MB)
+  {for (E_Int i = 0; i < DIM; ++i){minB[i] = (nuga_real_t)*(mB++); maxB[i] = (nuga_real_t)*(MB++);}}
 
   ///
   BoundingBox(const K_FLD::FloatArray& pos, const E_Int* nodes, size_t n)
   {
-    const E_Float* Pi;
+    const nuga_real_t* Pi;
     for (E_Int i = 0; i < DIM; ++i)
     {minB[i] = NUGA::FLOAT_MAX; maxB[i] = -NUGA::FLOAT_MAX;}
 
@@ -60,7 +64,7 @@ public:
   ///
   BoundingBox(const K_FLD::FloatArray& pos, E_Int N0=-1)
   {
-    const E_Float* Pi;
+    const nuga_real_t* Pi;
     for (E_Int i = 0; i < DIM; ++i)
     { minB[i] = NUGA::FLOAT_MAX; maxB[i] = -NUGA::FLOAT_MAX; }
 
@@ -84,8 +88,8 @@ public:
     this->compute(pos, nodes, n);
   }
 
-  inline const E_Float& getMinB(E_Int axis) const {return minB[axis];}
-  inline const E_Float& getMaxB(E_Int axis) const {return maxB[axis];}
+  inline const nuga_real_t& getMinB(E_Int axis) const {return minB[axis];}
+  inline const nuga_real_t& getMaxB(E_Int axis) const {return maxB[axis];}
 
   // Warning : strict comparison
   bool operator==(const BoundingBox& rhs)
@@ -119,14 +123,14 @@ public:
   }
 
   // default impl for 3D. Specialization below after the class scope
-  void enlarge(E_Float RTOL)
+  void enlarge(nuga_real_t RTOL)
   {
     // compute Lref (min & non-null box size)
-    E_Float dx = (maxB[0] - minB[0]);
-    E_Float dy = (maxB[1] - minB[1]);
-    E_Float dz = (maxB[2] - minB[2]);
+    nuga_real_t dx = (maxB[0] - minB[0]);
+    nuga_real_t dy = (maxB[1] - minB[1]);
+    nuga_real_t dz = (maxB[2] - minB[2]);
 
-    E_Float Lref = K_FUNC::E_max(dx, K_FUNC::E_max(dy, dz)); // ensure to get a non-null val
+    nuga_real_t Lref = K_FUNC::E_max(dx, K_FUNC::E_max(dy, dz)); // ensure to get a non-null val
 
     if (dx > ZERO_M) Lref = K_FUNC::E_min(Lref, dx);
     if (dy > ZERO_M) Lref = K_FUNC::E_min(Lref, dy);
@@ -155,7 +159,7 @@ public:
 
   static bool intersection(const BoundingBox& b1, const BoundingBox& b2, BoundingBox& b)
   {
-    std::vector<E_Float> palma(4);
+    std::vector<nuga_real_t> palma(4);
         
     for (E_Int i = 0; i < DIM; ++i)
     {
@@ -250,7 +254,7 @@ public:
   template <template <typename ELEM, typename ALLOC = std::allocator<ELEM> > class Vector>
   void compute(const K_FLD::FloatArray& pos, const Vector<E_Int> & indices, E_Int idx_start=0)
   {
-    const E_Float* Pi;
+    const nuga_real_t* Pi;
     for (E_Int i = 0; i < DIM; ++i)
     {minB[i] = NUGA::FLOAT_MAX; maxB[i] = -NUGA::FLOAT_MAX;}
 
@@ -270,7 +274,7 @@ public:
   void compute
   (const K_FLD::ArrayAccessor<CoordinateArray_t>& pos, const Vector<E_Int> & indices, E_Int idx_start=0)
   {
-    E_Float Pi[DIM];
+    nuga_real_t Pi[DIM];
     for (E_Int i = 0; i < DIM; ++i) Pi[i] = -1.;
     for (E_Int i = 0; i < DIM; ++i)
     { minB[i] = NUGA::FLOAT_MAX; maxB[i] = -NUGA::FLOAT_MAX; }
@@ -291,7 +295,7 @@ public:
   void compute
   (const K_FLD::ArrayAccessor<CoordinateArray_t>& pos)
   {
-    E_Float Pi[DIM];
+    nuga_real_t Pi[DIM];
     for (E_Int i = 0; i < DIM; ++i)
     {minB[i] = NUGA::FLOAT_MAX; maxB[i] = -NUGA::FLOAT_MAX;}
 
@@ -310,7 +314,7 @@ public:
   void compute
   (const K_FLD::FloatArray& pos)
   {
-    const E_Float* Pi;
+    const nuga_real_t* Pi;
     for (E_Int i = 0; i < DIM; ++i)
     {minB[i] = NUGA::FLOAT_MAX; maxB[i] = -NUGA::FLOAT_MAX;}
 
@@ -330,7 +334,7 @@ public:
   void compute
   (const CoordinateArray_t& pos, const E_Int* nodes, size_t n, E_Int index_start = 0)
   {
-    const E_Float* Pi;
+    const nuga_real_t* Pi;
     for (E_Int i = 0; i < DIM; ++i)
     {minB[i] = NUGA::FLOAT_MAX; maxB[i] = -NUGA::FLOAT_MAX;}
 
@@ -350,7 +354,7 @@ public:
   void compute
   (const K_FLD::ArrayAccessor<CoordinateArray_t>& pos, const E_Int* nodes, size_t n, E_Int index_start = 0)
   {
-    E_Float Pi[DIM];
+    nuga_real_t Pi[DIM];
     for (E_Int i = 0; i < DIM; ++i)
     {minB[i] = NUGA::FLOAT_MAX; maxB[i] = -NUGA::FLOAT_MAX;}
 
@@ -371,8 +375,8 @@ public://fixme //private:
 
   
 public://fixme //private:
-  E_Float minB[DIM];
-  E_Float maxB[DIM];
+  nuga_real_t minB[DIM];
+  nuga_real_t maxB[DIM];
 };
 
 typedef BoundingBox<2> BBox2D;
@@ -390,13 +394,13 @@ inline BBox2D& BBox2D::operator=(const BBox2D& rhs)
 }
 
 template <>
-inline void BBox2D::enlarge(E_Float RTOL)
+inline void BBox2D::enlarge(nuga_real_t RTOL)
 {
   // compute Lref (min & non-null box size)
-  E_Float dx = (maxB[0] - minB[0]);
-  E_Float dy = (maxB[1] - minB[1]);
+  nuga_real_t dx = (maxB[0] - minB[0]);
+  nuga_real_t dy = (maxB[1] - minB[1]);
 
-  E_Float Lref = K_FUNC::E_max(dx, dy);
+  nuga_real_t Lref = K_FUNC::E_max(dx, dy);
 
   if (dx > ZERO_M) Lref = K_FUNC::E_min(Lref, dx);
   if (dy > ZERO_M) Lref = K_FUNC::E_min(Lref, dy);
@@ -437,12 +441,12 @@ class BbTree {
   public: /** Constructors and Destructor */
 
     /// Builds a tree and inserts the boxes from begin to end.
-    BbTree(const std::vector<BBoxType*>& boxes, E_Float tolerance=EPSILON);
+    BbTree(const std::vector<BBoxType*>& boxes, nuga_real_t tolerance=EPSILON);
     
     template <typename array_t>
-    BbTree(const K_FLD::FloatArray& crd, const array_t& ng, E_Float tolerance=EPSILON);
+    BbTree(const K_FLD::FloatArray& crd, const array_t& ng, nuga_real_t tolerance=EPSILON);
     //fixme : hack overload rather than specialization to distinghuish ngon_unit (viso icc 15 compil issue)
-    inline BbTree(const K_FLD::FloatArray& crd, const ngon_unit& pgs, E_Float tolerance=EPSILON);
+    inline BbTree(const K_FLD::FloatArray& crd, const ngon_unit& pgs, nuga_real_t tolerance=EPSILON);
     //fixme : hack overload rather than specialization to distinghuish ngon_unit (viso icc 15 compil issue)
     inline BbTree(const K_FLD::FloatArray& crd, const K_FLD::IntArray& cnt);
 
@@ -460,23 +464,32 @@ class BbTree {
 
     /// Returns all the boxes which overlap the input box.
     /** Warning: out is not cleared upon entry.*/
-    void getOverlappingBoxes(const E_Float* minB, const E_Float* maxB, std::vector<size_type>& out) const;
+    void getOverlappingBoxes(const nuga_real_t* minB, const nuga_real_t* maxB, std::vector<size_type>& out) const;
+    template <typename U, NUGA_OTHER_REAL(U)>
+    void getOverlappingBoxes(const U* minB, const U* maxB, std::vector<size_type>& out) const
+    { nuga_real_t m[DIM], M[DIM]; for (E_Int k = 0; k < DIM; ++k) { m[k] = minB[k]; M[k] = maxB[k]; } getOverlappingBoxes(m, M, out); }
     
     /// Returns true if an overlapping box is found (false otherwise).
-    bool hasAnOverlappingBox(const E_Float* minB, const E_Float* maxB) const;
+    bool hasAnOverlappingBox(const nuga_real_t* minB, const nuga_real_t* maxB) const;
+    template <typename U, NUGA_OTHER_REAL(U)>
+    bool hasAnOverlappingBox(const U* minB, const U* maxB) const
+    { nuga_real_t m[DIM], M[DIM]; for (E_Int k = 0; k < DIM; ++k) { m[k] = minB[k]; M[k] = maxB[k]; } return hasAnOverlappingBox(m, M); }
 
     /// Returns all the boxes which intersects the input ray defined by P0 and P1.
     /** Warning: out is not cleared upon entry.*/
-    void getIntersectingBoxes(const E_Float* P0, const E_Float* P1, std::vector<size_type>& out, E_Float tolerance=EPSILON, bool strict=false) const;
+    void getIntersectingBoxes(const nuga_real_t* P0, const nuga_real_t* P1, std::vector<size_type>& out, nuga_real_t tolerance=EPSILON, bool strict=false) const;
+    template <typename U, NUGA_OTHER_REAL(U)>
+    void getIntersectingBoxes(const U* P0, const U* P1, std::vector<size_type>& out, nuga_real_t tolerance=EPSILON, bool strict=false) const
+    { nuga_real_t p0[DIM], p1[DIM]; for (E_Int k = 0; k < DIM; ++k) { p0[k] = P0[k]; p1[k] = P1[k]; } getIntersectingBoxes(p0, p1, out, tolerance, strict); }
     
     /// Returns the global bounding box : the tree's bounding box
     const BBoxType* getGlobalBox(){return _boxes[_root_id];}
     
     ///
-    static E_Bool boxesAreOverlapping(const BBoxType * bb1, const BBoxType * bb2, const E_Float& tol);
+    static E_Bool boxesAreOverlapping(const BBoxType * bb1, const BBoxType * bb2, const nuga_real_t& tol);
     
     ///
-    static E_Bool box1IsIncludedinbox2(const BBoxType * bb1, const BBoxType * bb2, const E_Float& tol);
+    static E_Bool box1IsIncludedinbox2(const BBoxType * bb1, const BBoxType * bb2, const nuga_real_t& tol);
 
   private: /** Insertion method */
 
@@ -499,22 +512,22 @@ class BbTree {
     bool __hasAnOverlappingBox(BBoxType* box, E_Int node) const;
 
     ///
-    void __getIntersectingBoxes(const E_Float* P0, const E_Float* P1, E_Int node, const E_Float& abstol, std::vector<size_type>& out) const;
+    void __getIntersectingBoxes(const nuga_real_t* P0, const nuga_real_t* P1, E_Int node, const nuga_real_t& abstol, std::vector<size_type>& out) const;
     ///
-    void __getIntersectingBoxesStrict(const E_Float* P0, const E_Float* P1, E_Int node, const E_Float& abstol, std::vector<size_type>& out, const BBoxType& boxSeg) const;
+    void __getIntersectingBoxesStrict(const nuga_real_t* P0, const nuga_real_t* P1, E_Int node, const nuga_real_t& abstol, std::vector<size_type>& out, const BBoxType& boxSeg) const;
 
     ///
-    inline E_Bool __boxIntersectRay(const BBoxType& box, const E_Float* P0, const E_Float* P1, const E_Float& abstol) const;
+    inline E_Bool __boxIntersectRay(const BBoxType& box, const nuga_real_t* P0, const nuga_real_t* P1, const nuga_real_t& abstol) const;
     ///
-    inline E_Bool __boxIntersectSeg(const BBoxType& box, const E_Float* P0, const E_Float* P1, const E_Float& abstol, const BBoxType& boxSeg) const;
+    inline E_Bool __boxIntersectSeg(const BBoxType& box, const nuga_real_t* P0, const nuga_real_t* P1, const nuga_real_t& abstol, const BBoxType& boxSeg) const;
 
 #ifdef E_TIME1
 public:
-  static E_Float _append_tree;
-  static E_Float _get_box_boxes;
-  static E_Float _get_longest_axis;
-  static E_Float _build_vectors;
-  static E_Float _fill_vectors;
+  static nuga_real_t _append_tree;
+  static nuga_real_t _get_box_boxes;
+  static nuga_real_t _get_longest_axis;
+  static nuga_real_t _build_vectors;
+  static nuga_real_t _fill_vectors;
 #endif
 
  // private:
@@ -526,7 +539,7 @@ public:
     std::vector<BBoxType*> _boxes;
 
     /// tolerance
-    E_Float _tolerance;
+    nuga_real_t _tolerance;
 
     /// Empty column for the tree.
     size_type _newL[BBTREE_ROWS];

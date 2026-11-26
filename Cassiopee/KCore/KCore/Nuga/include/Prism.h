@@ -75,9 +75,9 @@ public:
     }
     ///
     template <typename ngunit_t>
-    static inline void iso_barycenter(const K_FLD::FloatArray& crd, const ngunit_t & PGs, const E_Int* first_pg, E_Int nb_pgs, E_Int index_start, E_Float* G);
+    static inline void iso_barycenter(const K_FLD::FloatArray& crd, const ngunit_t & PGs, const E_Int* first_pg, E_Int nb_pgs, E_Int index_start, nuga_real_t* G);
 
-    E_Float quality(const K_FLD::FloatArray& crd, E_Float* Vol){return 1;}
+    nuga_real_t quality(const K_FLD::FloatArray& crd, nuga_real_t* Vol){return 1;}
 
 private:
 
@@ -206,7 +206,7 @@ void Prism::reorder_pgs(ngo_t& ng, const K_FLD::IntArray& F2E, E_Int i)
 }
 
   template <typename ngunit_t>
-  inline void Prism::iso_barycenter(const K_FLD::FloatArray& crd, const ngunit_t & PGs, const E_Int* first_pg, E_Int nb_pgs, E_Int index_start, E_Float* G)
+  inline void Prism::iso_barycenter(const K_FLD::FloatArray& crd, const ngunit_t & PGs, const E_Int* first_pg, E_Int nb_pgs, E_Int index_start, nuga_real_t* G)
   {
     //WARNING : assuming reodrederd pgs : first is bottom, second is top
 #ifdef DEBUG_2019        

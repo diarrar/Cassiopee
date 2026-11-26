@@ -32,7 +32,7 @@ Intersector::getXPairs
 (const K_FLD::FloatArray& pos, const std::vector<K_FLD::IntArray*>& Cs,
  std::vector<XPair>& pairs)
 {
-  E_Float ENLARGE_FACTOR = 0.5;
+  nuga_real_t ENLARGE_FACTOR = 0.5;
   size_t nb_comps = Cs.size();
   
   // Global component bounding boxes.
@@ -61,9 +61,9 @@ Intersector::getXPairs
   }
 
   // Box tolerances and min length of each triangle.
-  std::vector<std::vector<E_Float> > MinT3Lengths(nb_comps);
+  std::vector<std::vector<nuga_real_t> > MinT3Lengths(nb_comps);
   K_FLD::FloatArray L2;
-  std::vector<E_Float> minLs;
+  std::vector<nuga_real_t> minLs;
   for (size_t c = 0; c < nb_comps; ++c)
   {
     if (!used[c])
@@ -121,7 +121,7 @@ Intersector::getXPairs
 ///
 void Intersector::__create_boxes
 (const K_FLD::FloatArray& crd, const K_FLD::IntArray& cnt, 
- std::vector<K_SEARCH::BBox3D*>& boxes, K_SEARCH::BBox3D*& pool, K_SEARCH::BBox3D& GBbox, E_Float ENLARGE_FACTOR)
+ std::vector<K_SEARCH::BBox3D*>& boxes, K_SEARCH::BBox3D*& pool, K_SEARCH::BBox3D& GBbox, nuga_real_t ENLARGE_FACTOR)
 {
   size_t nb_elts(cnt.cols());
   
@@ -147,7 +147,7 @@ void Intersector::__create_boxes
     return;
   
   // now extend the boxes
-  E_Float mL[3], mL0, dx;
+  nuga_real_t mL[3], mL0, dx;
   for (size_t i = 0; i < nb_elts; ++i)
   {
     mL0 = -NUGA::FLOAT_MAX;
@@ -171,7 +171,7 @@ inline bool
 Intersector::__overlap
 (const K_FLD::FloatArray& pos, K_FLD::IntArray::const_iterator pS1,
  K_FLD::IntArray::const_iterator pS2,
- E_Float tol, E_Bool tol_is_absolute, E_Float Lc)
+ nuga_real_t tol, E_Bool tol_is_absolute, nuga_real_t Lc)
 {
    bool ovlap = __pointIsInside(pos, pS1, pS2, tol, tol_is_absolute, Lc);
    if (!ovlap)
@@ -183,12 +183,12 @@ Intersector::__overlap
 bool
 Intersector::__pointIsInside
 (const K_FLD::FloatArray& pos, K_FLD::IntArray::const_iterator pS1,
- K_FLD::IntArray::const_iterator pS2, E_Float tol, E_Bool tol_is_absolute,
- E_Float Lc)
+ K_FLD::IntArray::const_iterator pS2, nuga_real_t tol, E_Bool tol_is_absolute,
+ nuga_real_t Lc)
 {
   E_Int Ni;
   bool ret = false, inside;
-  E_Float d, ztol(tol), U[2];
+  nuga_real_t d, ztol(tol), U[2];
 
   if (!tol_is_absolute)
     ztol *= Lc;
@@ -216,20 +216,20 @@ Intersector::__pointIsInside
 bool
 Intersector::__edgeOverlaps
 (const K_FLD::FloatArray& pos, K_FLD::IntArray::const_iterator pS1,
- K_FLD::IntArray::const_iterator pS2, E_Float tol, E_Bool tol_is_absolute,
- E_Float Lc)
+ K_FLD::IntArray::const_iterator pS2, nuga_real_t tol, E_Bool tol_is_absolute,
+ nuga_real_t Lc)
 {
    E_Int Ni, Nj;
   bool ret = false;
-  E_Float lambda, UV[2], min_d;
+  nuga_real_t lambda, UV[2], min_d;
   E_Bool parallel, coincident;
-  E_Float eps(EPSILON), abstol(tol), edge_tol_rel(0.1);
+  nuga_real_t eps(EPSILON), abstol(tol), edge_tol_rel(0.1);
 
   if (!tol_is_absolute)
     abstol *= Lc;
   eps /= Lc;
 
-  E_Float Qi[3], normal1[3], normal2[3];
+  nuga_real_t Qi[3], normal1[3], normal2[3];
   K_MESH::Triangle::normal(pos.col(*pS1), pos.col(*(pS1+1)), pos.col(*(pS1+2)), normal1);
   NUGA::normalize<3>(normal1);
   K_MESH::Triangle::normal(pos.col(*pS2), pos.col(*(pS2+1)), pos.col(*(pS2+2)), normal2);
@@ -288,11 +288,11 @@ Intersector::__getXPairs
  E_Int s1, E_Int s2,
  const std::vector<TreeType* >& trees, 
  const std::vector< std::vector<BBoxType*> >& boxes,
- const std::vector<std::vector<E_Float> >& Lengths,
- E_Float tol, bool tol_is_absolute,
+ const std::vector<std::vector<nuga_real_t> >& Lengths,
+ nuga_real_t tol, bool tol_is_absolute,
  std::vector<XPair>& pairs)
 {
-  E_Float                       minL1, minL2, Lc;
+  nuga_real_t                       minL1, minL2, Lc;
   std::vector<E_Int>            bxs;
   K_FLD::IntArray::const_iterator pS1, pS2;
   size_t                        j;

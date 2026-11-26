@@ -51,7 +51,7 @@ namespace NUGA
       const K_FLD::FldArrayF& fldD, E_Int posDx, E_Int posDy, E_Int posDz,
       const K_FLD::FldArrayI& cnD,
       const Vector_t<E_Int>& cellNR,
-      Vector_t<E_Int>& dindices, Vector_t<E_Float>& dcoeffs,
+      Vector_t<E_Int>& dindices, Vector_t<nuga_real_t>& dcoeffs,
       Vector_t<E_Int>& xr, Vector_t<E_Int>& roids)
     {
       // HACK CONVERSION OF THE FLD INTO DYNS
@@ -77,7 +77,7 @@ namespace NUGA
       const acrd_t& crdD,
       const cnt_t& cntD,
       std::vector<int>& dindices,
-      std::vector<E_Float>& dcoeffs,
+      std::vector<nuga_real_t>& dcoeffs,
       std::vector<int>& xr, bool do_omp = false)
     {
       dindices.clear();
@@ -106,10 +106,10 @@ namespace NUGA
 #pragma omp parallel for if(do_omp)
       for (E_Int i = 0; i < npgsR; ++i)
       {
-        E_Float isoGR[3];
+        nuga_real_t isoGR[3];
         K_MESH::Polygon::iso_barycenter<acrd_t, 3>(crdR, pgsR.get_facets_ptr(i), pgsR.stride(i), 1, isoGR);
 
-        E_Float d2;
+        nuga_real_t d2;
         dindices[i] = treeD.getClosest(isoGR, d2);
       }
 
@@ -127,7 +127,7 @@ namespace NUGA
       const acrd_t& crdD,
       const cnt_t& cntD,
       std::vector<int>& dindices,
-      std::vector<E_Float>& dcoeffs,
+      std::vector<nuga_real_t>& dcoeffs,
       std::vector<int>& xr, bool do_omp = false)
     {
       dindices.clear();
@@ -181,7 +181,7 @@ namespace NUGA
       const cnt_t& cntD,
       eMode mode,
       std::vector<int>& dindices,
-      std::vector<E_Float>& dcoeffs,
+      std::vector<nuga_real_t>& dcoeffs,
       std::vector<int>& xr,
       bool do_omp = false)
     {

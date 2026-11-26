@@ -65,38 +65,38 @@ struct DelaunayCriterion // : public std::unary_function <E_Int, bool>
   explicit DelaunayCriterion(const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect)
     :_pos(pos), _connect(connect), _m(0){}
 
-  inline void setPoint(const E_Float* pt, const T& m){_pt = pt;_m = &m;}
+  inline void setPoint(const nuga_real_t* pt, const T& m){_pt = pt;_m = &m;}
 
   inline bool operator() (E_Int K) const
   {
-    E_Float              R2, C[2];
+    nuga_real_t              R2, C[2];
 
     _t.circumDiskCenter(_pos, _connect.col(K), R2, C, *_m);
 
     return (R2 > 0.) ? (distance2(C, _pt) < R2 * (1.0 + 1.e-10)) : false;//fixme : tol
   }
  
-  inline E_Float distance2(const E_Float* P0, const E_Float* P1) const
+  inline nuga_real_t distance2(const nuga_real_t* P0, const nuga_real_t* P1) const
   {
-    E_Float u = P1[0] - P0[0];
-    E_Float v = P1[1] - P0[1];
+    nuga_real_t u = P1[0] - P0[0];
+    nuga_real_t v = P1[1] - P0[1];
     return ((*_m)[0] * u * u) + (2. * ((*_m)[1] * u * v) +  ((*_m)[2] * v * v));
   }
 
   const K_FLD::FloatArray& _pos;
   const K_FLD::IntArray&   _connect;
-  const E_Float*           _pt;
+  const nuga_real_t*           _pt;
   const T*                 _m;
   K_MESH::Triangle         _t;
 };
 
 //iso specialization
 template <> inline
-E_Float
-DelaunayCriterion<E_Float>::distance2(const E_Float* P0, const E_Float* P1) const
+nuga_real_t
+DelaunayCriterion<nuga_real_t>::distance2(const nuga_real_t* P0, const nuga_real_t* P1) const
 {
-  E_Float u = P1[0] - P0[0];
-  E_Float v = P1[1] - P0[1];
+  nuga_real_t u = P1[0] - P0[0];
+  nuga_real_t v = P1[1] - P0[1];
   return (u * u) + (v * v); 
 }
 

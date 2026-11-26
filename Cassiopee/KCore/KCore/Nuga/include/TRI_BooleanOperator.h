@@ -37,7 +37,7 @@ public:
   /// Constructor with the 2 input surfaces S1 & S2.
   TRI_BooleanOperator(const K_FLD::FloatArray& coord1, const K_FLD::IntArray& connect1,
                       const K_FLD::FloatArray& coord2, const K_FLD::IntArray& connect2,
-                      E_Float tolerance, int itermax=10);
+                      nuga_real_t tolerance, int itermax=10);
   /// Destructor.
   ~TRI_BooleanOperator(void);
   

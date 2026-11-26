@@ -47,26 +47,26 @@ private:
                           E_Int s1, E_Int s2,
                           const std::vector<TreeType* >& trees, 
                           const std::vector< std::vector<BBoxType*> >& boxes,
-                          const std::vector<std::vector<E_Float> >& Lengths,
-                          E_Float tol, bool tol_is_absolute,
+                          const std::vector<std::vector<nuga_real_t> >& Lengths,
+                          nuga_real_t tol, bool tol_is_absolute,
                           std::vector<XPair>& pairs);
   
   ///
   static void __create_boxes (const K_FLD::FloatArray& crd, const K_FLD::IntArray& cnt, 
-                              std::vector<K_SEARCH::BBox3D*>& boxes, K_SEARCH::BBox3D*& pool, K_SEARCH::BBox3D& GBbox, E_Float enlarge_factor=0.);
+                              std::vector<K_SEARCH::BBox3D*>& boxes, K_SEARCH::BBox3D*& pool, K_SEARCH::BBox3D& GBbox, nuga_real_t enlarge_factor=0.);
 
   ///
   inline static bool __overlap(const K_FLD::FloatArray& pos, K_FLD::IntArray::const_iterator pS1,
                                K_FLD::IntArray::const_iterator pS2,
-                               E_Float tolerance, E_Bool tol_is_absolute, E_Float Lc);
+                               nuga_real_t tolerance, E_Bool tol_is_absolute, nuga_real_t Lc);
 
   static bool __pointIsInside(const K_FLD::FloatArray& pos, K_FLD::IntArray::const_iterator pS1,
-                              K_FLD::IntArray::const_iterator pS2, E_Float tolerance, E_Bool tol_is_absolute,
-                              E_Float Lc);
+                              K_FLD::IntArray::const_iterator pS2, nuga_real_t tolerance, E_Bool tol_is_absolute,
+                              nuga_real_t Lc);
 
   static bool __edgeOverlaps(const K_FLD::FloatArray& pos, K_FLD::IntArray::const_iterator pS1,
-                             K_FLD::IntArray::const_iterator pS2, E_Float tolerance, E_Bool tol_is_absolute,
-                             E_Float Lc);
+                             K_FLD::IntArray::const_iterator pS2, nuga_real_t tolerance, E_Bool tol_is_absolute,
+                             nuga_real_t Lc);
 
 
   Intersector(void){}

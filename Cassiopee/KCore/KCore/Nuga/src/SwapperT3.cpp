@@ -35,20 +35,20 @@ SwapperT3::SwapperT3(){}
 SwapperT3::~SwapperT3(){}
 
 //
-SwapperT3::eDegenType SwapperT3::degen_type2(const K_FLD::FloatArray& crd, E_Int N0, E_Int N1, E_Int N2, E_Float tol2, E_Float lambdac, E_Int& ns)
+SwapperT3::eDegenType SwapperT3::degen_type2(const K_FLD::FloatArray& crd, E_Int N0, E_Int N1, E_Int N2, nuga_real_t tol2, nuga_real_t lambdac, E_Int& ns)
 {
   ns = IDX_NONE;// ns for "special node" : the pick for a spike, the hat node for a hat
   //
-  E_Float normal[3], MINQUAL{ ZERO_M }, BADQUAL_RTOL{ 0.25 }; //bad qual => we need to make it vanish => has to fall into spike/hat/small so big tol..
+  nuga_real_t normal[3], MINQUAL{ ZERO_M }, BADQUAL_RTOL{ 0.25 }; //bad qual => we need to make it vanish => has to fall into spike/hat/small so big tol..
   K_MESH::Triangle::normal(crd.col(N0), crd.col(N1), crd.col(N2), normal);
-  E_Float l2 = sqrt(normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]);
+  nuga_real_t l2 = sqrt(normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]);
   //
   bool normal_failure = !(fabs(l2 - 1.) < EPSILON);
   
-  E_Float q = K_MESH::Triangle::qualityG<3>(crd.col(N0), crd.col(N1), crd.col(N2));
+  nuga_real_t q = K_MESH::Triangle::qualityG<3>(crd.col(N0), crd.col(N1), crd.col(N2));
   bool good_qual = (q > MINQUAL);
 
-  std::pair<E_Float, E_Int> palma[3];
+  std::pair<nuga_real_t, E_Int> palma[3];
   E_Int N[] = { N0, N1, N2 };
 
   palma[0] = std::make_pair(NUGA::sqrDistance(crd.col(N0), crd.col(N1), 3), 2);
@@ -61,11 +61,11 @@ SwapperT3::eDegenType SwapperT3::degen_type2(const K_FLD::FloatArray& crd, E_Int
   // Ntop is the node to project on the base
   E_Int n = palma[2].second;
   E_Int& Ntop = N[n];
-  E_Float& Lbase2 = palma[2].first;
-  //E_Float& Lmin2 = palma[0].first;
+  nuga_real_t& Lbase2 = palma[2].first;
+  //nuga_real_t& Lmin2 = palma[0].first;
 
-  E_Float lambda;
-  E_Float d = K_MESH::Edge::edgePointMinDistance<3>(crd.col(N[(n + 1) % 3]), crd.col(N[(n + 2) % 3]), crd.col(Ntop), lambda);
+  nuga_real_t lambda;
+  nuga_real_t d = K_MESH::Edge::edgePointMinDistance<3>(crd.col(N[(n + 1) % 3]), crd.col(N[(n + 2) % 3]), crd.col(Ntop), lambda);
   if (!normal_failure && (d*d > tol2) && good_qual) return OK;
 
   if (!good_qual) // increase the tolerance
@@ -93,10 +93,10 @@ SwapperT3::eDegenType SwapperT3::degen_type2(const K_FLD::FloatArray& crd, E_Int
 }
 
 //
-E_Int SwapperT3::clean(const K_FLD::FloatArray& coord, E_Float tol, K_FLD::IntArray& connect, std::vector<E_Int> & coids, std::vector<E_Int>& cnids)
+E_Int SwapperT3::clean(const K_FLD::FloatArray& coord, nuga_real_t tol, K_FLD::IntArray& connect, std::vector<E_Int> & coids, std::vector<E_Int>& cnids)
 {
 
-  E_Float tol2(tol*tol);
+  nuga_real_t tol2(tol*tol);
   E_Int nb_tris0;
 
   K_CONNECT::IdTool::init_inc(cnids, connect.cols());
@@ -154,7 +154,7 @@ E_Int SwapperT3::clean(const K_FLD::FloatArray& coord, E_Float tol, K_FLD::IntAr
   return 0;
 }
 
-bool SwapperT3::has_degen(const K_FLD::FloatArray& coord, const K_FLD::IntArray& connect, E_Float tol2)
+bool SwapperT3::has_degen(const K_FLD::FloatArray& coord, const K_FLD::IntArray& connect, nuga_real_t tol2)
 {
   for (E_Int i = 0; i < connect.cols(); ++i)
   {
@@ -173,7 +173,7 @@ bool SwapperT3::has_degen(const K_FLD::FloatArray& coord, const K_FLD::IntArray&
 
 }
 
-bool SwapperT3::has_hat(const K_FLD::FloatArray& coord, const K_FLD::IntArray& connect, E_Float tol2)
+bool SwapperT3::has_hat(const K_FLD::FloatArray& coord, const K_FLD::IntArray& connect, nuga_real_t tol2)
 {
   for (E_Int i = 0; i < connect.cols(); ++i)
   {
@@ -222,19 +222,19 @@ E_Int SwapperT3::remove_degen
 }
 
 //
-E_Int SwapperT3::run (const K_FLD::FloatArray& coord, E_Float tol, K_FLD::IntArray& connect, std::vector<E_Int> & oids)
+E_Int SwapperT3::run (const K_FLD::FloatArray& coord, nuga_real_t tol, K_FLD::IntArray& connect, std::vector<E_Int> & oids)
 {
   K_FLD::IntArray::const_iterator   pS;
   E_Int                             Si, nb_tris0(connect.cols()), n, N0, N1, N2;
   //Ni, NB_NODES(3);
-  //E_Float                           d2, l0, d0, lambda, Pk[3], dMax;
-  E_Float tol2(tol*tol), lambdac=0.0;
+  //nuga_real_t                           d2, l0, d0, lambda, Pk[3], dMax;
+  nuga_real_t tol2(tol*tol), lambdac=0.0;
   K_MESH::NO_Edge                   Ei;
 
   typedef std::map<K_MESH::NO_Edge, std::vector<E_Int> > e_to_pts_t;
   e_to_pts_t E_to_Pts;
   e_to_pts_t::iterator itE;
-  //E_Float tolx = -1.;
+  //nuga_real_t tolx = -1.;
   std::set<K_MESH::NO_Edge> frozenE;
 
 #ifdef DEBUG_SWAPPER
@@ -381,10 +381,10 @@ E_Int SwapperT3::run (const K_FLD::FloatArray& coord, E_Float tol, K_FLD::IntArr
 
 void SwapperT3::edit_T3_caracs(const K_FLD::FloatArray& crd, E_Int* pN)
 {
-  E_Float hmin, Lmin, lambda_min;
+  nuga_real_t hmin, Lmin, lambda_min;
   E_Int himin=-1, limin=-1;
   Lmin = hmin = lambda_min = NUGA::FLOAT_MAX;
-  E_Float lambda, h;
+  nuga_real_t lambda, h;
   
   for (E_Int n=0; n < 3; ++n)
   {
@@ -396,7 +396,7 @@ void SwapperT3::edit_T3_caracs(const K_FLD::FloatArray& crd, E_Int* pN)
       himin = n;
     }
     
-    E_Float d = sqrt(NUGA::sqrDistance(crd.col(pN[n]), crd.col(pN[(n + 1) % 3]), 3));
+    nuga_real_t d = sqrt(NUGA::sqrDistance(crd.col(pN[n]), crd.col(pN[(n + 1) % 3]), 3));
     
     if (d < Lmin)
     {

@@ -98,7 +98,7 @@ namespace K_MESH
     }
     
     template <typename CoordAcc>
-    void iso_barycenter(const CoordAcc& coord, E_Float* G)
+    void iso_barycenter(const CoordAcc& coord, nuga_real_t* G)
     { 
       //
       for (size_t d=0; d < 3; ++d) G[d]=0.;

@@ -99,7 +99,7 @@ struct connect_trait<LINEIC, true>
     return lcrd;
   }
 
-  static void compute_nodal_metric2(const K_FLD::FloatArray& crd, const cnt_t& cnt, std::vector<E_Float>& nodal_metric2, eMetricType metric_type)
+  static void compute_nodal_metric2(const K_FLD::FloatArray& crd, const cnt_t& cnt, std::vector<nuga_real_t>& nodal_metric2, eMetricType metric_type)
   {
     // should be factorized in a behaviour class
     K_FLD::FloatArray L;
@@ -232,7 +232,7 @@ struct connect_trait<SURFACIC, false>
     return ngon_type::compress_to_used_nodes(c, crdi, nids);
   }
 
-  static void compute_nodal_metric2(const K_FLD::FloatArray& crd, const cnt_t& cnt, std::vector<E_Float>& nodal_metric2, eMetricType metric_type)
+  static void compute_nodal_metric2(const K_FLD::FloatArray& crd, const cnt_t& cnt, std::vector<nuga_real_t>& nodal_metric2, eMetricType metric_type)
   {
     K_FLD::FloatArray L;
     NUGA::MeshTool::computeIncidentEdgesSqrLengths(crd, cnt, L);
@@ -574,7 +574,7 @@ struct connect_trait<VOLUMIC, false>
     return ngon_type::compress_to_used_nodes(c.PGs, crdi, nids);
   }
 
-  static void compute_nodal_metric2(const K_FLD::FloatArray& crd, const cnt_t& c, std::vector<E_Float>& nodal_metric2, eMetricType metric_type)
+  static void compute_nodal_metric2(const K_FLD::FloatArray& crd, const cnt_t& c, std::vector<nuga_real_t>& nodal_metric2, eMetricType metric_type)
   {
     // should be factorized in a behaviour class
     K_FLD::FloatArray L;
@@ -618,7 +618,7 @@ struct mesh_t
   K_FLD::FloatArray   crd;
   cnt_t               cnt;
   mutable std::vector<E_Int>   e_type, flag;
-  mutable std::vector<E_Float> nodal_metric2; // square dist
+  mutable std::vector<nuga_real_t> nodal_metric2; // square dist
   mutable loc_t*               localiz;
   mutable neighbor_t*          neighbors;
   int                          oriented;
@@ -732,7 +732,7 @@ struct mesh_t
     // Lref2
     // if nodal_metric2 exist and is 'valid' (same size as crd) => use it
     // otherwise compute Lref2 based only on min edge length of the element (so might by over estimated)
-    E_Float Lr2 = (E_Int(nodal_metric2.size()) == crd.cols()) ? e.Lref2(nodal_metric2) : e.Lref2(crd);
+    nuga_real_t Lr2 = (E_Int(nodal_metric2.size()) == crd.cols()) ? e.Lref2(nodal_metric2) : e.Lref2(crd);
     
     return aelt_t(e, crd, Lr2);
   }
@@ -892,14 +892,14 @@ struct mesh_t
     e.bbox(crd, box);
   }
 
-  E_Float Lref2() const
+  nuga_real_t Lref2() const
   {
     if (! nodal_metric2.empty())
       return *std::min_element(ALL(nodal_metric2));
 
     // Lref2 est calcule uniquement avec les aretes de la cellule => Possiblement surestime 
     // car des cellules voisines pourraient avoir des aretes plus petites et donc definir une valeur nodale plus petite
-    E_Float minLref2 = NUGA::FLOAT_MAX;
+    nuga_real_t minLref2 = NUGA::FLOAT_MAX;
     for (E_Int i=0; i < ncells(); ++i)
     {
       elt_t e = element(i);
@@ -908,7 +908,7 @@ struct mesh_t
     return minLref2;
   }
   
-  E_Float Lref2(E_Int i) const
+  nuga_real_t Lref2(E_Int i) const
   { 
     elt_t e = element(i);
     
@@ -918,9 +918,9 @@ struct mesh_t
     return e.Lref2(crd);               // isolated val
   }
 
-  E_Float Lref2(const std::vector<E_Int>& cands, E_Int idx_start) const
+  nuga_real_t Lref2(const std::vector<E_Int>& cands, E_Int idx_start) const
   {
-    E_Float val = NUGA::FLOAT_MAX;
+    nuga_real_t val = NUGA::FLOAT_MAX;
     for (size_t i = 0; i < cands.size(); ++i)
     {
       val = std::min(val, Lref2(cands[i] - idx_start));
@@ -1013,7 +1013,7 @@ struct mesh_t
     trait::get_nth_neighborhood(cnt, *neighbors, i, N, neighs);
   }*/
 
-  const std::vector<E_Float>& get_nodal_metric2(eMetricType mtype = eMetricType::ISO_MIN, bool based_on_cnt_only=false) const // based_on_cnt_only is only relevant woth ISO_MIN (cf. build_nodal_metric2)
+  const std::vector<nuga_real_t>& get_nodal_metric2(eMetricType mtype = eMetricType::ISO_MIN, bool based_on_cnt_only=false) const // based_on_cnt_only is only relevant woth ISO_MIN (cf. build_nodal_metric2)
   {
     if ( (metric_type != mtype) || nodal_metric2.empty() || ((E_Int)nodal_metric2.size() != crd.cols()))
        build_nodal_metric2(mtype, based_on_cnt_only); // already computed and correctly sized
@@ -1032,10 +1032,10 @@ struct mesh_t
       acrd_t acrd(crd);
       K_SEARCH::KdTree<> tree(acrd);
 
-      E_Float d2;
+      nuga_real_t d2;
       for (size_t i = 0; i < nodal_metric2.size(); ++i)
       {
-        E_Float r2 = (1. - EPSILON) * nodal_metric2[i]; //reduce it to discard nodes connected to i.
+        nuga_real_t r2 = (1. - EPSILON) * nodal_metric2[i]; //reduce it to discard nodes connected to i.
         E_Int N = tree.getClosest(i, r2, d2);
         if (N != IDX_NONE)nodal_metric2[i] = d2;
       }

@@ -30,19 +30,19 @@ namespace K_LINEAR
   {
   public:
     static void eigen_vectors 
-      (E_Float a00, E_Float a11, E_Float a10, E_Float& lambda0, E_Float& lambda1, E_Float* v0, E_Float* v1);
+      (nuga_real_t a00, nuga_real_t a11, nuga_real_t a10, nuga_real_t& lambda0, nuga_real_t& lambda1, nuga_real_t* v0, nuga_real_t* v1);
 
     static void eigen_values 
-      (E_Float a00, E_Float a11, E_Float a10, E_Float& lambda0, E_Float& lambda1);
+      (nuga_real_t a00, nuga_real_t a11, nuga_real_t a10, nuga_real_t& lambda0, nuga_real_t& lambda1);
 
     static void simultaneous_reduction
       (const K_FLD::FloatArray& M1, const K_FLD::FloatArray& M2,
-       E_Float* V1, E_Float* V2);
+       nuga_real_t* V1, nuga_real_t* V2);
 
     static void intersect(const K_FLD::FloatArray& Mi, const K_FLD::FloatArray& M2, K_FLD::FloatArray& I);
 
-    static void resoLin(E_Float a11, E_Float a12, E_Float a21, E_Float a22,
-                        E_Float d1, E_Float d2, E_Float&x, E_Float&y);
+    static void resoLin(nuga_real_t a11, nuga_real_t a12, nuga_real_t a21, nuga_real_t a22,
+                        nuga_real_t d1, nuga_real_t d2, nuga_real_t&x, nuga_real_t&y);
   };
 }
 

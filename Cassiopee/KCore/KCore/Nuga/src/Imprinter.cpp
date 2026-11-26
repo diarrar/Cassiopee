@@ -52,8 +52,8 @@ DELAUNAY::Imprinter::run(const K_FLD::FloatArray& posB0, const K_FLD::IntArray& 
   
   K_FLD::FloatArray::const_iterator pNi;
   
-  E_Float UV[2];
-  E_Float u,v, dmin, di;
+  nuga_real_t UV[2];
+  nuga_real_t u,v, dmin, di;
   bool inside;
 
   for (size_t i = 0; i < B0_nodes.size(); ++i)

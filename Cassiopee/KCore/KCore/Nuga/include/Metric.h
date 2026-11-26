@@ -38,7 +38,7 @@
 namespace DELAUNAY 
 {
   /** Iso/Aniso Variable Metric Class.
-  Type T is either a E_Float for an isotropic metric field or an Symmetric matrix (i.e. AnisoMetricType)
+  Type T is either a nuga_real_t for an isotropic metric field or an Symmetric matrix (i.e. AnisoMetricType)
   for an anisotropic metric field.
   */
   template <typename T> class VarMetric
@@ -57,7 +57,7 @@ namespace DELAUNAY
 
     VarMetric() :_pos(nullptr), _interpol(nullptr){}
 
-    VarMetric(K_FLD::FloatArray& pos, E_Float hmin, E_Float hmax, eInterpType interp_type = LINEAR);
+    VarMetric(K_FLD::FloatArray& pos, nuga_real_t hmin, nuga_real_t hmax, eInterpType interp_type = LINEAR);
 
     virtual ~VarMetric(void){ if (_interpol) {delete _interpol; _interpol=0;} }
 
@@ -67,22 +67,22 @@ namespace DELAUNAY
 
   public: /** API methods */
 
-    inline virtual void computeMetric(size_type N, size_type Ni, size_type Nj, E_Float r);
+    inline virtual void computeMetric(size_type N, size_type Ni, size_type Nj, nuga_real_t r);
 
     inline virtual void setMetric(E_Int N, const T& m);
 
-    inline E_Float lengthEval(size_type Ni, const T& mi, size_type Nj, const T& mj);
+    inline nuga_real_t lengthEval(size_type Ni, const T& mi, size_type Nj, const T& mj);
 
-    inline E_Float length(size_type Ni, size_type Nj, const E_Float& threshold, NUGA::int_vector_type& tmpNodes);
+    inline nuga_real_t length(size_type Ni, size_type Nj, const nuga_real_t& threshold, NUGA::int_vector_type& tmpNodes);
 
-    inline E_Float getRadius(size_type Ni);
+    inline nuga_real_t getRadius(size_type Ni);
     
     /// computes the square of the distance between the center and a point P on the ellipse along direction dir.
-    inline E_Float get_h2_along_dir(size_type Ni, const E_Float* dir);
+    inline nuga_real_t get_h2_along_dir(size_type Ni, const nuga_real_t* dir);
     ///
-    inline void directional_metric_reduce(size_type Ni, E_Float h2, const E_Float* normed_dir);
+    inline void directional_metric_reduce(size_type Ni, nuga_real_t h2, const nuga_real_t* normed_dir);
     ///
-    inline void metric_reduce(size_type Ni, const E_Float* NiNj, E_Float hjold2, E_Float hjnew2);
+    inline void metric_reduce(size_type Ni, const nuga_real_t* NiNj, nuga_real_t hjold2, nuga_real_t hjnew2);
 
     virtual void init_metric
       (const K_FLD::FloatArray& metric, K_FLD::FloatArray& pos, const K_FLD::IntArray& connectB,
@@ -91,20 +91,20 @@ namespace DELAUNAY
     inline const value_type& operator[](size_type i) const { assert (i < (size_type)_field.size()); return _field[i];}
     
     void __init_refine_points
-    (K_FLD::FloatArray& pos, size_type Ni, size_type Nj, E_Float threshold,
-     std::vector<std::pair<E_Float, size_type> >& length_to_points, std::vector<size_type>& tmpNodes);
+    (K_FLD::FloatArray& pos, size_type Ni, size_type Nj, nuga_real_t threshold,
+     std::vector<std::pair<nuga_real_t, size_type> >& length_to_points, std::vector<size_type>& tmpNodes);
     
-    void __compute_refine_points(K_FLD::FloatArray& pos, size_type Ni, size_type Nj, E_Float threshold, 
-        std::vector<std::pair<E_Float, size_type> >& length_to_points, std::vector<size_type>& tmpNodes);
+    void __compute_refine_points(K_FLD::FloatArray& pos, size_type Ni, size_type Nj, nuga_real_t threshold, 
+        std::vector<std::pair<nuga_real_t, size_type> >& length_to_points, std::vector<size_type>& tmpNodes);
     
-    void smoothing_loop(const std::set<K_MESH::NO_Edge>& edges, E_Float gr, E_Int itermax, E_Int N0 /* threshold for metric changes*/);
-    void smoothing_loop(const K_FLD::IntArray& connectB, E_Float gr, E_Int itermax, E_Int N0 /* threshold for metric changes*/);
+    void smoothing_loop(const std::set<K_MESH::NO_Edge>& edges, nuga_real_t gr, E_Int itermax, E_Int N0 /* threshold for metric changes*/);
+    void smoothing_loop(const K_FLD::IntArray& connectB, nuga_real_t gr, E_Int itermax, E_Int N0 /* threshold for metric changes*/);
 
-    void smoothing_loop(const ngon_unit& PGs, E_Float gr, E_Int itermax, E_Int N0 /* threshold for metric changes*/);
+    void smoothing_loop(const ngon_unit& PGs, nuga_real_t gr, E_Int itermax, E_Int N0 /* threshold for metric changes*/);
 
-    inline bool smooth(size_type Ni, size_type Nj, E_Float gr, E_Int N0 /* threshold for metric changes*/);
+    inline bool smooth(size_type Ni, size_type Nj, nuga_real_t gr, E_Int N0 /* threshold for metric changes*/);
     
-    inline bool aniso_smooth(size_type Ni, size_type Nj, E_Float gr);
+    inline bool aniso_smooth(size_type Ni, size_type Nj, nuga_real_t gr);
     
     bool is_valid() 
     {
@@ -114,10 +114,10 @@ namespace DELAUNAY
       return res;
     }
 
-    inline void convertIsoToAniso(const std::vector<E_Float>& isoM, std::vector<T>& anisoM);
-    inline void convertIsoToAniso(const std::vector<E_Float>& isoM); //set the aniso field in this->_field
+    inline void convertIsoToAniso(const std::vector<nuga_real_t>& isoM, std::vector<T>& anisoM);
+    inline void convertIsoToAniso(const std::vector<nuga_real_t>& isoM); //set the aniso field in this->_field
 
-    static E_Int eig(std::array<E_Float, 9>& N, E_Float lambda[3], E_Float v[3][3]);
+    static E_Int eig(std::array<nuga_real_t, 9>& N, nuga_real_t lambda[3], nuga_real_t v[3][3]);
 
 #ifdef DEBUG_METRIC
   void append_unity_ellipse(const K_FLD::FloatArray& c, E_Int i, K_FLD::FloatArray& crd, K_FLD::IntArray& cnt, E_Int Nc = -1);
@@ -125,9 +125,9 @@ namespace DELAUNAY
   void draw_ellipse_field(const char* fname, const K_FLD::FloatArray& crd, const std::vector<size_type>& indices);
   void draw_ellipse(const char* fname, const K_FLD::FloatArray& crd, size_type i);
 
-  static void append_unity_ellipse(const E_Float* pNc, const T& m, K_FLD::FloatArray& crd, K_FLD::IntArray& cnt, int SAMPLE = 100);
-  static void append_ellipse_axis(const E_Float* P0, E_Float a00, E_Float a01, E_Float a02, E_Float a11, E_Float a12, E_Float a22, int axis, K_FLD::FloatArray& crdo, K_FLD::IntArray& cnto, int SAMPLE=100);
-  static void append_ellipse(const E_Float* P0, E_Float a00, E_Float a01, E_Float a02, E_Float a11, E_Float a12, E_Float a22, K_FLD::FloatArray& crdo, K_FLD::IntArray& cnto, int Nsample=1000);
+  static void append_unity_ellipse(const nuga_real_t* pNc, const T& m, K_FLD::FloatArray& crd, K_FLD::IntArray& cnt, int SAMPLE = 100);
+  static void append_ellipse_axis(const nuga_real_t* P0, nuga_real_t a00, nuga_real_t a01, nuga_real_t a02, nuga_real_t a11, nuga_real_t a12, nuga_real_t a22, int axis, K_FLD::FloatArray& crdo, K_FLD::IntArray& cnto, int SAMPLE=100);
+  static void append_ellipse(const nuga_real_t* P0, nuga_real_t a00, nuga_real_t a01, nuga_real_t a02, nuga_real_t a11, nuga_real_t a12, nuga_real_t a22, K_FLD::FloatArray& crdo, K_FLD::IntArray& cnto, int Nsample=1000);
   static void build_ellipses_field(const K_FLD::FloatArray& crd, std::vector<T> & field, K_FLD::FloatArray& crdo, K_FLD::IntArray& cnto, int Nsample=100, std::vector<int>* indices=nullptr);
 #endif
 
@@ -138,26 +138,26 @@ namespace DELAUNAY
 
     field_type* get_field() { return &_field; }
 
-    inline void inverse_matrix(const E_Float Mat[3][3], E_Float inv[3][3]);
+    inline void inverse_matrix(const nuga_real_t Mat[3][3], nuga_real_t inv[3][3]);
     
     inline void compute_intersection(field_type& metric1, const K_FLD::FloatArray& metric2);
 
     inline bool isValidMetric(const T& mi);
 
-    inline bool isValidMetric(const E_Float* mi);
+    inline bool isValidMetric(const nuga_real_t* mi);
     
     inline bool isIsotropic(const T& mi) { return true; }
     
-    inline bool isWeakAniso(size_type Ni, E_Float r) { return true; }
+    inline bool isWeakAniso(size_type Ni, nuga_real_t r) { return true; }
 
     inline void setUserMetric(const K_FLD::FloatArray& Umetric, field_type& metric);
 
   public:
 
     /// min h size
-    E_Float                   _hmin;
+    nuga_real_t                   _hmin;
     /// max h size
-    E_Float                   _hmax;
+    nuga_real_t                   _hmax;
     /// Metric vector defined at each node in pos.
     field_type                _field;
     /// Coordinate array.
@@ -166,11 +166,11 @@ namespace DELAUNAY
     Interpolator<T>*          _interpol;
     // internal - to avoid stack allocation 
     // (metric must be local to thread in openmp)  
-    //E_Float                   _pta2[2];
-    //E_Float                   _ptb2[2];
-    //E_Float                   _ptc2[2];
-    //E_Float                   _pt3[3];
-    //E_Float                   _pt9[9];
+    //nuga_real_t                   _pta2[2];
+    //nuga_real_t                   _ptb2[2];
+    //nuga_real_t                   _ptc2[2];
+    //nuga_real_t                   _pt3[3];
+    //nuga_real_t                   _pt9[9];
     
   public:
     E_Int _N0;
@@ -178,41 +178,41 @@ namespace DELAUNAY
   };
  
   template <typename T> inline 
-  E_Int VarMetric<T>::eig(std::array<E_Float, 9>& N, E_Float lambda[3], E_Float v[3][3])
+  E_Int VarMetric<T>::eig(std::array<nuga_real_t, 9>& N, nuga_real_t lambda[3], nuga_real_t v[3][3])
   {
-    E_Float* mat = N.data();
+    nuga_real_t* mat = N.data();
     return NUGA::eigenv(0, mat, lambda, v);
   }
 
   /// 
   template <> inline
-  bool VarMetric<Aniso2D>::isValidMetric(const E_Float* mi)
+  bool VarMetric<Aniso2D>::isValidMetric(const nuga_real_t* mi)
   {
-    const E_Float& a11 = mi[0];
-    const E_Float& a12 = mi[1];
-    const E_Float& a22 = mi[2];
-    E_Float det = (a11*a22) - (a12*a12);    
+    const nuga_real_t& a11 = mi[0];
+    const nuga_real_t& a12 = mi[1];
+    const nuga_real_t& a22 = mi[2];
+    nuga_real_t det = (a11*a22) - (a12*a12);    
     
     return ((a11 > 0.) && (a22 > 0.) && (det > 0.));
   }
 
   /// 
   template <> inline
-  bool VarMetric<Aniso3D>::isValidMetric(const E_Float* mi)
+  bool VarMetric<Aniso3D>::isValidMetric(const nuga_real_t* mi)
   {
-    const E_Float& a = mi[0];
-    const E_Float& b = mi[1];
-    const E_Float& c = mi[2];
-    const E_Float& d = mi[3];
-    const E_Float& e = mi[4];
-    const E_Float& f = mi[5];
-    E_Float det = a*d*f - (a*e*e + d*c*c + f*b*b) + 2.*b*c*e;
+    const nuga_real_t& a = mi[0];
+    const nuga_real_t& b = mi[1];
+    const nuga_real_t& c = mi[2];
+    const nuga_real_t& d = mi[3];
+    const nuga_real_t& e = mi[4];
+    const nuga_real_t& f = mi[5];
+    nuga_real_t det = a*d*f - (a*e*e + d*c*c + f*b*b) + 2.*b*c*e;
 
     return (a > 0.) && (a*d > b*b) && (det > 0.);
   }
   
   template<> inline
-  bool VarMetric<E_Float>::isValidMetric(const E_Float& mi)
+  bool VarMetric<nuga_real_t>::isValidMetric(const nuga_real_t& mi)
   {
     return ((mi > 0.) && (mi < NUGA::FLOAT_MAX));
   }
@@ -220,10 +220,10 @@ namespace DELAUNAY
   template<> inline
   bool VarMetric<Aniso2D>::isValidMetric(const Aniso2D& mi)
   {
-    const E_Float& a11 = mi[0];
-    const E_Float& a12 = mi[1];
-    const E_Float& a22 = mi[2];
-    E_Float det = (a11*a22) - (a12*a12);
+    const nuga_real_t& a11 = mi[0];
+    const nuga_real_t& a12 = mi[1];
+    const nuga_real_t& a22 = mi[2];
+    nuga_real_t det = (a11*a22) - (a12*a12);
 
     return ((a11 > 0.) && (a22 > 0.) && (det > 0.));
   }
@@ -232,13 +232,13 @@ namespace DELAUNAY
   template <> inline
   bool VarMetric<Aniso3D>::isValidMetric(const Aniso3D& mi)
   {
-    const E_Float& a = mi[0];
-    const E_Float& b = mi[1];
-    const E_Float& c = mi[2];
-    const E_Float& d = mi[3];
-    const E_Float& e = mi[4];
-    const E_Float& f = mi[5];
-    E_Float det = a*d*f - (a*e*e + d*c*c + f*b*b) + 2.*b*c*e;
+    const nuga_real_t& a = mi[0];
+    const nuga_real_t& b = mi[1];
+    const nuga_real_t& c = mi[2];
+    const nuga_real_t& d = mi[3];
+    const nuga_real_t& e = mi[4];
+    const nuga_real_t& f = mi[5];
+    nuga_real_t det = a*d*f - (a*e*e + d*c*c + f*b*b) + 2.*b*c*e;
 
     return (a > 0.) && (a*d > b*b) && (det > 0.);
   }
@@ -246,9 +246,9 @@ namespace DELAUNAY
   template<> inline
   bool VarMetric<Aniso2D>::isIsotropic(const Aniso2D& mi) 
   {
-    const E_Float& a11 = mi[0];
-    const E_Float& a12 = mi[1];
-    const E_Float& a22 = mi[2];
+    const nuga_real_t& a11 = mi[0];
+    const nuga_real_t& a12 = mi[1];
+    const nuga_real_t& a22 = mi[2];
     if (fabs(a12) > EPSILON) return false;
     if (fabs(a11 - a22) > EPSILON) return false;
     
@@ -257,15 +257,15 @@ namespace DELAUNAY
   
   /// computes the intersection between an ellipse and a line
   template<> inline
-  E_Float VarMetric<Aniso2D>::get_h2_along_dir(size_type Ni, const E_Float* dir)
+  nuga_real_t VarMetric<Aniso2D>::get_h2_along_dir(size_type Ni, const nuga_real_t* dir)
   {
-    E_Float L2 = NUGA::sqrNorm<2>(dir);
+    nuga_real_t L2 = NUGA::sqrNorm<2>(dir);
     const Aniso2D& mi = _field[Ni];
-    const E_Float& m11 = mi[0];
-    const E_Float& m12 = mi[1];
-    const E_Float& m22 = mi[2];
+    const nuga_real_t& m11 = mi[0];
+    const nuga_real_t& m12 = mi[1];
+    const nuga_real_t& m22 = mi[2];
     
-    E_Float k2 = (m11*dir[0] * dir[0] + 2.* m12*dir[0] * dir[1] + m22 * dir[1] * dir[1]);
+    nuga_real_t k2 = (m11*dir[0] * dir[0] + 2.* m12*dir[0] * dir[1] + m22 * dir[1] * dir[1]);
     if (k2 != 0.) k2 = 1. / k2;
 
     return k2 * L2;
@@ -273,33 +273,33 @@ namespace DELAUNAY
 
   /// length of edge in metric M[Ni]
   template<> inline
-  E_Float VarMetric<Aniso3D>::get_h2_along_dir(size_type Ni, const E_Float* dir)
+  nuga_real_t VarMetric<Aniso3D>::get_h2_along_dir(size_type Ni, const nuga_real_t* dir)
   {
     const Aniso3D& mi = _field[Ni];
-    const E_Float& m11 = mi[0];
-    const E_Float& m12 = mi[1];
-    const E_Float& m13 = mi[2];
-    const E_Float& m22 = mi[3];
-    const E_Float& m23 = mi[4];
-    const E_Float& m33 = mi[5];
+    const nuga_real_t& m11 = mi[0];
+    const nuga_real_t& m12 = mi[1];
+    const nuga_real_t& m13 = mi[2];
+    const nuga_real_t& m22 = mi[3];
+    const nuga_real_t& m23 = mi[4];
+    const nuga_real_t& m33 = mi[5];
 
-    E_Float l = m11*dir[0]*dir[0] + m22*dir[1]*dir[1] + m33*dir[2]*dir[2] +
+    nuga_real_t l = m11*dir[0]*dir[0] + m22*dir[1]*dir[1] + m33*dir[2]*dir[2] +
     2.*m12*dir[0]*dir[1] + 2.*m13*dir[0]*dir[2] + 2.*m23*dir[1]*dir[2];
 
     return sqrt(l);
   }
   
   template<> inline
-  bool VarMetric<Aniso2D>::isWeakAniso(size_type Ni, E_Float r) 
+  bool VarMetric<Aniso2D>::isWeakAniso(size_type Ni, nuga_real_t r) 
   {   
     const Aniso2D& mi = _field[Ni];
-    E_Float lambda0, lambda1;
-    E_Float v0[2], v1[2];
+    nuga_real_t lambda0, lambda1;
+    nuga_real_t v0[2], v1[2];
     K_LINEAR::DelaunayMath::eigen_vectors(mi[0], mi[2], mi[1], lambda0, lambda1, v0, v1);
-    E_Float h1old2 = get_h2_along_dir(Ni, v0);
-    E_Float h2old2 = get_h2_along_dir(Ni, v1);
+    nuga_real_t h1old2 = get_h2_along_dir(Ni, v0);
+    nuga_real_t h2old2 = get_h2_along_dir(Ni, v1);
     
-    E_Float rr = (K_FUNC::E_min(h1old2, h2old2)/K_FUNC::E_max(h1old2, h2old2));
+    nuga_real_t rr = (K_FUNC::E_min(h1old2, h2old2)/K_FUNC::E_max(h1old2, h2old2));
     
     return ( rr < r*r );
   }
@@ -374,7 +374,7 @@ namespace DELAUNAY
     
     E_Int SAMPLE = 100;
     
-    E_Float alpha = 2. * NUGA::PI /  (E_Float)SAMPLE;
+    nuga_real_t alpha = 2. * NUGA::PI /  (nuga_real_t)SAMPLE;
     
     E_Int pos0 = crd.cols();
     
@@ -382,19 +382,19 @@ namespace DELAUNAY
     
     for (size_t n=0; n < SAMPLE; ++n)
     {
-      E_Float a = alpha * n;
+      nuga_real_t a = alpha * n;
       
-      E_Float V[] = {cos(a), sin(a)};
+      nuga_real_t V[] = {cos(a), sin(a)};
 
-      const E_Float& u=V[0];
-      const E_Float& v=V[1];
-      const E_Float& m11 = m[0];
-      const E_Float& m12 = m[1];
-      const E_Float& m22 = m[2];
+      const nuga_real_t& u=V[0];
+      const nuga_real_t& v=V[1];
+      const nuga_real_t& m11 = m[0];
+      const nuga_real_t& m12 = m[1];
+      const nuga_real_t& m22 = m[2];
       
-      E_Float k = 1. /sqrt( u*(m11*u + m12*v) + v*(m12*u + m22*v) );
+      nuga_real_t k = 1. /sqrt( u*(m11*u + m12*v) + v*(m12*u + m22*v) );
       
-      E_Float Pt[] = {k*u , k*v};
+      nuga_real_t Pt[] = {k*u , k*v};
       
       NUGA::sum<2>(Pt, c.col(Nc), Pt); //center it at node Nc
       
@@ -412,29 +412,29 @@ namespace DELAUNAY
 
   template<typename T> inline
   void
-  VarMetric<T>::append_unity_ellipse(const E_Float* pNc, const T& m, K_FLD::FloatArray& crd, K_FLD::IntArray& cnt, int SAMPLE)
+  VarMetric<T>::append_unity_ellipse(const nuga_real_t* pNc, const T& m, K_FLD::FloatArray& crd, K_FLD::IntArray& cnt, int SAMPLE)
   {
     if (m[0] == 0. || m[2] == 0.) return;
 
-    E_Float alpha = 2. * NUGA::PI / (E_Float)SAMPLE;
+    nuga_real_t alpha = 2. * NUGA::PI / (nuga_real_t)SAMPLE;
 
     E_Int pos0 = crd.cols();
 
     for (size_t n = 0; n < SAMPLE; ++n)
     {
-      E_Float a = alpha * n;
+      nuga_real_t a = alpha * n;
 
-      E_Float V[] = { cos(a), sin(a) };
+      nuga_real_t V[] = { cos(a), sin(a) };
 
-      const E_Float& u = V[0];
-      const E_Float& v = V[1];
-      const E_Float& m11 = m[0];
-      const E_Float& m12 = m[1];
-      const E_Float& m22 = m[2];
+      const nuga_real_t& u = V[0];
+      const nuga_real_t& v = V[1];
+      const nuga_real_t& m11 = m[0];
+      const nuga_real_t& m12 = m[1];
+      const nuga_real_t& m22 = m[2];
 
-      E_Float k = 1. / sqrt(u*(m11*u + m12 * v) + v * (m12*u + m22 * v));
+      nuga_real_t k = 1. / sqrt(u*(m11*u + m12 * v) + v * (m12*u + m22 * v));
 
-      E_Float Pt[] = { k*u , k*v };
+      nuga_real_t Pt[] = { k*u , k*v };
 
       NUGA::sum<2>(Pt, pNc, Pt); //center it at node Nc
 
@@ -451,13 +451,13 @@ namespace DELAUNAY
   
   template<> inline
   void
-  VarMetric<E_Float>::append_unity_ellipse(const K_FLD::FloatArray& c, E_Int i, K_FLD::FloatArray& crd, K_FLD::IntArray& cnt, E_Int Nc)
+  VarMetric<nuga_real_t>::append_unity_ellipse(const K_FLD::FloatArray& c, E_Int i, K_FLD::FloatArray& crd, K_FLD::IntArray& cnt, E_Int Nc)
   {    
     E_Int SAMPLE = 50;
     
-    const E_Float& h = this->_field[i];
+    const nuga_real_t& h = this->_field[i];
     
-    E_Float alpha = 2. * NUGA::PI /  (E_Float)SAMPLE;
+    nuga_real_t alpha = 2. * NUGA::PI /  (nuga_real_t)SAMPLE;
     
     E_Int pos0 = crd.cols();
     
@@ -465,10 +465,10 @@ namespace DELAUNAY
     
     for (size_t n=0; n < SAMPLE; ++n)
     {
-      E_Float a = alpha * n;
-      E_Float V[] = {cos(a), sin(a)};
+      nuga_real_t a = alpha * n;
+      nuga_real_t V[] = {cos(a), sin(a)};
       
-      E_Float Pt[] = {h*V[0] , h*V[1]};
+      nuga_real_t Pt[] = {h*V[0] , h*V[1]};
       
       NUGA::sum<2>(Pt, c.col(Nc), Pt); //center it at node Nc
       
@@ -487,8 +487,8 @@ namespace DELAUNAY
     void
     VarMetric<T>::append_ellipse_axis
   (
-    const E_Float* P0,
-    E_Float a00, E_Float a01, E_Float a02, E_Float a11, E_Float a12, E_Float a22,
+    const nuga_real_t* P0,
+    nuga_real_t a00, nuga_real_t a01, nuga_real_t a02, nuga_real_t a11, nuga_real_t a12, nuga_real_t a22,
     int axis,
     K_FLD::FloatArray& crdo,
     K_FLD::IntArray& cnto,
@@ -497,10 +497,10 @@ namespace DELAUNAY
   {
     bool aggressive = false;
     int32_t sortType = 0; //no sorting
-    std::array<E_Float, 3> eval;
-    std::array<std::array<E_Float, 3>, 3> evec;
+    std::array<nuga_real_t, 3> eval;
+    std::array<std::array<nuga_real_t, 3>, 3> evec;
 
-    gte::SymmetricEigensolver3x3<E_Float>()(a00, a01, a02, a11, a12, a22, aggressive, sortType, eval, evec);
+    gte::SymmetricEigensolver3x3<nuga_real_t>()(a00, a01, a02, a11, a12, a22, aggressive, sortType, eval, evec);
 
     K_FLD::FloatArray evectors(3, 3);
 
@@ -540,7 +540,7 @@ namespace DELAUNAY
     K_FLD::FloatArray cc;
     cc.pushBack(P0, P0 + 3);
     NUGA::transform(cc, iP);
-    E_Float* pNc = cc.col(0); // centroid in local ref frame
+    nuga_real_t* pNc = cc.col(0); // centroid in local ref frame
                               // axis : normal to the 2D-ellipse to consider
 
     m[1] = 0.;
@@ -576,8 +576,8 @@ namespace DELAUNAY
     void
     VarMetric<T>::append_ellipse
   (
-    const E_Float* P0,
-    E_Float a00, E_Float a01, E_Float a02, E_Float a11, E_Float a12, E_Float a22,
+    const nuga_real_t* P0,
+    nuga_real_t a00, nuga_real_t a01, nuga_real_t a02, nuga_real_t a11, nuga_real_t a12, nuga_real_t a22,
     K_FLD::FloatArray& crdo,
     K_FLD::IntArray& cnto,
     int Nsample
@@ -602,7 +602,7 @@ namespace DELAUNAY
         int Ni = (*indices)[i];
         auto& fld = field[Ni];
 
-        const E_Float* Pi = crd.col(Ni);
+        const nuga_real_t* Pi = crd.col(Ni);
         append_ellipse(Pi, fld[0], fld[1], fld[2], fld[3], fld[4], fld[5], crdo, cnto, Nsample);
       }
     }
@@ -612,7 +612,7 @@ namespace DELAUNAY
       {
         auto& fld = field[Ni];
 
-        const E_Float* Pi = crd.col(Ni);
+        const nuga_real_t* Pi = crd.col(Ni);
         append_ellipse(Pi, fld[0], fld[1], fld[2], fld[3], fld[4], fld[5], crdo, cnto, Nsample);
       }
     }
@@ -624,7 +624,7 @@ namespace DELAUNAY
 
   // Constructors
   template <typename T>
-  VarMetric<T>::VarMetric(K_FLD::FloatArray& pos, E_Float hmin, E_Float hmax, eInterpType interp_type)
+  VarMetric<T>::VarMetric(K_FLD::FloatArray& pos, nuga_real_t hmin, nuga_real_t hmax, eInterpType interp_type)
     :_hmin(hmin), _hmax(hmax), _pos(&pos)
   {
     if (interp_type == LINEAR)
@@ -639,8 +639,8 @@ namespace DELAUNAY
     const std::vector<E_Int>& hard_nodes)
   {
     // Compute the isometric metric based on the boundary.
-    std::vector<E_Float> m_iso;
-    E_Float hmin1, hmax1;
+    std::vector<nuga_real_t> m_iso;
+    nuga_real_t hmin1, hmax1;
     MeshUtils1D::compute_iso_metric(pos, connectB, hard_nodes, m_iso, hmin1, hmax1);
      
     // Set _hmin and _hmax if not done nor correct.
@@ -669,17 +669,17 @@ namespace DELAUNAY
   }
 
   template <typename T>
-  E_Float VarMetric<T>::length(size_type Ni, size_type Nj, const E_Float& threshold, NUGA::int_vector_type& tmpNodes)
+  nuga_real_t VarMetric<T>::length(size_type Ni, size_type Nj, const nuga_real_t& threshold, NUGA::int_vector_type& tmpNodes)
   {
     // This computes recursively the length of the input edge by splitting it in
     // a number of bits such all the bits are smaller than the threshold.
-    E_Float L = lengthEval(Ni, _field[Ni], Nj, _field[Nj]);
+    nuga_real_t L = lengthEval(Ni, _field[Ni], Nj, _field[Nj]);
     if (L <= threshold) return L;
 
     // Split
     size_type dim = _pos->rows();
-    E_Float newP[3];
-    E_Float* it = newP;
+    nuga_real_t newP[3];
+    nuga_real_t* it = newP;
 
     K_FLD::FloatArray::const_iterator it1(_pos->col(Ni)), it2(_pos->col(Nj));
 
@@ -699,20 +699,20 @@ namespace DELAUNAY
   /** Anisotropic Variable field. */
   /// evaluation de la longeur d'un edge dans l'espace physique (avec la metrique)
   template <typename T> inline
-  E_Float VarMetric<T>::lengthEval(size_type Ni, const T& mi, size_type Nj, const T& mj)
+  nuga_real_t VarMetric<T>::lengthEval(size_type Ni, const T& mi, size_type Nj, const T& mj)
   {
-    E_Float r1;
-    E_Float r2;
+    nuga_real_t r1;
+    nuga_real_t r2;
     r1 = r2 = 0.;
     
 #ifdef DEBUG_METRIC
     assert (isValidMetric(mi));
     assert (isValidMetric(mj));
 #endif
-    E_Float v[2]; E_Float vi[2]; E_Float vj[2];
-    //E_Float* v = _pta2;
-    //E_Float* vi = _ptb2;
-    //E_Float* vj = _ptc2;
+    nuga_real_t v[2]; nuga_real_t vi[2]; nuga_real_t vj[2];
+    //nuga_real_t* v = _pta2;
+    //nuga_real_t* vi = _ptb2;
+    //nuga_real_t* vj = _ptc2;
     NUGA::diff<2> (_pos->col(Nj), _pos->col(Ni), v);
 
     vi[0] = mi[0]*v[0] + mi[1]*v[1];
@@ -729,7 +729,7 @@ namespace DELAUNAY
       r2 += vj[i]*v[i];
     }
     
-    E_Float res = 0.5 * (sqrt(r1) + sqrt(r2)); //integral approx.
+    nuga_real_t res = 0.5 * (sqrt(r1) + sqrt(r2)); //integral approx.
 
 #ifdef DEBUG_METRIC
     assert (res > EPSILON);
@@ -742,34 +742,34 @@ namespace DELAUNAY
   /*
   ///
   template <>
-  E_Float VarMetric<E_Float>::length(size_type Ni, size_type Nj)
+  nuga_real_t VarMetric<nuga_real_t>::length(size_type Ni, size_type Nj)
   {
-  E_Float h0 = _metric[Ni], h1 = _metric[Nj];
-  E_Float d = sqrt(NUGA::sqrDistance(_pos->col(Ni), _pos->col(Nj), _pos->rows()));
-  E_Float r1 = h1 / h0;
+  nuga_real_t h0 = _metric[Ni], h1 = _metric[Nj];
+  nuga_real_t d = sqrt(NUGA::sqrDistance(_pos->col(Ni), _pos->col(Nj), _pos->rows()));
+  nuga_real_t r1 = h1 / h0;
   if (::abs(r1 - 1.) < 0.01)
   return d / K_FUNC::E_max(h0,h1);
-  E_Float   r = (d + h1) / (d + h0);
+  nuga_real_t   r = (d + h1) / (d + h0);
   size_type n = size_type(::log(r1)/::log(r));
-  r1 = pow (r1, 1./E_Float(n));
+  r1 = pow (r1, 1./nuga_real_t(n));
   return (h1 - r1 * h0)/(r1 - 1);
   }
   */
   
   ///
   template <> inline
-  E_Float VarMetric<E_Float>::lengthEval(size_type Ni, const E_Float& mi, size_type Nj, const E_Float& mj)
+  nuga_real_t VarMetric<nuga_real_t>::lengthEval(size_type Ni, const nuga_real_t& mi, size_type Nj, const nuga_real_t& mj)
   {
     // Warning : input mi and mj are in fact hi and hj.
     return 0.5 * ((1./mi) + (1./mj)) * sqrt(NUGA::sqrDistance(_pos->col(Ni), _pos->col(Nj), _pos->rows()));
   }
 
   template <> inline
-  E_Float VarMetric<DELAUNAY::Aniso3D>::lengthEval(size_type Ni, const DELAUNAY::Aniso3D& mi,
+  nuga_real_t VarMetric<DELAUNAY::Aniso3D>::lengthEval(size_type Ni, const DELAUNAY::Aniso3D& mi,
     size_type Nj, const DELAUNAY::Aniso3D& mj)
   {
-    E_Float r1;
-    E_Float r2;
+    nuga_real_t r1;
+    nuga_real_t r2;
     r1 = r2 = 0.;
 
 #ifdef DEBUG_METRIC
@@ -777,10 +777,10 @@ namespace DELAUNAY
     assert (isValidMetric(mj));
 #endif
 
-    E_Float v[3]; E_Float vi[3]; E_Float vj[3];
-    //E_Float* v = _pta3;
-    //E_Float* vi = _ptb3;
-    //E_Float* vj = _ptc3;
+    nuga_real_t v[3]; nuga_real_t vi[3]; nuga_real_t vj[3];
+    //nuga_real_t* v = _pta3;
+    //nuga_real_t* vi = _ptb3;
+    //nuga_real_t* vj = _ptc3;
 
     NUGA::diff<3> (_pos->col(Nj), _pos->col(Ni), v);
 
@@ -798,7 +798,7 @@ namespace DELAUNAY
       r2 += vj[i]*v[i];
     }
 
-    E_Float res = 0.5 * (sqrt(r1) + sqrt(r2)); //integral approx.
+    nuga_real_t res = 0.5 * (sqrt(r1) + sqrt(r2)); //integral approx.
 
 #ifdef DEBUG_METRIC
     assert (res > EPSILON);
@@ -809,42 +809,42 @@ namespace DELAUNAY
   
   /// Return curvature radius
   template<> inline
-  E_Float VarMetric<E_Float>::getRadius(size_type Ni)
+  nuga_real_t VarMetric<nuga_real_t>::getRadius(size_type Ni)
   {
     return _field[Ni];
   }
 
   /// Return curvature radius
   template<> inline
-  E_Float VarMetric<Aniso2D>::getRadius(size_type Ni)
+  nuga_real_t VarMetric<Aniso2D>::getRadius(size_type Ni)
   {
-    E_Float lmax, lmin;
+    nuga_real_t lmax, lmin;
     _field[Ni].eigen_values(lmax, lmin);
     return 1./sqrt(lmin);
   }
 
   /// Return curvature radius
   template<> inline
-  E_Float VarMetric<Aniso3D>::getRadius(size_type Ni)
+  nuga_real_t VarMetric<Aniso3D>::getRadius(size_type Ni)
   {
-    E_Float lmax, lmin;
+    nuga_real_t lmax, lmin;
     _field[Ni].eigen_values(lmax, lmin);
     return 1./sqrt(lmin);
   }
   
   ///
   template<> inline
-  void VarMetric<Aniso2D>::directional_metric_reduce(size_type Ni, E_Float hdir2, const E_Float* normed_dir)
+  void VarMetric<Aniso2D>::directional_metric_reduce(size_type Ni, nuga_real_t hdir2, const nuga_real_t* normed_dir)
   {
     // Aim : modifying the ellipse at Ni such d(Ni,X)*d(Ni,X) = h2 
     //       where X is the intersection point of the ellipse with the line (Ni, dir)
     
     // (h2, dir) => X => hnew, the one between h1new and h2new that maximize hnew/hold
-    E_Float hdir = sqrt(hdir2);
-    E_Float NiX[] = {normed_dir[0]*hdir, normed_dir[1]*hdir};
+    nuga_real_t hdir = sqrt(hdir2);
+    nuga_real_t NiX[] = {normed_dir[0]*hdir, normed_dir[1]*hdir};
     
     // Diagonalization
-    E_Float lambda0, lambda1, v0[2], v1[2];
+    nuga_real_t lambda0, lambda1, v0[2], v1[2];
     K_LINEAR::DelaunayMath::eigen_vectors(_field[Ni][0], _field[Ni][2], _field[Ni][1], lambda0, lambda1, v0, v1);
     K_FLD::FloatArray D(2,2, 0.);
     D(0,0) = lambda0;
@@ -861,20 +861,20 @@ namespace DELAUNAY
     tP(1,1) = P(1,1) = v1[1];
     
     // X expressed in BD
-    //E_Float* Xbd = _pta2;
-    E_Float Xbd[2]; 
+    //nuga_real_t* Xbd = _pta2;
+    nuga_real_t Xbd[2]; 
     Xbd[0] = tP(0,0) * NiX[0] + tP(0,1) * NiX[1];
     Xbd[1] = tP(1,0) * NiX[0] + tP(1,1) * NiX[1];
     
     // Computing h1old and h2old to get first fundamental form coefficient (to keep them in the transfo)
     // E = lambda0 * h1old2
     // G = lambda1 * h2old2
-    E_Float h1old2 = get_h2_along_dir(Ni, v0);
-    E_Float h2old2 = get_h2_along_dir(Ni, v1);
+    nuga_real_t h1old2 = get_h2_along_dir(Ni, v0);
+    nuga_real_t h2old2 = get_h2_along_dir(Ni, v1);
     
     // Computing h1new and h2new
-    E_Float xbd2 = Xbd[0]*Xbd[0];
-    E_Float ybd2 = Xbd[1]*Xbd[1];
+    nuga_real_t xbd2 = Xbd[0]*Xbd[0];
+    nuga_real_t ybd2 = Xbd[1]*Xbd[1];
     
     if (xbd2 < EPSILON*EPSILON)       // along second axis
       D(1,1) *= (h2old2 / ybd2);
@@ -889,13 +889,13 @@ namespace DELAUNAY
     else
     {
       bool first_axis = (ybd2/xbd2 < fabs(lambda0/lambda1));
-//      E_Float psu2 = NUGA::dot<2>(normed_dir, v0);
+//      nuga_real_t psu2 = NUGA::dot<2>(normed_dir, v0);
 //      psu2 *= psu2;
-//      E_Float psv2 = NUGA::dot<2>(normed_dir, v1);
+//      nuga_real_t psv2 = NUGA::dot<2>(normed_dir, v1);
 //      psv2 *= psv2;
 //      bool first_axis = (psu2 >= psv2);
-//      E_Float l0new = fabs((1. - lambda1*(Xbd[1]*Xbd[1])) / (Xbd[0]*Xbd[0]));
-//      E_Float l1new = fabs((1. - lambda0*(Xbd[0]*Xbd[0])) / (Xbd[1]*Xbd[1]));
+//      nuga_real_t l0new = fabs((1. - lambda1*(Xbd[1]*Xbd[1])) / (Xbd[0]*Xbd[0]));
+//      nuga_real_t l1new = fabs((1. - lambda0*(Xbd[0]*Xbd[0])) / (Xbd[1]*Xbd[1]));
 
       // Replace the eigen value to reflect the transfo
       if (first_axis)
@@ -908,7 +908,7 @@ namespace DELAUNAY
     new_metric = P * D * tP;
     
 #ifdef DEBUG_METRIC
-    E_Float sym_check = fabs(new_metric(0,1) - new_metric(1,0));
+    nuga_real_t sym_check = fabs(new_metric(0,1) - new_metric(1,0));
     if (sym_check >=EPSILON)
     {
       sym_check = sym_check / K_FUNC::E_max(new_metric(0,1), new_metric(1,0));
@@ -944,53 +944,53 @@ namespace DELAUNAY
   }
   
   template<> inline
-  void VarMetric<Aniso2D>::metric_reduce(size_type Nj, const E_Float* normed_dir, E_Float hjold2, E_Float hjnew2)
+  void VarMetric<Aniso2D>::metric_reduce(size_type Nj, const nuga_real_t* normed_dir, nuga_real_t hjold2, nuga_real_t hjnew2)
   {
 //    if (isValidMetric(_field[Nj]) && !isWeakAniso(Nj, 0.25))
 //      directional_metric_reduce(Nj, hjnew2, normed_dir); //orientation of NiNj does not matter
 //    else //isotropic reduction
-    E_Float t = hjold2 / hjnew2;
+    nuga_real_t t = hjold2 / hjnew2;
     _field[Nj][0] *= t;
     _field[Nj][2] *= t;
     _field[Nj][1] *= t;
   }
 
   template<> inline
-  void VarMetric<Aniso3D>::metric_reduce(size_type Nj, const E_Float* normed_dir, E_Float hjold2, E_Float hjnew2)
+  void VarMetric<Aniso3D>::metric_reduce(size_type Nj, const nuga_real_t* normed_dir, nuga_real_t hjold2, nuga_real_t hjnew2)
   {
     //todo Imad : check if sufficient/OK  to reduce in an isotropic manner
     //    if (isValidMetric(_field[Nj]) && !isWeakAniso(Nj, 0.25))
     //      directional_metric_reduce(Nj, hjnew2, normed_dir); //orientation of NiNj does not matter
     //    else //isotropic reduction
-    E_Float t = hjold2 / hjnew2;
+    nuga_real_t t = hjold2 / hjnew2;
     for (size_t k=0; k < 6; ++k) _field[Nj][k] *= t;
   }
 
   /// calcule la metrique par interpolation
   template <typename T> inline
-  void VarMetric<T>::computeMetric(size_type N, size_type Ni, size_type Nj, E_Float r)
+  void VarMetric<T>::computeMetric(size_type N, size_type Ni, size_type Nj, nuga_real_t r)
   {
     setMetric(N, _interpol->interpolate(_field[Ni], _field[Nj], r));
   }
 
   ///
   template <> inline
-  void VarMetric<Aniso3D>::inverse_matrix(const E_Float Mat[3][3], E_Float inv[3][3])
+  void VarMetric<Aniso3D>::inverse_matrix(const nuga_real_t Mat[3][3], nuga_real_t inv[3][3])
   {
-    const E_Float& a11 = Mat[0][0];
-    const E_Float& a12 = Mat[0][1];
-    const E_Float& a13 = Mat[0][2];
-    const E_Float& a21 = Mat[1][0];
-    const E_Float& a22 = Mat[1][1];
-    const E_Float& a23 = Mat[1][2];
-    const E_Float& a31 = Mat[2][0];
-    const E_Float& a32 = Mat[2][1];
-    const E_Float& a33 = Mat[2][2];
+    const nuga_real_t& a11 = Mat[0][0];
+    const nuga_real_t& a12 = Mat[0][1];
+    const nuga_real_t& a13 = Mat[0][2];
+    const nuga_real_t& a21 = Mat[1][0];
+    const nuga_real_t& a22 = Mat[1][1];
+    const nuga_real_t& a23 = Mat[1][2];
+    const nuga_real_t& a31 = Mat[2][0];
+    const nuga_real_t& a32 = Mat[2][1];
+    const nuga_real_t& a33 = Mat[2][2];
 
-    E_Float DET = a11*(a33*a22 - a32*a23) - a21*(a33*a12 - a32*a13) + a31*(a23*a12 - a22*a13);
+    nuga_real_t DET = a11*(a33*a22 - a32*a23) - a21*(a33*a12 - a32*a13) + a31*(a23*a12 - a22*a13);
 
     // assert DET != 0...
-    E_Float deti = 1./DET;
+    nuga_real_t deti = 1./DET;
     inv[0][0] = (a33*a22 - a32*a23) * deti;
     inv[0][1] = (a32*a13 - a33*a12) * deti;
     inv[0][2] = (a23*a12 - a22*a13) * deti;
@@ -1004,7 +1004,7 @@ namespace DELAUNAY
   
   ///
   template <> inline
-  void VarMetric<Aniso3D>::computeMetric(size_type N, size_type Ni, size_type Nj, E_Float r)
+  void VarMetric<Aniso3D>::computeMetric(size_type N, size_type Ni, size_type Nj, nuga_real_t r)
   {
     // simultaneous reduction
     const auto& Mi = _field[Ni];
@@ -1017,43 +1017,43 @@ namespace DELAUNAY
       return;
     }
 
-    std::array<E_Float, 9> NN = Mi.inverse() * Mj;
-    //E_Float* lambda = _pt3;
-    E_Float lambda[3];
-    E_Float v[3][3];
+    std::array<nuga_real_t, 9> NN = Mi.inverse() * Mj;
+    //nuga_real_t* lambda = _pt3;
+    nuga_real_t lambda[3];
+    nuga_real_t v[3][3];
     eig(NN, lambda, v);
 
     // diagonal terms of Mi and Mj in (v0, v1, v2) basis
-    E_Float v00 = v[0][0], v01 = v[0][1], v02 = v[0][2];
-    E_Float v10 = v[1][0], v11 = v[1][1], v12 = v[1][2];
-    E_Float v20 = v[2][0], v21 = v[2][1], v22 = v[2][2];
+    nuga_real_t v00 = v[0][0], v01 = v[0][1], v02 = v[0][2];
+    nuga_real_t v10 = v[1][0], v11 = v[1][1], v12 = v[1][2];
+    nuga_real_t v20 = v[2][0], v21 = v[2][1], v22 = v[2][2];
 
-    E_Float la0 = (Mi[0]*v00 + Mi[1]*v01 + Mi[2]*v02) * v00 + (Mi[1]*v00 + Mi[3]*v01 + Mi[4]*v02) * v01 + (Mi[2]*v00 + Mi[4]*v01 + Mi[5]*v02) * v02;
-    E_Float la1 = (Mi[0]*v10 + Mi[1]*v11 + Mi[2]*v12) * v10 + (Mi[1]*v10 + Mi[3]*v11 + Mi[4]*v12) * v11 + (Mi[2]*v10 + Mi[4]*v11 + Mi[5]*v12) * v12;
-    E_Float la2 = (Mi[0]*v20 + Mi[1]*v21 + Mi[2]*v22) * v20 + (Mi[1]*v20 + Mi[3]*v21 + Mi[4]*v22) * v21 + (Mi[2]*v20 + Mi[4]*v21 + Mi[5]*v22) * v22;
+    nuga_real_t la0 = (Mi[0]*v00 + Mi[1]*v01 + Mi[2]*v02) * v00 + (Mi[1]*v00 + Mi[3]*v01 + Mi[4]*v02) * v01 + (Mi[2]*v00 + Mi[4]*v01 + Mi[5]*v02) * v02;
+    nuga_real_t la1 = (Mi[0]*v10 + Mi[1]*v11 + Mi[2]*v12) * v10 + (Mi[1]*v10 + Mi[3]*v11 + Mi[4]*v12) * v11 + (Mi[2]*v10 + Mi[4]*v11 + Mi[5]*v12) * v12;
+    nuga_real_t la2 = (Mi[0]*v20 + Mi[1]*v21 + Mi[2]*v22) * v20 + (Mi[1]*v20 + Mi[3]*v21 + Mi[4]*v22) * v21 + (Mi[2]*v20 + Mi[4]*v21 + Mi[5]*v22) * v22;
   
-    E_Float mu0 = (Mj[0]*v00 + Mj[1]*v01 + Mj[2]*v02) * v00 + (Mj[1]*v00 + Mj[3]*v01 + Mj[4]*v02) * v01 + (Mj[2]*v00 + Mj[4]*v01 + Mj[5]*v02) * v02;
-    E_Float mu1 = (Mj[0]*v10 + Mj[1]*v11 + Mj[2]*v12) * v10 + (Mj[1]*v10 + Mj[3]*v11 + Mj[4]*v12) * v11 + (Mj[2]*v10 + Mj[4]*v11 + Mj[5]*v12) * v12;
-    E_Float mu2 = (Mj[0]*v20 + Mj[1]*v21 + Mj[2]*v22) * v20 + (Mj[1]*v20 + Mj[3]*v21 + Mj[4]*v22) * v21 + (Mj[2]*v20 + Mj[4]*v21 + Mj[5]*v22) * v22;
+    nuga_real_t mu0 = (Mj[0]*v00 + Mj[1]*v01 + Mj[2]*v02) * v00 + (Mj[1]*v00 + Mj[3]*v01 + Mj[4]*v02) * v01 + (Mj[2]*v00 + Mj[4]*v01 + Mj[5]*v02) * v02;
+    nuga_real_t mu1 = (Mj[0]*v10 + Mj[1]*v11 + Mj[2]*v12) * v10 + (Mj[1]*v10 + Mj[3]*v11 + Mj[4]*v12) * v11 + (Mj[2]*v10 + Mj[4]*v11 + Mj[5]*v12) * v12;
+    nuga_real_t mu2 = (Mj[0]*v20 + Mj[1]*v21 + Mj[2]*v22) * v20 + (Mj[1]*v20 + Mj[3]*v21 + Mj[4]*v22) * v21 + (Mj[2]*v20 + Mj[4]*v21 + Mj[5]*v22) * v22;
 
     // geometric interpolation
-    E_Float L0 = la0*pow(mu0 / la0, r);
-    E_Float L1 = la1*pow(mu1 / la1, r);
-    E_Float L2 = la2*pow(mu2 / la2, r);
+    nuga_real_t L0 = la0*pow(mu0 / la0, r);
+    nuga_real_t L1 = la1*pow(mu1 / la1, r);
+    nuga_real_t L2 = la2*pow(mu2 / la2, r);
 
     // M = inv(v) * Diag(L0,L1,L2) * inv(transpose(v))
-    E_Float iv[3][3];
+    nuga_real_t iv[3][3];
     inverse_matrix(v, iv);
     iv[0][0] *= L0; iv[0][1] *= L1; iv[0][2] *= L2;
     iv[1][0] *= L0; iv[1][1] *= L1; iv[1][2] *= L2;
     iv[2][0] *= L0; iv[2][1] *= L1; iv[2][2] *= L2;
 
-    E_Float tv[3][3];
+    nuga_real_t tv[3][3];
     tv[0][0] = v[0][0]; tv[0][1] = v[1][0]; tv[0][2] = v[2][0];
     tv[1][0] = v[0][1]; tv[1][1] = v[1][1]; tv[1][2] = v[2][1];
     tv[2][0] = v[0][2]; tv[2][1] = v[1][2]; tv[2][2] = v[2][2];
 
-    E_Float itv[3][3];
+    nuga_real_t itv[3][3];
     inverse_matrix(tv, itv);
 
     M[0] = iv[0][0]*itv[0][0] + iv[0][1]*itv[1][0] + iv[0][2]*itv[2][0];
@@ -1070,7 +1070,7 @@ namespace DELAUNAY
 
   ///
   template <> inline
-  bool VarMetric<Aniso3D>::aniso_smooth(size_type Ni, size_type Nj, E_Float gr)
+  bool VarMetric<Aniso3D>::aniso_smooth(size_type Ni, size_type Nj, nuga_real_t gr)
   {
     // simulaneous reduction
     auto& Mi = _field[Ni];
@@ -1078,47 +1078,47 @@ namespace DELAUNAY
 
     if (Mi == Mj) return false;
 
-    //E_Float* NiNj = _pt3;
-    E_Float NiNj[3];
+    //nuga_real_t* NiNj = _pt3;
+    nuga_real_t NiNj[3];
     NUGA::diff<3>(_pos->col(Nj), _pos->col(Ni), NiNj);
 
     // do Mi
-    E_Float lP = get_h2_along_dir(Ni, NiNj);
-    E_Float fact = pow(1. + gr*lP, -2);
+    nuga_real_t lP = get_h2_along_dir(Ni, NiNj);
+    nuga_real_t fact = pow(1. + gr*lP, -2);
     auto Mjf = Mj * fact;
    
-    std::array<E_Float, 9> NN = Mi.inverse() * Mjf;
-    E_Float lambda[3], v[3][3];
+    std::array<nuga_real_t, 9> NN = Mi.inverse() * Mjf;
+    nuga_real_t lambda[3], v[3][3];
     eig(NN, lambda, v);
 
-    E_Float v00 = v[0][0], v01 = v[0][1], v02 = v[0][2];
-    E_Float v10 = v[1][0], v11 = v[1][1], v12 = v[1][2];
-    E_Float v20 = v[2][0], v21 = v[2][1], v22 = v[2][2];
+    nuga_real_t v00 = v[0][0], v01 = v[0][1], v02 = v[0][2];
+    nuga_real_t v10 = v[1][0], v11 = v[1][1], v12 = v[1][2];
+    nuga_real_t v20 = v[2][0], v21 = v[2][1], v22 = v[2][2];
 
-    E_Float la0 = (Mi[0]*v00 + Mi[1]*v01 + Mi[2]*v02) * v00 + (Mi[1]*v00 + Mi[3]*v01 + Mi[4]*v02) * v01 + (Mi[2]*v00 + Mi[4]*v01 + Mi[5]*v02) * v02;
-    E_Float la1 = (Mi[0]*v10 + Mi[1]*v11 + Mi[2]*v12) * v10 + (Mi[1]*v10 + Mi[3]*v11 + Mi[4]*v12) * v11 + (Mi[2]*v10 + Mi[4]*v11 + Mi[5]*v12) * v12;
-    E_Float la2 = (Mi[0]*v20 + Mi[1]*v21 + Mi[2]*v22) * v20 + (Mi[1]*v20 + Mi[3]*v21 + Mi[4]*v22) * v21 + (Mi[2]*v20 + Mi[4]*v21 + Mi[5]*v22) * v22;
+    nuga_real_t la0 = (Mi[0]*v00 + Mi[1]*v01 + Mi[2]*v02) * v00 + (Mi[1]*v00 + Mi[3]*v01 + Mi[4]*v02) * v01 + (Mi[2]*v00 + Mi[4]*v01 + Mi[5]*v02) * v02;
+    nuga_real_t la1 = (Mi[0]*v10 + Mi[1]*v11 + Mi[2]*v12) * v10 + (Mi[1]*v10 + Mi[3]*v11 + Mi[4]*v12) * v11 + (Mi[2]*v10 + Mi[4]*v11 + Mi[5]*v12) * v12;
+    nuga_real_t la2 = (Mi[0]*v20 + Mi[1]*v21 + Mi[2]*v22) * v20 + (Mi[1]*v20 + Mi[3]*v21 + Mi[4]*v22) * v21 + (Mi[2]*v20 + Mi[4]*v21 + Mi[5]*v22) * v22;
 
-    E_Float mu0 = (Mjf[0]*v00 + Mjf[1]*v01 + Mjf[2]*v02) * v00 + (Mjf[1]*v00 + Mjf[3]*v01 + Mjf[4]*v02) * v01 + (Mjf[2]*v00 + Mjf[4]*v01 + Mjf[5]*v02) * v02;
-    E_Float mu1 = (Mjf[0]*v10 + Mjf[1]*v11 + Mjf[2]*v12) * v10 + (Mjf[1]*v10 + Mjf[3]*v11 + Mjf[4]*v12) * v11 + (Mjf[2]*v10 + Mjf[4]*v11 + Mjf[5]*v12) * v12;
-    E_Float mu2 = (Mjf[0]*v20 + Mjf[1]*v21 + Mjf[2]*v22) * v20 + (Mjf[1]*v20 + Mjf[3]*v21 + Mjf[4]*v22) * v21 + (Mjf[2]*v20 + Mjf[4]*v21 + Mjf[5]*v22) * v22;
+    nuga_real_t mu0 = (Mjf[0]*v00 + Mjf[1]*v01 + Mjf[2]*v02) * v00 + (Mjf[1]*v00 + Mjf[3]*v01 + Mjf[4]*v02) * v01 + (Mjf[2]*v00 + Mjf[4]*v01 + Mjf[5]*v02) * v02;
+    nuga_real_t mu1 = (Mjf[0]*v10 + Mjf[1]*v11 + Mjf[2]*v12) * v10 + (Mjf[1]*v10 + Mjf[3]*v11 + Mjf[4]*v12) * v11 + (Mjf[2]*v10 + Mjf[4]*v11 + Mjf[5]*v12) * v12;
+    nuga_real_t mu2 = (Mjf[0]*v20 + Mjf[1]*v21 + Mjf[2]*v22) * v20 + (Mjf[1]*v20 + Mjf[3]*v21 + Mjf[4]*v22) * v21 + (Mjf[2]*v20 + Mjf[4]*v21 + Mjf[5]*v22) * v22;
 
-    E_Float L0 = K_FUNC::E_max(la0, mu0);
-    E_Float L1 = K_FUNC::E_max(la1, mu1);
-    E_Float L2 = K_FUNC::E_max(la2, mu2);
+    nuga_real_t L0 = K_FUNC::E_max(la0, mu0);
+    nuga_real_t L1 = K_FUNC::E_max(la1, mu1);
+    nuga_real_t L2 = K_FUNC::E_max(la2, mu2);
 
-    E_Float iv[3][3];
+    nuga_real_t iv[3][3];
     inverse_matrix(v, iv);
     iv[0][0] *= L0; iv[0][1] *= L1; iv[0][2] *= L2;
     iv[1][0] *= L0; iv[1][1] *= L1; iv[1][2] *= L2;
     iv[2][0] *= L0; iv[2][1] *= L1; iv[2][2] *= L2;
 
-    E_Float tv[3][3];
+    nuga_real_t tv[3][3];
     tv[0][0] = v[0][0]; tv[0][1] = v[1][0]; tv[0][2] = v[2][0];
     tv[1][0] = v[0][1]; tv[1][1] = v[1][1]; tv[1][2] = v[2][1];
     tv[2][0] = v[0][2]; tv[2][1] = v[1][2]; tv[2][2] = v[2][2];
 
-    E_Float itv[3][3];
+    nuga_real_t itv[3][3];
     inverse_matrix(tv, itv);
 
     DELAUNAY::Aniso3D Mii;
@@ -1140,7 +1140,7 @@ namespace DELAUNAY
     }
 
     // do Mj
-    E_Float lQ = get_h2_along_dir(Nj, NiNj);
+    nuga_real_t lQ = get_h2_along_dir(Nj, NiNj);
     fact = pow(1. + gr*lQ, -2);
     auto Mif = Mi * fact;
 
@@ -1208,7 +1208,7 @@ namespace DELAUNAY
   ///
   template <typename T> inline
   void VarMetric<T>::smoothing_loop
-  (const std::set<K_MESH::NO_Edge>& edges, E_Float gr, E_Int itermax, E_Int N0 /* threshold for metric changes*/)
+  (const std::set<K_MESH::NO_Edge>& edges, nuga_real_t gr, E_Int itermax, E_Int N0 /* threshold for metric changes*/)
   {
     E_Int iter(0);
     bool has_changed = false;
@@ -1224,7 +1224,7 @@ namespace DELAUNAY
 
   template <> inline
   void VarMetric<Aniso3D>::smoothing_loop
-  (const std::set<K_MESH::NO_Edge>& edges, E_Float gr, E_Int itermax, E_Int N0 /* threshold for metric changes*/)
+  (const std::set<K_MESH::NO_Edge>& edges, nuga_real_t gr, E_Int itermax, E_Int N0 /* threshold for metric changes*/)
   {
     E_Int iter = 0;
     bool has_changed = false;
@@ -1245,7 +1245,7 @@ namespace DELAUNAY
   ///
   template <typename T> inline
   void VarMetric<T>::smoothing_loop
-  (const K_FLD::IntArray& connectB, E_Float gr, E_Int itermax, E_Int N0 /* threshold for metric changes*/)
+  (const K_FLD::IntArray& connectB, nuga_real_t gr, E_Int itermax, E_Int N0 /* threshold for metric changes*/)
   {
     E_Int iter = 0;
     bool has_changed = false;
@@ -1262,7 +1262,7 @@ namespace DELAUNAY
   ///
   template <typename T> inline
   void VarMetric<T>::smoothing_loop
-  (const ngon_unit& PGs, E_Float gr, E_Int itermax, E_Int N0 /* threshold for metric changes*/)
+  (const ngon_unit& PGs, nuga_real_t gr, E_Int itermax, E_Int N0 /* threshold for metric changes*/)
   {
     //todo Imad : fill edges from PGs : warning 0-based ! (smoothing_loop expects indices starting from 0)
     std::set<K_MESH::NO_Edge> edges;
@@ -1287,10 +1287,10 @@ namespace DELAUNAY
   
   ///
   template<> inline
-  void VarMetric<E_Float>::compute_intersection(std::vector<E_Float>& metric1,
+  void VarMetric<nuga_real_t>::compute_intersection(std::vector<nuga_real_t>& metric1,
     const K_FLD::FloatArray& metric2)
   {
-    E_Float m;
+    nuga_real_t m;
     E_Int max = std::min((E_Int)metric1.size(), (E_Int)metric2.cols());
     for (size_type i = 0; i < max; ++i)
     {
@@ -1342,10 +1342,10 @@ namespace DELAUNAY
 
   template<> inline
   void VarMetric<Aniso2D>::convertIsoToAniso
-  (const std::vector<E_Float>& isoM, std::vector<Aniso2D>& anisoM)
+  (const std::vector<nuga_real_t>& isoM, std::vector<Aniso2D>& anisoM)
   {
     anisoM.resize(isoM.size());
-    E_Float im;
+    nuga_real_t im;
     for (size_t i = 0; i < isoM.size(); ++i)
     {
       im = isoM[i];
@@ -1358,10 +1358,10 @@ namespace DELAUNAY
 
   template<> inline
   void VarMetric<Aniso3D>::convertIsoToAniso
-  (const std::vector<E_Float>& isoM, std::vector<Aniso3D>& anisoM)
+  (const std::vector<nuga_real_t>& isoM, std::vector<Aniso3D>& anisoM)
   {
     anisoM.resize(isoM.size());
-    E_Float im;
+    nuga_real_t im;
     for (size_t i = 0; i < isoM.size(); ++i)
     {
       im = isoM[i];
@@ -1374,14 +1374,14 @@ namespace DELAUNAY
   }
 
   template<> inline
-  void VarMetric<Aniso3D>::convertIsoToAniso(const std::vector<E_Float>& isoM)
+  void VarMetric<Aniso3D>::convertIsoToAniso(const std::vector<nuga_real_t>& isoM)
   {
     convertIsoToAniso(isoM, _field);
   }
 
   template<> inline
-  void VarMetric<E_Float>::convertIsoToAniso
-  (const std::vector<E_Float>& isoM, std::vector<E_Float>& anisoM)
+  void VarMetric<nuga_real_t>::convertIsoToAniso
+  (const std::vector<nuga_real_t>& isoM, std::vector<nuga_real_t>& anisoM)
   {
     anisoM = isoM;
   }
@@ -1402,7 +1402,7 @@ namespace DELAUNAY
 
   /// ISO
   template<> inline
-  void VarMetric<E_Float>::setUserMetric(const K_FLD::FloatArray& Umetric, field_type& metric)
+  void VarMetric<nuga_real_t>::setUserMetric(const K_FLD::FloatArray& Umetric, field_type& metric)
   {
     E_Int max = std::min(Umetric.cols(), (E_Int)metric.size());
     for (E_Int i = 0; i < max; ++i)
@@ -1411,14 +1411,14 @@ namespace DELAUNAY
     }
   }
   
-  /// smooth E_Float
+  /// smooth nuga_real_t
   template<> inline
-  bool VarMetric<E_Float>::smooth(size_type Ni, size_type Nj, E_Float gr, E_Int N0 /* threshold for metric changes*/)
+  bool VarMetric<nuga_real_t>::smooth(size_type Ni, size_type Nj, nuga_real_t gr, E_Int N0 /* threshold for metric changes*/)
   {
     // WARNING : assume growth ratio gr > 1.
     // The smaller might smooth the bigger
-    E_Float hi0 = _field[Ni];
-    E_Float hj0 = _field[Nj];
+    nuga_real_t hi0 = _field[Ni];
+    nuga_real_t hj0 = _field[Nj];
     
     if (fabs(hj0 - hi0) < EPSILON) return false; //same metric so nothing to smooth
     if (hj0 < hi0)
@@ -1431,11 +1431,11 @@ namespace DELAUNAY
     
     if (Nj <= N0) return false; //do not touch the hard nodes
 
-    E_Float dij = lengthEval(Ni, hi0, Nj, hi0);
+    nuga_real_t dij = lengthEval(Ni, hi0, Nj, hi0);
     
     if (hi0 >= dij && hj0 >= dij) return false; //fixme : ??
 
-    E_Float hs = hi0 *(1. + (gr-1.) * dij); // extrapolated h at Nj with respect to growth ratio
+    nuga_real_t hs = hi0 *(1. + (gr-1.) * dij); // extrapolated h at Nj with respect to growth ratio
 
     hs = K_FUNC::E_max(_hmin, hs);
     hs = K_FUNC::E_min(_hmax, hs);
@@ -1449,7 +1449,7 @@ namespace DELAUNAY
   
   /// smooth aniso2D (celui qui est branche dans surfaceMesher)
   template<> inline
-  bool VarMetric<Aniso2D>::smooth(size_type Ni, size_type Nj, E_Float gr, E_Int N0 /* threshold for metric changes*/)
+  bool VarMetric<Aniso2D>::smooth(size_type Ni, size_type Nj, nuga_real_t gr, E_Int N0 /* threshold for metric changes*/)
   {
     // WARNING : assume growth ratio gr > 1.
     // The smaller might smooth the bigger. Discuss on the spectral radius
@@ -1457,11 +1457,11 @@ namespace DELAUNAY
     const Aniso2D& mi0 = _field[Ni];
     const Aniso2D& mj0 = _field[Nj];
 
-    E_Float NiNj[2];
+    nuga_real_t NiNj[2];
     NUGA::diff<2>(_pos->col(Nj), _pos->col(Ni), NiNj);
        
-    E_Float hi02 = get_h2_along_dir(Ni, NiNj); // trace on NiNj of the ellipse centered at Ni
-    E_Float hj02 = get_h2_along_dir(Nj, NiNj); // trace on NiNj of the ellipse centered at Nj
+    nuga_real_t hi02 = get_h2_along_dir(Ni, NiNj); // trace on NiNj of the ellipse centered at Ni
+    nuga_real_t hj02 = get_h2_along_dir(Nj, NiNj); // trace on NiNj of the ellipse centered at Nj
     //printf("hi=%g hj=%g\n", hi02, hj02);
 
     const Aniso2D* pmi0 = &mi0;
@@ -1479,10 +1479,10 @@ namespace DELAUNAY
     
     if (Nj <= N0) return false; //do not touch the hard nodes
 
-    E_Float dij = lengthEval(Ni, *pmi0, Nj, *pmi0);
+    nuga_real_t dij = lengthEval(Ni, *pmi0, Nj, *pmi0);
     
     // critere prennant en compte le grading
-    E_Float hs2 = hi02 * (1. + (gr-1.) * dij) * (1. + (gr-1.) * dij); // extrapolated h at Nj with respect to growth ratio
+    nuga_real_t hs2 = hi02 * (1. + (gr-1.) * dij) * (1. + (gr-1.) * dij); // extrapolated h at Nj with respect to growth ratio
 
     metric_reduce(Nj, NiNj, hj02, hs2);
     
@@ -1491,7 +1491,7 @@ namespace DELAUNAY
 
   /// smooth aniso3D
   template<> inline
-  bool VarMetric<Aniso3D>::smooth(size_type Ni, size_type Nj, E_Float gr, E_Int N0 /* threshold for metric changes*/)
+  bool VarMetric<Aniso3D>::smooth(size_type Ni, size_type Nj, nuga_real_t gr, E_Int N0 /* threshold for metric changes*/)
   {
     // WARNING : assume growth ratio gr > 1.
     // The smaller might smooth the bigger. Discuss on the spectral radius
@@ -1499,11 +1499,11 @@ namespace DELAUNAY
     const Aniso3D& mi0 = _field[Ni];
     const Aniso3D& mj0 = _field[Nj];
 
-    E_Float NiNj[3];
+    nuga_real_t NiNj[3];
     NUGA::diff<3>(_pos->col(Nj), _pos->col(Ni), NiNj);
 
-    E_Float hi02 = get_h2_along_dir(Ni, NiNj); // trace on NiNj of the ellipse centered at Ni
-    E_Float hj02 = get_h2_along_dir(Nj, NiNj); // trace on NiNj of the ellipse centered at Nj
+    nuga_real_t hi02 = get_h2_along_dir(Ni, NiNj); // trace on NiNj of the ellipse centered at Ni
+    nuga_real_t hj02 = get_h2_along_dir(Nj, NiNj); // trace on NiNj of the ellipse centered at Nj
 
     const Aniso3D* pmi0 = &mi0;
 
@@ -1520,9 +1520,9 @@ namespace DELAUNAY
 
     if (Nj <= N0) return false; //do not touch the hard nodes
 
-    E_Float dij = lengthEval(Ni, *pmi0, Nj, *pmi0);
+    nuga_real_t dij = lengthEval(Ni, *pmi0, Nj, *pmi0);
 
-    E_Float hs2 = hi02 * (1. + (gr - 1.) * dij) * (1. + (gr - 1.) * dij); // extrapolated h at Nj with respect to growth ratio
+    nuga_real_t hs2 = hi02 * (1. + (gr - 1.) * dij) * (1. + (gr - 1.) * dij); // extrapolated h at Nj with respect to growth ratio
 
     metric_reduce(Nj, NiNj, hj02, hs2);
 
@@ -1532,11 +1532,11 @@ namespace DELAUNAY
   /// add mid point of Ni Nj
   template <typename T>
   void VarMetric<T>::__init_refine_points
-    (K_FLD::FloatArray& pos, size_type Ni, size_type Nj, E_Float threshold, 
-    std::vector<std::pair<E_Float, size_type> >& length_to_points, std::vector<size_type>& tmpNodes)
+    (K_FLD::FloatArray& pos, size_type Ni, size_type Nj, nuga_real_t threshold, 
+    std::vector<std::pair<nuga_real_t, size_type> >& length_to_points, std::vector<size_type>& tmpNodes)
   {
     size_type dim(pos.rows());
-    E_Float newP[3];
+    nuga_real_t newP[3];
     K_FLD::FloatArray::const_iterator it1(pos.col(Ni)), it2(pos.col(Nj));
     for (size_type i = 0; i < dim; ++i) // middle point.
       newP[i] = 0.5 * (*(it1++) + *(it2++));
@@ -1544,10 +1544,10 @@ namespace DELAUNAY
     pos.pushBack(newP, newP+dim);
     size_type N = pos.cols()-1;
     
-    E_Float d = sqrt(NUGA::sqrDistance(pos.col(Ni), pos.col(Nj), pos.rows()));
+    nuga_real_t d = sqrt(NUGA::sqrDistance(pos.col(Ni), pos.col(Nj), pos.rows()));
     
     // set the metric as a large valid value : half of the initial edge length
-    E_Float factor = 0.5;
+    nuga_real_t factor = 0.5;
     T m(factor*d);
     setMetric(N, m);
 
@@ -1561,11 +1561,11 @@ namespace DELAUNAY
   /// pour un edge, threshold doit etre hmax
   template <typename T>
   void VarMetric<T>::__compute_refine_points
-  (K_FLD::FloatArray& pos, size_type Ni, size_type Nj, E_Float threshold, 
-   std::vector<std::pair<E_Float, size_type> >& length_to_points, std::vector<size_type>& tmpNodes)
+  (K_FLD::FloatArray& pos, size_type Ni, size_type Nj, nuga_real_t threshold, 
+   std::vector<std::pair<nuga_real_t, size_type> >& length_to_points, std::vector<size_type>& tmpNodes)
   {
     tmpNodes.clear();
-    E_Float d = length(Ni, Nj, threshold, tmpNodes); // decoupe de l'edge (regulierement?)
+    nuga_real_t d = length(Ni, Nj, threshold, tmpNodes); // decoupe de l'edge (regulierement?)
     
 #ifdef E_ADOUBLE
     size_type n = std::max(size_type(d.value()), size_type(1));
@@ -1582,14 +1582,14 @@ namespace DELAUNAY
     if (n == 1) return; // edge deja assez fin
 
     size_type ni = 0, ii = 0, dim(pos.rows()), nb_nodes;
-    E_Float l = 0.;
+    nuga_real_t l = 0.;
     size_type Nstart = Ni, Nk = Ni, Nl = Ni;
-    E_Float x = 1.;
+    nuga_real_t x = 1.;
     nb_nodes = (size_type)tmpNodes.size();
-    std::vector<std::pair<E_Float, size_type> > length_to_point(nb_nodes+2);
+    std::vector<std::pair<nuga_real_t, size_type> > length_to_point(nb_nodes+2);
     length_to_point[0] = std::make_pair(0., Ni);
     
-    E_Float* pNi = pos.col(Ni);
+    nuga_real_t* pNi = pos.col(Ni);
 
     for (size_type i = 0; i < nb_nodes; ++i)
     {
@@ -1601,7 +1601,7 @@ namespace DELAUNAY
 
     std::sort(length_to_point.begin(), length_to_point.end());
 
-    E_Float newP[2], r, xx;
+    nuga_real_t newP[2], r, xx;
 
     while (ni++ < n)
     {

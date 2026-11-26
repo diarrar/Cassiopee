@@ -34,7 +34,7 @@ namespace NUGA
 {
 
   template <typename mesh_t1, typename mesh_t2>
-  static std::vector<direction> immerse_nodes(mesh_t1& m1, const mesh_t2& m2, E_Float ARTOL)
+  static std::vector<direction> immerse_nodes(mesh_t1& m1, const mesh_t2& m2, nuga_real_t ARTOL)
   {
     eMetricType mtype = NUGA::ISO_MIN;
 
@@ -72,12 +72,12 @@ namespace NUGA
         {
           const E_Int& fid = pt_to_faces[i][p];
           auto PG = m2.element(fid);
-          E_Float nn[3];
+          nuga_real_t nn[3];
           PG.template ndS<3>(m2.crd, nn);
           NUGA::normalize<3>(nn);
 
   #ifdef DEBUG_IMMERSION
-          E_Float l2 = sqrt(nn[0] * nn[0] + nn[1] * nn[1] + nn[2] * nn[2]);
+          nuga_real_t l2 = sqrt(nn[0] * nn[0] + nn[1] * nn[1] + nn[2] * nn[2]);
           assert(fabs(l2 - 1.) < EPSILON);// DEGEN
   #endif
 
@@ -90,18 +90,18 @@ namespace NUGA
       else // this vertex is near a m2's node => compute nodal normal : weighted with angle between each pair of ray in the node shell (sum is 2PI)
       {
         #ifndef NDEBUG
-        E_Float TOL2 = ARTOL*ARTOL;
+        nuga_real_t TOL2 = ARTOL*ARTOL;
         if (ARTOL < 0.) //relative
           TOL2 *= vertices[i].val2;
         #endif
         // find near node : 
         E_Int PGi0 = pt_to_faces[i][0];
         auto PG0 = m2.element(PGi0);
-        E_Float dmin2 = FLOAT_MAX;
+        nuga_real_t dmin2 = FLOAT_MAX;
         E_Int Ni{IDX_NONE};
         for (size_t u=0; u < (size_t)PG0.nb_nodes(); ++u) 
         {
-          E_Float d2 = NUGA::sqrDistance(m2.crd.col(PG0.node(u)), vertices[i].vec, 3);
+          nuga_real_t d2 = NUGA::sqrDistance(m2.crd.col(PG0.node(u)), vertices[i].vec, 3);
           if (d2 < dmin2)
           {
             dmin2 = d2;
@@ -128,7 +128,7 @@ namespace NUGA
           E_Int Nip1 = PG.node((pos+1)%nnodes);
           E_Int Nim1 = PG.node((pos+nnodes-1)%nnodes);
 
-          E_Float nn[3];
+          nuga_real_t nn[3];
           NUGA::angular_weighted_normal(m2.crd.col(Nim1), m2.crd.col(Ni), m2.crd.col(Nip1), nn);
 
           // immersion => inward => -=
@@ -163,23 +163,23 @@ namespace NUGA
         auto PG = m2.element(fid);
 
         E_Int P0 = PG.node(0);         // first face node
-        E_Float nPG[3];                 // normal to PG
+        nuga_real_t nPG[3];                 // normal to PG
         PG.template normal<K_FLD::FloatArray, 3>(m2.crd, nPG);
 
-        const E_Float* Pi = vertices[i].vec;
+        const nuga_real_t* Pi = vertices[i].vec;
 
-        E_Float I[3]; // intersection of pt in computed dir on PG plane.
-        E_Float h = NUGA::project(m2.crd.col(P0), nPG, Pi, dirs[i].vec, I); // == PiP0.nPG
+        nuga_real_t I[3]; // intersection of pt in computed dir on PG plane.
+        nuga_real_t h = NUGA::project(m2.crd.col(P0), nPG, Pi, dirs[i].vec, I); // == PiP0.nPG
         
         if (h < 0.) continue; //already immersed
 
-        E_Float w = NUGA::dot<3>(nPG, dirs[i].vec);
+        nuga_real_t w = NUGA::dot<3>(nPG, dirs[i].vec);
         assert(w < 0.);
         w = 1. / w;
 
-        E_Float dmax = sqrt(std::min(vertices[i].val2, PG.Lref2(m2.nodal_metric2)));
+        nuga_real_t dmax = sqrt(std::min(vertices[i].val2, PG.Lref2(m2.nodal_metric2)));
 
-        E_Float TOLi = ARTOL;
+        nuga_real_t TOLi = ARTOL;
         if (ARTOL < 0.) // relative
           TOLi *= -dmax;
 
@@ -190,8 +190,8 @@ namespace NUGA
           continue;//too far
         }
 
-        E_Float depth = 0.1*(dmax - TOLi);
-        E_Float lambdaMove = -w * (h + depth);
+        nuga_real_t depth = 0.1*(dmax - TOLi);
+        nuga_real_t lambdaMove = -w * (h + depth);
 
         // following assert because dir must be well oriented : inward the surface if above, outward otherwise
         // so attractive if above, repulsive if below (to put it far enough to exit interference zone)
@@ -258,7 +258,7 @@ namespace NUGA
   }
 
   template <typename mesh_t1, typename mesh_t2>
-  static std::vector<direction> compute_displacement_for_singular_nodes(mesh_t1& m1, const mesh_t2& m2, E_Float ARTOL, eMetricType mtype, bool inward)
+  static std::vector<direction> compute_displacement_for_singular_nodes(mesh_t1& m1, const mesh_t2& m2, nuga_real_t ARTOL, eMetricType mtype, bool inward)
   {
     // inward = True  => immersion
     // inward = False => repulsion
@@ -303,12 +303,12 @@ namespace NUGA
         {
           const E_Int& fid = pt_to_faces[i][p];
           auto PG = m2.element(fid);
-          E_Float nn[3];
+          nuga_real_t nn[3];
           PG.template ndS<3>(m2.crd, nn);
           NUGA::normalize<3>(nn);
 
 #ifdef DEBUG_IMMERSION
-          E_Float l2 = sqrt(nn[0] * nn[0] + nn[1] * nn[1] + nn[2] * nn[2]);
+          nuga_real_t l2 = sqrt(nn[0] * nn[0] + nn[1] * nn[1] + nn[2] * nn[2]);
           assert(fabs(l2 - 1.) < EPSILON);// DEGEN
 #endif
           dirs[i].vec[0] += nn[0];
@@ -320,18 +320,18 @@ namespace NUGA
       {
         //std::cout << "compute node normal" << std::endl;
         #ifndef NDEBUG
-          E_Float TOL2 = ARTOL * ARTOL;
+          nuga_real_t TOL2 = ARTOL * ARTOL;
           if (ARTOL < 0.) //relative
             TOL2 *= vertices[i].val2;
         #endif
         // find near node : 
         E_Int PGi0 = pt_to_faces[i][0];
         auto PG0 = m2.element(PGi0);
-        E_Float dmin2 = FLOAT_MAX;
+        nuga_real_t dmin2 = FLOAT_MAX;
         E_Int Ni{ IDX_NONE };
         for (E_Int u = 0; u < PG0.nb_nodes(); ++u)
         {
-          E_Float d2 = NUGA::sqrDistance(m2.crd.col(PG0.node(u)), vertices[i].vec, 3);
+          nuga_real_t d2 = NUGA::sqrDistance(m2.crd.col(PG0.node(u)), vertices[i].vec, 3);
           if (d2 < dmin2)
           {
             dmin2 = d2;
@@ -358,7 +358,7 @@ namespace NUGA
           E_Int Nip1 = PG.node((pos + 1) % nnodes);
           E_Int Nim1 = PG.node((pos + nnodes - 1) % nnodes);
 
-          E_Float nn[3];
+          nuga_real_t nn[3];
           NUGA::angular_weighted_normal(m2.crd.col(Nim1), m2.crd.col(Ni), m2.crd.col(Nip1), nn);
 
           dirs[i].vec[0] += nn[0];
@@ -385,7 +385,7 @@ namespace NUGA
 
       if (pt_to_faces[i].empty()) continue; // regular point
 
-      const E_Float* Pi = vertices[i].vec;
+      const nuga_real_t* Pi = vertices[i].vec;
  
       // compute max distance among sticking PGs to satisfy all of them
       for (size_t p = 0; p < pt_to_faces[i].size(); ++p)
@@ -393,36 +393,36 @@ namespace NUGA
         const E_Int& fid = pt_to_faces[i][p];
         auto PG = m2.element(fid);
 
-        E_Float TOLi = ARTOL;
+        nuga_real_t TOLi = ARTOL;
         if (ARTOL < 0.) // relative
         {
-          E_Float PGLref2 = PG.Lref2(m2.nodal_metric2);
+          nuga_real_t PGLref2 = PG.Lref2(m2.nodal_metric2);
           TOLi *= -sqrt(std::min(vertices[i].val2, PGLref2));
         }
-        E_Float hmove = (1. + EPSILON) * TOLi;
+        nuga_real_t hmove = (1. + EPSILON) * TOLi;
 
         PG.triangulate(dt, m2.crd);
 
-        E_Float lambdaImin = FLOAT_MAX;
-        E_Float wmin{ 0 };
+        nuga_real_t lambdaImin = FLOAT_MAX;
+        nuga_real_t wmin{ 0 };
         // find the closest triangle
         for (E_Int t = 0; t < PG.nb_tris(); ++t)
         {
           E_Int T[3];
           PG.triangle(t, T);
 
-          const E_Float * P0 = m2.crd.col(T[0]);
-          const E_Float * P1 = m2.crd.col(T[1]);
-          const E_Float * P2 = m2.crd.col(T[2]);
+          const nuga_real_t * P0 = m2.crd.col(T[0]);
+          const nuga_real_t * P1 = m2.crd.col(T[1]);
+          const nuga_real_t * P2 = m2.crd.col(T[2]);
 
-          E_Float W[3];
+          nuga_real_t W[3];
           K_MESH::Triangle::normal(P0, P1, P2, W);
 
-          E_Float w = NUGA::dot<3>(W, dirs[i].vec);
+          nuga_real_t w = NUGA::dot<3>(W, dirs[i].vec);
           if (fabs(w) < ZERO_M) continue; // should not happen : dir must not be ortho to nPG
 
-          E_Float I[3]; // intersection of pt in computed dir on PG plane.
-          E_Float lambdaI = NUGA::project(P0, W, Pi, dirs[i].vec, I); // == Pi + lambdaI*dir = I
+          nuga_real_t I[3]; // intersection of pt in computed dir on PG plane.
+          nuga_real_t lambdaI = NUGA::project(P0, W, Pi, dirs[i].vec, I); // == Pi + lambdaI*dir = I
 
           if (fabs(lambdaI) < fabs(lambdaImin))
           {
@@ -446,7 +446,7 @@ namespace NUGA
           lambdaImin = -lambdaImin;
         }
 
-        E_Float lambdaMove = (fabs(wmin) * hmove) + lambdaImin;
+        nuga_real_t lambdaMove = (fabs(wmin) * hmove) + lambdaImin;
 
         // following assert because dir must be well oriented : inward the surface if above, outward otherwise
         // so attractive if above, repulsive if below (to put it far enough to exit interference zone)
@@ -478,7 +478,7 @@ namespace NUGA
     acrd_t acrd(crd);
     K_SEARCH::KdTree<> tree(acrd, EPSILON);
     bool found{ false };
-    E_Float d2;
+    nuga_real_t d2;
     std::vector<bool> targeted(crd.cols(), false);
     for (E_Int i = 0; i < m.crd.cols(); ++i)
     {
@@ -568,7 +568,7 @@ namespace NUGA
       E_Int nnodes = bit->cnt.stride(i);
 
       auto PGi = bit->element(i);
-      E_Float nni[3];
+      nuga_real_t nni[3];
       PGi.template ndS<3>(bit->crd, nni);
       NUGA::normalize<3>(nni);
 
@@ -585,7 +585,7 @@ namespace NUGA
 
           E_Int fid = is_singular_node[Ni];
           auto PG = zwalls.element(fid);
-          E_Float nn[3];
+          nuga_real_t nn[3];
           PG.template ndS<3>(zwalls.crd, nn);
           NUGA::normalize<3>(nn);
 
@@ -598,8 +598,8 @@ namespace NUGA
       if (singular)
       {
         NUGA::normalize<3>(average_n.vec);
-        //E_Float val = fabs(NUGA::dot<3>(nni, average_n.vec));
-        E_Float angle = NUGA::normals_angle(nni, average_n.vec);
+        //nuga_real_t val = fabs(NUGA::dot<3>(nni, average_n.vec));
+        nuga_real_t angle = NUGA::normals_angle(nni, average_n.vec);
         if (angle < AMAX) is_dw[i] = true;
       }
     }
@@ -682,7 +682,7 @@ namespace NUGA
         {
           if (all_nodes_disp[i].val2 == FLOAT_MAX) continue;
 
-          E_Float * Pi = crd.col(i);
+          nuga_real_t * Pi = crd.col(i);
           NUGA::sum<3>(1., Pi, sqrt(all_nodes_disp[i].val2), all_nodes_disp[i].vec, Pi);
         }
 
@@ -717,7 +717,7 @@ namespace NUGA
     {
       if (all_nodes_disp[i].val2 == FLOAT_MAX) continue;
 
-      E_Float * Pi = bit->crd.col(i);
+      nuga_real_t * Pi = bit->crd.col(i);
       NUGA::sum<3>(1., Pi, sqrt(all_nodes_disp[i].val2), all_nodes_disp[i].vec, Pi);
     }
 
@@ -736,7 +736,7 @@ namespace NUGA
   /// 
   template <> inline
     void move_double_walls<edge_mesh_t>
-    (edge_mesh_t* bit, const edge_mesh_t& zbound, E_Float ARTOL, eMetricType mtype, E_Float AMAX, const std::vector<E_Int>& zmask_wall_ids, std::vector<bool>& is_dw)
+    (edge_mesh_t* bit, const edge_mesh_t& zbound, double ARTOL, eMetricType mtype, double AMAX, const std::vector<E_Int>& zmask_wall_ids, std::vector<bool>& is_dw)
   {
     // not implemented for surfaces
   }

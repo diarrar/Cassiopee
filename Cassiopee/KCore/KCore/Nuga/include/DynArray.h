@@ -30,13 +30,14 @@
 #include <set>
 #include <vector>
 #include <algorithm>
+#include <type_traits>
 
 namespace K_FLD 
 {
 
 // ============================================================================
 // @Name DynArray<T>
-// @Memo Container of type T (E_Float, E_Int, E_Bool...)
+// @Memo Container of type T (nuga_real_t, E_Int, E_Bool...)
 /* @Text
 
 Design
@@ -81,6 +82,14 @@ Design
     DynArray(size_type rows, size_type cols, bool calloc = false);
     /// Constructor with number of rows, columns and default value.
     DynArray(size_type rows, size_type cols, const value_type& val, bool calloc = false);
+    /// Same as above for an arithmetic initial value of another type (e.g. a double
+    /// literal when T is float): avoids an ambiguity with the bool overload.
+    template <typename U,
+              typename = typename std::enable_if<std::is_arithmetic<U>::value &&
+                                                 !std::is_same<U, bool>::value &&
+                                                 !std::is_same<U, T>::value>::type>
+    DynArray(size_type rows, size_type cols, U val, bool calloc = false)
+      : DynArray(rows, cols, value_type(val), calloc) {}
     /// Constructor with input data : WARNING becomes owner
     DynArray(T*& compactdata, size_type rows, size_type cols, bool calloc = false);
 
@@ -98,12 +107,15 @@ Design
       _calloc = arr._calloc;
     }
 
-    /// Constructor by type conversion (for FldArrays).
-    inline explicit DynArray(const FldArray<T>& i, value_type shift = value_type(0.));
-    inline explicit DynArray(const FldArray<T>& i, E_Int posx, E_Int posy, E_Int posz=-1);
+    /// Constructor by type conversion (for FldArrays, of any real type).
+    template <typename U>
+    inline explicit DynArray(const FldArray<U>& i, value_type shift = value_type(0.));
+    template <typename U>
+    inline explicit DynArray(const FldArray<U>& i, E_Int posx, E_Int posy, E_Int posz=-1);
 
-    /// Converts the DynArray to a FldArray.
-    inline void convert(FldArray<T>& i, value_type shift = value_type(0.)) const ;
+    /// Converts the DynArray to a FldArray (of any real type).
+    template <typename U>
+    inline void convert(FldArray<U>& i, value_type shift = value_type(0.)) const ;
     inline void convert(DynArray<T>& out, T shift) const {out = *this;/*fixme : dum to convert to itself*/}
 
     // Extracts a given field
@@ -284,8 +296,8 @@ Design
     template <typename FldArrayType>
     void __importFldArray (const FldArrayType& i, value_type shift = value_type(0.));
     ///
-    template <typename FldArrayType>
-    void __importFldArray (const FldArrayType& i, const E_Float** pos, E_Int npos);
+    template <typename FldArrayType, typename U>
+    void __importFldArray (const FldArrayType& i, const U** pos, E_Int npos);
 
     /// Writes out an FldArray from a DynArray.
     template <typename FldArrayType>
@@ -311,7 +323,7 @@ Design
 
   //----------------------------------------------------------------------------
 
-  typedef DynArray<E_Float>  FloatArray;
+  typedef DynArray<nuga_real_t>  FloatArray;
   typedef DynArray<E_Int>    IntArray;
 
   //---------------------------------------------------------------------------
@@ -399,14 +411,16 @@ Design
 
   /** Conversion specialization */
   ///FldArray --> DynArray
-  template <typename T> inline
-    DynArray<T>::DynArray(const FldArray<T>& a, T shift)
+  template <typename T>
+  template <typename U> inline
+    DynArray<T>::DynArray(const FldArray<U>& a, T shift)
     :_allocated_sz(0), _rows(0), _cols(0), _rowsMax (0), _colsMax (0),_data(0), _calloc(false)
   {__importFldArray(a, shift);}
 
   ///DynArray --> FldArray
-  template <typename T> inline
-  void DynArray<T>::convert(FldArray<T>& out, T shift) const
+  template <typename T>
+  template <typename U> inline
+  void DynArray<T>::convert(FldArray<U>& out, T shift) const
   {__exportFldArray(out, shift);}
 
   template <typename T> inline
@@ -1106,7 +1120,8 @@ Design
   void DynArray<T>::__importFldArray (const U& a, value_type shift)
   {
       size_type rows(a.getNfld()), cols(a.getSize());
-      const T* *p =  new const T*[rows];
+      typedef typename std::remove_pointer<decltype(a.begin(1))>::type src_t;
+      const src_t* *p =  new const src_t*[rows];
 
       reserve(rows, cols);
 
@@ -1115,7 +1130,7 @@ Design
 
       for (size_type j = 0; j < cols; ++j){
         for (size_type i = 0; i < rows; ++i){
-          *(_data + j*rows +i) = *(p[i]+j) + shift;
+          *(_data + j*rows +i) = (T)(*(p[i]+j)) + shift;
         }
       }
 
@@ -1125,9 +1140,9 @@ Design
       _cols = _colsMax = cols;
   }
   
-  template <>
-  template <typename U>
-  void DynArray<E_Float>::__importFldArray (const U& a, const E_Float** p, E_Int npos)
+  template <typename T>
+  template <typename FldArrayType, typename U>
+  void DynArray<T>::__importFldArray (const FldArrayType& a, const U** p, E_Int npos)
   {
       size_type rows(a.getNfld()), cols(a.getSize());
             
@@ -1137,7 +1152,7 @@ Design
 
       for (size_type j = 0; j < cols; ++j){
         for (size_type i = 0; i < npos; ++i){
-          *(_data + j*rows +i) = *(p[i]+j);
+          *(_data + j*rows +i) = (T)(*(p[i]+j));
         }
       }
 
@@ -1148,12 +1163,13 @@ Design
   }
   
   ///FldArrayF --> FloatArray
-  template <> inline
-    DynArray<E_Float>::DynArray(const FldArray<E_Float>& a, E_Int posx, E_Int posy, E_Int posz)
+  template <typename T>
+  template <typename U> inline
+    DynArray<T>::DynArray(const FldArray<U>& a, E_Int posx, E_Int posy, E_Int posz)
     :_allocated_sz(0), _rows(0), _cols(0), _rowsMax (0), _colsMax (0),_data(0), _calloc(false)
   {
     E_Int npos = (posz != -1) ? 3 : 2;
-    const E_Float* *p =  new const E_Float*[npos];
+    const U* *p =  new const U*[npos];
     
     p[0] = a.begin(posx+1);
     p[1] = a.begin(posy+1);
@@ -1169,14 +1185,15 @@ Design
       FldArrayType out;
       out.resize(_cols, _rows);
 
-      T* *p =  new T*[_rows];
+      typedef typename std::remove_pointer<decltype(out.begin(1))>::type dst_t;
+      dst_t* *p =  new dst_t*[_rows];
 
       for (size_type i = 0; i < _rows; ++i)
-        p[i] = (T*)out.begin(i+1);
+        p[i] = out.begin(i+1);
 
       for (size_type j = 0; j < _cols; ++j){
         for (size_type i = 0; i < _rows; ++i){
-          *(p[i]+j) = *(_data + j*_rows +i) + shift;
+          *(p[i]+j) = (dst_t)(*(_data + j*_rows +i) + shift);
         }
       }
 
@@ -1217,10 +1234,10 @@ Design
   template <typename T> inline
   void DynArray<T>::inverse2(self_type& A) 
   {
-    E_Float detA = A(0,0)*A(1,1) - A(1,0)*A(0,1);
+    nuga_real_t detA = A(0,0)*A(1,1) - A(1,0)*A(0,1);
     detA = 1./detA;
 
-    E_Float a0 =   A(1,1) * detA;
+    nuga_real_t a0 =   A(1,1) * detA;
     
     A(0,1)     = - A(0,1) * detA;
     A(1,0)     = - A(1,0) * detA;
@@ -1231,17 +1248,17 @@ Design
   template <typename T> inline
   void DynArray<T>::inverse3(self_type& A) 
   {
-    E_Float a = A(0,0);
-    E_Float b = A(0,1);
-    E_Float c = A(0,2);
-    E_Float d = A(1,0);
-    E_Float e = A(1,1);
-    E_Float f = A(1,2);
-    E_Float g = A(2,0);
-    E_Float h = A(2,1);
-    E_Float i = A(2,2);
+    nuga_real_t a = A(0,0);
+    nuga_real_t b = A(0,1);
+    nuga_real_t c = A(0,2);
+    nuga_real_t d = A(1,0);
+    nuga_real_t e = A(1,1);
+    nuga_real_t f = A(1,2);
+    nuga_real_t g = A(2,0);
+    nuga_real_t h = A(2,1);
+    nuga_real_t i = A(2,2);
 
-    E_Float detA = a*(e*i - f*h) - b*(d*i - f*g) + c*(d*h - e*g);
+    nuga_real_t detA = a*(e*i - f*h) - b*(d*i - f*g) + c*(d*h - e*g);
     detA = 1./detA;
 
     A(0,0) = (e*i - f*h) * detA;

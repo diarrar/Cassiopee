@@ -26,8 +26,8 @@ namespace NUGA
 {
   struct vecval
   {
-    E_Float vec[3];
-    E_Float val2;
+    nuga_real_t vec[3];
+    nuga_real_t val2;
     int     flag; // e.g. used to store node id
     int     flag2;
 
@@ -37,7 +37,7 @@ namespace NUGA
       flag = flag2 = -1;
     }
 
-    vecval(const E_Float*p, E_Float v2) : val2(v2)
+    vecval(const nuga_real_t*p, nuga_real_t v2) : val2(v2)
     {
       vec[0] = p[0];
       vec[1] = p[1];

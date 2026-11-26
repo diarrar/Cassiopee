@@ -122,7 +122,7 @@ class hierarchical_mesh
     ///
     inline void extract_plan(E_Int PGi, bool reverse, E_Int i0, K_FLD::IntArray& plan) const;
     ///
-    void get_cell_center(E_Int PHi, E_Float* center) const ;
+    void get_cell_center(E_Int PHi, nuga_real_t* center) const ;
     ///
     template <typename InputIterator> void get_enabled_neighbours(E_Int PHi, InputIterator neighbours, E_Int& nb_neighbours) const ;
     ///
@@ -149,11 +149,11 @@ class hierarchical_mesh
     );
 
     ///
-    E_Int project_cell_center_sol_order1(std::vector<std::vector<E_Float>>& fields);
-    E_Int project_cell_center_sol_order1(std::vector<E_Int>& phhids0, std::vector<std::vector<E_Float>>& cfields);
+    E_Int project_cell_center_sol_order1(std::vector<std::vector<nuga_real_t>>& fields);
+    E_Int project_cell_center_sol_order1(std::vector<E_Int>& phhids0, std::vector<std::vector<nuga_real_t>>& cfields);
     E_Int project_cell_center_sol_order1(const K_FLD::FloatArray& crd_don, const ngo_t& ng_don,
                                          const history_t& histo,
-                                         const K_FLD::FloatArray& crd_rec, const ngo_t& ng_rec, std::vector<std::vector<E_Float>>& cfields);
+                                         const K_FLD::FloatArray& crd_rec, const ngo_t& ng_rec, std::vector<std::vector<nuga_real_t>>& cfields);
 
 private:
     ///
@@ -550,7 +550,7 @@ bool hierarchical_mesh<ELT_t, STYPE, ngo_t>::is_initialised() const
 
 ///
 template <typename ELT_t, eSUBDIV_TYPE STYPE, typename ngo_t>
-void hierarchical_mesh<ELT_t, STYPE, ngo_t>::get_cell_center(E_Int PHi, E_Float* center) const
+void hierarchical_mesh<ELT_t, STYPE, ngo_t>::get_cell_center(E_Int PHi, nuga_real_t* center) const
 {    
   ELT_t::iso_barycenter(_crd, _ng.PGs, _ng.PHs.get_facets_ptr(PHi), _ng.PHs.stride(PHi), 1, center);
 }
@@ -944,7 +944,7 @@ void hierarchical_mesh<ELT_t, STYPE, ngo_t>::update_pointlist(std::vector<E_Int>
 ///
 template <typename ELT_t, eSUBDIV_TYPE STYPE, typename ngo_t>
 E_Int hierarchical_mesh<ELT_t, STYPE, ngo_t>::project_cell_center_sol_order1
-(std::vector<E_Int>& phhids0, std::vector<std::vector<E_Float>>& cfields)
+(std::vector<E_Int>& phhids0, std::vector<std::vector<nuga_real_t>>& cfields)
 {
   size_t nbf = cfields.size();
 
@@ -982,7 +982,7 @@ E_Int hierarchical_mesh<ELT_t, STYPE, ngo_t>::project_cell_center_sol_order1
   E_Int fsz2 = nPHid.size();
 
   // initialize new fields
-  std::vector<std::vector<E_Float>> new_fields(nbf);
+  std::vector<std::vector<nuga_real_t>> new_fields(nbf);
   for (size_t f = 0; f < nbf; ++f)
     new_fields[f].resize(fsz2, 0.);
 
@@ -1018,7 +1018,7 @@ E_Int hierarchical_mesh<ELT_t, STYPE, ngo_t>::project_cell_center_sol_order1
         assert(pid != IDX_NONE);
 
         //compute PHj volume
-        E_Float v;
+        nuga_real_t v;
         K_MESH::Polyhedron<0>::volume<DELAUNAY::Triangulator>(_crd, _ng.PGs, _ng.PHs.get_facets_ptr(PHj), _ng.PHs.stride(PHj), v, true);
 
         for (size_t f = 0; f < nbf; ++f)
@@ -1037,7 +1037,7 @@ E_Int hierarchical_mesh<ELT_t, STYPE, ngo_t>::project_cell_center_sol_order1
 
     E_Int PH = nPHid[i];
 
-    E_Float v;
+    nuga_real_t v;
     K_MESH::Polyhedron<0>::volume<DELAUNAY::Triangulator>(_crd, _ng.PGs, _ng.PHs.get_facets_ptr(PH), _ng.PHs.stride(PH), v, true);
 
     if (fabs(v) < ZERO_M) continue;
@@ -1057,7 +1057,7 @@ template <typename ELT_t, eSUBDIV_TYPE STYPE, typename ngo_t>
 E_Int hierarchical_mesh<ELT_t, STYPE, ngo_t>::project_cell_center_sol_order1
 (const K_FLD::FloatArray& crd_don, const ngo_t& ng_don, 
  const history_t& histo,
- const K_FLD::FloatArray& crd_rec, const ngo_t& ng_rec, std::vector<std::vector<E_Float>>& cfields)
+ const K_FLD::FloatArray& crd_rec, const ngo_t& ng_rec, std::vector<std::vector<nuga_real_t>>& cfields)
 {
   size_t nbf = cfields.size();
 
@@ -1096,7 +1096,7 @@ E_Int hierarchical_mesh<ELT_t, STYPE, ngo_t>::project_cell_center_sol_order1
 
   // initialize new fields
   E_Int nb_target_phs = ng_rec.PHs.size();
-  std::vector<std::vector<E_Float>> new_fields(nbf);
+  std::vector<std::vector<nuga_real_t>> new_fields(nbf);
   for (size_t f = 0; f < nbf; ++f)
     new_fields[f].resize(nb_target_phs, 0.);
 
@@ -1123,7 +1123,7 @@ E_Int hierarchical_mesh<ELT_t, STYPE, ngo_t>::project_cell_center_sol_order1
       {
         const E_Int& src = source_start[s];
         //compute src volume
-        E_Float v;
+        nuga_real_t v;
         K_MESH::Polyhedron<0>::volume<DELAUNAY::Triangulator>(crd_don, ng_don.PGs, ng_don.PHs.get_facets_ptr(src), ng_don.PHs.stride(src), v, true);
 
         for (size_t f = 0; f < nbf; ++f)
@@ -1131,7 +1131,7 @@ E_Int hierarchical_mesh<ELT_t, STYPE, ngo_t>::project_cell_center_sol_order1
       }
 
       // now divide by receiver volume
-      E_Float v;
+      nuga_real_t v;
       K_MESH::Polyhedron<0>::volume<DELAUNAY::Triangulator>(crd_rec, ng_rec.PGs, ng_rec.PHs.get_facets_ptr(i), _ng.PHs.stride(i), v, true);
 
       if (fabs(v) < ZERO_M) continue;

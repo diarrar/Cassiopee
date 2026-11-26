@@ -317,7 +317,7 @@ GapsManager::__isFreeContour
     if (nmates[cnodes[i]] == Zipper::FREE)
       ++countFree;
 
-  return  ( (E_Float(countFree)/E_Float(cnodes.size())) > 0.8); // Free contour;
+  return  ( (nuga_real_t(countFree)/nuga_real_t(cnodes.size())) > 0.8); // Free contour;
 }
 
 #define IS_IN_BOX(b1, b2) (b1.minB[0] <= b2.minB[0]) && (b1.minB[1] <= b2.minB[1]) && (b1.minB[2] <= b2.minB[2]) && \

@@ -94,7 +94,7 @@ namespace NUGA
           continue; // X node => lying on (impacted) sub : no test required (which is good it as it might fail)
         }
 
-        const E_Float* P = crd2D.col(k);
+        const nuga_real_t* P = crd2D.col(k);
         sub.template fast_is_in_pred<DELAUNAY::Triangulator, 2>(dt, crd2D, P, is_in, 1.e-9);
         w_keep[k] = is_in;
       }
@@ -135,7 +135,7 @@ namespace NUGA
           continue; // X node => lying on (impacted) sub : no test required (which is good it as it might fail)
         }
 
-        const E_Float* P = crd2D.col(k);
+        const nuga_real_t* P = crd2D.col(k);
         cut.template fast_is_in_pred<DELAUNAY::Triangulator, 2>(dt, crd2D, P, is_in, 1.e-9);
         w_keep[k] = is_in;
       }
@@ -164,7 +164,7 @@ namespace NUGA
       K_SEARCH::BoundingBox<DIM> box;
       box.compute(crd);
 
-      E_Float dX[DIM];
+      nuga_real_t dX[DIM];
       for (size_t k = 0; k < DIM; ++k)
         dX[k] = box.maxB[k] - box.minB[k];
 
@@ -175,7 +175,7 @@ namespace NUGA
       }
     }
 
-    inline void go_2D(bool proj_on_first, const E_Float* W, K_FLD::FloatArray& crd, std::vector<E_Float>& zs, E_Float& zmean, K_FLD::FloatArray& P, const K_FLD::IntArray& cnt, E_Int nb_pts1, E_Int nb_edges1)
+    inline void go_2D(bool proj_on_first, const nuga_real_t* W, K_FLD::FloatArray& crd, std::vector<nuga_real_t>& zs, nuga_real_t& zmean, K_FLD::FloatArray& P, const K_FLD::IntArray& cnt, E_Int nb_pts1, E_Int nb_edges1)
     {      
       K_FLD::FloatArray iP(3, 3);
 
@@ -209,11 +209,11 @@ namespace NUGA
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     template <typename aELT1, typename aELT2> //sub & cut are non const as they can be reoriented/reversed
-    inline E_Int isolated_clip(aELT1& sub, aELT2& cut, NUGA::INTERSECT::eOPER oper, E_Float ARTOL, std::vector<aELT1>& res, bool& true_clip);
+    inline E_Int isolated_clip(aELT1& sub, aELT2& cut, NUGA::INTERSECT::eOPER oper, nuga_real_t ARTOL, std::vector<aELT1>& res, bool& true_clip);
     
     ///
     template <>
-    inline E_Int isolated_clip<aPolygon, edge_mesh_t>(aPolygon& sub, edge_mesh_t& cut, NUGA::INTERSECT::eOPER oper, E_Float ARTOL, std::vector<aPolygon>& bits, bool& true_clip)
+    inline E_Int isolated_clip<aPolygon, edge_mesh_t>(aPolygon& sub, edge_mesh_t& cut, NUGA::INTERSECT::eOPER oper, nuga_real_t ARTOL, std::vector<aPolygon>& bits, bool& true_clip)
     {
       using cnt_t = K_FLD::IntArray;
       const crd_t& crd1 = sub.m_crd;
@@ -236,7 +236,7 @@ namespace NUGA
 
       //gather subj & cutter 
       K_FLD::FloatArray crd(crd1);
-      E_Float W[3];
+      nuga_real_t W[3];
       //fixme //////////////////////////////////////
       {
         NUGA::aPolygon aPGsubj(std::move(crd));
@@ -268,10 +268,10 @@ namespace NUGA
       K_FLD::FloatArray::inverse3(iP);
       NUGA::transform(crd, iP);
 
-      std::vector<E_Float> zs;
+      std::vector<nuga_real_t> zs;
       crd.extract_field(2, zs); //keep 3rd coord appart (altitude)
       //compute zmean
-      E_Float zmean(0.);
+      nuga_real_t zmean(0.);
       for (E_Int k = 0; k < nb_pts1; ++k) zmean += zs[k];
       zmean /= nb_pts1;
       
@@ -281,7 +281,7 @@ namespace NUGA
       // using bbox in 2D frame
       K_SEARCH::BBox2D bx(crd, nb_pts1);
       std::vector<E_Int> new_edge_ids; //in case of compacting, need to propagate original ids in xedge
-      E_Float Lref = K_FUNC::E_min(bx.maxB[0] - bx.minB[0], bx.maxB[1] - bx.minB[1]);
+      nuga_real_t Lref = K_FUNC::E_min(bx.maxB[0] - bx.minB[0], bx.maxB[1] - bx.minB[1]);
 
       // discard false overlaps among front (now we are in 2D, those with big altitudes)
       {
@@ -289,12 +289,12 @@ namespace NUGA
         bool do_compact(false);
         for (E_Int i = nb_edges1; i < cnt.cols(); ++i)
         {
-          E_Float z1 = zs[cnt(0, i)] - zmean;
-          E_Float z2 = zs[cnt(1, i)] - zmean;
+          nuga_real_t z1 = zs[cnt(0, i)] - zmean;
+          nuga_real_t z2 = zs[cnt(1, i)] - zmean;
 
           if (z1*z2 < 0.) continue; // means crossing 
 
-          E_Float mz = K_FUNC::E_min(fabs(z1), fabs(z2));
+          nuga_real_t mz = K_FUNC::E_min(fabs(z1), fabs(z2));
           keep[i] = (mz < Lref); //at least one inside interf zone
           do_compact |= !keep[i];
         }
@@ -334,14 +334,14 @@ namespace NUGA
       }
 #endif
 
-      E_Float ABSTOL2D = ARTOL;
+      nuga_real_t ABSTOL2D = ARTOL;
       if (ARTOL < 0.) //relative
       {
         //2D ABS TOLERANCE
-        E_Float Lref2 = NUGA::FLOAT_MAX;
+        nuga_real_t Lref2 = NUGA::FLOAT_MAX;
         for (int k = 0; k < cnt.cols(); ++k)
         {
-          E_Float d2 = NUGA::sqrDistance(crd.col(cnt(0, k)), crd.col(cnt(1, k)), 3);
+          nuga_real_t d2 = NUGA::sqrDistance(crd.col(cnt(0, k)), crd.col(cnt(1, k)), 3);
           Lref2 = K_FUNC::E_min(d2, Lref2);
         }
 
@@ -377,7 +377,7 @@ namespace NUGA
       mode.mesh_mode = mode.TRIANGULATION_MODE;
       mode.remove_holes = true;
       mode.silent_errors = true; // conformizer._silent_errors;
-      DELAUNAY::T3Mesher<E_Float> mesher(mode);
+      DELAUNAY::T3Mesher<nuga_real_t> mesher(mode);
       
       mesher.seed_random(1);
       err = mesher.run(data);
@@ -400,7 +400,7 @@ namespace NUGA
       true_clip = true;
 
       // transfer altitude
-      std::vector<E_Float> zsnew(data.pos->cols(), NUGA::FLOAT_MAX);
+      std::vector<nuga_real_t> zsnew(data.pos->cols(), NUGA::FLOAT_MAX);
       const auto& pnids = conformizer.get_node_history();
       for (size_t i = 0; i < pnids.size(); ++i)
         if (pnids[i] != IDX_NONE) zsnew[pnids[i]] = zs[i];
@@ -420,14 +420,14 @@ namespace NUGA
         if (xe.first >= subj.cols()) continue;
 
         int N0 = subj(0, xe.first);
-        E_Float* P0 = crd.col(N0);
+        nuga_real_t* P0 = crd.col(N0);
         int N1 = subj(1, xe.first);
-        E_Float* P1 = crd.col(N1);
-        E_Float* Px = crd.col(i);
+        nuga_real_t* P1 = crd.col(N1);
+        nuga_real_t* Px = crd.col(i);
 
-        E_Float L2 = NUGA::sqrDistance(P0, P1, 2);
-        E_Float lam2 = NUGA::sqrDistance(P0, Px, 2);
-        E_Float l = sqrt(lam2 / L2);
+        nuga_real_t L2 = NUGA::sqrDistance(P0, P1, 2);
+        nuga_real_t lam2 = NUGA::sqrDistance(P0, Px, 2);
+        nuga_real_t l = sqrt(lam2 / L2);
         zs[i] = (1. - l) * zs[N0] + l * zs[N1];
       }
 
@@ -517,7 +517,7 @@ namespace NUGA
 
     ///
     template <>
-    inline E_Int isolated_clip<aPolygon, aPolygon>(aPolygon& sub, aPolygon& cut, NUGA::INTERSECT::eOPER oper, E_Float ARTOL, std::vector<aPolygon>& bits, bool& true_clip)
+    inline E_Int isolated_clip<aPolygon, aPolygon>(aPolygon& sub, aPolygon& cut, NUGA::INTERSECT::eOPER oper, nuga_real_t ARTOL, std::vector<aPolygon>& bits, bool& true_clip)
     {
       using cnt_t         = K_FLD::IntArray;
       const crd_t& crd1   = sub.m_crd;
@@ -562,10 +562,10 @@ namespace NUGA
 #endif
 
       // project one on the other
-      const E_Float* W = proj_on_first ? sub.get_normal() : cut.get_normal();
+      const nuga_real_t* W = proj_on_first ? sub.get_normal() : cut.get_normal();
 
-      std::vector<E_Float> zs;
-      E_Float zmean;
+      std::vector<nuga_real_t> zs;
+      nuga_real_t zmean;
       K_FLD::FloatArray P(3, 3);
       go_2D(proj_on_first, W, crd, zs, zmean, P, cnt, nb_pts1, nb_edges1);
 
@@ -589,14 +589,14 @@ namespace NUGA
       }
 #endif
 
-      E_Float ABSTOL2D = ARTOL;
+      nuga_real_t ABSTOL2D = ARTOL;
       if (ARTOL < 0.) //relative
       {
         //2D ABS TOLERANCE
-        E_Float Lref2 = NUGA::FLOAT_MAX;
+        nuga_real_t Lref2 = NUGA::FLOAT_MAX;
         for (int k = 0; k < cnt.cols(); ++k)
         {
-          E_Float d2 = NUGA::sqrDistance(crd.col(cnt(0, k)), crd.col(cnt(1, k)), 3);
+          nuga_real_t d2 = NUGA::sqrDistance(crd.col(cnt(0, k)), crd.col(cnt(1, k)), 3);
           Lref2 = K_FUNC::E_min(d2, Lref2);
         }
         ABSTOL2D = -sqrt(Lref2) * ARTOL;
@@ -763,7 +763,7 @@ namespace NUGA
       mode.mesh_mode = mode.TRIANGULATION_MODE;
       mode.remove_holes = true;
       mode.silent_errors = true; // conformizer._silent_errors;
-      DELAUNAY::T3Mesher<E_Float> mesher(mode);
+      DELAUNAY::T3Mesher<nuga_real_t> mesher(mode);
       
       mesher.seed_random(1);
       err = mesher.run(data);
@@ -815,7 +815,7 @@ namespace NUGA
       true_clip = true;
 
       // transfer altitude
-      std::vector<E_Float> zsnew(data.pos->cols(), NUGA::FLOAT_MAX);
+      std::vector<nuga_real_t> zsnew(data.pos->cols(), NUGA::FLOAT_MAX);
       const auto& pnids = conformizer.get_node_history();
       for (size_t i = 0; i < pnids.size(); ++i)
         if (pnids[i] != IDX_NONE) zsnew[pnids[i]] = zs[i];
@@ -835,14 +835,14 @@ namespace NUGA
         if (xe.first >= subj.cols()) continue;
 
         int N0 = subj(0, xe.first);
-        E_Float* P0 = crd.col(N0);
+        nuga_real_t* P0 = crd.col(N0);
         int N1 = subj(1, xe.first);
-        E_Float* P1 = crd.col(N1);
-        E_Float* Px = crd.col(i);
+        nuga_real_t* P1 = crd.col(N1);
+        nuga_real_t* Px = crd.col(i);
 
-        E_Float L2 = NUGA::sqrDistance(P0, P1, 2);
-        E_Float lam2 = NUGA::sqrDistance(P0, Px, 2);
-        E_Float l = sqrt(lam2 / L2);
+        nuga_real_t L2 = NUGA::sqrDistance(P0, P1, 2);
+        nuga_real_t lam2 = NUGA::sqrDistance(P0, Px, 2);
+        nuga_real_t l = sqrt(lam2 / L2);
         zs[i] = (1. - l) * zs[N0] + l * zs[N1];
       }
 
@@ -1000,7 +1000,7 @@ namespace NUGA
     
     ///
     template <>
-    inline E_Int isolated_clip<aPolyhedron<0>, pg_smesh_t>(aPolyhedron<0>& sub, pg_smesh_t& cut, NUGA::INTERSECT::eOPER oper, E_Float RTOL, std::vector<aPolyhedron<0>>& bits, bool& true_clip)
+    inline E_Int isolated_clip<aPolyhedron<0>, pg_smesh_t>(aPolyhedron<0>& sub, pg_smesh_t& cut, NUGA::INTERSECT::eOPER oper, nuga_real_t RTOL, std::vector<aPolyhedron<0>>& bits, bool& true_clip)
     {
       bool dbg(true);
       using acrd_t = K_FLD::ArrayAccessor<K_FLD::FloatArray>;
@@ -1008,7 +1008,7 @@ namespace NUGA
       bool inward1 = (cut.oriented == -1);
       sub.reorient(false);
 
-      E_Float ps_min(1. - EPSILON);
+      nuga_real_t ps_min(1. - EPSILON);
       E_Int contact;
       
       haPolyhedron<0> result;
@@ -1022,7 +1022,7 @@ namespace NUGA
     }
 
     template <>
-    inline E_Int isolated_clip<aPolyhedron<0>, aPolyhedron<0>>(aPolyhedron<0>& sub, aPolyhedron<0>& cut, NUGA::INTERSECT::eOPER oper, E_Float RTOL, std::vector<aPolyhedron<0>>& bits, bool& true_clip)
+    inline E_Int isolated_clip<aPolyhedron<0>, aPolyhedron<0>>(aPolyhedron<0>& sub, aPolyhedron<0>& cut, NUGA::INTERSECT::eOPER oper, nuga_real_t RTOL, std::vector<aPolyhedron<0>>& bits, bool& true_clip)
     {
       if (oper == NUGA::INTERSECT::INTERSECTION)
         cut.reorient(false);
@@ -1036,7 +1036,7 @@ namespace NUGA
     bool compute(aELT1 & subj, aELT2 & cutter, NUGA::INTERSECT::eOPER oper, std::vector<aELT1>& bits)
     {
       bool true_clip(false);
-      E_Float RTOL = -1.e-9;
+      nuga_real_t RTOL = -1.e-9;
       E_Int err(1);
       for (size_t i = 0; i < 8 && err; ++i)
       {
@@ -1099,11 +1099,11 @@ namespace NUGA
     ///
     template<typename zmesh_t, typename bound_mesh_t = typename NUGA::boundary_t<zmesh_t>>
     void poly_clip
-    (std::vector<typename zmesh_t::aelt_t>& bits, E_Float v0, 
-     std::vector<E_Int> const & mask_ids, std::vector< bound_mesh_t*> const & mask_bits, E_Float RTOL)
+    (std::vector<typename zmesh_t::aelt_t>& bits, nuga_real_t v0, 
+     std::vector<E_Int> const & mask_ids, std::vector< bound_mesh_t*> const & mask_bits, nuga_real_t RTOL)
     {
       using loc_t = typename zmesh_t::loc_t;
-      E_Float vcur(v0), veps(v0*EPSILON);
+      nuga_real_t vcur(v0), veps(v0*EPSILON);
       K_SEARCH::BBox3D bx0;
       bx0.compute(bits[0].m_crd);
       bx0.enlarge(RTOL);

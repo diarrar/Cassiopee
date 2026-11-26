@@ -38,16 +38,16 @@ public:
   
   /// Based on quality
   inline static void get_swapE (const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, const K_FLD::IntArray& neighbors, 
-                                const std::set<K_MESH::NO_Edge>& hE, E_Float tol, std::vector<std::pair<E_Int, E_Int> >& swapE);
+                                const std::set<K_MESH::NO_Edge>& hE, nuga_real_t tol, std::vector<std::pair<E_Int, E_Int> >& swapE);
   /// Based on quality (with input har edges)
   //inline static void get_swapE (const K_FLD::FloatArray& pos, const K_FLD::IntArray& connect, const K_FLD::IntArray& neighbors, 
-   //                             E_Float tol, std::vector<std::pair<E_Int, E_Int> >& swapE);
+   //                             nuga_real_t tol, std::vector<std::pair<E_Int, E_Int> >& swapE);
   
   ///
-  inline static E_Float angle_measure(const E_Float* ni, const E_Float* nj, const E_Float* E0, const E_Float* E1);
+  inline static nuga_real_t angle_measure(const nuga_real_t* ni, const nuga_real_t* nj, const nuga_real_t* E0, const nuga_real_t* E1);
 
   ///
-  inline static void min_quality(const K_FLD::FloatArray& crd, const K_FLD::IntArray& cnt, E_Float& minq, E_Int& imin);
+  inline static void min_quality(const K_FLD::FloatArray& crd, const K_FLD::IntArray& cnt, nuga_real_t& minq, E_Int& imin);
   
 private:
 
