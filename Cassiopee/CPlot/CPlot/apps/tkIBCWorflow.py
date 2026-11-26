@@ -1,5 +1,7 @@
 # - IBC app -
 import tkinter as TK
+import KCore
+from KCore import realTol
 import CPlot.Ttk as TTK
 import CPlot.PyTree as CPlot
 import CPlot.Tk as CTK
@@ -49,7 +51,7 @@ def getIBCFrontForZone__(a):
 #          la normale = delta * grad TurbulentDistance
 #          l'indice global dans le maillage parent correspondant au pt IBC
 #==============================================================================
-def getIBCFrontInfo__(fc1, parentZone, dhloc, toldist=1.e-10):
+def getIBCFrontInfo__(fc1, parentZone, dhloc, toldist=realTol(1.e-10)):
     listPts = [] # on ne modifie pas localement le maillage
     eps = 0. # decalage de distance pour listpts
 

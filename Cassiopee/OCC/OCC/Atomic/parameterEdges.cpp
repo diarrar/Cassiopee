@@ -37,7 +37,11 @@ void getShapeProperties(TopoDS_Face& F,
 {
   Handle(Geom_Surface) face = BRep_Tool::Surface(F);
   isUClosed = isVClosed = false;
-  ShapeAnalysis::GetFaceUVBounds(F, U0, U1, V0, V1);
+  { // OCC works in Standard_Real (double)
+    Standard_Real u0, u1, v0, v1;
+    ShapeAnalysis::GetFaceUVBounds(F, u0, u1, v0, v1);
+    U0 = u0; U1 = u1; V0 = v0; V1 = v1;
+  }
   printf("Face bounds U=" SF_F2_ " - V=" SF_F2_ "\n",U0,U1,V0,V1);
   ShapeAnalysis_Surface o(face);
   isUClosed = o.IsUClosed();

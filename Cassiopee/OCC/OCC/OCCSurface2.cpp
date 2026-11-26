@@ -43,7 +43,7 @@ void K_OCC::OCCSurface::discretize(K_FLD::FloatArray& coord3D, K_FLD::IntArray& 
   coord3D.resize(3, ni*nj);
   connect.resize(4, (ni-1)*(nj-1));
   // Get UV bounds
-  E_Float U0, V0, U1, V1, U, V;
+  nuga_real_t U0, V0, U1, V1, U, V;
   U0 = _U0; U1 = _U1; V0 = _V0; V1 = _V1;
   //ShapeAnalysis::GetFaceUVBounds(_F, U0, U1, V0, V1); // why core?
   for (E_Int j = 0; j < nj; j++)
@@ -69,7 +69,7 @@ void K_OCC::OCCSurface::project(K_FLD::FloatArray& coord3D) const
 {
   for (E_Int i=0; i < coord3D.cols(); ++i)
   {
-    E_Float x,y,z;
+    nuga_real_t x,y,z;
     x = coord3D(0,i); y = coord3D(1,i); z = coord3D(2,i);
     gp_Pnt Point;
     Point.SetCoord(x, y, z);
@@ -240,7 +240,7 @@ void K_OCC::OCCSurface::dupBAR(K_FLD::FloatArray& pos3D, K_FLD::IntArray& connec
   K_FLD::IntArray connectB2 = connectB;
   
   E_Int added = npts;
-  E_Float* Pt; E_Int e;
+  nuga_real_t* Pt; E_Int e;
   
   // Valence
   for (E_Int i = 0; i < npts; i++)
@@ -355,7 +355,7 @@ E_Int K_OCC::OCCSurface::findNextPoint(K_FLD::IntArray& found,
 E_Int K_OCC::OCCSurface::findNonAmbStart(E_Int npts, K_FLD::FloatArray& coord3D) const
 {
   bool amb;
-  E_Float u,v,up,vp,upp,vpp;
+  nuga_real_t u,v,up,vp,upp,vpp;
   for (E_Int i = 0; i < npts; i++)
   {
     up = -K_CONST::E_MAX_FLOAT; upp = -K_CONST::E_MAX_FLOAT;
@@ -539,8 +539,8 @@ E_Int K_OCC::OCCSurface::parameters2
 #endif
   
   E_Int n;
-  E_Float Up=-K_CONST::E_MAX_FLOAT; E_Float Vp=-K_CONST::E_MAX_FLOAT;
-  E_Float Upp=-K_CONST::E_MAX_FLOAT; E_Float Vpp=-K_CONST::E_MAX_FLOAT;
+  nuga_real_t Up=-K_CONST::E_MAX_FLOAT; nuga_real_t Vp=-K_CONST::E_MAX_FLOAT;
+  nuga_real_t Upp=-K_CONST::E_MAX_FLOAT; nuga_real_t Vpp=-K_CONST::E_MAX_FLOAT;
   
   for (E_Int i = 0; i < npts; i++)
   {
@@ -565,10 +565,10 @@ E_Int K_OCC::OCCSurface::parameters2
   {
     E_Int Ni = connectB(0,i);
     E_Int Nj = connectB(1,i);
-    E_Float Ui = UVs(0, Ni);
-    E_Float Vi = UVs(1, Ni);
-    E_Float Uj = UVs(0, Nj);
-    E_Float Vj = UVs(1, Nj);
+    nuga_real_t Ui = UVs(0, Ni);
+    nuga_real_t Vi = UVs(1, Ni);
+    nuga_real_t Uj = UVs(0, Nj);
+    nuga_real_t Vj = UVs(1, Nj);
     //printf("la " SF_D_ ": %g %g -> %g %g\n", i,Ui,Vi,Uj,Vj);
     if (::fabs(Ui-Uj) > 0.7 || ::fabs(Vi-Vj) > 0.7) printf("switch elt=" SF_D_ ", n1=" SF_D_ ", n2=" SF_D_ ": %g %g -> %g %g\n", i,Ni,Nj,Ui,Vi,Uj,Vj);
   }
@@ -608,8 +608,8 @@ E_Int K_OCC::OCCSurface::parameters2
 
 // parameters2
 E_Int
-K_OCC::OCCSurface::parameters2(const E_Float* pt, E_Float& u, E_Float& v, 
-  E_Int index, E_Float& up, E_Float& vp, E_Float& upp, E_Float& vpp) const 
+K_OCC::OCCSurface::parameters2(const nuga_real_t* pt, nuga_real_t& u, nuga_real_t& v, 
+  E_Int index, nuga_real_t& up, nuga_real_t& vp, nuga_real_t& upp, nuga_real_t& vpp) const 
 {
   u=v=-1;
     
@@ -628,8 +628,8 @@ K_OCC::OCCSurface::parameters2(const E_Float* pt, E_Float& u, E_Float& v,
     if (_isUPeriodic == true)
     {
       // periodic shift
-      E_Float per = _uPeriod;
-      E_Float b0 = (_U0-u)/per; E_Float b1 = (_U1-u)/per;
+      nuga_real_t per = _uPeriod;
+      nuga_real_t b0 = (_U0-u)/per; nuga_real_t b1 = (_U1-u)/per;
       E_Int N = floor(b1);
       //if (N < b0-1.e-2) printf("Warning: danger %d %f!\n",N,b0);
       if (N < b0-1.e-3) N += 1;
@@ -641,8 +641,8 @@ K_OCC::OCCSurface::parameters2(const E_Float* pt, E_Float& u, E_Float& v,
     if (_isVPeriodic == true)
     {
       // periodic shift
-      E_Float per = _vPeriod;
-      E_Float b0 = (_V0-v)/per; E_Float b1 = (_V1-v)/per;
+      nuga_real_t per = _vPeriod;
+      nuga_real_t b0 = (_V0-v)/per; nuga_real_t b1 = (_V1-v)/per;
       E_Int N = floor(b1);
       //if (N < b0-1.e-2) printf("Warning: danger %d %f!\n",N,b0);
       if (N < b0-1.e-3) N += 1;
@@ -651,7 +651,7 @@ K_OCC::OCCSurface::parameters2(const E_Float* pt, E_Float& u, E_Float& v,
       //if (v > _V1+1.e-2) v = v - N*per;
       //if (v < _V0-1.e-2) v = v + (N+1)*per;
     }
-    //E_Float u1,v1;
+    //nuga_real_t u1,v1;
     //GeomAPI_ProjectPointOnSurf o(Point, _surface, Extrema_ExtAlgo_Tree);
     //o.LowerDistanceParameters(u1,v1);
     //if (::fabs(u-u1) > 1.e-6 || ::fabs(v-v1) > 1.e-6) printf("erreur: %f %f versus %f %f\n",u,v,u1,v1);
@@ -669,13 +669,13 @@ K_OCC::OCCSurface::parameters2(const E_Float* pt, E_Float& u, E_Float& v,
     
     // Gestion de la periodicite
     // Avoid backsteping
-    E_Float du,dv,dup,dvp,p,inv;
+    nuga_real_t du,dv,dup,dvp,p,inv;
     
     if (_isUPeriodic == true)
     {
       // periodic shift
-      E_Float per = _uPeriod;
-      E_Float b0 = (_U0-u)/per; E_Float b1 = (_U1-u)/per;
+      nuga_real_t per = _uPeriod;
+      nuga_real_t b0 = (_U0-u)/per; nuga_real_t b1 = (_U1-u)/per;
       E_Int N = floor(b1);
       //if (N < b0-1.e-3) printf("Warning: danger N=%d < %f!\n",N,b0);
       if (N < b0-1.e-3) N += 1;
@@ -688,8 +688,8 @@ K_OCC::OCCSurface::parameters2(const E_Float* pt, E_Float& u, E_Float& v,
     if (_isVPeriodic == true)
     {
       // periodic shift
-      E_Float per = _vPeriod;
-      E_Float b0 = (_V0-v)/per; E_Float b1 = (_V1-v)/per;
+      nuga_real_t per = _vPeriod;
+      nuga_real_t b0 = (_V0-v)/per; nuga_real_t b1 = (_V1-v)/per;
       E_Int N = floor(b1);
       //if (N < b0-1.e-3) printf("Warning: danger N=%d %f!\n",N,b0);
       if (N < b0-1.e-3) N += 1;
@@ -702,7 +702,7 @@ K_OCC::OCCSurface::parameters2(const E_Float* pt, E_Float& u, E_Float& v,
     
     if (_isUClosed == true)
     { 
-      E_Float per = _uPeriod;
+      nuga_real_t per = _uPeriod;
       // on the bound
       if (std::fabs(u-_U0) < 1.e-2)
       {
@@ -741,7 +741,7 @@ K_OCC::OCCSurface::parameters2(const E_Float* pt, E_Float& u, E_Float& v,
     }
     if (_isVClosed == true)
     { 
-      E_Float per = _vPeriod;
+      nuga_real_t per = _vPeriod;
       if (std::fabs(v-_V0) < 1.e-2)
       {
         du = (u-up); dv = (v-vp);
@@ -796,14 +796,14 @@ K_OCC::OCCSurface::parameters2(const E_Float* pt, E_Float& u, E_Float& v,
   
   // cherche a projeter
   bool fail;
-  E_Float du, dv;
+  nuga_real_t du, dv;
   
   // State start
   fail = false;
-  E_Float un,vn;
-  E_Float step1,stepA,stepB;
+  nuga_real_t un,vn;
+  nuga_real_t step1,stepA,stepB;
   GeomAPI_ProjectPointOnSurf o(Point, _surface, Extrema_ExtAlgo_Tree);
-  try { o.LowerDistanceParameters(u,v); }
+  try { { Standard_Real uu, vv; o.LowerDistanceParameters(uu,vv); u = uu; v = vv; } }
   catch( StdFail_NotDone& e ) { fail = true; }
   
   //printf("%f %f %f -> %f %f\n",pt[0],pt[1],pt[2],u,v);
@@ -813,7 +813,7 @@ K_OCC::OCCSurface::parameters2(const E_Float* pt, E_Float& u, E_Float& v,
     // try perturbations
     Point.SetCoord(pt[0]+1.e-6, pt[1], pt[2]);
     GeomAPI_ProjectPointOnSurf o(Point, _surface, Extrema_ExtAlgo_Tree);
-    try { o.LowerDistanceParameters(u,v); }
+    try { { Standard_Real uu, vv; o.LowerDistanceParameters(uu,vv); u = uu; v = vv; } }
     catch( StdFail_NotDone& e ) { fail = true; }
   }
   
@@ -822,7 +822,7 @@ K_OCC::OCCSurface::parameters2(const E_Float* pt, E_Float& u, E_Float& v,
     // try perturbations
     Point.SetCoord(pt[0]-1.e-6, pt[1], pt[2]);
     GeomAPI_ProjectPointOnSurf o(Point, _surface, Extrema_ExtAlgo_Tree);
-    try { o.LowerDistanceParameters(u,v); }
+    try { { Standard_Real uu, vv; o.LowerDistanceParameters(uu,vv); u = uu; v = vv; } }
     catch( StdFail_NotDone& e ) { fail = true; }
   }
   
@@ -831,7 +831,7 @@ K_OCC::OCCSurface::parameters2(const E_Float* pt, E_Float& u, E_Float& v,
     // try perturbations
     Point.SetCoord(pt[0], pt[1]+1.e-6, pt[2]);
     GeomAPI_ProjectPointOnSurf o(Point, _surface, Extrema_ExtAlgo_Tree);
-    try { o.LowerDistanceParameters(u,v); }
+    try { { Standard_Real uu, vv; o.LowerDistanceParameters(uu,vv); u = uu; v = vv; } }
     catch( StdFail_NotDone& e ) { fail = true; }
   }
   
@@ -840,7 +840,7 @@ K_OCC::OCCSurface::parameters2(const E_Float* pt, E_Float& u, E_Float& v,
     // try perturbations
     Point.SetCoord(pt[0], pt[1]-1.e-6, pt[2]);
     GeomAPI_ProjectPointOnSurf o(Point, _surface, Extrema_ExtAlgo_Tree);
-    try { o.LowerDistanceParameters(u,v); }
+    try { { Standard_Real uu, vv; o.LowerDistanceParameters(uu,vv); u = uu; v = vv; } }
     catch( StdFail_NotDone& e ) { fail = true; }
   }
   
@@ -849,7 +849,7 @@ K_OCC::OCCSurface::parameters2(const E_Float* pt, E_Float& u, E_Float& v,
     // try perturbations
     Point.SetCoord(pt[0], pt[1], pt[2]+1.e-6);
     GeomAPI_ProjectPointOnSurf o(Point, _surface, Extrema_ExtAlgo_Tree);
-    try { o.LowerDistanceParameters(u,v); }
+    try { { Standard_Real uu, vv; o.LowerDistanceParameters(uu,vv); u = uu; v = vv; } }
     catch( StdFail_NotDone& e ) { fail = true; }
   }
   
@@ -858,7 +858,7 @@ K_OCC::OCCSurface::parameters2(const E_Float* pt, E_Float& u, E_Float& v,
     // try perturbations
     Point.SetCoord(pt[0], pt[1], pt[2]-1.e-6);
     GeomAPI_ProjectPointOnSurf o(Point, _surface, Extrema_ExtAlgo_Tree);
-    try { o.LowerDistanceParameters(u,v); }
+    try { { Standard_Real uu, vv; o.LowerDistanceParameters(uu,vv); u = uu; v = vv; } }
     catch( StdFail_NotDone& e ) { fail = true; }
   }
   
@@ -911,11 +911,11 @@ K_OCC::OCCSurface::parameters2(const E_Float* pt, E_Float& u, E_Float& v,
   
   //if (!ok || u==-1 || v==-1) return 1;
   
-  //E_Float u1,v1;
+  //nuga_real_t u1,v1;
   //GeomLib_Tool::Parameters(_surface, Point, 1.e+100/*dummytol*/, u1, v1);
   
   //GeomAPI_ProjectPointOnSurf o(Point, _surface, Extrema_ExtAlgo_Tree);
-  //E_Float u2,v2;
+  //nuga_real_t u2,v2;
   //o.LowerDistanceParameters(u2,v2);
   
   //printf("Point index=%d\n",index);
@@ -929,7 +929,7 @@ K_OCC::OCCSurface::parameters2(const E_Float* pt, E_Float& u, E_Float& v,
   //  printf("geomlib:   %g %g\n",u1,v1);
   //  printf("lowerproj: %g %g\n",u2,v2);
   //  
-  //  E_Float u3,v3;
+  //  nuga_real_t u3,v3;
   //  E_Int nbsol = o.NbPoints();
   //  printf("Nb solution=%d\n",o.NbPoints());
   //  for (E_Int i = 1; i <= nbsol; i++)

@@ -271,15 +271,15 @@ E_Int K_OCC::CADviaOCC::mesh_faces2
       }
       else
       {
-        mode.growth_ratio = std::max(_gr, 1.); //fixme : values in [1.; 1.25] might cause errors. Anyway do not allow bellow 1. since not useful
+        mode.growth_ratio = std::max(_gr, nuga_real_t(1.)); //fixme : values in [1.; 1.25] might cause errors. Anyway do not allow bellow 1. since not useful
         E_Int MIN_NB = 20;
         if (_gr > 1. && (connectB.cols() > (MIN_NB * 4))) // check if growth ratio is applicable to this patch, i.e. it is symmetrizable
         {
           // Count the minimum number of edges on a boundary of the param space per direction (U,V)
-          E_Float nu(0), nv(0);
+          nuga_real_t nu(0), nv(0);
           for (E_Int i=0; i < connectB.cols(); ++i)
           {
-            E_Float ds[2];
+            nuga_real_t ds[2];
             const E_Int& Ni = connectB(0,i);
             const E_Int& Nj = connectB(1,i);
             K_FUNC::diff<2>(UVcontour.col(Ni), UVcontour.col(Nj), ds);
@@ -425,10 +425,10 @@ void K_OCC::CADviaOCC::__split_surface_of_revolution2(const OCCSurface* face, K_
       new_connect.pushBack(e.begin(), e.end());
     else if (it0 != seam_nodes.end() && it1 == seam_nodes.end()) // seam-connected edge
     {
-      E_Float u,v,up=-1,vp,upp,vpp;
+      nuga_real_t u,v,up=-1,vp,upp,vpp;
       face->parameters2(pos3D.col(N1), u, v, N1, up, vp, upp, vpp);
       
-      E_Float* p = &u;
+      nuga_real_t* p = &u;
       if (face->_isVClosed && !face->_isUClosed) p = &v;
       
       E_Int e[] = {N1, E_IDX_NONE};
@@ -440,11 +440,11 @@ void K_OCC::CADviaOCC::__split_surface_of_revolution2(const OCCSurface* face, K_
     }
     else if (it0 == seam_nodes.end() && it1 != seam_nodes.end()) // seam-connected edge
     {
-      E_Float u,v,up=-1,vp,upp,vpp;
+      nuga_real_t u,v,up=-1,vp,upp,vpp;
       //E_Int err = 
       face->parameters2(pos3D.col(N0), u, v, N0, up, vp, upp, vpp);
       
-      E_Float *p = &u;
+      nuga_real_t *p = &u;
       if (face->_isVClosed && !face->_isUClosed) p = &v;
       
       E_Int e[] = {N0, E_IDX_NONE};
@@ -497,15 +497,15 @@ void K_OCC::CADviaOCC::__add_seam_node2
  std::map<E_Int, std::pair<E_Int, E_Int> >& seam_nodes)
 { 
   //create the points
-  E_Float u,v,up=-1,vp,upp,vpp;
+  nuga_real_t u,v,up=-1,vp,upp,vpp;
   face->parameters2(pos3D.col(N0), u, v, N0, up, vp, upp, vpp);
 
-  E_Float Pt[3];
+  nuga_real_t Pt[3];
 
   if (face->_isUClosed && !face->_isVClosed)
   {
-    const E_Float& u0 = face->_U0+0.01;
-    const E_Float& u1 = face->_U1-0.01;
+    const nuga_real_t& u0 = face->_U0+0.01;
+    const nuga_real_t& u1 = face->_U1-0.01;
 
     face->point(u0, v, Pt);
     pos3D.pushBack(Pt, Pt+3);
@@ -519,8 +519,8 @@ void K_OCC::CADviaOCC::__add_seam_node2
   }
   else if (!face->_isUClosed && face->_isVClosed)
   {
-    const E_Float& v0 = face->_V0+0.01;
-    const E_Float& v1 = face->_V1-0.01;
+    const nuga_real_t& v0 = face->_V0+0.01;
+    const nuga_real_t& v1 = face->_V1-0.01;
     
     face->point(u, v0, Pt);
     pos3D.pushBack(Pt, Pt+3);

@@ -832,12 +832,12 @@ def _addRender2PyTree(a, slot=0, posCam=None, posEye=None, dirCam=None,
         if len(isoScales) > 0 and isinstance(isoScales[0], list): # list of list
             for iso in isoScales:
                 n = len(iso)-1
-                v = numpy.empty(n, numpy.float64)
+                v = numpy.empty(n, Internal.E_NpyFloat)
                 for i in range(n): v[i] = float(iso[i+1])
                 Internal.createUniqueChild(sl, 'isoScales[%s]'%str(iso[0]), 'DataArray_t', value=v)
         else:
             n = len(isoScales)-1
-            v = numpy.empty(n, numpy.float64)
+            v = numpy.empty(n, Internal.E_NpyFloat)
             for i in range(n): v[i] = float(isoScales[i+1])
             Internal.createUniqueChild(sl, 'isoScales[%s]'%str(isoScales[0]), 'DataArray_t', value=v)
 

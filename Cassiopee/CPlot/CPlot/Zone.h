@@ -21,6 +21,18 @@
 #define _CPLOT_ZONE_H_
 #include "ZoneImpl.h"
 #include <vector>
+#include <cstring>
+
+// Zones store coordinates and fields in double whatever the compiled precision
+// of E_Float: copy (and convert when E_Float is float) a field into a zone array
+inline void zoneCopyField(double* dst, const E_Float* src, E_Int n)
+{
+#ifdef E_DOUBLEREAL
+  memcpy(dst, src, n*sizeof(double));
+#else
+  for (E_Int i = 0; i < n; i++) dst[i] = (double)src[i];
+#endif
+}
 
 #ifndef MAXSTRINGLENGTH
 #define MAXSTRINGLENGTH 128   /* max length of strings */
