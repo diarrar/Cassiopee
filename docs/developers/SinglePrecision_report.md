@@ -10,7 +10,7 @@
 - **Résultat** :
   - les 19 modules compilent et s'installent en r4 et en r8 avec gcc 13 (vérifié le 26/11/2026) ;
   - en r8, la branche donne exactement les mêmes résultats que `dev` sur les 1429 tests qui passent sur `dev` ; les 11 autres échouent pour des raisons d'environnement, dans les deux cas ;
-  - en r4, 1232 tests sur 1440 (85,6 %) passent contre les références r8, avec les tolérances r4 (1e-5) ;
+  - en r4, 1232 à 1233 tests sur 1440 (85,6 %) passent contre les références r8, avec les tolérances r4 (1e-5), sur deux runs le 26/11 ;
   - 201 des 208 échecs sont ceux déjà analysés au 19/11 : 94 sont reproduits par le r8 sur des données arrondies en float (donc dus à la précision des données et non à un bug), les autres sont des dérives numériques faibles, des égalités dans les données de test ou des effets d'environnement. Les 7 nouveaux sont 6 tests AMR ajoutés depuis par `dev`, et `joinPT_t4`, qui a révélé un bug latent de `dev` (§ 5 et § 6).
 - **Effets de bord utiles** : une vingtaine de bugs présents aussi en double précision, trouvés grâce au r4, ont été corrigés et proposés à onera/Cassiopee (§ 8).
 - **Conclusion** : un r4 *global* est faisable, mais il ne répond pas au besoin réel de Fast (précision mixte, fp16, précision variable par zone) et impose un second produit à maintenir. Le travail est donc mis de côté au profit d'une **précision par tableau dans un seul build** (stratégie C, [`MixedPrecision_design.md`](MixedPrecision_design.md)). Une grande partie de ce qui a été fait ici y est réutilisable (§ 10).
@@ -72,6 +72,14 @@ Conteneur Ubuntu 24.04 (4 cœurs), gcc 13, numpy 2.5, Python 3.13, OpenMPI, HDF5
 | branche r4 (`827e2f6`), contre les références r8 | 1232 | 208 | 8,5 min | 85,6 % de réussite, voir § 6 |
 
 Par rapport au 19/11 (1227 OK, 201 échecs, sur 1428 tests), la base a gagné 12 tests et le nombre d'échecs déjà connus n'a pas changé.
+
+**Second run, même jour, après fusion de `dev` `922ccdf`** (synchronisé avec onera/Cassiopee, dont le correctif de la racine CGNS #876 et des corrections de portabilité macOS ; branche `fa93ce3`). Références régénérées par `dev` :
+
+| Configuration | OK | Échecs | Remarques |
+|---|---|---|---|
+| `dev` r8 (`922ccdf`) | 1429 | 11 | les 11 échecs d'environnement ; pas de TIMEOUT cette fois |
+| branche r8 (`fa93ce3`) | 1429 | 11 | **mêmes échecs que `dev`, aucune différence** |
+| branche r4 (`fa93ce3`) | 1233 | 207 | les mêmes échecs qu'au premier run, sauf `joinPT_t4`, qui passe cette fois : c'est attendu pour un échec dû à de la mémoire non initialisée (voir § 6) |
 
 ### 5.3 Validation à faire
 
