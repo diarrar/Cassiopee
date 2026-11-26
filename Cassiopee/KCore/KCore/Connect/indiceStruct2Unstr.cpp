@@ -42,6 +42,12 @@ PyObject* K_KCORE::indiceStruct2Unstr(PyObject* self, PyObject* args)
   E_Float eps;
   if (!PYPARSETUPLE_(args, OOO_ R_, &structArray, &unstrArray, 
                       &arrayOfStructIndices, &eps)) return NULL;
+  // eps is a tolerance on the squared distance; in single precision 1e-14
+  // (distance 1e-7) is below the resolution of the coordinates, nodes were not
+  // found (index -1, read as the last node by numpy): floored at (1e-6)^2
+#ifndef E_DOUBLEREAL
+  if (eps < 1.e-12) eps = 1.e-12;
+#endif
 
   // Maillage structure
   FldArrayF* f1; FldArrayI* cn1;
@@ -156,6 +162,12 @@ PyObject* K_KCORE::indiceStruct2Unstr2(PyObject* self, PyObject* args)
   E_Float eps;
   if (!PYPARSETUPLE_(args, OO_ R_, &structArrays, &unstrArray, &eps)) 
     return NULL;
+  // eps is a tolerance on the squared distance; in single precision 1e-14
+  // (distance 1e-7) is below the resolution of the coordinates, nodes were not
+  // found (index -1, read as the last node by numpy): floored at (1e-6)^2
+#ifndef E_DOUBLEREAL
+  if (eps < 1.e-12) eps = 1.e-12;
+#endif
 
   // Maillages structures
   vector<E_Int> res;

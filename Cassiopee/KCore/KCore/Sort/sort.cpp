@@ -1,3 +1,4 @@
+#include <cfloat>
 /*    
     Copyright 2013-2026 ONERA.
 
@@ -141,19 +142,36 @@ void K_SORT::removeDoublePoints(FldArrayF& vectOfPoints, FldArrayF& norm2)
   E_Float* norm2p = norm2.begin();
   E_Float* workn2p = workn2.begin();
   E_Int j;
+  E_Float tol2 = 1.e-12; E_Float tolN = 1.e-6;
+#ifndef E_DOUBLEREAL
+  // single precision: points equal up to a few ulps of the largest
+  // coordinate are double points
+  {
+    E_Float amax = 0.;
+    for (E_Int i = 0; i < npts; i++)
+    {
+      amax = K_FUNC::E_max(amax, K_FUNC::E_abs(vx[i]));
+      amax = K_FUNC::E_max(amax, K_FUNC::E_abs(vy[i]));
+      amax = K_FUNC::E_max(amax, K_FUNC::E_abs(vz[i]));
+    }
+    E_Float tol = K_FUNC::E_max(1.e-6, 8.*FLT_EPSILON*amax);
+    tol2 = tol*tol;
+    tolN = K_FUNC::E_max(1.e-6, 4.*tol*amax + tol*tol);
+  }
+#endif
 
   for (E_Int i = 0; i < npts; i++)
   {
     found = false;
    
     j = i-1; 
-    while (j >=0 && K_FUNC::fEqualZero(norm2p[i]-norm2p[j], 1.e-6))
+    while (j >=0 && K_FUNC::fEqualZero(norm2p[i]-norm2p[j], tolN))
     {
       dx = vx[i] - vx[j];
       dy = vy[i] - vy[j];
       dz = vz[i] - vz[j];
 
-      if (dx*dx + dy*dy + dz*dz < 1.e-12)
+      if (dx*dx + dy*dy + dz*dz < tol2)
       {
         found = true; break;
       }

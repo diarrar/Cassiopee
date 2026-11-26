@@ -20,6 +20,7 @@
 # include <math.h>
 # include <stdio.h>
 # include "CompGeom/compGeom.h"
+# include "CompGeom/onedmapT.h"
 
 //****************************************************************************
 // Compute the parametrization
@@ -33,49 +34,7 @@ void K_COMPGEOM::paramFunc(
   E_Float& stota, E_Float* s0
 )
 {
-  E_Int kp;
-  E_Float delx, dely, delz, qx, qy, qz, q2, f, g, e, ds;
-  
-  s0[0] = 0.0;
-  // ds is only used as a temporary in the loop, no need to initialize here
-
-  // degenerated edge (commented out in original)
-  /*
-  E_Float sma = 1000.0 * small;
-  E_Float x1m = fabs(x0[0] - x0[m-1]);
-  E_Float y1m = fabs(y0[0] - y0[m-1]);
-  E_Float z1m = fabs(z0[0] - z0[m-1]);
-  if (x1m <= sma && y1m <= sma && z1m <= sma)
-  {
-    for (E_Int k = 1; k < m; k++)
-    {
-      s0[k] = sma;
-    }
-    stota = s0[m-1];
-    return;
-  }
-  */
-
-  for (E_Int k = 0; k < m-1; k++)
-  {
-    kp = k+1;
-    delx = x0[kp] - x0[k];
-    dely = y0[kp] - y0[k];
-    delz = z0[kp] - z0[k];
-    qx = dx[kp] + dx[k];
-    qy = dy[kp] + dy[k];
-    qz = dz[kp] + dz[k];
-    q2 = qx*qx + qy*qy + qz*qz;
-    g = delx*delx + dely*dely + delz*delz;
-    f = delx*qx + dely*qy + delz*qz;
-    e = 8.0 - 0.5*q2;
-    ds = (3.0/e) * (sqrt(f*f + 2.0*g*e) - f);
-    s0[kp] = s0[k] + ds;
-  }
-
-  stota = s0[m-1];
-  E_Float stotai = 1.0 / stota;
-  for (E_Int k = 0; k < m-1; k++) s0[k+1] *= stotai;
+  paramFuncT<E_Float>(m, x0, y0, z0, dx, dy, dz, stota, s0);
 }
 
 //=============================================================================

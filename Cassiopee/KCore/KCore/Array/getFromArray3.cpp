@@ -132,7 +132,14 @@ E_Int K_ARRAY::getFromArray3(PyObject* o,
                  "getFromArray3: number of variables different in varString and field.");
       Py_DECREF(tpl);
       return -4;
-    }    
+    }
+    if (PyArray_TYPE(a) != E_NPY_FLOAT)
+    {
+      PyErr_Warn(PyExc_Warning,
+                 "getFromArray3: field must have the compiled real precision (E_Float).");
+      Py_DECREF(tpl);
+      return -4;
+    }
     f = new FldArrayF(s, nfld, (E_Float*)PyArray_DATA(a), true, true);
   }
   else if (PyList_Check(tpl) == true) // -- Array2 or Array3 --
@@ -146,6 +153,14 @@ E_Int K_ARRAY::getFromArray3(PyObject* o,
       if (PyArray_Check(p) == true)
       {
         a = (PyArrayObject*)p; //Py_INCREF(a);
+        if (PyArray_TYPE(a) != E_NPY_FLOAT)
+        {
+          PyErr_Warn(PyExc_Warning,
+                     "getFromArray3: field must have the compiled real precision (E_Float).");
+          delete [] acu;
+          Py_DECREF(tpl);
+          return -4;
+        }
         s = PyArray_SIZE(a); // must be constant
         acu[i] = (E_Float*)PyArray_DATA(a);
       }
@@ -489,7 +504,14 @@ E_Int K_ARRAY::getFromArray3(PyObject* o,
                  "getFromArray3: number of variables different in varString and field.");
       Py_DECREF(tpl);
       return -4;
-    }    
+    }
+    if (PyArray_TYPE(a) != E_NPY_FLOAT)
+    {
+      PyErr_Warn(PyExc_Warning,
+                 "getFromArray3: field must have the compiled real precision (E_Float).");
+      Py_DECREF(tpl);
+      return -4;
+    }
     f = new FldArrayF(s, nfld, (E_Float*)PyArray_DATA(a), true, true);
   }
   else if (PyList_Check(tpl) == true) // -- Array2 --
@@ -503,6 +525,14 @@ E_Int K_ARRAY::getFromArray3(PyObject* o,
       if (PyArray_Check(p) == true)
       {
         a = (PyArrayObject*)p; //Py_INCREF(a);
+        if (PyArray_TYPE(a) != E_NPY_FLOAT)
+        {
+          PyErr_Warn(PyExc_Warning,
+                     "getFromArray3: field must have the compiled real precision (E_Float).");
+          delete [] acu;
+          Py_DECREF(tpl);
+          return -4;
+        }
         s = PyArray_SIZE(a); // must be constant
         acu[i] = (E_Float*)PyArray_DATA(a);
       }

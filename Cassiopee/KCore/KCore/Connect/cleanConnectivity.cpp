@@ -23,10 +23,59 @@
 #include "Nuga/include/merge.h"
 # include "Nuga/include/BbTree.h"
 #include <iostream>
+#include <cfloat>
 #include "Nuga/include/ngon_t.hxx"
 
 using namespace K_FLD;
 using namespace std;
+
+//=============================================================================
+// Merge tolerance at the resolution of the coordinates in single precision
+//=============================================================================
+E_Float K_CONNECT::realMergeTol(E_Float eps, FldArrayF& f,
+                                E_Int posx, E_Int posy, E_Int posz,
+                                FldArrayI* cn, const char* eltType)
+{
+#ifdef E_DOUBLEREAL
+  return eps;
+#else
+  if (eps <= 0.) return eps;
+  eps = E_REALTOL(eps);
+  E_Int npts = f.getSize();
+  if (npts == 0 || posx < 1 || posy < 1 || posz < 1) return eps;
+  E_Float* x = f.begin(posx); E_Float* y = f.begin(posy); E_Float* z = f.begin(posz);
+  E_Float amax = 0.;
+  bool basic = (cn != NULL && eltType != NULL && strchr(eltType, ',') == NULL &&
+                K_STRING::cmp(eltType, 4, "NGON") != 0);
+  if (basic)
+  {
+    // only the vertices of the elements (unreferenced points may be
+    // uninitialized, e.g. the oversized output of isoSurfMC)
+    E_Int nelts = cn->getSize(); E_Int nvpe = cn->getNfld();
+    for (E_Int k = 1; k <= nvpe; k++)
+      for (E_Int i = 0; i < nelts; i++)
+      {
+        E_Int v = (*cn)(i, k)-1;
+        if (v < 0 || v >= npts) continue;
+        amax = K_FUNC::E_max(amax, K_FUNC::E_abs(x[v]));
+        amax = K_FUNC::E_max(amax, K_FUNC::E_abs(y[v]));
+        amax = K_FUNC::E_max(amax, K_FUNC::E_abs(z[v]));
+      }
+  }
+  else
+  {
+    for (E_Int i = 0; i < npts; i++)
+    {
+      amax = K_FUNC::E_max(amax, K_FUNC::E_abs(x[i]));
+      amax = K_FUNC::E_max(amax, K_FUNC::E_abs(y[i]));
+      amax = K_FUNC::E_max(amax, K_FUNC::E_abs(z[i]));
+    }
+  }
+  if (!(amax < 1.e30)) return eps; // non finite or meaningless
+  // 8 FLT_EPSILON relative: a few ulps of the largest coordinate
+  return K_FUNC::E_max(eps, (E_Float)(8.*FLT_EPSILON*amax));
+#endif
+}
 
 //=============================================================================
 /* 
@@ -37,6 +86,7 @@ void K_CONNECT::cleanConnectivity(E_Int posx, E_Int posy, E_Int posz,
                                   E_Float eps,  const char* eltType, 
                                   FldArrayF& f, FldArrayI& cn, bool remove_degen, bool ordered_merge)
 {
+  eps = realMergeTol(eps, f, posx, posy, posz, &cn, eltType);
   if (K_STRING::cmp(eltType, "NGON") == 0 || K_STRING::cmp(eltType, "NGON*") == 0) 
     cleanConnectivityNGon(posx, posy, posz, eps, f, cn, remove_degen, ordered_merge);
   else
@@ -53,6 +103,7 @@ void K_CONNECT::cleanConnectivity_opt(E_Int posx, E_Int posy, E_Int posz,
                                   E_Float eps,  const char* eltType, 
                                   FldArrayF& f, FldArrayI& cn, bool remove_degen, bool ordered_merge)
 {
+  eps = realMergeTol(eps, f, posx, posy, posz, &cn, eltType);
   if (K_STRING::cmp(eltType, "NGON") == 0 || K_STRING::cmp(eltType, "NGON*") == 0) 
     cleanConnectivityNGon(posx, posy, posz, eps, f, cn, remove_degen, ordered_merge);
   else
@@ -575,13 +626,13 @@ void K_CONNECT::cleanConnectivityNGon(E_Int posx, E_Int posy, E_Int posz,
   {
     /*std::cout << "RELATIVE TOL !!!!!!!!!!!!!!!!!!!!!!" << std::endl;
     NG.flag_external_pgs(INITIAL_SKIN);
-    std::vector<E_Float> nodal_metric2;
+    std::vector<nuga_real_t> nodal_metric2;
     NUGA::MeshTool::computeNodalDistance2<acrd_t, ngon_unit>(fcA, NG.PGs, nodal_metric2);
     
     E_Float RTOL = -eps;
     NG.join_phs2(f, posx, posy, posz, nodal_metric2, RTOL);*/
 
-    std::vector<E_Float> nodal_metric2;
+    std::vector<nuga_real_t> nodal_metric2;
     NUGA::MeshTool::computeNodalDistance2<acrd_t, ngon_unit>(fcA, NG.PGs, nodal_metric2);
     
     E_Float RTOL = -eps;

@@ -34,6 +34,13 @@
 // Release shared numpy array
 #define RELEASESHAREDN(array, f) {delete f; Py_DECREF(array);}
 
+
+// Check that a numpy holds E_Float (compiled real precision) before reading its
+// data directly; sets a python error and returns NULL otherwise.
+#define K_NUMPY_CHECK_FLOAT(a, fname) \
+  if (PyArray_TYPE((PyArrayObject*)(a)) != E_NPY_FLOAT) \
+  { PyErr_SetString(PyExc_TypeError, fname ": numpy must have the compiled real precision (E_Float)."); return NULL; }
+
 namespace K_NUMPY
 {
   /* Extrait les donnees d'un numpy array

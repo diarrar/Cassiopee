@@ -110,7 +110,7 @@ E_Int K_ARRAY::getFromArray(PyObject* o,
     return -4;
   }
   
-  //a = (PyArrayObject*)PyArray_ContiguousFromObject(tpl, NPY_DOUBLE,
+  //a = (PyArrayObject*)PyArray_ContiguousFromObject(tpl, E_NPY_FLOAT,
   //                                                 1, 10000000);
   // - Faster -
   a = (PyArrayObject*)tpl; Py_INCREF(a);
@@ -137,6 +137,13 @@ E_Int K_ARRAY::getFromArray(PyObject* o,
   {
     PyErr_Warn(PyExc_Warning,
                "getFromArray: number of variables different in varString and field.");
+    Py_DECREF(a);
+    return -4;
+  }
+  if (PyArray_TYPE(a) != E_NPY_FLOAT)
+  {
+    PyErr_Warn(PyExc_Warning,
+               "getFromArray: field must have the compiled real precision (E_Float).");
     Py_DECREF(a);
     return -4;
   }

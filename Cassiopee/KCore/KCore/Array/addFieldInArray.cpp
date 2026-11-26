@@ -73,7 +73,7 @@ void K_ARRAY::addFieldInArray(PyObject* array, char* varName)
     npy_intp dim[2];  
     dim[1] = s;
     dim[0] = nfld+1;
-    PyArrayObject* an = (PyArrayObject*)PyArray_SimpleNew(2, dim, NPY_DOUBLE);
+    PyArrayObject* an = (PyArrayObject*)PyArray_SimpleNew(2, dim, E_NPY_FLOAT);
     E_Float* pt = (E_Float*)PyArray_DATA(an);
 #pragma omp parallel
     {
@@ -93,7 +93,7 @@ void K_ARRAY::addFieldInArray(PyObject* array, char* varName)
     E_Int s = PyArray_SIZE(ar);
     npy_intp dim[1];
     dim[0] = s;
-    PyArrayObject* an = (PyArrayObject*)PyArray_SimpleNew(1, dim, NPY_DOUBLE);
+    PyArrayObject* an = (PyArrayObject*)PyArray_SimpleNew(1, dim, E_NPY_FLOAT);
     PyList_Append(a, (PyObject*)an);
     Py_DECREF(an);  
   }

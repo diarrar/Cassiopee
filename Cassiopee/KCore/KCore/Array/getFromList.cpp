@@ -131,7 +131,7 @@ E_Int K_ARRAY::getFromList(PyObject* o, FldArrayF& out)
   else if (PyArray_Check(o))
   {
     //PyArrayObject* ac = (PyArrayObject*)
-    //  PyArray_ContiguousFromObject(o, NPY_DOUBLE, 1, 10000000);
+    //  PyArray_ContiguousFromObject(o, E_NPY_FLOAT, 1, 10000000);
     PyArrayObject* ac = (PyArrayObject*)o; Py_INCREF(ac);
     if (ac == NULL) return 0;
     E_Int nd = PyArray_NDIM(ac);

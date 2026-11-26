@@ -106,6 +106,12 @@ E_Int K_NUMPY::getFromNumpyArray(PyObject* o, FldArrayF*& f)
   PyArrayObject* a = (PyArrayObject*)o;
   E_Int dim = PyArray_NDIM(a);
   E_Int size = 0; E_Int nfld = 1;
+  if (PyArray_TYPE(a) != E_NPY_FLOAT)
+  {
+    PyErr_Warn(PyExc_Warning,
+               "getFromNumpyArray: numpy must have the compiled real precision (E_Float).");
+    return 0;
+  }
   GETDIMS;
   Py_INCREF(o);
   f = new FldArrayF(size, nfld, (E_Float*)PyArray_DATA(a), true);
@@ -129,6 +135,12 @@ E_Int K_NUMPY::getFromNumpyArray(PyObject* o, E_Float*& f, E_Int& size, E_Int& n
   if (PyArray_Check(o) == 0) return 0;
   PyArrayObject* a = (PyArrayObject*)o;
   E_Int dim = PyArray_NDIM(a);
+  if (PyArray_TYPE(a) != E_NPY_FLOAT)
+  {
+    PyErr_Warn(PyExc_Warning,
+               "getFromNumpyArray: numpy must have the compiled real precision (E_Float).");
+    return 0;
+  }
   size = 0; nfld = 1;
   GETDIMS;
   Py_INCREF(o);
@@ -143,6 +155,12 @@ E_Int K_NUMPY::getFromNumpyArray(PyObject* o, E_Float*& f, E_Int& size)
   IMPORTNUMPY;
   if (PyArray_Check(o) == 0) return 0;
   PyArrayObject* a = (PyArrayObject*)o;
+  if (PyArray_TYPE(a) != E_NPY_FLOAT)
+  {
+    PyErr_Warn(PyExc_Warning,
+               "getFromNumpyArray: numpy must have the compiled real precision (E_Float).");
+    return 0;
+  }
   size = PyArray_SIZE(a);
   Py_INCREF(o);
   f = (E_Float*)PyArray_DATA(a);

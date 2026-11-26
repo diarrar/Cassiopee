@@ -271,9 +271,24 @@ E_Int* K_PYTREE::getValueAI(PyObject* o, E_Int& s0, E_Int& s1,
 //==============================================================================
 E_Float* K_PYTREE::getValueAF(PyObject* o, vector<PyArrayObject*>& hook)
 {
-  //IMPORTNUMPY
+  IMPORTNUMPY;
   PyObject* v = PyList_GetItem(o, 1);
-  PyArrayObject* ac = (PyArrayObject*)v; Py_INCREF(ac);
+  PyArrayObject* ac = (PyArrayObject*)v;
+  if (PyArray_Check(v) && PyArray_TYPE(ac) != E_NPY_FLOAT &&
+      (PyArray_TYPE(ac) == NPY_FLOAT || PyArray_TYPE(ac) == NPY_DOUBLE))
+  {
+    // real numpy of another precision: convert the node in place rather than
+    // reading it as E_Float (silent corruption)
+    PyObject* name = PyList_GetItem(o, 0);
+    char msg[256];
+    snprintf(msg, 256, "getValueAF: node %s is not in the compiled real precision, converted.",
+             PyUnicode_Check(name) ? PyUnicode_AsUTF8(name) : "?");
+    PyErr_Warn(PyExc_Warning, msg);
+    PyArrayObject* an = (PyArrayObject*)PyArray_FromArray(ac, PyArray_DescrFromType(E_NPY_FLOAT),
+                                                          NPY_ARRAY_F_CONTIGUOUS | NPY_ARRAY_FORCECAST);
+    if (an != NULL) { PyList_SetItem(o, 1, (PyObject*)an); ac = an; } // steals the reference
+  }
+  Py_INCREF(ac);
   E_Float* d = (E_Float*)PyArray_DATA(ac);
   hook.push_back(ac);
   return d;

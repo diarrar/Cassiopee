@@ -230,6 +230,13 @@ void K_COMPGEOM::evalSpline(E_Float t, FldArrayF& x, E_Int n, E_Int c,
     if ( t >= x[i] && t < x[i+1] )
       k = i;
   }
+  // t rounded beyond the knot vector (float parameters): end points
+  if (k == -1)
+  {
+    if (t >= x[m]) { xo = xt[n]; yo = yt[n]; zo = zt[n]; }
+    else { xo = xt[0]; yo = yt[0]; zo = zt[0]; }
+    return;
+  }
   
   FldArrayF xPk(d+1,d+1);
   FldArrayF yPk(d+1,d+1);
@@ -302,6 +309,7 @@ E_Float N(E_Int n, E_Int p, E_Float t, E_Float* x)
     if ( t >= x[i] && t < x[i+1] )
       k = i;
   }
+  if (k == -1) return 0.; // t rounded beyond the knot vector (float)
   
   FldArrayF xPk(d+1,d+1);
   E_Float* xPk1 = xPk.begin(1);
