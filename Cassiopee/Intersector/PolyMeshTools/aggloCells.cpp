@@ -133,7 +133,7 @@ PyObject* K_INTERSECTOR::agglomerateNonStarCells(PyObject* self, PyObject* args)
   E_Int debug=0;
   double angle_threshold{1.e-12};
 
-  if (!PYPARSETUPLE_(args, O_ R_, &arr, &angle_threshold)) return NULL;
+  if (!PYPARSETUPLE_(args, O_ "d", &arr, &angle_threshold)) return NULL;
 
   K_FLD::FloatArray* f(0);
   K_FLD::IntArray* cn(0);

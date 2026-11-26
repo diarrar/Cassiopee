@@ -1251,8 +1251,8 @@ void Dcel::sort_leaving_hedges(std::vector<Hedge *> &leaving,
         for (E_Int j = 0; j < 3; j++) PQ_proj[j] = PQ[j] - dp * N[j];
 
         E_Float costheta = K_MATH::dot(ref_vec, PQ_proj, 3) / K_MATH::norm(PQ_proj, 3);
-        costheta = std::min(costheta, 1.0);
-        costheta = std::max(costheta, -1.0);
+        costheta = std::min(costheta, E_Float(1.0));
+        costheta = std::max(costheta, E_Float(-1.0));
         E_Float angle = acos(costheta);
         
         // Determine the direction of the angle

@@ -47,7 +47,7 @@ PyObject *K_XCORE::icapsule_extract_master(PyObject *self, PyObject *args)
     assert(M.ctag.size() == (size_t)M.nc);
     dims[0] = (npy_intp)M.nc;
     dims[1] = 1;
-    PyArrayObject *arr = (PyArrayObject *)PyArray_SimpleNew(1, dims, NPY_DOUBLE);
+    PyArrayObject *arr = (PyArrayObject *)PyArray_SimpleNew(1, dims, E_NPY_FLOAT);
     E_Float *ptr = (E_Float *)PyArray_DATA(arr);
     for (E_Int i = 0; i < M.nc; i++) ptr[i] = M.ctag[i];
     PyList_Append(out, (PyObject *)arr);
@@ -88,7 +88,7 @@ PyObject *K_XCORE::icapsule_extract_slaves(PyObject *self, PyObject *args)
         assert(S.ctag.size() == (size_t)S.nc);
         dims[0] = (npy_intp)S.nc;
         dims[1] = 1;
-        PyArrayObject *arr = (PyArrayObject *)PyArray_SimpleNew(1, dims, NPY_DOUBLE);
+        PyArrayObject *arr = (PyArrayObject *)PyArray_SimpleNew(1, dims, E_NPY_FLOAT);
         E_Float *ptr = (E_Float *)PyArray_DATA(arr);
         for (E_Int i = 0; i < S.nc; i++) ptr[i] = S.ctag[i];
         PyList_Append(ctags, (PyObject *)arr);

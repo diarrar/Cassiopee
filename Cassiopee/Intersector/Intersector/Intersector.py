@@ -4,6 +4,8 @@ __version__ = "2026.11"
 
 # Python Interface to create arrays defining meshes
 from . import intersector
+import KCore
+from KCore import realTol
 import Generator as G
 import Converter as C
 
@@ -745,7 +747,7 @@ def getNthNeighborhood(a, N, ids):
 # OUT: Returns a list of integers sized as the nb of cells in t giving the nb of subdivisions
 #      per cell in the range [minv, maxv].
 #==============================================================================
-def estimateAdapReq(t, donnor, metric_policy=2, rtol=1.e-12, minv=0, maxv=5):
+def estimateAdapReq(t, donnor, metric_policy=2, rtol=realTol(1.e-12), minv=0, maxv=5):
     """ estimates an cell-specified adaptation requirement based on a istotropic metric field based on donnor connectivity.
     Usage : estimateAdapReq(t, donnor [, metric_policy, rtol, minv, maxv])"""
     return intersector.estimateAdapReq(t, donnor, metric_policy, rtol, minv, maxv)
@@ -970,10 +972,10 @@ def volumes(a, algo=1, all_pgs_convex=False):
     Usage: volumes(a, algo=1, all_pgs_convex=False)"""
     return intersector.volumes(a, algo, all_pgs_convex)
 
-def merge(a, s, tol=1.e-15): #target arr, source arr
+def merge(a, s, tol=realTol(1.e-15)): #target arr, source arr
     return intersector.merge(a, s, tol)
 
-def concatenate(la, tol=1.e-15):
+def concatenate(la, tol=realTol(1.e-15)):
     return intersector.concatenate(la, tol)
 
 #==============================================================================

@@ -4,6 +4,8 @@
 # Python Interface to create PyTrees defining meshes
 #
 from . import Intersector as XOR
+import KCore
+from KCore import realTol
 from . import intersector
 import time
 
@@ -905,7 +907,7 @@ def booleanUnion(a1, a2, tol=0., jtol=0., preserve_right=1, solid_right=1, agg_m
         nsize2  = len(phnids2)
 
         for varname in varnames:
-            varnew  = numpy.zeros(ncells, numpy.float64)
+            varnew  = numpy.zeros(ncells, Internal.E_NpyFloat)
             # Operande 1
             # ----------
             if cont1 is not None:
@@ -1022,7 +1024,7 @@ def _booleanUnionMZ(t1, t2, xtol=0., jtol=0., agg_mode=1, improve_qual=False, si
 
             for f in fields:
                 pt = f[1].ravel('k')
-                f[1] = numpy.empty( (ph_oids.size), numpy.float64)
+                f[1] = numpy.empty( (ph_oids.size), Internal.E_NpyFloat)
                 f[1][:] = pt[ph_oids[:]]
 
             zs.append(z)
@@ -1082,7 +1084,7 @@ def _booleanUnionMZ(t1, t2, xtol=0., jtol=0., agg_mode=1, improve_qual=False, si
 
             for f in fields:
                 pt = f[1].ravel('k')
-                f[1] = numpy.empty( (ph_oids.size), numpy.float64)
+                f[1] = numpy.empty( (ph_oids.size), Internal.E_NpyFloat)
                 f[1][:] = pt[ph_oids[:]]
 
             zs.append(z)
@@ -1295,7 +1297,7 @@ def _XcellN_(t, priorities, output_type=0, rtol=0.05):
     bid=-1
     for bNG in basesNG:
         bid += 1
-        zj = concatenate(bNG, tol=1.e-10) # discard inner joins
+        zj = concatenate(bNG, tol=realTol(1.e-10)) # discard inner joins
         #if DBG: C.convertPyTree2File(zj, 'zj_'+str(bid)+'.cgns')
         b_bounds = externalFaces(zj) # keeping orientation
         if DBG: C.convertPyTree2File(b_bounds, 'bound_b_'+str(bid)+'.cgns')
@@ -1390,7 +1392,7 @@ def _XcellN_(t, priorities, output_type=0, rtol=0.05):
 
                     for f in fields:
                         pt = f[1].ravel('k')
-                        f[1] = numpy.empty( (pg_oids.size), numpy.float64)
+                        f[1] = numpy.empty( (pg_oids.size), Internal.E_NpyFloat)
                         f[1][:] = pt[pg_oids[:]]
                 else: # stocke le chemin des zones a supprimer
                     paths.append(Internal.getPath(t, z))
@@ -3547,7 +3549,7 @@ def getNthNeighborhood(t, N, ids):
 # OUT: Returns a list of integers sized as the nb of cells in t giving the nb of subdivisions
 #      per cell in the range [minv, maxv].
 #==============================================================================
-def estimateAdapReq(t, donnor, metric_policy=2, rtol=1.e-12, minv=0, maxv=5):
+def estimateAdapReq(t, donnor, metric_policy=2, rtol=realTol(1.e-12), minv=0, maxv=5):
     """ estimates an cell-specified adaptation requirement from on a istotropic metric field based on donnor connectivity.
      Usage : estimateAdapReq(t, donnor [, metric_policy, rtol, minv, maxv])"""
     zones2 = Internal.getZones(donnor)
@@ -4095,14 +4097,14 @@ def _volumes(t, algo=1, all_pgs_convex=False):
         vols = XOR.volumes(m, algo, all_pgs_convex)
         C.setFields([vols], z, 'centers', False)
 
-def merge(tz, sz, tol=1.e-15): #target zone, list source zones
+def merge(tz, sz, tol=realTol(1.e-15)): #target zone, list source zones
     m = C.getFields(Internal.__GridCoordinates__, tz)[0]
     #print m
     s = C.getFields(Internal.__GridCoordinates__, sz)[0]
     #print s
     return XOR.merge(m, s, tol)
 
-def concatenate(t, tol=1.e-15):
+def concatenate(t, tol=realTol(1.e-15)):
     zones = Internal.getZones(t)
 
 
@@ -4192,12 +4194,12 @@ def concatenate(t, tol=1.e-15):
                 varnode = Internal.getNodeFromName(cont, varname)
                 # Put zero if variable does not exist
                 if varnode is None:
-                    varnode = numpy.zeros(ncells, numpy.float64)
+                    varnode = numpy.zeros(ncells, Internal.E_NpyFloat)
                 else:
                     varnode = varnode[1]
 
             else: # no FlowSolution in z
-                varnode = numpy.zeros(ncells, numpy.float64)
+                varnode = numpy.zeros(ncells, Internal.E_NpyFloat)
 
             if varglob is None:
                 varglob = varnode.ravel('k')
@@ -4210,7 +4212,7 @@ def concatenate(t, tol=1.e-15):
         C._initVars(newz, 'centers:'+varname, 0)
 
         # c. Extract and replace new data array
-        varnew = numpy.zeros(new_size, numpy.float64)
+        varnew = numpy.zeros(new_size, Internal.E_NpyFloat)
         i      = 0
         ik     = 0
         for z in zones:

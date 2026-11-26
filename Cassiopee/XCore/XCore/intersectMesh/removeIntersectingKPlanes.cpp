@@ -385,7 +385,7 @@ PyObject *handle_slave(const IMesh *M, const Smesh &Mf, Karray& sarray)
     npy_intp dims[2];
     dims[1] = 1;
     dims[0] = NP;
-    PyArrayObject *tag = (PyArrayObject *)PyArray_SimpleNew(1, dims, NPY_DOUBLE);
+    PyArrayObject *tag = (PyArrayObject *)PyArray_SimpleNew(1, dims, E_NPY_FLOAT);
     E_Float *ptag = (E_Float *)PyArray_DATA(tag);
     memset(ptag, 0, NP*sizeof(E_Float));
 
@@ -545,7 +545,7 @@ PyObject *handle_slave2(IMesh *M, Karray& sarray, E_Int kmax)
     npy_intp dims[2];
     dims[1] = 1;
     dims[0] = (npy_intp)ni*nj*nk;
-    PyArrayObject *tag = (PyArrayObject *)PyArray_SimpleNew(1, dims, NPY_DOUBLE);
+    PyArrayObject *tag = (PyArrayObject *)PyArray_SimpleNew(1, dims, E_NPY_FLOAT);
     E_Float *ptag = (E_Float *)PyArray_DATA(tag);
     for (E_Int i = 0; i < nij*(kmax+1); i++) ptag[i] = 0.0;
     for (E_Int i = nij*(kmax+1); i < nij*nk; i++) ptag[i] = 1.0;

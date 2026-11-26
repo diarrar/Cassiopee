@@ -111,8 +111,8 @@ PyObject* K_INTERSECTOR::initForAdaptCells(PyObject* self, PyObject* args)
 
     size_t sz = ptlist.size();
 
-    E_Float center_rota[3];
-    E_Float axis_rota[3];
+    nuga_real_t center_rota[3];
+    nuga_real_t axis_rota[3];
     for (E_Int i = 0; i < 3; ++i)
     {
       center_rota[i] = transfo[i];
@@ -510,7 +510,7 @@ PyObject* K_INTERSECTOR::interpolateHMeshNodalField(PyObject* self, PyObject* ar
     }
   }
   
-  E_Float* pfieldN = fi->begin(0);
+  nuga_real_t* pfieldN = fi->begin(0);
   E_Int npts = fi->getSize();
 
   std::vector<double> fieldN(npts);
@@ -1581,9 +1581,9 @@ void __conformizeHM(const void* hmesh_ptr, K_FLD::FloatArray& crdo, K_FLD::IntAr
                     std::map<E_Int, std::vector<E_Int>>& rid_to_ptlist,
                     std::map<int, std::pair<int,int>>& rid_to_zones,
                     std::vector<std::vector<E_Int>>&     bcptlists,
-                    std::vector<std::vector<E_Float>>& fieldsC,
-                    std::vector<std::vector<E_Float>>& fieldsN,
-                    std::vector<std::vector<E_Float>>& fieldsF,
+                    std::vector<std::vector<nuga_real_t>>& fieldsC,
+                    std::vector<std::vector<nuga_real_t>>& fieldsN,
+                    std::vector<std::vector<nuga_real_t>>& fieldsF,
 					const bool conformize)
 {
   using mesh_type = NUGA::hierarchical_mesh<ELT_t, STYPE>;
@@ -1692,7 +1692,7 @@ void __conformizeHM(const void* hmesh_ptr, K_FLD::FloatArray& crdo, K_FLD::IntAr
   std::vector<E_Int> src_ids;
   K_CONNECT::IdTool::init_inc(src_ids, hmesh->pghids0.size()); //previous state is always a compressed view of the hmesh
 
-  std::vector<std::vector<E_Float>> new_fieldsF(fieldsF.size());
+  std::vector<std::vector<nuga_real_t>> new_fieldsF(fieldsF.size());
   for (size_t f = 0; f < fieldsF.size(); ++f)
   {
     histo.transfer_pg_colors(src_ids, fieldsF[f], new_fieldsF[f]);
@@ -1701,7 +1701,7 @@ void __conformizeHM(const void* hmesh_ptr, K_FLD::FloatArray& crdo, K_FLD::IntAr
   fieldsF = new_fieldsF;
 
   // TRANSFER NODE SOLUTION FIELDS == NODE FLAGS
-  std::vector<std::vector<E_Float>> new_fieldsN(fieldsN.size());
+  std::vector<std::vector<nuga_real_t>> new_fieldsN(fieldsN.size());
   for (size_t f = 0; f < fieldsN.size(); ++f)
   {
     new_fieldsN[f].resize(crdo.cols(), NUGA::FLOAT_MAX);
@@ -1800,7 +1800,7 @@ PyObject* K_INTERSECTOR::conformizeHMesh(PyObject* self, PyObject* args)
   bool has_fieldsF = (pyfieldsF != Py_None);
   
   char* fvarStringsC, *fvarStringsN, *feltType;
-  std::vector<std::vector<E_Float>> fieldsC, fieldsN, fieldsF;
+  std::vector<std::vector<nuga_real_t>> fieldsC, fieldsN, fieldsF;
   E_Int nfields{0};
 
   if (has_fieldsC)
@@ -1975,7 +1975,7 @@ PyObject* K_INTERSECTOR::conformizeHMesh(PyObject* self, PyObject* args)
       farr.resize(fieldsC.size(), fieldsC[0].size());
       for (size_t i=0; i < fieldsC.size(); ++i)
       {
-        std::vector<double>& fld = fieldsC[i];
+        std::vector<nuga_real_t>& fld = fieldsC[i];
         for (size_t j = 0; j < fld.size(); ++j)farr(i, j) = fld[j];
       }
       tpl = K_ARRAY::buildArray(farr, fvarStringsC, cnto, -1, feltType, false);
@@ -1994,7 +1994,7 @@ PyObject* K_INTERSECTOR::conformizeHMesh(PyObject* self, PyObject* args)
       farr.resize(fieldsN.size(), fieldsN[0].size());
       for (size_t i=0; i < fieldsN.size(); ++i)
       {
-        std::vector<double>& fld = fieldsN[i];
+        std::vector<nuga_real_t>& fld = fieldsN[i];
         for (size_t j = 0; j < fld.size(); ++j)farr(i, j) = fld[j];
       }
       tpl = K_ARRAY::buildArray(farr, fvarStringsN, cnto, -1, feltType, false);
@@ -2008,7 +2008,10 @@ PyObject* K_INTERSECTOR::conformizeHMesh(PyObject* self, PyObject* args)
   {
     PyObject* tpl = Py_None;
     if (has_fieldsF) // fcadid only for now
-      tpl = K_NUMPY::buildNumpyArray(&fieldsF[0][0], fieldsF[0].size(), 1, 0);
+    {
+      std::vector<E_Float> fF(fieldsF[0].begin(), fieldsF[0].end()); // to the compiled precision
+      tpl = K_NUMPY::buildNumpyArray(&fF[0], fF.size(), 1, 0);
+    }
 
     PyList_Append(l, tpl);
     Py_DECREF(tpl);

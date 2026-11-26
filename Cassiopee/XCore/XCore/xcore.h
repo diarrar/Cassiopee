@@ -25,6 +25,12 @@
 #define XMPI_INT MPI_INT
 #endif
 
+#ifdef E_SINGLEREAL
+#define XMPI_FLOAT MPI_FLOAT
+#else
+#define XMPI_FLOAT MPI_DOUBLE
+#endif
+
 #include "kcore.h"
 #include <limits>
 

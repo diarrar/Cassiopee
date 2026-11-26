@@ -2,6 +2,7 @@
 import Converter.Filter2 as Filter2
 import Converter.Mpi as Cmpi
 import Converter.Internal as I
+import numpy
 import Converter.PyTree as C
 from . import xcore
 
@@ -24,6 +25,7 @@ def extractCell(a, cid):
 # IN: gfaces: indices globaux des faces en parallèle
 # OUT: hook on the structure required during the mesh adaptation process
 def AdaptMesh_Init(t, normal2D=None, comm=[], gcells=None, gfaces=None):
+    if normal2D is not None: normal2D = numpy.asarray(normal2D, dtype=I.E_NpyFloat)
     zones = I.getZones(t)
     if len(zones) != 1:
         print("WARNING: AdaptMesh_Init: only the first zone is taken into account.", flush=True)

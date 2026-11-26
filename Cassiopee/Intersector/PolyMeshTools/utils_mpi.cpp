@@ -120,7 +120,7 @@ PyObject* K_INTERSECTOR::closeCells_mpi(PyObject* self, PyObject* args)
   convert_dico_to_map__int_pairint(py_rid_to_zones, rid_to_zones);
 
   // 6. CLOSE
-  using para_algo_t = NUGA::hybrid_para_algo<NUGA::ph_mesh_t, E_Float>; // SEQ or multi-SEQ
+  using para_algo_t = NUGA::hybrid_para_algo<NUGA::ph_mesh_t, nuga_real_t>; // SEQ or multi-SEQ
   using closecell_t = NUGA::close_cells< para_algo_t, NUGA::ph_mesh_t>;
 
   closecell_t cc;

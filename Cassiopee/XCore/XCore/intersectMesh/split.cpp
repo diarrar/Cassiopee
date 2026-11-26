@@ -242,12 +242,12 @@ PyObject *K_XCORE::split_connex(PyObject *self, PyObject *args)
         dims[1] = 1;
 
         dims[0] = (npy_intp)nc;
-        PyArrayObject *ct = (PyArrayObject *)PyArray_SimpleNew(1, dims, NPY_DOUBLE);
+        PyArrayObject *ct = (PyArrayObject *)PyArray_SimpleNew(1, dims, E_NPY_FLOAT);
         E_Float *ptr = (E_Float *)PyArray_DATA(ct);
         for (E_Int i = 0; i < nc; i++) ptr[i] = ctag[clist[i]];
 
         dims[0] = (npy_intp)np;
-        PyArrayObject *pt = (PyArrayObject *)PyArray_SimpleNew(1, dims, NPY_DOUBLE);
+        PyArrayObject *pt = (PyArrayObject *)PyArray_SimpleNew(1, dims, E_NPY_FLOAT);
         ptr = (E_Float *)PyArray_DATA(pt);
         for (const auto &pids : pmap) {
             E_Int npid = pids.second;
