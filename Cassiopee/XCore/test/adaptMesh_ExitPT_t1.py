@@ -13,7 +13,7 @@ a = C.convertArray2NGon(a)
 C._fillEmptyBCWith(a, 'nref', 'BCFarfield', dim=2)
 Internal._adaptNGon32NGon4(a)
 
-normal2D = numpy.array([0.0,0.0,1.0], dtype=numpy.float64)
+normal2D = numpy.array([0.0,0.0,1.0], dtype=Internal.E_NpyFloat)
 ngonelts = Internal.getNGonNode(a)
 ER = Internal.getNodeFromName1(ngonelts, 'ElementRange')[1]
 nfaces = ER[1]

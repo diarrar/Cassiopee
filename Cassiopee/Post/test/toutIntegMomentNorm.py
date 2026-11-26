@@ -5,6 +5,7 @@ import Transform as T
 import Post as P
 import numpy
 import numpy
+import Converter.Internal as Internal
 
 res1 = numpy.pi*10.
 res1c = (numpy.pi-numpy.pi/25.)*10.
@@ -17,7 +18,7 @@ C.convertArrays2File([a], "new.plt", "bin_tp")
 
 # integMoment node2center, nj = 1
 ni = a[2]-1; nj = a[3]-1; nk = a[4]-1
-dens = numpy.ones( (1, ni*nj*nk), numpy.float64 )
+dens = numpy.ones( (1, ni*nj*nk), Internal.E_NpyFloat )
 densa = ['t', dens, ni,nj,nk]
 
 res = P.integMomentNorm([a2],[densa],[], (0.,0.,5.))
@@ -30,7 +31,7 @@ del res
 ni = a[2]
 nj = a[3]-1
 nk = a[4]
-dens = numpy.ones( (1, ni*nj*nk), numpy.float64 )
+dens = numpy.ones( (1, ni*nj*nk), Internal.E_NpyFloat )
 densa = ['t', dens, ni,nj,nk]
 res = P.integMomentNorm([a2],[densa],[], (0.,0.,5.))
 ## if numpy.fabs(res[0]-res1) > 1.e-1:
@@ -48,7 +49,7 @@ C.convertArrays2File([a2],'out.plt','bin_tp')
 ni = a[2]-1
 nj = a[3]-1
 nk = a[4]-1
-dens = numpy.ones( (1, ni*nj*nk), numpy.float64 )
+dens = numpy.ones( (1, ni*nj*nk), Internal.E_NpyFloat )
 densa = ['t', dens, ni,nj,nk]
 
 res = P.integMomentNorm([a2],[densa],[], (0.5,1.,0.))
@@ -62,7 +63,7 @@ del res
 ni = a[2]
 nj = a[3]
 nk = a[4]-1
-dens = numpy.ones( (1, ni*nj*nk), numpy.float64 )
+dens = numpy.ones( (1, ni*nj*nk), Internal.E_NpyFloat )
 densa = ['t', dens, ni,nj,nk]
 
 res = P.integMomentNorm([a2],[densa],[], (0.5,1.,0.))
@@ -81,7 +82,7 @@ C.convertArrays2File([a2],'out.plt','bin_tp')
 ni = a[2]-1
 nj = a[3]-1
 nk = a[4]-1
-dens = numpy.ones( (1, ni*nj*nk), numpy.float64 )
+dens = numpy.ones( (1, ni*nj*nk), Internal.E_NpyFloat )
 densa = ['t', dens, ni,nj,nk]
 
 res = P.integMomentNorm([a2],[densa],[], (0.,1.,0.5))
@@ -94,7 +95,7 @@ print(res, res2)
 ni = a[2]-1
 nj = a[3]
 nk = a[4]
-dens = numpy.ones( (1, ni*nj*nk), numpy.float64 )
+dens = numpy.ones( (1, ni*nj*nk), Internal.E_NpyFloat )
 densa = ['t', dens, ni,nj,nk]
 
 res = P.integMomentNorm([a2],[densa],[], (0.,1.,0.5))

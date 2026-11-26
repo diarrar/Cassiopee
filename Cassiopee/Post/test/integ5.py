@@ -3,6 +3,7 @@ import Converter as C
 import Post as P
 import Transform as T
 import numpy
+import Converter.Internal as Internal
 
 # Lit le fichier et le met dans arrays
 arrays = []
@@ -29,8 +30,8 @@ for a in arrays :
     nj = a[3]
     nk = a[4]
     print(ni, nj, nk)
-    dens = numpy.ones( (1, (ni-1) * (nj-1) * (nk-1)), numpy.float64 )
-#    dens = numpy.ones( (3, (ni-1) * (nj-1) * (nk-1)), numpy.float64 )
+    dens = numpy.ones( (1, (ni-1) * (nj-1) * (nk-1)), Internal.E_NpyFloat )
+#    dens = numpy.ones( (3, (ni-1) * (nj-1) * (nk-1)), Internal.E_NpyFloat )
     densa = ['t', dens, (ni-1), (nj-1), (nk-1)]  # en centres
     ac = T.subzone(a,(1,1,1),(ni,nj,1))
     data.append(densa)

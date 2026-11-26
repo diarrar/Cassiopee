@@ -13,5 +13,5 @@ Internal.newDataArray('CoordinateY', value=numpy.zeros(10), parent=g)
 Internal.newDataArray('CoordinateZ', value=numpy.zeros(10), parent=g); Internal.printTree(g)
 #>> ['GridCoordinates',None,[3 sons],'GridCoordinates_t']
 #>>   |_['CoordinateX',array(shape=(10,),dtype='int64',order='F'),[0 son],'DataArray_t']
-#>>   |_['CoordinateY',array(shape=(10,),dtype='float64',order='F'),[0 son],'DataArray_t']
-#>>   |_['CoordinateZ',array(shape=(10,),dtype='float64',order='F'),[0 son],'DataArray_t']
+#>>   |_['CoordinateY',array(shape=(10,),dtype=Internal.E_NpyFloat,order='F'),[0 son],'DataArray_t']
+#>>   |_['CoordinateZ',array(shape=(10,),dtype=Internal.E_NpyFloat,order='F'),[0 son],'DataArray_t']

@@ -10,7 +10,7 @@ C.convertPyTree2File(t, 'in.cgns')
 
 t = Filter.convertFile2SkeletonTree('in.cgns'); Internal.printTree(t)
 #>> ['CGNSTree',None,[2 sons],'CGNSTree_t']
-#>>   |_['CGNSLibraryVersion',array([3.0999999046325684],dtype='float64'),[0 son],'CGNSLibraryVersion_t']
+#>>   |_['CGNSLibraryVersion',array([3.0999999046325684],dtype=Internal.E_NpyFloat),[0 son],'CGNSLibraryVersion_t']
 #>>   |_['Base',array(shape=(2,),dtype='int32',order='F'),[1 son],'CGNSBase_t']
 #>>       |_['cart',array(shape=(3, 3),dtype='int32',order='F'),[2 sons],'Zone_t']
 #>>           |_['ZoneType',array('Structured',dtype='|S1'),[0 son],'ZoneType_t']

@@ -14,6 +14,6 @@ C.convertPyTree2File(t, 'test.hdf')
 nodes = Filter.readNodesFromPaths('test.hdf', ['CGNSTree/Base/cart/GridCoordinates'])
 Internal.printTree(nodes)
 #>> ['GridCoordinates',None,[3 sons],'GridCoordinates_t']
-#>>   |_['CoordinateX',array(shape=(10, 10, 10),dtype='float64',order='F'),[0 son],'DataArray_t']
-#>>   |_['CoordinateY',array(shape=(10, 10, 10),dtype='float64',order='F'),[0 son],'DataArray_t']
-#>>   |_['CoordinateZ',array(shape=(10, 10, 10),dtype='float64',order='F'),[0 son],'DataArray_t']
+#>>   |_['CoordinateX',array(shape=(10, 10, 10),dtype=Internal.E_NpyFloat,order='F'),[0 son],'DataArray_t']
+#>>   |_['CoordinateY',array(shape=(10, 10, 10),dtype=Internal.E_NpyFloat,order='F'),[0 son],'DataArray_t']
+#>>   |_['CoordinateZ',array(shape=(10, 10, 10),dtype=Internal.E_NpyFloat,order='F'),[0 son],'DataArray_t']

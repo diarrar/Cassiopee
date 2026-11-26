@@ -10,7 +10,7 @@ t = C.newPyTree(['Base',a])
 Internal._groupBCByBCType(t, 'BCWall', 'FamWall')
 
 #>> ['CGNSTree',None,[2 sons],'CGNSTree_t']
-#>>   |_['CGNSLibraryVersion',array([3.1],dtype='float64'),[0 son],'CGNSLibraryVersion_t']
+#>>   |_['CGNSLibraryVersion',array([3.1],dtype=Internal.E_NpyFloat),[0 son],'CGNSLibraryVersion_t']
 #>>   |_['Base',array(shape=(2,),dtype='int32',order='F'),[2 sons],'CGNSBase_t']
 #>>       |_['cart',array(shape=(3, 3),dtype='int32',order='F'),[3 sons],'Zone_t']
 #>>       |   ...

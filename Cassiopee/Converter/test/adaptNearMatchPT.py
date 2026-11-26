@@ -19,7 +19,7 @@ Internal.printTree(Internal.getNodeFromName(t, 'nmatch1_0'))
 #>>    |_['UserDefinedData',None,[3 sons],'UserDefinedData_t']
 #>>        |_['PointRangeDonor',array(shape=(3, 2),dtype='int32',order='F'),[0 son],'DataArray_t']
 #>>        |_['Transform',array(shape=(3,),dtype='int32',order='F'),[0 son],'DataArray_t']
-#>>        |_['NMRatio',array(shape=(3,),dtype='float64',order='F'),[0 son],'DataArray_t']
+#>>        |_['NMRatio',array(shape=(3,),dtype=Internal.E_NpyFloat,order='F'),[0 son],'DataArray_t']
 tp = elsAProfile.adaptNearMatch(t)
 Internal.printTree(Internal.getNodeFromName(tp, 'nmatch1_0'))
 #>> ['nmatch1_0',array('cart2',dtype='|S1'),[4 sons],'GridConnectivity1to1_t']

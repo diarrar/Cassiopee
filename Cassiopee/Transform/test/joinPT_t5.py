@@ -64,11 +64,11 @@ test.testT(t, 6)
 def createEmptyZone(etype):
     z = Internal.newZone(name="empty", zsize=[[0,0]], ztype="Unstructured")
     gc = Internal.newGridCoordinates(parent=z)
-    Internal.newDataArray('CoordinateX', value=numpy.empty(0), parent=gc)
-    Internal.newDataArray('CoordinateY', value=numpy.empty(0), parent=gc)
-    Internal.newDataArray('CoordinateZ', value=numpy.empty(0), parent=gc)
+    Internal.newDataArray('CoordinateX', value=numpy.empty(0, dtype=Internal.E_NpyFloat), parent=gc)
+    Internal.newDataArray('CoordinateY', value=numpy.empty(0, dtype=Internal.E_NpyFloat), parent=gc)
+    Internal.newDataArray('CoordinateZ', value=numpy.empty(0, dtype=Internal.E_NpyFloat), parent=gc)
     Internal.newElements(name="GridElements", etype=etype,
-                         econnectivity=numpy.empty(0), erange=[1, 0],
+                         econnectivity=numpy.empty(0, dtype=Internal.E_NpyFloat), erange=[1, 0],
                          eboundary=0, parent=z)
     return z
 

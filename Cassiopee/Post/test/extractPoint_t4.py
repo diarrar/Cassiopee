@@ -2,6 +2,11 @@
 import Converter as C
 import Generator as G
 import Post as P
+import KCore
+# values are computed in the compiled real precision: comparison tolerance and
+# margin on the interpolation error bounds (unchanged in double precision)
+TOLVAL = 1.e-10 if KCore.getRealSize() == 8 else 1.e-6
+ERRMARGIN = 0. if KCore.getRealSize() == 8 else 1.e-6
 #
 # extrapolation
 # Maillage en noeuds
@@ -22,7 +27,7 @@ cnt = 0
 for extrapOrder in extrapOrders:
     for constraint in constraints:
         val = P.extractPoint([a], (x,y,z), 2, extrapOrder, constraint)
-        if abs(val[0]-val0) > err[cnt]+1e-12:
+        if abs(val[0]-val0) > err[cnt]+1e-12+ERRMARGIN:
             print('DIFF: reference: '+str(err[cnt])+'.')
             print('DIFF: courant: '+str(abs(val[0]-val0))+'.')
         cnt += 1
