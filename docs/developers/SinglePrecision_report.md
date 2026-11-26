@@ -9,8 +9,9 @@
 - **Objectif** : pouvoir compiler tout Cassiopee avec `E_Float = float` (option `_r4` d'`ELSAPROD`), première étape d'un Fast en précision réduite.
 - **Résultat** :
   - les 19 modules compilent et s'installent en r4 et en r8 avec gcc 13 (vérifié le 26/11/2026) ;
-  - *[à compléter avec les runs en cours]* : comparaison de la branche en r8 avec `dev`, et taux de réussite en r4 contre les références r8, avec les tolérances r4 (1e-5) ;
-  - au 19/11 (branche d'origine), 1227 tests sur 1428 passaient en r4. Sur les 201 échecs, 94 étaient reproduits par le r8 sur des données arrondies en float (donc dus à la précision des données et non à un bug) ; les autres étaient des dérives numériques faibles, des égalités dans les données de test ou des effets d'environnement (voir § 5 et § 6).
+  - en r8, la branche donne exactement les mêmes résultats que `dev` sur les 1429 tests qui passent sur `dev` ; les 11 autres échouent pour des raisons d'environnement, dans les deux cas ;
+  - en r4, 1232 tests sur 1440 (85,6 %) passent contre les références r8, avec les tolérances r4 (1e-5) ;
+  - 201 des 208 échecs sont ceux déjà analysés au 19/11 : 94 sont reproduits par le r8 sur des données arrondies en float (donc dus à la précision des données et non à un bug), les autres sont des dérives numériques faibles, des égalités dans les données de test ou des effets d'environnement. Les 7 nouveaux sont 6 tests AMR ajoutés depuis par `dev`, et `joinPT_t4`, qui a révélé un bug latent de `dev` (§ 5 et § 6).
 - **Effets de bord utiles** : une vingtaine de bugs présents aussi en double précision, trouvés grâce au r4, ont été corrigés et proposés à onera/Cassiopee (§ 8).
 - **Conclusion** : un r4 *global* est faisable, mais il ne répond pas au besoin réel de Fast (précision mixte, fp16, précision variable par zone) et impose un second produit à maintenir. Le travail est donc mis de côté au profit d'une **précision par tableau dans un seul build** (stratégie C, [`MixedPrecision_design.md`](MixedPrecision_design.md)). Une grande partie de ce qui a été fait ici y est réutilisable (§ 10).
 
@@ -62,17 +63,40 @@ Rien n'est perdu par rapport à la branche d'origine (`claude/optimistic-maxwell
 
 ### 5.2 Validation de la branche propre (26/11/2026, conteneur Ubuntu 24.04, gcc 13, numpy 2.5, Python 3.13)
 
-*À compléter avec les résultats des runs en cours.*
+Conteneur Ubuntu 24.04 (4 cœurs), gcc 13, numpy 2.5, Python 3.13, OpenMPI, HDF5 parallèle, OpenCASCADE 7.6, OSMesa. Les 19 modules sont compilés dans les trois configurations ci-dessous. La base de tests comporte 1440 tests.
+
+| Configuration | OK | Échecs | Durée | Remarques |
+|---|---|---|---|---|
+| `dev` r8 (`9b1e420`), génère les références | 1428 | 11 + 1 TIMEOUT | 12,5 min | 11 échecs d'environnement : `tkPlotXY_m1` (tkinter absent) et 10 tests OCC qui lisent un `cube.cgns` produit par un autre test. TIMEOUT de `adaptMeshPT_m1` (MPI) : blocage ponctuel, le test passe seul en 1 s. |
+| branche r8 (`827e2f6`) | 1429 | 11 | 8,5 min | les mêmes 11 échecs d'environnement ; **aucune différence avec `dev`** sur les 1429 autres tests (`adaptMeshPT_m1` comparé à part, avec ses références générées par `dev`) |
+| branche r4 (`827e2f6`), contre les références r8 | 1232 | 208 | 8,5 min | 85,6 % de réussite, voir § 6 |
+
+Par rapport au 19/11 (1227 OK, 201 échecs, sur 1428 tests), la base a gagné 12 tests et le nombre d'échecs déjà connus n'a pas changé.
 
 ### 5.3 Validation à faire
 
-Validation finale sur juno avec la pile Intel (`juno_r4` contre `Data_juno`), prévue par l'équipe une fois la branche prête.
+Validation finale sur juno avec la pile Intel (`juno_r4` contre `Data_juno`), prévue par l'équipe sur cette branche. Les nombres attendus sont ceux du § 5.2, à l'environnement près.
 
 ## 6. Écarts r4 restants
 
-*À compléter (classification du run de la branche propre, comparée à celle du 19/11).*
+Les 208 échecs r4 du 26/11 se répartissent ainsi :
 
-Au 19/11 (201 échecs), la classification de [`SinglePrecision_r4_failures.md`](SinglePrecision_r4_failures.md) était :
+| Statut | Nombre | Détail |
+|---|---|---|
+| reproduit | 94 | dont 9 cartes de qualité de Generator, renommées depuis dans `dev` (`getCellSkewnessMap`, `getGridSkewnessMap`, `getVolumeRatioMap`) |
+| vérifié | 63 | identiques au 19/11 |
+| dérive | 28 | identiques au 19/11 |
+| environnement | 16 | identiques au 19/11 |
+| nouveau : AMR | 6 | `generateAMRMeshStep*`, tests ajoutés par la refonte AMR de `dev` (#865). Quelques cellules diffèrent sur la surface décalée (2844 éléments au lieu de 2848, 3997 points au lieu de 3996) : même profil que les autres tests AMR, sensibles par construction. `generateAMRMeshStepPT_t2` fait aussi planter `KCore.test.checkObject_` (`IndexError` quand deux listes n'ont pas la même longueur, au lieu d'un écart signalé). |
+| nouveau : bug latent r8 | 1 | `joinPT_t4` : voir ci-dessous |
+
+**`joinPT_t4`, un bug de `dev` révélé par le r4.** Dans la branche multi-éléments de `K_TRANSFORM::joinAll`, `npts += nptsk` est dans la boucle sur les connectivités de la zone. Les points d'une zone à plusieurs types d'éléments sont donc comptés plusieurs fois : pour ce cas, 378 points alloués pour 189 recopiés, et la moitié du tableau passe non initialisée dans `V_cleanConnectivity`.
+- En r8, ces points sont éliminés comme orphelins, mais ils sont lus : valgrind signale 124 lectures de valeurs non initialisées sur `dev`.
+- En r4, la tolérance de fusion relative à la plus grande coordonnée devient énorme quand une valeur aberrante s'y trouve, et tous les points fusionnent en un seul. C'est un échec intermittent, selon le contenu de la mémoire.
+
+Un correctif est prêt, mais pas encore proposé : compter les points une fois par zone gardée, et ne recopier que les zones gardées. Avec lui, `joinPT_t4` passe en r4 et en r8, et les lectures non initialisées issues de `joinAll` disparaissent.
+
+Pour mémoire, la classification du 19/11 (201 échecs, [`SinglePrecision_r4_failures.md`](SinglePrecision_r4_failures.md)) était :
 
 | Statut | Nombre | Signification |
 |---|---|---|
@@ -103,6 +127,9 @@ Les familles d'écarts « par construction » sont celles où le résultat dépe
 | Scalaires `numpy.float32` refusés ou mal aiguillés | #3 |
 | FSDM : conditions limites NGON en `PointRange` | #6 |
 | zfp : tableaux 2D Fortran mal disposés ; entrées float32 ou non contiguës | #12, #13 |
+| `joinAll` (Transform) : points des zones multi-éléments comptés une fois par connectivité, moitié du tableau de sortie non initialisée | correctif prêt (§ 6), PR à ouvrir |
+| `FldArray<int>::releaseMemory` lit un membre non initialisé sur les `FldArrayI` multi-éléments de `getFromArray3` (valgrind) | à examiner |
+| `KCore.test.checkObject_` plante sur des listes de longueurs différentes | à corriger dans l'outillage de test |
 | Restent à traiter : lecteur VTK legacy (ASCII, POLYDATA binaire, `FIELD`), compresseurs sz/fpc/cellN, `Gmsh.py` en i8, `spline`, `Internal.isValue` ; à discuter : garde-fous de dtype dans KCore, graine du masque X-Ray, `extractPlane` sur une surface | voir `point_extraction_r8.md` (branche `claude/zen-brown-uv22o1`) |
 
 ## 9. Bilan et leçons
