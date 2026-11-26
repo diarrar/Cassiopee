@@ -65,7 +65,7 @@ E_Int K_GENERATOR::getNeighbourQuads(
   K_FLD::FldArrayI& cEV, 
   std::vector< std::vector<E_Int> >& nghbrs)
 {
-  E_Float eps = 1.e-10;
+  E_Float eps = E_REALTOL(1.e-10);
   E_Int nelts = cEV.getSize();
   E_Int* cn1 = cEV.begin(1); E_Int* cn2 = cEV.begin(2);
   E_Int* cn3 = cEV.begin(3); E_Int* cn4 = cEV.begin(4);
@@ -168,7 +168,7 @@ E_Int K_GENERATOR::getNeighbourHexas(
   K_FLD::FldArrayI& cEV, 
   std::vector< std::vector<E_Int> >& nghbrs)
 {
-  E_Float eps = 1.e-10;
+  E_Float eps = E_REALTOL(1.e-10);
   E_Int nelts = cEV.getSize();
   E_Int* cn1 = cEV.begin(1); //E_Int* cn2 = cEV.begin(2);
   //E_Int* cn3 = cEV.begin(3); E_Int* cn4 = cEV.begin(4);
@@ -388,7 +388,7 @@ void K_GENERATOR::modifyIndicator(
   E_Int nelts, K_FLD::FldArrayF& dht, std::vector< std::vector<E_Int> >& cEEN,
   E_Int posi, E_Float* indict)
 {
-  E_Float eps = 1.e-10;
+  E_Float eps = E_REALTOL(1.e-10);
   E_Float indic1, indic2, dh1, dh2;
   E_Int et2; E_Int ok = 0;
   E_Float* dhtp = dht.begin(1);
@@ -459,7 +459,7 @@ void K_GENERATOR::getValidNgbrsForMerge(
   K_FLD::FldArrayIS& dejaVu, K_FLD::FldArrayI& cn,
   std::vector<E_Int>& candidats)
 {
-  E_Float eps = 1.e-10;
+  E_Float eps = E_REALTOL(1.e-10);
   E_Int nelts = cn.getSize(); E_Int nvert = cn.getNfld();
   E_Float dh = dht[et];
   E_Int* cn1 = cn.begin(1);
@@ -506,7 +506,7 @@ K_GENERATOR::mergeOctreeElement(E_Int et, E_Int npts, E_Float indic,
                                 E_Int& no, E_Int& eto, 
                                 K_FLD::FldArrayIS& dejaVu)
 {
-  E_Float eps = 1.e-10;
+  E_Float eps = E_REALTOL(1.e-10);
   // Recherche des elements voisins de meme niveau
   E_Int nvert = cno.getNfld(); E_Int nelts = cno.getSize();
   E_Int nptso = fo.getSize();

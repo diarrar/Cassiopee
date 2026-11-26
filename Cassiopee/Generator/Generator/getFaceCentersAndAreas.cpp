@@ -65,8 +65,8 @@ PyObject *K_GENERATOR::getFaceCentersAndAreas(PyObject *self, PyObject *args)
   npy_intp dims[2];
   dims[0] = (npy_intp)(3*nfaces);
   dims[1] = 1;
-  PyArrayObject *fcenters = (PyArrayObject *)PyArray_SimpleNew(1, dims, NPY_DOUBLE);
-  PyArrayObject *fareas   = (PyArrayObject *)PyArray_SimpleNew(1, dims, NPY_DOUBLE);
+  PyArrayObject *fcenters = (PyArrayObject *)PyArray_SimpleNew(1, dims, E_NPY_FLOAT);
+  PyArrayObject *fareas   = (PyArrayObject *)PyArray_SimpleNew(1, dims, E_NPY_FLOAT);
   E_Float *fc = (E_Float *)PyArray_DATA(fcenters);
   E_Float *fa = (E_Float *)PyArray_DATA(fareas);
 

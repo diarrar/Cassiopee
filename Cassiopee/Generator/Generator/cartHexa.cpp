@@ -35,10 +35,11 @@ using namespace K_FLD;
 PyObject* K_GENERATOR::cartHexa(PyObject* self,  PyObject* args)
 {
   E_Int ni, nj, nk;
-  E_Float xo, yo, zo;
-  E_Float hi, hj, hk;
+  // origin and steps read and combined in double (see cart.cpp)
+  double xo, yo, zo;
+  double hi, hj, hk;
   E_Int api = 1;
-  if (!PYPARSETUPLE_(args, TRRR_ TRRR_ TIII_ I_, 
+  if (!PYPARSETUPLE_(args, "(ddd)" "(ddd)" TIII_ I_, 
                     &xo, &yo, &zo, &hi, &hj, &hk, &ni, &nj, &nk, &api))
   {
     return NULL;

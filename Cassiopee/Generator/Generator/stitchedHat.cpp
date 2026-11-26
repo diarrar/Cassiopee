@@ -84,17 +84,19 @@ PyObject* K_GENERATOR::stitchedHat(PyObject* self, PyObject* args)
   E_Float* x0 = f->begin(posx);
   E_Float* y0 = f->begin(posy);
   E_Float* z0 = f->begin(posz);
-  E_Float xb, yb ,zb, d1, d2;
-  E_Float px, py, pz;
-  E_Float* nx = new E_Float[npts];
-  E_Float* ny = new E_Float[npts];
-  E_Float* nz = new E_Float[npts];
+  // medial axis computed in double (normals of nearly aligned segments
+  // and distance tests at 1e-4 are not accurate enough in float)
+  double xb, yb ,zb, d1, d2;
+  double px, py, pz;
+  double* nx = new double[npts];
+  double* ny = new double[npts];
+  double* nz = new double[npts];
   E_Int* found = new E_Int[npts];
   E_Int* hanging = new E_Int[npts];
   E_Int indnear;
 
   // Dimensionnement de eps (pour la recherche)
-  E_Float dd = 0.;
+  double dd = 0.;
   for (E_Int i = 0; i < npts; i++)
   {
     for (E_Int j = 0; j < npts; j++)
@@ -105,7 +107,7 @@ PyObject* K_GENERATOR::stitchedHat(PyObject* self, PyObject* args)
   }
   dd = sqrt(dd);
   E_Int Nd = 3000;
-  E_Float eps = K_FUNC::E_min(dd/Nd, epsilon);
+  double eps = K_FUNC::E_min(dd/Nd, (double)epsilon);
   Nd = E_Int(dd/eps);
 
   // Calcul des normales
@@ -202,10 +204,10 @@ PyObject* K_GENERATOR::stitchedHat(PyObject* self, PyObject* args)
 
 //=============================================================================
 void K_GENERATOR::normals(E_Int n, E_Float* x, E_Float* y, E_Float* z,
-                          E_Float* nx, E_Float *ny, E_Float* nz)
+                          double* nx, double *ny, double* nz)
 {
-  E_Float p1, p2, p3, p4, p5, p6, n1, n2, n3, r, ri;
-  E_Float n1ref, n2ref, n3ref, alpha, beta, nrefp;
+  double p1, p2, p3, p4, p5, p6, n1, n2, n3, r, ri;
+  double n1ref, n2ref, n3ref, alpha, beta, nrefp;
   E_Int ind = 0;
 
   // Premiere normale de reference valide
@@ -324,13 +326,13 @@ void K_GENERATOR::normals(E_Int n, E_Float* x, E_Float* y, E_Float* z,
 // (x,y,z) mais different de ind
 // Retourne la distance au carre
 //=============================================================================
-E_Float K_GENERATOR::dist2Curve(E_Int n, E_Float* x, E_Float* y, E_Float* z, E_Int* found,
-                                E_Float px, E_Float py, E_Float pz, E_Int ind,
-                                E_Int& nearest)
+double K_GENERATOR::dist2Curve(E_Int n, E_Float* x, E_Float* y, E_Float* z, E_Int* found,
+                               double px, double py, double pz, E_Int ind,
+                               E_Int& nearest)
 {
-  E_Float d = 1.e6;
+  double d = 1.e6;
   nearest = -1;
-  E_Float dp;
+  double dp;
 
   if (ind == 0)
   {

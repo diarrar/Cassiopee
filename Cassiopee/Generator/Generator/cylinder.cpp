@@ -37,9 +37,11 @@ PyObject* K_GENERATOR::cylinderMesh(PyObject* self, PyObject* args)
                     &xo, &yo, &zo, &R1, &R2, &tetas, &tetae, 
                     &H, &ni, &nj, &nk)) return NULL;
 
-  E_Float pi = 4*atan(1.);
-  E_Float t1 = tetas*pi/180.;
-  E_Float t2 = tetae*pi/180.;
+  // angles and trigonometry in double: exact closures (poles, seams, 360 deg)
+  // also in single precision; identical in double precision
+  double pi = 4*atan(1.);
+  double t1 = tetas*pi/180.;
+  double t2 = tetae*pi/180.;
   E_Float hk;
 
   // check ni, nj, nk
@@ -62,18 +64,18 @@ PyObject* K_GENERATOR::cylinderMesh(PyObject* self, PyObject* args)
   if (nk == 1) hk = 0.;
   else hk = H/(nk-1);
 
-  E_Float hR, delta;
+  E_Float hR; double delta;
   if (nj == 1) hR = 0.;
   else hR = (R2-R1)/(nj-1);
   if (ni == 1) delta = 0.;
   else delta =  1./(ni-1.);
-  E_Float dt2mt1 = delta* (t2-t1);
+  double dt2mt1 = delta* (t2-t1);
 
   // Create a portion of cylinder
   E_Int ninj = ni*nj;
   FldArrayF* coord = new FldArrayF(ninj*nk, 3);
 
-  E_Float alpha, calpha, salpha, coef;
+  double alpha, calpha, salpha; E_Float coef;
   E_Int ind;
   E_Float* xt = coord->begin(1);
   E_Float* yt = coord->begin(2);
@@ -145,9 +147,10 @@ PyObject* K_GENERATOR::cylinderMesh2(PyObject* self, PyObject* args)
   
   if (resR == 1 && resT == 1 && resZ == 1)
   {
-    E_Float pi = 4*atan(1.);
-    E_Float t1 = tetas*pi/180.;
-    E_Float t2 = tetae*pi/180.;
+    // angles and trigonometry in double (exact closures in single precision)
+    double pi = 4*atan(1.);
+    double t1 = tetas*pi/180.;
+    double t2 = tetae*pi/180.;
     E_Int ni = niT;
     E_Int nj = niR;
     E_Int nk = niZ;
@@ -184,10 +187,10 @@ PyObject* K_GENERATOR::cylinderMesh2(PyObject* self, PyObject* args)
     E_Int api = fR->getApi();
     FldArrayF* coord = new FldArrayF(ni*nj*nk, 3);
     
-    E_Float alpha, cosalpha, sinalpha;
+    double alpha, cosalpha, sinalpha;
     E_Int ind;
     E_Int ninj = ni*nj;
-    E_Float t2mt1 = t2-t1;
+    double t2mt1 = t2-t1;
     E_Float* xt = coord->begin(1);
     E_Float* yt = coord->begin(2);
     E_Float* zt = coord->begin(3);
@@ -289,10 +292,11 @@ PyObject* K_GENERATOR::cylinderMesh3( PyObject* self,
 
     E_Int ni, nj, nk;
     E_Int ind, indp;
-    E_Float alpha, cosalpha, sinalpha;
-    E_Float pi = 4*atan(1.);
-    E_Float t1 = tetas*pi/180.;
-    E_Float t2 = tetae*pi/180.;
+    double alpha, cosalpha, sinalpha;
+    // angles and trigonometry in double (exact closures in single precision)
+    double pi = 4*atan(1.);
+    double t1 = tetas*pi/180.;
+    double t2 = tetae*pi/180.;
     
     FldArrayF& dt = *ft;
     FldArrayF& dxz = *fxz;
@@ -318,7 +322,7 @@ PyObject* K_GENERATOR::cylinderMesh3( PyObject* self,
     // Create a portion of cylinder
     FldArrayF* coord = new FldArrayF(ni*nj*nk, 3);
     E_Int ninj = ni*nj;
-    E_Float t2mt1 = t2-t1;
+    double t2mt1 = t2-t1;
     E_Int api = fxz->getApi();
     E_Float* xt = coord->begin(1);
     E_Float* yt = coord->begin(2);

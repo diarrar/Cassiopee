@@ -4,8 +4,11 @@
 __version__ = "2026.11"
 
 from . import generator
+import KCore
+from KCore import realTol
 import numpy
 import Converter as C
+from Converter.Internal import E_NpyFloat
 
 from .TFIs import allTFI, TFI, TFITri, TFITri2, TFIO, TFIHalfO, TFIMono, TFIStar, TFIStar2
 
@@ -94,7 +97,7 @@ def cylinder3(arrayxz, tetas, tetae, arrayteta):
     Usage: cylinder3(arrayxz, tetas, tetae, arrayteta)"""
     return generator.cylinder3(arrayxz, tetas, tetae, arrayteta)
 
-def delaunay(array, tol=1.e-10, keepBB=0):
+def delaunay(array, tol=realTol(1.e-10), keepBB=0):
     """Create a delaunay mesh given a set of points defined by array.
     Usage: delaunay(array, tol, keepBB)"""
     array = close(array, tol=tol)
@@ -105,7 +108,7 @@ def checkDelaunay(contour, tri):
     Usage: checkDelaunay(contour, tri)"""
     return generator.checkDelaunay(contour, tri)
 
-def constrainedDelaunay(cont0, tol=1.e-10, keepBB=0):
+def constrainedDelaunay(cont0, tol=realTol(1.e-10), keepBB=0):
     """Create a constrained-Delaunay mesh starting from a BAR-array defining
     the contour.
     Usage: constrainedDelaunay(array, tol, keepBB)"""
@@ -129,8 +132,8 @@ def bbox(arrays):
     """Returns the bounding box of a list of arrays.
     Usage: bbox(arrays)"""
     import KCore
-    fmin = numpy.finfo(numpy.float64).min
-    fmax = numpy.finfo(numpy.float64).max
+    fmin = numpy.finfo(E_NpyFloat).min
+    fmax = numpy.finfo(E_NpyFloat).max
     if len(arrays) == 0:
         return [fmin, fmin, fmin, fmax, fmax, fmax]
     if not isinstance(arrays[0], list): ars = [arrays]
@@ -242,7 +245,7 @@ def barycenter(array, weight=None):
     else:
         return generator.barycenter(array, weight)
 
-def CEBBIntersection(array1, array2, tol=1.e-10):
+def CEBBIntersection(array1, array2, tol=realTol(1.e-10)):
     """Get the Cartesian Elements bounding box intersection of 2 arrays."""
     return generator.CEBBIntersection(array1, array2, tol)
 
@@ -730,7 +733,7 @@ def defineSizeMapForMMGs(array, hmax, sizeConstraints):
     ret = C.nearestNodes(hook, array)
     n = ret[0]; d = ret[1]
     pt = array[1]
-    alpha = numpy.empty(d.size, dtype=numpy.float64)
+    alpha = numpy.empty(d.size, dtype=E_NpyFloat)
     if isinstance(pt, list): alpha[:] = 0.3*d[:] / pt[pos,:]
     else: alpha[:] = 0.3*d[:] / pt[pos][:]
     alpha[:] = (alpha[:] > 1.)*1.+(alpha[:] <= 1.)*alpha[:]
@@ -820,7 +823,7 @@ def hyper2D4(array, arrayd, type):
     Usage: hyper2D4(array, arrayd, type)"""
     return generator.hyper2D4(array, arrayd, type)
 
-def close(array, arrayc=None, tol=1.e-12,
+def close(array, arrayc=None, tol=realTol(1.e-12),
           rmOverlappingPts=True, rmOrphanPts=True,
           rmDuplicatedFaces=True, rmDuplicatedElts=True,
           rmDegeneratedFaces=True, rmDegeneratedElts=True,
@@ -881,7 +884,7 @@ def rmOrphans(a, indices=None, status=None):
                  rmDegeneratedFaces=False, rmDegeneratedElts=False,
                  indices=indices, status=status)
 
-def zip(array, tol=1e-12):
+def zip(array, tol=realTol(1e-12)):
     """Zip a set of meshes defined by gathering exterior points closer than tol.
     Usage: zip(array, tol)"""
     if isinstance(array[0], list):
@@ -1414,7 +1417,7 @@ def mapSplitStruct__(array, dist, splitCrit, densMax):
         raise TypeError("mapSplit: coordinates not found in an distribution.")
     x = d[1][posx]; y = d[1][posy]; z = d[1][posz]
     nbpoints = len(x)
-    ld = numpy.zeros(nbpoints, dtype='float64'); ld[0] = 0.
+    ld = numpy.zeros(nbpoints, dtype=E_NpyFloat); ld[0] = 0.
 
     for i in range(1, nbpoints):
         dx = x[i]-x[i-1]; dy = y[i]-y[i-1]; dz = z[i]-z[i-1]
@@ -1446,7 +1449,7 @@ def mapSplitStruct__(array, dist, splitCrit, densMax):
     a = T.splitCurvatureRadius(a, splitCrit)
 
     # Build array with distance of each "split point"
-    L = numpy.zeros((len(a)), dtype=numpy.float64)
+    L = numpy.zeros((len(a)), dtype=E_NpyFloat)
     ltinv = 1./lt
     L[0] = D.getLength(a[0]) * ltinv
 
@@ -1956,8 +1959,8 @@ def _forceMatch2(a1, a2, P1, P2):
     # on garde ceux qui ont a peu pres la meme longeur
     # et un barycentre semblable
     n1 = len(ext1); n2 = len(ext2)
-    diff = numpy.empty(n1+n2, dtype=numpy.float64)
-    bary = numpy.empty(n1+n2, dtype=numpy.float64)
+    diff = numpy.empty(n1+n2, dtype=E_NpyFloat)
+    bary = numpy.empty(n1+n2, dtype=E_NpyFloat)
     for i, e1 in enumerate(ext1):
         di = Geom.getLength(e1)
         bi = barycenter(e1)

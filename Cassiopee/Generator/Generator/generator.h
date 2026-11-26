@@ -273,12 +273,12 @@ namespace K_GENERATOR
 
   /* Calcul des normales a une courbe */
   void normals(E_Int n, E_Float* x, E_Float* y, E_Float* z,
-               E_Float* nx, E_Float *ny, E_Float* nz);
+               double* nx, double *ny, double* nz);
 
   /* Calcul de la distance a une courbe sauf le point ind */
-  E_Float dist2Curve(E_Int n, E_Float* x, E_Float* y, E_Float* z, E_Int* found,
-                     E_Float px, E_Float py, E_Float pz, E_Int ind,
-                     E_Int& nearest);
+  double dist2Curve(E_Int n, E_Float* x, E_Float* y, E_Float* z, E_Int* found,
+                    double px, double py, double pz, E_Int ind,
+                    E_Int& nearest);
 
   E_Int getNeighbourElts(E_Int npts, E_Float* xt, E_Float* yt, E_Float* zt, 
                          FldArrayI& cEV, 

@@ -70,7 +70,7 @@ void quad_to_pyra(K_FLD::FloatArray& crd, K_FLD::IntArray& cnt, E_Float q)
   cnt.resize(5, cnt.cols());
   crd.resize(3, nb_pts + nb_q4);
   
-  E_Float G[3]/*iso_bar*/, n[3]/*normal*/;
+  nuga_real_t G[3]/*iso_bar*/, n[3]/*normal*/; // Nuga works in double
   
 #pragma omp parallel for private(G, n)
   for (E_Int i=0; i< nb_q4; ++i)

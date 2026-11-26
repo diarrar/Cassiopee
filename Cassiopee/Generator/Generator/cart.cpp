@@ -35,10 +35,13 @@ using namespace K_FUNC;
 PyObject* K_GENERATOR::cartStruct(PyObject* self, PyObject* args)
 {
   E_Int ni, nj, nk;
-  E_Float xo, yo, zo;
-  E_Float hi, hj, hk;
+  // origin and steps read and combined in double: in single precision the
+  // nodes are then the float rounding of the double precision nodes (with
+  // float steps, xo + i*hi drifts, -3 + 10*0.3 gives 1.2e-7 instead of 4e-16)
+  double xo, yo, zo;
+  double hi, hj, hk;
   E_Int api = 1;
-  if (!PYPARSETUPLE_(args, TRRR_ TRRR_ TIII_ I_, 
+  if (!PYPARSETUPLE_(args, "(ddd)" "(ddd)" TIII_ I_, 
                     &xo, &yo, &zo, &hi, &hj, &hk, &ni, &nj, &nk, &api))
   {
     return NULL;

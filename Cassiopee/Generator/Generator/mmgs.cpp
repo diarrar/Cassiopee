@@ -366,7 +366,7 @@ PyObject* K_GENERATOR::mmgs(PyObject* self, PyObject* args)
   E_Int* co3 = co->begin(3);
   stride = co->getStride();
 
-  E_Int ref; E_Float px,py,pz;
+  E_Int ref; double px,py,pz; // mmg works in double
   for (E_Int k=1; k <= npo; k++) 
   {
     MMGS_Get_vertex(mesh, &px, &py, &pz,
