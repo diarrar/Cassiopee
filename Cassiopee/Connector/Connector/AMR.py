@@ -19,7 +19,7 @@ from Converter.Internal import E_NpyInt as E_NpyInt
 from KCore import realTol
 from .QuadratureDG import *
 
-__TOL__ = 1e-9
+__TOL__ = realTol(1e-9) # geometric identification: loosened in single precision
 def outputTime(startTime, functionName='FunctionName'):
     endTime = time.perf_counter()
     elapsedTime = endTime-startTime
