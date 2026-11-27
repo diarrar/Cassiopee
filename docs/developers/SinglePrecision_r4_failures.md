@@ -13,6 +13,8 @@ Depuis le run du 18/11 (215 FAILED), 14 tests passent après correction : blankI
 
 Les 17 tests « suspects » et les 19 « seulement classés » du 18/11 ont tous été examinés : 14 sont corrigés (voir plus haut et SinglePrecision.md), les autres ont une cause établie ou sont reproduits par le r8 arrondi (le banc plantait sur la plupart d'entre eux à cause des lecteurs CGNS, corrigés). Les références r4 dédiées peuvent être générées pour les catégories vérifié, reproduit et dérive.
 
+**Mise à jour du 27/11.** Les trois tests `prepAMRFull_*` classés « reproduit » étaient en fait dus à une tolérance absolue de 1e-9 dans `Connector/AMR.py` (identification géométrique des faces de paroi IBM, qui en perdait quelques-unes en float) ; ils passent depuis le passage de cette tolérance par `realTol`. Pour les tests AMR, le banc r8 arrondi n'est pas discriminant : il change le maillage AMR lui-même, ce que le r4 ne fait pas. Après ce correctif, `prepareAMRDataPT_t1` et `prepareAMRDataPT_m1` ne diffèrent plus que par les points donneurs et de paroi (écart ≤ 8e-5, projection en float). Les deux tests ajoutés par `dev` (#867), `prepareAMRDataPT_t3` et `prepareAMRDataPT_m3`, échouent sur la distance à la paroi (L0 = 1,7e-5) et, pour `_t3`, sur le front des points donneurs (364 points au lieu de 362).
+
 La colonne « Écart » est le classement automatique de la sortie de validCassiopee ; « Comparaison géométrique » est le verdict du comparateur du 18/11, quand il a pu juger (les maillages structurés ne le sont pas).
 
 **Total : 201 échecs. vérifié 63, reproduit 94, dérive 28, environnement 16**
@@ -97,9 +99,9 @@ La colonne « Écart » est le classement automatique de la sortie de validCassi
 | Connector | maximizeBlankedCellsPT_t1.py | écart L0 2.0e+00 | structuré (non jugé) | échoue | le r8 avec données arrondies en float échoue aussi |
 | Connector | maximizeBlankedCells_t1.py | écart L0 2.0e+00 | structuré (non jugé) | échoue | le r8 avec données arrondies en float échoue aussi |
 | Connector | maximizeBlankedCells_t2.py | écart L0 2.0e+00 | structuré (non jugé) | échoue | le r8 avec données arrondies en float échoue aussi |
-| Connector | prepAMRFull_m1.py | plantage | MPI (non jugé) | échoue | le r8 avec données arrondies en float échoue aussi |
-| Connector | prepAMRFull_t1.py | taille différente | maillage différent | échoue | le r8 avec données arrondies en float échoue aussi |
-| Connector | prepAMRFull_t2.py | taille différente | maillage différent | échoue | le r8 avec données arrondies en float échoue aussi |
+| Connector | prepAMRFull_m1.py | plantage | MPI (non jugé) | échoue | **corrigé le 27/11** : tolérance de 1e-9 de `AMR.py` passée par `realTol` (voir plus haut) |
+| Connector | prepAMRFull_t1.py | taille différente | maillage différent | échoue | **corrigé le 27/11** : tolérance de 1e-9 de `AMR.py` passée par `realTol` (voir plus haut) |
+| Connector | prepAMRFull_t2.py | taille différente | maillage différent | échoue | **corrigé le 27/11** : tolérance de 1e-9 de `AMR.py` passée par `realTol` (voir plus haut) |
 | Connector | prepareAMRDataPT_m1.py | autre DIFF | MPI (non jugé) | échoue | le r8 avec données arrondies en float échoue aussi |
 | Connector | prepareIBMDataPT_t1.py | autre DIFF | maillage différent | échoue | le r8 avec données arrondies en float échoue aussi |
 | Connector | prepareIBMDataPT_t3.py | taille différente | structuré (non jugé) | échoue | le r8 avec données arrondies en float échoue aussi |

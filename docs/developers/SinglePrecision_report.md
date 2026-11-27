@@ -8,9 +8,9 @@
 
 - **Objectif** : pouvoir compiler tout Cassiopee avec `E_Float = float` (option `_r4` d'`ELSAPROD`), première étape d'un Fast en précision réduite.
 - **Résultat** :
-  - les 19 modules compilent et s'installent en r4 et en r8 avec gcc 13 (vérifié le 26/11/2026) ;
-  - en r8, la branche donne exactement les mêmes résultats que `dev` sur les 1429 tests qui passent sur `dev` ; les 11 autres échouent pour des raisons d'environnement, dans les deux cas ;
-  - en r4, 1232 à 1233 tests sur 1440 (85,6 %) passent contre les références r8, avec les tolérances r4 (1e-5), sur deux runs le 26/11 ;
+  - les 19 modules compilent et s'installent en r4 et en r8 avec gcc 13 (vérifié les 26 et 27/11/2026) ;
+  - en r8, la branche donne exactement les mêmes résultats que `dev` sur tous les tests qui passent sur `dev` (1435 sur 1446 au 27/11) ; les 11 autres échouent pour des raisons d'environnement, dans les deux cas ;
+  - en r4, 1232 à 1233 tests sur 1440 passent contre les références r8, avec les tolérances r4 (1e-5), sur deux runs le 26/11 ; au 27/11, 1237 sur 1446, puis 1240 (85,8 %) attendus après le correctif de tolérance AMR (§ 5.2) ;
   - 201 des 208 échecs sont ceux déjà analysés au 19/11 : 94 sont reproduits par le r8 sur des données arrondies en float (donc dus à la précision des données et non à un bug), les autres sont des dérives numériques faibles, des égalités dans les données de test ou des effets d'environnement. Les 7 nouveaux sont 6 tests AMR ajoutés depuis par `dev`, et `joinPT_t4`, qui a révélé un bug latent de `dev` (§ 5 et § 6).
 - **Effets de bord utiles** : une vingtaine de bugs présents aussi en double précision, trouvés grâce au r4, ont été corrigés et proposés à onera/Cassiopee (§ 8).
 - **Conclusion** : un r4 *global* est faisable, mais il ne répond pas au besoin réel de Fast (précision mixte, fp16, précision variable par zone) et impose un second produit à maintenir. Le travail est donc mis de côté au profit d'une **précision par tableau dans un seul build** (stratégie C, [`MixedPrecision_design.md`](MixedPrecision_design.md)). Une grande partie de ce qui a été fait ici y est réutilisable (§ 10).
@@ -40,6 +40,9 @@ La branche est construite sur `dev` (`9b1e420`, synchronisé avec onera/Cassiope
 | `r4: Geom…`, `r4: Transform…`, `r4: Generator…`, `r4: Post…`, `r4: Connector…`, `r4: Dist2Walls…`, `r4: XCore and Intersector…`, `r4: OpenCASCADE and CPlot…`, `r4: other modules…` | adaptations module par module |
 | `r4: tests independent of the compiled real precision` | 71 fichiers de test |
 | `docs: …` | `SinglePrecision.md`, `SinglePrecision_r4_failures.md` |
+| fusion de `dev` `d427d86` (27/11) | dont la refonte de `Connector/AMR.py` (#867) : les retouches r4 y sont réappliquées |
+| 5 correctifs repris de `codex/fp32-plot3d-mpi` (27/11) | `mapSplit` (dernier point de coupure ancré à la fin de la distribution), rayon du cercle circonscrit en double, points d'intersection X-Ray en double (deux surfaces proches et loin de l'origine ne sont plus fusionnées), tolérances distinctes sommet/rayon dans `blankCellsTri`, centroïde des triangles Nuga en double ; chacun avec son test |
+| `Connector/AMR: geometric identification tolerance through realTol` | tolérance de 1e-9 des identifications géométriques d'`AMR.py` passée par `realTol` |
 
 Rien n'est perdu par rapport à la branche d'origine (`claude/optimistic-maxwell-xwotl2`, conservée telle quelle) : l'arbre final est identique à celui d'une fusion de cette branche dans la base, une fois retiré ce qui est déjà dans `dev` ou dans les PR.
 
@@ -80,6 +83,18 @@ Par rapport au 19/11 (1227 OK, 201 échecs, sur 1428 tests), la base a gagné 12
 | `dev` r8 (`922ccdf`) | 1429 | 11 | les 11 échecs d'environnement ; pas de TIMEOUT cette fois |
 | branche r8 (`fa93ce3`) | 1429 | 11 | **mêmes échecs que `dev`, aucune différence** |
 | branche r4 (`fa93ce3`) | 1233 | 207 | les mêmes échecs qu'au premier run, sauf `joinPT_t4`, qui passe cette fois : c'est attendu pour un échec dû à de la mémoire non initialisée (voir § 6) |
+
+**Troisième run, 27/11, après fusion de `dev` `d427d86`** (dont #882 et la refonte AMR #867) et reprise des 5 correctifs de `codex/fp32-plot3d-mpi` (branche `b0d798c`). Références régénérées par `dev` ; la base compte 1446 tests.
+
+| Configuration | OK | Échecs | Remarques |
+|---|---|---|---|
+| `dev` r8 (`d427d86`) | 1432 | 11 + 1 TIMEOUT | les 11 échecs d'environnement ; de nouveau le blocage ponctuel d'`adaptMeshPT_m1` |
+| branche r8 (`b0d798c`) | 1435 | 11 | **mêmes échecs que `dev`, aucune différence** |
+| branche r4 (`b0d798c`) | 1237 | 209 | les 207 du deuxième run, plus les 2 tests AMR ajoutés par `dev` (`prepareAMRDataPT_t3`, `_m3`) |
+
+Les nouveaux tests des correctifs repris (`maskXRayThin_t1`, `blankCellsTriTolerance_t1`, et les assertions ajoutées à `getCircumCircleMap_t1` et `mapSplitPT_t1`) passent en r4 et en r8 ; ils échouaient tous en r4 avant reprise. Les tests X-Ray déjà en échec (`maskXRay_t1`, `maskXRayPT_t1`, `blankCells_t2`, rayon tangent au cercle) gardent le même écart.
+
+En analysant `prepareAMRDataPT_m3`, il est apparu qu'en r4, l'identification géométrique des faces de paroi IBM (tolérance absolue de 1e-9 dans `AMR.py`) en perdait 7 sur 96. Avec cette tolérance passée par `realTol` (commit suivant `b0d798c`, sans effet en r8), les 9 tests qui utilisent `Connector.AMR` ont été relancés en r4 et en r8 : en r8, aucun changement ; en r4, `prepAMRFull_m1`, `_t1` et `_t2` passent (ils étaient classés « reproduit » à tort), et `prepareAMRDataPT_m3` ne diffère plus que par la distance à la paroi (L0 = 1,7e-5). Le nombre d'échecs r4 attendu est donc de 206.
 
 ### 5.3 Validation à faire
 
@@ -138,6 +153,8 @@ Les familles d'écarts « par construction » sont celles où le résultat dépe
 | `joinAll` (Transform) : points des zones multi-éléments comptés une fois par connectivité, moitié du tableau de sortie non initialisée | correctif prêt (§ 6), PR à ouvrir |
 | `FldArray<int>::releaseMemory` lit un membre non initialisé sur les `FldArrayI` multi-éléments de `getFromArray3` (valgrind) | à examiner |
 | `KCore.test.checkObject_` plante sur des listes de longueurs différentes | à corriger dans l'outillage de test |
+| `Converter.Mpi4py.bcastZone` : avec des variables aux centres puis aux nœuds, les rangs non racines plantent (conteneur aux nœuds jamais créé) ; trouvé dans `codex/fp32-plot3d-mpi`, reproduit sur `dev` | PR à ouvrir (correctif court) |
+| `mapSplit` : la somme des longueurs normalisées peut dépasser 1 d'un arrondi, et `getDistantIndex` échoue | repris dans cette branche (fréquent en r4, possible en r8) |
 | Restent à traiter : lecteur VTK legacy (ASCII, POLYDATA binaire, `FIELD`), compresseurs sz/fpc/cellN, `Gmsh.py` en i8, `spline`, `Internal.isValue` ; à discuter : garde-fous de dtype dans KCore, graine du masque X-Ray, `extractPlane` sur une surface | voir `point_extraction_r8.md` (branche `claude/zen-brown-uv22o1`) |
 
 ## 9. Bilan et leçons
