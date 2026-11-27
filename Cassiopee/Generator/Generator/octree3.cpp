@@ -187,7 +187,7 @@ PyObject* octree3(PyObject* self, PyObject* args)
   for (int i = 0; i < nzones; i++)
   {
     tpl = PyList_GetItem(listOfSnears, i);
-    if (PyFloat_Check(tpl) == 0 && PyInt_Check(tpl) == 0)
+    if (K_PYFLOAT_CHECK(tpl) == 0 && PyInt_Check(tpl) == 0)
     {
       for (size_t v = 0; v < structF.size(); v++) RELEASESHAREDS(objst[v], structF[v]);
       for (size_t v = 0; v < unstrF.size(); v++) RELEASESHAREDU(objut[v], unstrF[v], cnt[v]);              

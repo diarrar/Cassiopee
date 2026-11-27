@@ -78,7 +78,7 @@ PyObject* K_CONNECTOR::getIBMPtsWithFront(PyObject* self, PyObject* args)
     for (int i = 0; i < nsnears; i++)
     {
         tpl0 = PyList_GetItem(ListOfSnearsLoc, i);
-        if (PyFloat_Check(tpl0) == 0)
+        if (K_PYFLOAT_CHECK(tpl0) == 0)
         {
             PyErr_SetString(PyExc_TypeError, 
                             "getIBMPtsWithFront: not a valid value for snear.");
@@ -100,7 +100,7 @@ PyObject* K_CONNECTOR::getIBMPtsWithFront(PyObject* self, PyObject* args)
     for (int i = 0; i < nsnears; i++)
     {
         tpl0 = PyList_GetItem(ListOfModelisationHeightsLoc, i);
-        if (PyFloat_Check(tpl0) == 0)
+        if (K_PYFLOAT_CHECK(tpl0) == 0)
         {
             PyErr_SetString(PyExc_TypeError, 
                             "getIBMPtsWithFront: not a valid value for modelisation height.");

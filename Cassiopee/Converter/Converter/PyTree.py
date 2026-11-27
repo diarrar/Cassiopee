@@ -537,7 +537,7 @@ def setValue(t, var, ind, val):
     else: loc = '*'; var = u[0]
 
     c = 0
-    if isinstance(val, float): val = [val]
+    if isinstance(val, (float, numpy.floating)): val = [val]
     elif isinstance(val, int): val=[float(val)]
 
     # dim
